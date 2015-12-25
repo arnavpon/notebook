@@ -1,0 +1,780 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6791C2D93BA0019D315 /* AppDelegate.swift */; };
+		B13CF67C1C2D93BA0019D315 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF67B1C2D93BA0019D315 /* ViewController.swift */; };
+		B13CF67F1C2D93BA0019D315 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B13CF67D1C2D93BA0019D315 /* Main.storyboard */; };
+		B13CF6811C2D93BA0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6801C2D93BA0019D315 /* Assets.xcassets */; };
+		B13CF6841C2D93BA0019D315 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6821C2D93BA0019D315 /* LaunchScreen.storyboard */; };
+		B13CF68F1C2D93BA0019D315 /* Biometric_NotebookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF68E1C2D93BA0019D315 /* Biometric_NotebookTests.swift */; };
+		B13CF69A1C2D93BA0019D315 /* Biometric_NotebookUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6991C2D93BA0019D315 /* Biometric_NotebookUITests.swift */; };
+		B13CF69F1C2D93BA0019D315 /* Biometric Notebook WatchKit App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = B13CF69E1C2D93BA0019D315 /* Biometric Notebook WatchKit App.app */; };
+		B13CF6A51C2D93BA0019D315 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6A31C2D93BA0019D315 /* Interface.storyboard */; };
+		B13CF6A71C2D93BA0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6A61C2D93BA0019D315 /* Assets.xcassets */; };
+		B13CF6AE1C2D93BA0019D315 /* Biometric Notebook WatchKit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = B13CF6AD1C2D93BA0019D315 /* Biometric Notebook WatchKit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B13CF6B51C2D93BA0019D315 /* InterfaceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6B41C2D93BA0019D315 /* InterfaceController.swift */; };
+		B13CF6B71C2D93BB0019D315 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6B61C2D93BB0019D315 /* ExtensionDelegate.swift */; };
+		B13CF6B91C2D93BB0019D315 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6B81C2D93BB0019D315 /* NotificationController.swift */; };
+		B13CF6BB1C2D93BB0019D315 /* GlanceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BA1C2D93BB0019D315 /* GlanceController.swift */; };
+		B13CF6BD1C2D93BB0019D315 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */; };
+		B13CF6BF1C2D93BB0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B13CF68B1C2D93BA0019D315 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B13CF66E1C2D93B90019D315 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B13CF6751C2D93B90019D315;
+			remoteInfo = "Biometric Notebook";
+		};
+		B13CF6961C2D93BA0019D315 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B13CF66E1C2D93B90019D315 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B13CF6751C2D93B90019D315;
+			remoteInfo = "Biometric Notebook";
+		};
+		B13CF6A01C2D93BA0019D315 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B13CF66E1C2D93B90019D315 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B13CF69D1C2D93BA0019D315;
+			remoteInfo = "Biometric Notebook WatchKit App";
+		};
+		B13CF6AF1C2D93BA0019D315 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B13CF66E1C2D93B90019D315 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B13CF6AC1C2D93BA0019D315;
+			remoteInfo = "Biometric Notebook WatchKit Extension";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B13CF6C61C2D93BB0019D315 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B13CF6AE1C2D93BA0019D315 /* Biometric Notebook WatchKit Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B13CF6CA1C2D93BB0019D315 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				B13CF69F1C2D93BA0019D315 /* Biometric Notebook WatchKit App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		B13CF6761C2D93BA0019D315 /* Biometric Notebook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Biometric Notebook.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B13CF6791C2D93BA0019D315 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B13CF67B1C2D93BA0019D315 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		B13CF67E1C2D93BA0019D315 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		B13CF6801C2D93BA0019D315 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B13CF6831C2D93BA0019D315 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B13CF6851C2D93BA0019D315 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B13CF68A1C2D93BA0019D315 /* Biometric NotebookTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Biometric NotebookTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B13CF68E1C2D93BA0019D315 /* Biometric_NotebookTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Biometric_NotebookTests.swift; sourceTree = "<group>"; };
+		B13CF6901C2D93BA0019D315 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B13CF6951C2D93BA0019D315 /* Biometric NotebookUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Biometric NotebookUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B13CF6991C2D93BA0019D315 /* Biometric_NotebookUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Biometric_NotebookUITests.swift; sourceTree = "<group>"; };
+		B13CF69B1C2D93BA0019D315 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B13CF69E1C2D93BA0019D315 /* Biometric Notebook WatchKit App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Biometric Notebook WatchKit App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B13CF6A41C2D93BA0019D315 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Interface.storyboard; sourceTree = "<group>"; };
+		B13CF6A61C2D93BA0019D315 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B13CF6A81C2D93BA0019D315 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B13CF6AD1C2D93BA0019D315 /* Biometric Notebook WatchKit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Biometric Notebook WatchKit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B13CF6B31C2D93BA0019D315 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
+		B13CF6B41C2D93BA0019D315 /* InterfaceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceController.swift; sourceTree = "<group>"; };
+		B13CF6B61C2D93BB0019D315 /* ExtensionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionDelegate.swift; sourceTree = "<group>"; };
+		B13CF6B81C2D93BB0019D315 /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
+		B13CF6BA1C2D93BB0019D315 /* GlanceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlanceController.swift; sourceTree = "<group>"; };
+		B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
+		B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B13CF6C01C2D93BB0019D315 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B13CF6731C2D93B90019D315 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B13CF6871C2D93BA0019D315 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B13CF6921C2D93BA0019D315 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B13CF6AA1C2D93BA0019D315 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B13CF66D1C2D93B90019D315 = {
+			isa = PBXGroup;
+			children = (
+				B13CF6781C2D93BA0019D315 /* Biometric Notebook */,
+				B13CF68D1C2D93BA0019D315 /* Biometric NotebookTests */,
+				B13CF6981C2D93BA0019D315 /* Biometric NotebookUITests */,
+				B13CF6A21C2D93BA0019D315 /* Biometric Notebook WatchKit App */,
+				B13CF6B11C2D93BA0019D315 /* Biometric Notebook WatchKit Extension */,
+				B13CF6771C2D93BA0019D315 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B13CF6771C2D93BA0019D315 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B13CF6761C2D93BA0019D315 /* Biometric Notebook.app */,
+				B13CF68A1C2D93BA0019D315 /* Biometric NotebookTests.xctest */,
+				B13CF6951C2D93BA0019D315 /* Biometric NotebookUITests.xctest */,
+				B13CF69E1C2D93BA0019D315 /* Biometric Notebook WatchKit App.app */,
+				B13CF6AD1C2D93BA0019D315 /* Biometric Notebook WatchKit Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B13CF6781C2D93BA0019D315 /* Biometric Notebook */ = {
+			isa = PBXGroup;
+			children = (
+				B13CF6791C2D93BA0019D315 /* AppDelegate.swift */,
+				B13CF67B1C2D93BA0019D315 /* ViewController.swift */,
+				B13CF67D1C2D93BA0019D315 /* Main.storyboard */,
+				B13CF6801C2D93BA0019D315 /* Assets.xcassets */,
+				B13CF6821C2D93BA0019D315 /* LaunchScreen.storyboard */,
+				B13CF6851C2D93BA0019D315 /* Info.plist */,
+			);
+			path = "Biometric Notebook";
+			sourceTree = "<group>";
+		};
+		B13CF68D1C2D93BA0019D315 /* Biometric NotebookTests */ = {
+			isa = PBXGroup;
+			children = (
+				B13CF68E1C2D93BA0019D315 /* Biometric_NotebookTests.swift */,
+				B13CF6901C2D93BA0019D315 /* Info.plist */,
+			);
+			path = "Biometric NotebookTests";
+			sourceTree = "<group>";
+		};
+		B13CF6981C2D93BA0019D315 /* Biometric NotebookUITests */ = {
+			isa = PBXGroup;
+			children = (
+				B13CF6991C2D93BA0019D315 /* Biometric_NotebookUITests.swift */,
+				B13CF69B1C2D93BA0019D315 /* Info.plist */,
+			);
+			path = "Biometric NotebookUITests";
+			sourceTree = "<group>";
+		};
+		B13CF6A21C2D93BA0019D315 /* Biometric Notebook WatchKit App */ = {
+			isa = PBXGroup;
+			children = (
+				B13CF6A31C2D93BA0019D315 /* Interface.storyboard */,
+				B13CF6A61C2D93BA0019D315 /* Assets.xcassets */,
+				B13CF6A81C2D93BA0019D315 /* Info.plist */,
+			);
+			path = "Biometric Notebook WatchKit App";
+			sourceTree = "<group>";
+		};
+		B13CF6B11C2D93BA0019D315 /* Biometric Notebook WatchKit Extension */ = {
+			isa = PBXGroup;
+			children = (
+				B13CF6B41C2D93BA0019D315 /* InterfaceController.swift */,
+				B13CF6B61C2D93BB0019D315 /* ExtensionDelegate.swift */,
+				B13CF6B81C2D93BB0019D315 /* NotificationController.swift */,
+				B13CF6BA1C2D93BB0019D315 /* GlanceController.swift */,
+				B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */,
+				B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */,
+				B13CF6C01C2D93BB0019D315 /* Info.plist */,
+				B13CF6B21C2D93BA0019D315 /* Supporting Files */,
+			);
+			path = "Biometric Notebook WatchKit Extension";
+			sourceTree = "<group>";
+		};
+		B13CF6B21C2D93BA0019D315 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				B13CF6B31C2D93BA0019D315 /* PushNotificationPayload.apns */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B13CF6751C2D93B90019D315 /* Biometric Notebook */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B13CF6CB1C2D93BB0019D315 /* Build configuration list for PBXNativeTarget "Biometric Notebook" */;
+			buildPhases = (
+				B13CF6721C2D93B90019D315 /* Sources */,
+				B13CF6731C2D93B90019D315 /* Frameworks */,
+				B13CF6741C2D93B90019D315 /* Resources */,
+				B13CF6CA1C2D93BB0019D315 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B13CF6A11C2D93BA0019D315 /* PBXTargetDependency */,
+			);
+			name = "Biometric Notebook";
+			productName = "Biometric Notebook";
+			productReference = B13CF6761C2D93BA0019D315 /* Biometric Notebook.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B13CF6891C2D93BA0019D315 /* Biometric NotebookTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B13CF6CE1C2D93BB0019D315 /* Build configuration list for PBXNativeTarget "Biometric NotebookTests" */;
+			buildPhases = (
+				B13CF6861C2D93BA0019D315 /* Sources */,
+				B13CF6871C2D93BA0019D315 /* Frameworks */,
+				B13CF6881C2D93BA0019D315 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B13CF68C1C2D93BA0019D315 /* PBXTargetDependency */,
+			);
+			name = "Biometric NotebookTests";
+			productName = "Biometric NotebookTests";
+			productReference = B13CF68A1C2D93BA0019D315 /* Biometric NotebookTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B13CF6941C2D93BA0019D315 /* Biometric NotebookUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B13CF6D11C2D93BB0019D315 /* Build configuration list for PBXNativeTarget "Biometric NotebookUITests" */;
+			buildPhases = (
+				B13CF6911C2D93BA0019D315 /* Sources */,
+				B13CF6921C2D93BA0019D315 /* Frameworks */,
+				B13CF6931C2D93BA0019D315 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B13CF6971C2D93BA0019D315 /* PBXTargetDependency */,
+			);
+			name = "Biometric NotebookUITests";
+			productName = "Biometric NotebookUITests";
+			productReference = B13CF6951C2D93BA0019D315 /* Biometric NotebookUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		B13CF69D1C2D93BA0019D315 /* Biometric Notebook WatchKit App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B13CF6C71C2D93BB0019D315 /* Build configuration list for PBXNativeTarget "Biometric Notebook WatchKit App" */;
+			buildPhases = (
+				B13CF69C1C2D93BA0019D315 /* Resources */,
+				B13CF6C61C2D93BB0019D315 /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B13CF6B01C2D93BA0019D315 /* PBXTargetDependency */,
+			);
+			name = "Biometric Notebook WatchKit App";
+			productName = "Biometric Notebook WatchKit App";
+			productReference = B13CF69E1C2D93BA0019D315 /* Biometric Notebook WatchKit App.app */;
+			productType = "com.apple.product-type.application.watchapp2";
+		};
+		B13CF6AC1C2D93BA0019D315 /* Biometric Notebook WatchKit Extension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B13CF6C31C2D93BB0019D315 /* Build configuration list for PBXNativeTarget "Biometric Notebook WatchKit Extension" */;
+			buildPhases = (
+				B13CF6A91C2D93BA0019D315 /* Sources */,
+				B13CF6AA1C2D93BA0019D315 /* Frameworks */,
+				B13CF6AB1C2D93BA0019D315 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Biometric Notebook WatchKit Extension";
+			productName = "Biometric Notebook WatchKit Extension";
+			productReference = B13CF6AD1C2D93BA0019D315 /* Biometric Notebook WatchKit Extension.appex */;
+			productType = "com.apple.product-type.watchkit2-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B13CF66E1C2D93B90019D315 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0710;
+				LastUpgradeCheck = 0710;
+				ORGANIZATIONNAME = "Confluent Ideals";
+				TargetAttributes = {
+					B13CF6751C2D93B90019D315 = {
+						CreatedOnToolsVersion = 7.1.1;
+					};
+					B13CF6891C2D93BA0019D315 = {
+						CreatedOnToolsVersion = 7.1.1;
+						TestTargetID = B13CF6751C2D93B90019D315;
+					};
+					B13CF6941C2D93BA0019D315 = {
+						CreatedOnToolsVersion = 7.1.1;
+						TestTargetID = B13CF6751C2D93B90019D315;
+					};
+					B13CF69D1C2D93BA0019D315 = {
+						CreatedOnToolsVersion = 7.1.1;
+					};
+					B13CF6AC1C2D93BA0019D315 = {
+						CreatedOnToolsVersion = 7.1.1;
+					};
+				};
+			};
+			buildConfigurationList = B13CF6711C2D93B90019D315 /* Build configuration list for PBXProject "Biometric Notebook" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B13CF66D1C2D93B90019D315;
+			productRefGroup = B13CF6771C2D93BA0019D315 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B13CF6751C2D93B90019D315 /* Biometric Notebook */,
+				B13CF6891C2D93BA0019D315 /* Biometric NotebookTests */,
+				B13CF6941C2D93BA0019D315 /* Biometric NotebookUITests */,
+				B13CF69D1C2D93BA0019D315 /* Biometric Notebook WatchKit App */,
+				B13CF6AC1C2D93BA0019D315 /* Biometric Notebook WatchKit Extension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B13CF6741C2D93B90019D315 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B13CF6841C2D93BA0019D315 /* LaunchScreen.storyboard in Resources */,
+				B13CF6811C2D93BA0019D315 /* Assets.xcassets in Resources */,
+				B13CF67F1C2D93BA0019D315 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B13CF6881C2D93BA0019D315 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B13CF6931C2D93BA0019D315 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B13CF69C1C2D93BA0019D315 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B13CF6A71C2D93BA0019D315 /* Assets.xcassets in Resources */,
+				B13CF6A51C2D93BA0019D315 /* Interface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B13CF6AB1C2D93BA0019D315 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B13CF6BF1C2D93BB0019D315 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B13CF6721C2D93B90019D315 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B13CF67C1C2D93BA0019D315 /* ViewController.swift in Sources */,
+				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B13CF6861C2D93BA0019D315 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B13CF68F1C2D93BA0019D315 /* Biometric_NotebookTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B13CF6911C2D93BA0019D315 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B13CF69A1C2D93BA0019D315 /* Biometric_NotebookUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B13CF6A91C2D93BA0019D315 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B13CF6B91C2D93BB0019D315 /* NotificationController.swift in Sources */,
+				B13CF6B71C2D93BB0019D315 /* ExtensionDelegate.swift in Sources */,
+				B13CF6BD1C2D93BB0019D315 /* ComplicationController.swift in Sources */,
+				B13CF6B51C2D93BA0019D315 /* InterfaceController.swift in Sources */,
+				B13CF6BB1C2D93BB0019D315 /* GlanceController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B13CF68C1C2D93BA0019D315 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B13CF6751C2D93B90019D315 /* Biometric Notebook */;
+			targetProxy = B13CF68B1C2D93BA0019D315 /* PBXContainerItemProxy */;
+		};
+		B13CF6971C2D93BA0019D315 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B13CF6751C2D93B90019D315 /* Biometric Notebook */;
+			targetProxy = B13CF6961C2D93BA0019D315 /* PBXContainerItemProxy */;
+		};
+		B13CF6A11C2D93BA0019D315 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B13CF69D1C2D93BA0019D315 /* Biometric Notebook WatchKit App */;
+			targetProxy = B13CF6A01C2D93BA0019D315 /* PBXContainerItemProxy */;
+		};
+		B13CF6B01C2D93BA0019D315 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B13CF6AC1C2D93BA0019D315 /* Biometric Notebook WatchKit Extension */;
+			targetProxy = B13CF6AF1C2D93BA0019D315 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		B13CF67D1C2D93BA0019D315 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B13CF67E1C2D93BA0019D315 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		B13CF6821C2D93BA0019D315 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B13CF6831C2D93BA0019D315 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		B13CF6A31C2D93BA0019D315 /* Interface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B13CF6A41C2D93BA0019D315 /* Base */,
+			);
+			name = Interface.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		B13CF6C11C2D93BB0019D315 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B13CF6C21C2D93BB0019D315 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B13CF6C41C2D93BB0019D315 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				INFOPLIST_FILE = "Biometric Notebook WatchKit Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.confluentideals.Biometric-Notebook.watchkitapp.watchkitextension";
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Debug;
+		};
+		B13CF6C51C2D93BB0019D315 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
+				INFOPLIST_FILE = "Biometric Notebook WatchKit Extension/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.confluentideals.Biometric-Notebook.watchkitapp.watchkitextension";
+				PRODUCT_NAME = "${TARGET_NAME}";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Release;
+		};
+		B13CF6C81C2D93BB0019D315 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				IBSC_MODULE = Biometric_Notebook_WatchKit_Extension;
+				INFOPLIST_FILE = "Biometric Notebook WatchKit App/Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.confluentideals.Biometric-Notebook.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Debug;
+		};
+		B13CF6C91C2D93BB0019D315 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				IBSC_MODULE = Biometric_Notebook_WatchKit_Extension;
+				INFOPLIST_FILE = "Biometric Notebook WatchKit App/Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.confluentideals.Biometric-Notebook.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 2.0;
+			};
+			name = Release;
+		};
+		B13CF6CC1C2D93BB0019D315 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = "Biometric Notebook/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.confluentideals.Biometric-Notebook";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		B13CF6CD1C2D93BB0019D315 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = "Biometric Notebook/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.confluentideals.Biometric-Notebook";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		B13CF6CF1C2D93BB0019D315 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = "Biometric NotebookTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.confluentideals.Biometric-NotebookTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Biometric Notebook.app/Biometric Notebook";
+			};
+			name = Debug;
+		};
+		B13CF6D01C2D93BB0019D315 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				INFOPLIST_FILE = "Biometric NotebookTests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.confluentideals.Biometric-NotebookTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Biometric Notebook.app/Biometric Notebook";
+			};
+			name = Release;
+		};
+		B13CF6D21C2D93BB0019D315 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "Biometric NotebookUITests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.confluentideals.Biometric-NotebookUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = "Biometric Notebook";
+				USES_XCTRUNNER = YES;
+			};
+			name = Debug;
+		};
+		B13CF6D31C2D93BB0019D315 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				INFOPLIST_FILE = "Biometric NotebookUITests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.confluentideals.Biometric-NotebookUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_TARGET_NAME = "Biometric Notebook";
+				USES_XCTRUNNER = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B13CF6711C2D93B90019D315 /* Build configuration list for PBXProject "Biometric Notebook" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B13CF6C11C2D93BB0019D315 /* Debug */,
+				B13CF6C21C2D93BB0019D315 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B13CF6C31C2D93BB0019D315 /* Build configuration list for PBXNativeTarget "Biometric Notebook WatchKit Extension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B13CF6C41C2D93BB0019D315 /* Debug */,
+				B13CF6C51C2D93BB0019D315 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		B13CF6C71C2D93BB0019D315 /* Build configuration list for PBXNativeTarget "Biometric Notebook WatchKit App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B13CF6C81C2D93BB0019D315 /* Debug */,
+				B13CF6C91C2D93BB0019D315 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		B13CF6CB1C2D93BB0019D315 /* Build configuration list for PBXNativeTarget "Biometric Notebook" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B13CF6CC1C2D93BB0019D315 /* Debug */,
+				B13CF6CD1C2D93BB0019D315 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		B13CF6CE1C2D93BB0019D315 /* Build configuration list for PBXNativeTarget "Biometric NotebookTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B13CF6CF1C2D93BB0019D315 /* Debug */,
+				B13CF6D01C2D93BB0019D315 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		B13CF6D11C2D93BB0019D315 /* Build configuration list for PBXNativeTarget "Biometric NotebookUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B13CF6D21C2D93BB0019D315 /* Debug */,
+				B13CF6D31C2D93BB0019D315 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B13CF66E1C2D93B90019D315 /* Project object */;
+}
