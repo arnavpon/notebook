@@ -1,10 +1,7 @@
-//
 //  ExtensionDelegate.swift
 //  Biometric Notebook WatchKit Extension
-//
 //  Created by Arnav Pondicherry  on 12/25/15.
 //  Copyright © 2015 Confluent Ideals. All rights reserved.
-//
 
 import WatchKit
 
