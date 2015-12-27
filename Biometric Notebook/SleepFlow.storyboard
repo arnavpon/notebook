@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9060" systemVersion="15C50" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="kYO-8Z-2XA">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9051"/>
+    </dependencies>
+    <scenes>
+        <!--Sleep Flow First View Controller-->
+        <scene sceneID="M4h-qB-3YD">
+            <objects>
+                <viewController id="j6u-zY-u2z" customClass="SleepFlowFirstViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="pY5-R7-tev"/>
+                        <viewControllerLayoutGuide type="bottom" id="Hbe-kD-GZb"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="xB1-2Y-HBM">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="wordWrap" translatesAutoresizingMaskIntoConstraints="NO" id="TIv-14-bha">
+                                <rect key="frame" x="243" y="246" width="114" height="107"/>
+                                <animations/>
+                                <color key="backgroundColor" red="0.7859059343" green="0.7859059343" blue="0.7859059343" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="114" id="QY2-eF-3Eg"/>
+                                    <constraint firstAttribute="height" constant="107" id="XWi-Rj-6G0"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="KannadaSangamMN-Bold" family="Kannada Sangam MN" pointSize="19"/>
+                                <state key="normal" title="I'm going to sleep now!">
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="sleepOrWakeTimeButtonClick:" destination="j6u-zY-u2z" eventType="touchUpInside" id="Kkf-1j-sUu"/>
+                                    <segue destination="jfl-t2-3yx" kind="show" id="8sY-0r-ZhN"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <animations/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="TIv-14-bha" firstAttribute="centerY" secondItem="xB1-2Y-HBM" secondAttribute="centerY" id="Laf-EL-krd"/>
+                            <constraint firstItem="TIv-14-bha" firstAttribute="centerX" secondItem="xB1-2Y-HBM" secondAttribute="centerX" id="eAf-Cg-7gN"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="p2J-dL-9Zu">
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="eXh-DO-oLH">
+                            <connections>
+                                <action selector="cancelButtonClick:" destination="j6u-zY-u2z" id="yd0-4V-FDp"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="sleepOrWakeTimeButton" destination="TIv-14-bha" id="sgn-JI-g4h"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="OTU-6P-zWY" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="982" y="273"/>
+        </scene>
+        <!--Select Options-->
+        <scene sceneID="QAa-oY-Z3d">
+            <objects>
+                <tableViewController id="jfl-t2-3yx" customClass="SleepTableViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="xFY-4u-gPI">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="556"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <animations/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="cell" id="iBv-Nc-q4P">
+                                <rect key="frame" x="0.0" y="92" width="600" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="iBv-Nc-q4P" id="eEJ-In-sm1">
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
+                                </tableViewCellContentView>
+                                <animations/>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="jfl-t2-3yx" id="sFT-NJ-8xx"/>
+                            <outlet property="delegate" destination="jfl-t2-3yx" id="qaJ-FV-82F"/>
+                        </connections>
+                    </tableView>
+                    <toolbarItems>
+                        <barButtonItem systemItem="undo" id="xq2-Sk-kQ6">
+                            <connections>
+                                <action selector="undoButtonClick:" destination="jfl-t2-3yx" id="wjy-CN-AMs"/>
+                            </connections>
+                        </barButtonItem>
+                    </toolbarItems>
+                    <navigationItem key="navigationItem" title="Select Options" id="kEL-ve-lO7">
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="XME-a4-Edj">
+                            <connections>
+                                <action selector="cancelButtonClick:" destination="jfl-t2-3yx" id="AYt-Z6-9Bi"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="save" id="q8i-KE-rIL">
+                            <connections>
+                                <action selector="saveButtonClick:" destination="jfl-t2-3yx" id="JIf-24-Vvg"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics" translucent="NO"/>
+                    <connections>
+                        <outlet property="saveButton" destination="q8i-KE-rIL" id="mzP-tp-YkX"/>
+                        <outlet property="undoButton" destination="xq2-Sk-kQ6" id="NQJ-uS-E7Z"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iAE-70-pKh" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1692" y="273"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="ZxM-Jc-ion">
+            <objects>
+                <navigationController storyboardIdentifier="sleep_navcontroller" automaticallyAdjustsScrollViewInsets="NO" id="kYO-8Z-2XA" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="1QW-AF-uRc">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="j6u-zY-u2z" kind="relationship" relationship="rootViewController" id="FcO-26-xxl"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Dqz-Q7-8Yk" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="170" y="273"/>
+        </scene>
+    </scenes>
+</document>

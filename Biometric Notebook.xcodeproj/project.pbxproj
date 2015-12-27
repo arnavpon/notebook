@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1246CBB1C2F60B8004BFA5C /* HomeScreenViewController.swift */; };
 		B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6791C2D93BA0019D315 /* AppDelegate.swift */; };
 		B13CF67F1C2D93BA0019D315 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B13CF67D1C2D93BA0019D315 /* Main.storyboard */; };
 		B13CF6811C2D93BA0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6801C2D93BA0019D315 /* Assets.xcassets */; };
@@ -23,7 +24,10 @@
 		B13CF6BB1C2D93BB0019D315 /* GlanceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BA1C2D93BB0019D315 /* GlanceController.swift */; };
 		B13CF6BD1C2D93BB0019D315 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */; };
 		B13CF6BF1C2D93BB0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */; };
-		B13CF6DB1C2D96450019D315 /* HomeScreenTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6DA1C2D96450019D315 /* HomeScreenTableViewController.swift */; };
+		B1B1AC541C2EEC8E00FB254E /* SleepFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1B1AC531C2EEC8E00FB254E /* SleepFlow.storyboard */; };
+		B1B1AC561C2EF21800FB254E /* SleepFlowFirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B1AC551C2EF21800FB254E /* SleepFlowFirstViewController.swift */; };
+		B1B1AC581C2EF2EC00FB254E /* SleepTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B1AC571C2EF2EC00FB254E /* SleepTableViewController.swift */; };
+		B1D555871C30739C00C20742 /* DateTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555861C30739C00C20742 /* DateTime.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,6 +87,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B1246CBB1C2F60B8004BFA5C /* HomeScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeScreenViewController.swift; sourceTree = "<group>"; };
 		B13CF6761C2D93BA0019D315 /* Biometric Notebook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Biometric Notebook.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B13CF6791C2D93BA0019D315 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B13CF67E1C2D93BA0019D315 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -108,7 +113,13 @@
 		B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B13CF6C01C2D93BB0019D315 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B13CF6DA1C2D96450019D315 /* HomeScreenTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeScreenTableViewController.swift; sourceTree = "<group>"; };
+		B1B1AC531C2EEC8E00FB254E /* SleepFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SleepFlow.storyboard; sourceTree = "<group>"; };
+		B1B1AC551C2EF21800FB254E /* SleepFlowFirstViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SleepFlowFirstViewController.swift; sourceTree = "<group>"; };
+		B1B1AC571C2EF2EC00FB254E /* SleepTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SleepTableViewController.swift; sourceTree = "<group>"; };
+		B1D555801C3068FD00C20742 /* NetworkConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkConnection.swift; sourceTree = "<group>"; };
+		B1D555821C30692A00C20742 /* DataParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataParser.swift; sourceTree = "<group>"; };
+		B1D555841C30694A00C20742 /* ReturnedDataObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReturnedDataObject.swift; sourceTree = "<group>"; };
+		B1D555861C30739C00C20742 /* DateTime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateTime.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -240,6 +251,7 @@
 			isa = PBXGroup;
 			children = (
 				B13CF67D1C2D93BA0019D315 /* Main.storyboard */,
+				B1B1AC531C2EEC8E00FB254E /* SleepFlow.storyboard */,
 				B13CF6821C2D93BA0019D315 /* LaunchScreen.storyboard */,
 			);
 			name = Views;
@@ -248,6 +260,8 @@
 		B13CF6D61C2D94B10019D315 /* Data Models */ = {
 			isa = PBXGroup;
 			children = (
+				B1D555861C30739C00C20742 /* DateTime.swift */,
+				B1D5557F1C3068B100C20742 /* Networking */,
 			);
 			name = "Data Models";
 			sourceTree = "<group>";
@@ -255,7 +269,8 @@
 		B13CF6D71C2D94C30019D315 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				B13CF6DA1C2D96450019D315 /* HomeScreenTableViewController.swift */,
+				B1246CBB1C2F60B8004BFA5C /* HomeScreenViewController.swift */,
+				B1B1AC591C2EF2F000FB254E /* Sleep Flow */,
 			);
 			name = "View Controllers";
 			sourceTree = "<group>";
@@ -269,6 +284,25 @@
 				B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */,
 			);
 			name = "View Controllers";
+			sourceTree = "<group>";
+		};
+		B1B1AC591C2EF2F000FB254E /* Sleep Flow */ = {
+			isa = PBXGroup;
+			children = (
+				B1B1AC551C2EF21800FB254E /* SleepFlowFirstViewController.swift */,
+				B1B1AC571C2EF2EC00FB254E /* SleepTableViewController.swift */,
+			);
+			name = "Sleep Flow";
+			sourceTree = "<group>";
+		};
+		B1D5557F1C3068B100C20742 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				B1D555801C3068FD00C20742 /* NetworkConnection.swift */,
+				B1D555821C30692A00C20742 /* DataParser.swift */,
+				B1D555841C30694A00C20742 /* ReturnedDataObject.swift */,
+			);
+			name = Networking;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -420,6 +454,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B1B1AC541C2EEC8E00FB254E /* SleepFlow.storyboard in Resources */,
 				B13CF6841C2D93BA0019D315 /* LaunchScreen.storyboard in Resources */,
 				B13CF6811C2D93BA0019D315 /* Assets.xcassets in Resources */,
 				B13CF67F1C2D93BA0019D315 /* Main.storyboard in Resources */,
@@ -464,8 +499,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B13CF6DB1C2D96450019D315 /* HomeScreenTableViewController.swift in Sources */,
+				B1B1AC581C2EF2EC00FB254E /* SleepTableViewController.swift in Sources */,
 				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
+				B1B1AC561C2EF21800FB254E /* SleepFlowFirstViewController.swift in Sources */,
+				B1D555871C30739C00C20742 /* DateTime.swift in Sources */,
+				B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
