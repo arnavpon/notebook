@@ -24,9 +24,10 @@
 		B13CF6BB1C2D93BB0019D315 /* GlanceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BA1C2D93BB0019D315 /* GlanceController.swift */; };
 		B13CF6BD1C2D93BB0019D315 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */; };
 		B13CF6BF1C2D93BB0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */; };
+		B192E0DA1C3080BE00B26936 /* SleepDataObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B192E0D91C3080BE00B26936 /* SleepDataObject.swift */; };
+		B192E0DC1C30891A00B26936 /* SleepFlowSecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B192E0DB1C30891A00B26936 /* SleepFlowSecondViewController.swift */; };
 		B1B1AC541C2EEC8E00FB254E /* SleepFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1B1AC531C2EEC8E00FB254E /* SleepFlow.storyboard */; };
 		B1B1AC561C2EF21800FB254E /* SleepFlowFirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B1AC551C2EF21800FB254E /* SleepFlowFirstViewController.swift */; };
-		B1B1AC581C2EF2EC00FB254E /* SleepTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B1AC571C2EF2EC00FB254E /* SleepTableViewController.swift */; };
 		B1D555871C30739C00C20742 /* DateTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555861C30739C00C20742 /* DateTime.swift */; };
 /* End PBXBuildFile section */
 
@@ -113,9 +114,10 @@
 		B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B13CF6C01C2D93BB0019D315 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B192E0D91C3080BE00B26936 /* SleepDataObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SleepDataObject.swift; sourceTree = "<group>"; };
+		B192E0DB1C30891A00B26936 /* SleepFlowSecondViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SleepFlowSecondViewController.swift; sourceTree = "<group>"; };
 		B1B1AC531C2EEC8E00FB254E /* SleepFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SleepFlow.storyboard; sourceTree = "<group>"; };
 		B1B1AC551C2EF21800FB254E /* SleepFlowFirstViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SleepFlowFirstViewController.swift; sourceTree = "<group>"; };
-		B1B1AC571C2EF2EC00FB254E /* SleepTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SleepTableViewController.swift; sourceTree = "<group>"; };
 		B1D555801C3068FD00C20742 /* NetworkConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkConnection.swift; sourceTree = "<group>"; };
 		B1D555821C30692A00C20742 /* DataParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataParser.swift; sourceTree = "<group>"; };
 		B1D555841C30694A00C20742 /* ReturnedDataObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReturnedDataObject.swift; sourceTree = "<group>"; };
@@ -289,8 +291,9 @@
 		B1B1AC591C2EF2F000FB254E /* Sleep Flow */ = {
 			isa = PBXGroup;
 			children = (
+				B192E0D91C3080BE00B26936 /* SleepDataObject.swift */,
 				B1B1AC551C2EF21800FB254E /* SleepFlowFirstViewController.swift */,
-				B1B1AC571C2EF2EC00FB254E /* SleepTableViewController.swift */,
+				B192E0DB1C30891A00B26936 /* SleepFlowSecondViewController.swift */,
 			);
 			name = "Sleep Flow";
 			sourceTree = "<group>";
@@ -499,10 +502,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B1B1AC581C2EF2EC00FB254E /* SleepTableViewController.swift in Sources */,
 				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
 				B1B1AC561C2EF21800FB254E /* SleepFlowFirstViewController.swift in Sources */,
 				B1D555871C30739C00C20742 /* DateTime.swift in Sources */,
+				B192E0DA1C3080BE00B26936 /* SleepDataObject.swift in Sources */,
+				B192E0DC1C30891A00B26936 /* SleepFlowSecondViewController.swift in Sources */,
 				B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

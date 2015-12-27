@@ -1,15 +1,16 @@
-//  SleepTableViewController.swift
+//  SleepFlowSecondViewController.swift
 //  Biometric Notebook
-//  Created by Arnav Pondicherry  on 12/26/15.
+//  Created by Arnav Pondicherry  on 12/27/15.
 //  Copyright © 2015 Confluent Ideals. All rights reserved.
 
-// We will start w/ a single table VC & try to reuse it to display different aspects of the data by reloading data during the transitions. 
+// We will start w/ a single table VC & try to reuse it to display different aspects of the data by reloading data during the transitions.
 
 import UIKit
 
-class SleepTableViewController: UITableViewController {
-    
-    @IBOutlet weak var undoButton: UIBarButtonItem!
+class SleepFlowSecondViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+
+    @IBOutlet weak var sleepDataTableView: UITableView!
+    @IBOutlet weak var undoButton: UIBarButtonItem! //disable until items have been selected
     @IBOutlet weak var saveButton: UIBarButtonItem! //disable until all information is entered
     
     var currentFlow: Int = 0 //0 = pre-sleep flow, 1 = after-waking flow
@@ -28,17 +29,19 @@ class SleepTableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        sleepDataTableView.dataSource = self
+        sleepDataTableView.delegate = self
         saveButton.enabled = false
         undoButton.enabled = false
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
-
+    
     // MARK: - TV Data Source
-
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    
+    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         if (currentFlow == 0) { //before-sleep flow
             return beforeSleepSectionTitles.count
         } else { //after-waking flow
@@ -50,7 +53,7 @@ class SleepTableViewController: UITableViewController {
         }
     }
     
-    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if (currentFlow == 0) { //before-sleep flow
             return beforeSleepSectionTitles[section]
         } else { //after-waking flow
@@ -62,7 +65,7 @@ class SleepTableViewController: UITableViewController {
         }
     }
     
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if (currentFlow == 0) { //before-sleep flow
             if (section == 0) {
                 return meditationOptions.count
@@ -87,9 +90,9 @@ class SleepTableViewController: UITableViewController {
             }
         }
     }
-
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath)
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier("sleep_cell", forIndexPath: indexPath)
         if (currentFlow == 0) { //before-sleep flow
             if (indexPath.section == 0) {
                 cell.textLabel?.text = meditationOptions[indexPath.row]
@@ -117,7 +120,7 @@ class SleepTableViewController: UITableViewController {
         return cell
     }
     
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         //Highlight selected row. If another row in the same section is selected, clear it.
         if (currentFlow == 0) { //pre-sleep flow
             saveButton.enabled = true
@@ -133,7 +136,7 @@ class SleepTableViewController: UITableViewController {
         }
     }
     
-    override func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
         if (currentFlow == 0) { //pre-sleep flow
             undoButton.enabled = false
             saveButton.enabled = false
@@ -147,7 +150,7 @@ class SleepTableViewController: UITableViewController {
         }
     }
     
-    override func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+    func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         return true
     }
     
@@ -160,6 +163,12 @@ class SleepTableViewController: UITableViewController {
         print("Data sent!")
         
         //Return to home page:
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let controller = storyboard.instantiateInitialViewController()!
+        presentViewController(controller, animated: true, completion: nil)
+    }
+    
+    @IBAction func cancelButtonClick(sender: AnyObject) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let controller = storyboard.instantiateInitialViewController()!
         presentViewController(controller, animated: true, completion: nil)

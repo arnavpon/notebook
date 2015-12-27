@@ -64,9 +64,9 @@ class SleepFlowFirstViewController: UIViewController {
         let hours = 20
         //let hours = 8
         if (hours >= 19) || (hours <= 3) { //between 7 PM & 3 AM, call pre-sleep flow
-            (segue.destinationViewController as! SleepTableViewController).currentFlow = 0
+            (segue.destinationViewController as! SleepFlowSecondViewController).currentFlow = 0
         } else { //otherwise, call the after-waking flow
-            (segue.destinationViewController as! SleepTableViewController).currentFlow = 1
+            (segue.destinationViewController as! SleepFlowSecondViewController).currentFlow = 1
         }
     }
     
