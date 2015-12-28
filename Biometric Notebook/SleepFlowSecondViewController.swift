@@ -14,7 +14,10 @@ class SleepFlowSecondViewController: UIViewController, UITableViewDelegate, UITa
     @IBOutlet weak var saveButton: UIBarButtonItem! //disable until all information is entered
     
     var currentFlow: Int = 0 //0 = pre-sleep flow, 1 = after-waking flow
+    var dataObject: SleepDataObject?
     var currentOptionsScreen: Int = 0 //0 = first screen, 1 = 2nd screen (for after-waking flow)
+    var arrayOfCellsForSection: [Int: NSIndexPath] = Dictionary<Int, NSIndexPath>() //dictionary containing the indexPath of the HIGHLIGHTED cell within a given section
+    
     let beforeSleepSectionTitles = ["Did you meditate?", "Did you use the bathroom?"]
     let meditationOptions = ["Yes", "No"]
     let bathroomOptions = ["Yes", "No"]
@@ -26,6 +29,8 @@ class SleepFlowSecondViewController: UIViewController, UITableViewDelegate, UITa
     let temperatureOptions = ["Pleasant", "Warm", "Chilly"]
     let weatherOptions = ["Sunny", "Partly Sunny", "Cloudy", "Dark"]
     let shadesOptions = ["Shades Up", "Shades Down"]
+    var mentalState: String? //store user response
+    var wakeReason: String? //store user response
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -121,47 +126,141 @@ class SleepFlowSecondViewController: UIViewController, UITableViewDelegate, UITa
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //Highlight selected row. If another row in the same section is selected, clear it.
+        let section = indexPath.section
+        arrayOfCellsForSection[section] = indexPath //stores currently selected cell -> array
+        let count: Int //counts # of entries that SHOULD be in the arrayOfCells object
+        var compare: Int = 0 //comparison variable, checks if all necessary data has been entered
         if (currentFlow == 0) { //pre-sleep flow
-            saveButton.enabled = true
+            count = beforeSleepSectionTitles.count
             undoButton.enabled = true
-        } else if (currentFlow == 1) { //after-waking flow
-            if (currentOptionsScreen == 0) {
-                undoButton.enabled = true
-                currentOptionsScreen = 1
-                tableView.reloadData()
-            } else {
+            for i in 0...(count - 1) {
+                if let _ = arrayOfCellsForSection[i] {
+                    compare += 1
+                }
+            }
+            if (compare == count) { //enable after 1 option in each section is selected
                 saveButton.enabled = true
             }
+        } else if (currentFlow == 1) { //after-waking flow
+            if (currentOptionsScreen == 0) { //first screen
+                count = afterWakingSectionTitles1.count
+                undoButton.enabled = true
+                for i in 0...(count - 1) {
+                    if let _ = arrayOfCellsForSection[i] { //check if both options are selected
+                        compare += 1
+                    }
+                }
+                if (compare == count) { //transition -> screen 2 if checkpoint is passed
+                    for (entry, index) in arrayOfCellsForSection { //capture user selections
+                        let value = (tableView.cellForRowAtIndexPath(index)?.textLabel?.text)!
+                        switch entry {
+                        case 0:
+                            mentalState = value
+                        case 1:
+                            wakeReason = value
+                        default:
+                            print("Default Case")
+                        }
+                        arrayOfCellsForSection[entry] = nil //clear selections dictionary
+                    }
+                    currentOptionsScreen = 1
+                    tableView.reloadData() //transition -> screen 2
+                }
+            } else { //second screen
+                count = afterWakingSectionTitles2.count
+                for i in 0...(count - 1) {
+                    if let _ = arrayOfCellsForSection[i] {
+                        compare += 1
+                    }
+                    if (compare == count) {
+                        saveButton.enabled = true
+                    }
+                }
+            }
+        }
+        print("Currently selected rows: ")
+        for item in arrayOfCellsForSection {
+            print("Section \(item.0): Highlighted Cell @ Row - \(item.1.row)")
         }
     }
     
     func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
+        let section = indexPath.section
+        arrayOfCellsForSection[section] = nil //clear array value for that section on deselection
         if (currentFlow == 0) { //pre-sleep flow
-            undoButton.enabled = false
             saveButton.enabled = false
-        } else if (currentFlow == 1) { //after-waking flow
-            if (currentOptionsScreen == 0) {
-                currentOptionsScreen = 1
-                tableView.reloadData()
-            } else {
-                saveButton.enabled = true
+            if (arrayOfCellsForSection.count == 0) { //check if 0 options are selected
+                undoButton.enabled = false
             }
+        } else if (currentFlow == 1) { //after-waking flow
+            if (currentOptionsScreen == 0) { //first screen
+                if (arrayOfCellsForSection.count == 0) { //check if 0 options are selected
+                    undoButton.enabled = false
+                }
+            } else { //second screen
+                saveButton.enabled = false
+            }
+        }
+        print("Currently selected rows: ")
+        for item in arrayOfCellsForSection {
+            print("Section \(item.0): Highlighted Cell @ Row - \(item.1.row)")
         }
     }
     
     func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        let selectedCellSection = indexPath.section
+        let selectedCellRow = indexPath.row
+        if let previouslySelectedCellIndexPath = arrayOfCellsForSection[selectedCellSection] { //check if another row in the same section has been selected previously
+            if (previouslySelectedCellIndexPath.row != selectedCellRow) { //check if it is the same cell
+                print("Unhighlighted cell: Section - \(previouslySelectedCellIndexPath.section), Row - \(previouslySelectedCellIndexPath.row)")
+                tableView.cellForRowAtIndexPath(previouslySelectedCellIndexPath)?.selected = false
+            }
+        }
         return true
     }
     
     // MARK: - Button Actions
     
-    @IBAction func saveButtonClick(sender: AnyObject) {
-        //Captures all entered information in a SleepDataObject dictionary & sends it to the database:
-        
-        //Send notification of successful data capture:
-        print("Data sent!")
-        
+    @IBAction func saveButtonClick(sender: AnyObject) { //capture user entries
+        if (currentFlow == 0) { //pre-sleep flow
+            var meditation: String = ""
+            var bathroom: String = ""
+            for (entry, index) in arrayOfCellsForSection {
+                let value = (sleepDataTableView.cellForRowAtIndexPath(index)?.textLabel?.text)!
+                switch entry {
+                case 0:
+                    meditation = value
+                case 1:
+                    bathroom = value
+                default:
+                    print("default")
+                }
+                arrayOfCellsForSection[entry] = nil
+            }
+            dataObject?.recordBeforeSleepUserResponses(meditation, bathroom: bathroom)
+            print("Thanks! Sweet Dreams!")
+        } else { //after-waking flow
+            var temperature: String = ""
+            var weather: String = ""
+            var shadesDown: String = ""
+            for (entry, index) in arrayOfCellsForSection {
+                let value = (sleepDataTableView.cellForRowAtIndexPath(index)?.textLabel?.text)!
+                switch entry {
+                case 0:
+                    temperature = value
+                case 1:
+                    weather = value
+                case 2:
+                    shadesDown = value
+                default:
+                    print("default")
+                }
+                arrayOfCellsForSection[entry] = nil
+            }
+            dataObject?.recordAfterWakingUserResponses(mentalState!, wakeReason: wakeReason!, temperature: temperature, weather: weather, shadesDown: shadesDown)
+            print("Thanks! Go out & win the day!")
+        }
+        dataObject?.getJSONDictionaryWithSleepDate()
         //Return to home page:
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let controller = storyboard.instantiateInitialViewController()!
@@ -174,8 +273,28 @@ class SleepFlowSecondViewController: UIViewController, UITableViewDelegate, UITa
         presentViewController(controller, animated: true, completion: nil)
     }
     
-    @IBAction func undoButtonClick(sender: AnyObject) {
-        //Clears all selections & returns to the first TV.
+    @IBAction func undoButtonClick(sender: AnyObject) { //clears all selections & returns to initial TV
+        if (currentFlow == 0) { //pre-sleep flow
+            for (entry, indexPath) in arrayOfCellsForSection { //deselect all current selections
+                sleepDataTableView.cellForRowAtIndexPath(indexPath)?.selected = false
+                arrayOfCellsForSection[entry] = nil
+            }
+        } else { //after-waking flow
+            if (currentOptionsScreen == 0) { //first screen
+                for (entry, indexPath) in arrayOfCellsForSection { //deselect all current selections
+                    sleepDataTableView.cellForRowAtIndexPath(indexPath)?.selected = false
+                    arrayOfCellsForSection[entry] = nil
+                }
+            } else { //second screen; return -> first screen, clear selections
+                currentOptionsScreen = 0
+                for (entry, _) in arrayOfCellsForSection { //clear selection dict
+                    arrayOfCellsForSection[entry] = nil
+                }
+                sleepDataTableView.reloadData()
+            }
+        }
+        undoButton.enabled = false
+        saveButton.enabled = false
     }
     
 }

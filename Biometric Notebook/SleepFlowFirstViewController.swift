@@ -13,12 +13,13 @@ class SleepFlowFirstViewController: UIViewController {
     
     var currentTime = DateTime() //current time upon opening the 'sleep' flow
     var currentFlow: Int = 0 //0 = pre-sleep flow, 1 = after-waking flow
+    var dataObject: SleepDataObject? //contains user-reported info
     
     override func viewWillAppear(animated: Bool) {
         //Call up nighttime OR daytime assets depending on current time:
         //let hours = currentTime.hours
-        let hours = 20
-        //let hours = 8
+        //let hours = 20
+        let hours = 8
         if (hours >= 19) || (hours <= 3) { //between 7 PM & 3 AM, use nighttime assets
             currentFlow = 0
             view.backgroundColor = UIColor.blueColor()
@@ -41,13 +42,18 @@ class SleepFlowFirstViewController: UIViewController {
     @IBAction func sleepOrWakeTimeButtonClick(sender: AnyObject) {
         //Capture current time, create dictionary w/ this sleep time, & navigate to the TV for data entry.
         currentTime = DateTime() //capture time as of button click
+        let date = currentTime.getCurrentDateString()
+        let time = currentTime.getCurrentTimeString()
         if (currentFlow == 0) { //pre-sleep flow
-            print("Sleep Time: \(currentTime.getCurrentTimeString())")
-            print("Today's Date: \(currentTime.getCurrentDateString())")
+            print("Sleep Time: \(time)")
+            print("Today's Date: \(date)")
+            dataObject = SleepDataObject(flow: currentFlow, date: date, time: time)
         } else if (currentFlow == 1) { //after-waking flow
-            print("Wake Time: \(currentTime.getCurrentTimeString())")
-            print("Today's Date: \(currentTime.getCurrentDateString())")
+            print("Wake Time: \(time)")
+            print("Today's Date: \(date)")
+            dataObject = SleepDataObject(flow: currentFlow, date: date, time: time)
         }
+        performSegueWithIdentifier("showSleepTV", sender: nil)
     }
     
     @IBAction func cancelButtonClick(sender: AnyObject) {
@@ -61,13 +67,14 @@ class SleepFlowFirstViewController: UIViewController {
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         //let hours = currentTime.hours //current time in hours
-        let hours = 20
-        //let hours = 8
+        //let hours = 20
+        let hours = 8
         if (hours >= 19) || (hours <= 3) { //between 7 PM & 3 AM, call pre-sleep flow
             (segue.destinationViewController as! SleepFlowSecondViewController).currentFlow = 0
         } else { //otherwise, call the after-waking flow
             (segue.destinationViewController as! SleepFlowSecondViewController).currentFlow = 1
         }
+        (segue.destinationViewController as! SleepFlowSecondViewController).dataObject = self.dataObject
     }
     
 }

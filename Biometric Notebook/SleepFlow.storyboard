@@ -32,7 +32,6 @@
                                 </state>
                                 <connections>
                                     <action selector="sleepOrWakeTimeButtonClick:" destination="j6u-zY-u2z" eventType="touchUpInside" id="Kkf-1j-sUu"/>
-                                    <segue destination="lbj-BB-o0d" kind="show" id="14s-3Z-JDg"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -52,6 +51,7 @@
                     </navigationItem>
                     <connections>
                         <outlet property="sleepOrWakeTimeButton" destination="TIv-14-bha" id="sgn-JI-g4h"/>
+                        <segue destination="lbj-BB-o0d" kind="show" identifier="showSleepTV" id="biC-m0-fcd"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="OTU-6P-zWY" userLabel="First Responder" sceneMemberID="firstResponder"/>
