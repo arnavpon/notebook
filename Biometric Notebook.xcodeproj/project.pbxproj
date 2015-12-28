@@ -24,6 +24,9 @@
 		B13CF6BB1C2D93BB0019D315 /* GlanceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BA1C2D93BB0019D315 /* GlanceController.swift */; };
 		B13CF6BD1C2D93BB0019D315 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */; };
 		B13CF6BF1C2D93BB0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */; };
+		B16EC9801C317D650085265C /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B16EC97F1C317D650085265C /* HealthKit.framework */; };
+		B17C210E1C31B5F400B59FB0 /* HealthKitConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17C210D1C31B5F400B59FB0 /* HealthKitConnection.swift */; };
+		B17C21101C31D96800B59FB0 /* FoodItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17C210F1C31D96800B59FB0 /* FoodItem.swift */; };
 		B192E0DA1C3080BE00B26936 /* SleepDataObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B192E0D91C3080BE00B26936 /* SleepDataObject.swift */; };
 		B192E0DC1C30891A00B26936 /* SleepFlowSecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B192E0DB1C30891A00B26936 /* SleepFlowSecondViewController.swift */; };
 		B1B1AC541C2EEC8E00FB254E /* SleepFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1B1AC531C2EEC8E00FB254E /* SleepFlow.storyboard */; };
@@ -114,6 +117,10 @@
 		B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B13CF6C01C2D93BB0019D315 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B16EC97F1C317D650085265C /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		B16EC9811C317D650085265C /* Biometric Notebook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Biometric Notebook.entitlements"; sourceTree = "<group>"; };
+		B17C210D1C31B5F400B59FB0 /* HealthKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitConnection.swift; sourceTree = "<group>"; };
+		B17C210F1C31D96800B59FB0 /* FoodItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodItem.swift; sourceTree = "<group>"; };
 		B192E0D91C3080BE00B26936 /* SleepDataObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SleepDataObject.swift; sourceTree = "<group>"; };
 		B192E0DB1C30891A00B26936 /* SleepFlowSecondViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SleepFlowSecondViewController.swift; sourceTree = "<group>"; };
 		B1B1AC531C2EEC8E00FB254E /* SleepFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SleepFlow.storyboard; sourceTree = "<group>"; };
@@ -129,6 +136,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B16EC9801C317D650085265C /* HealthKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,6 +167,7 @@
 		B13CF66D1C2D93B90019D315 = {
 			isa = PBXGroup;
 			children = (
+				B16EC9821C317DFB0085265C /* Frameworks */,
 				B13CF6781C2D93BA0019D315 /* Biometric Notebook */,
 				B13CF6A21C2D93BA0019D315 /* Biometric Notebook WatchKit App */,
 				B13CF6B11C2D93BA0019D315 /* Biometric Notebook WatchKit Extension */,
@@ -245,6 +254,7 @@
 				B13CF6791C2D93BA0019D315 /* AppDelegate.swift */,
 				B13CF6801C2D93BA0019D315 /* Assets.xcassets */,
 				B13CF6851C2D93BA0019D315 /* Info.plist */,
+				B16EC9811C317D650085265C /* Biometric Notebook.entitlements */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -263,6 +273,7 @@
 			isa = PBXGroup;
 			children = (
 				B1D555861C30739C00C20742 /* DateTime.swift */,
+				B16EC9831C317E380085265C /* HealthKit */,
 				B1D5557F1C3068B100C20742 /* Networking */,
 			);
 			name = "Data Models";
@@ -286,6 +297,23 @@
 				B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */,
 			);
 			name = "View Controllers";
+			sourceTree = "<group>";
+		};
+		B16EC9821C317DFB0085265C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B16EC97F1C317D650085265C /* HealthKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B16EC9831C317E380085265C /* HealthKit */ = {
+			isa = PBXGroup;
+			children = (
+				B17C210D1C31B5F400B59FB0 /* HealthKitConnection.swift */,
+				B17C210F1C31D96800B59FB0 /* FoodItem.swift */,
+			);
+			name = HealthKit;
 			sourceTree = "<group>";
 		};
 		B1B1AC591C2EF2F000FB254E /* Sleep Flow */ = {
@@ -413,6 +441,11 @@
 					B13CF6751C2D93B90019D315 = {
 						CreatedOnToolsVersion = 7.1.1;
 						DevelopmentTeam = ZYZR243GF5;
+						SystemCapabilities = {
+							com.apple.HealthKit = {
+								enabled = 1;
+							};
+						};
 					};
 					B13CF6891C2D93BA0019D315 = {
 						CreatedOnToolsVersion = 7.1.1;
@@ -502,7 +535,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B17C21101C31D96800B59FB0 /* FoodItem.swift in Sources */,
 				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
+				B17C210E1C31B5F400B59FB0 /* HealthKitConnection.swift in Sources */,
 				B1B1AC561C2EF21800FB254E /* SleepFlowFirstViewController.swift in Sources */,
 				B1D555871C30739C00C20742 /* DateTime.swift in Sources */,
 				B192E0DA1C3080BE00B26936 /* SleepDataObject.swift in Sources */,
@@ -739,11 +774,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Biometric Notebook/Biometric Notebook.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = "Biometric Notebook/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.confluentideals.Biometric-Notebook";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -751,11 +789,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Biometric Notebook/Biometric Notebook.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = "Biometric Notebook/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.confluentideals.Biometric-Notebook";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

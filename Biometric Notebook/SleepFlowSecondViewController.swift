@@ -3,7 +3,7 @@
 //  Created by Arnav Pondicherry  on 12/27/15.
 //  Copyright © 2015 Confluent Ideals. All rights reserved.
 
-// We will start w/ a single table VC & try to reuse it to display different aspects of the data by reloading data during the transitions.
+// We will start w/ a single table VC & reuse it to display different aspects of the data by reloading data during the transitions.
 
 import UIKit
 
@@ -25,7 +25,7 @@ class SleepFlowSecondViewController: UIViewController, UITableViewDelegate, UITa
     let afterWakingSectionTitles1 = ["How are you feeling?", "What woke you up?"]
     let afterWakingSectionTitles2 = ["How was the temperature in bed?", "What's the weather like?", "Are the shades up or down?"]
     let mentalStateOptions = ["Lucid", "Neutral", "Groggy"]
-    let wakeReasonOptions = ["The Alarm", "Nothing. I woke up naturally!", "There's too much noise", "It's too bright"]
+    let wakeReasonOptions = ["The Alarm", "Nature calls", "Nothing. I woke up naturally!", "There's too much noise", "It's too bright"]
     let temperatureOptions = ["Pleasant", "Warm", "Chilly"]
     let weatherOptions = ["Sunny", "Partly Sunny", "Cloudy", "Dark"]
     let shadesOptions = ["Shades Up", "Shades Down"]

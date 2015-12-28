@@ -25,10 +25,10 @@ class DateTime {
         }
     }
     
-    init() {
+    init() { //empty initializer - sets date -> current date & time
         let currentDate = NSDate()
         let calendar = NSCalendar.currentCalendar()
-        let timeZone = calendar.timeZone
+        let timeZone = calendar.timeZone //gets local timezone for user
         let components = calendar.componentsInTimeZone(timeZone, fromDate: currentDate)
         month = components.month
         day = components.day
@@ -38,6 +38,19 @@ class DateTime {
         seconds = components.second
         
         //let formattedDate = NSDateFormatter.localizedStringFromDate(currentDate, dateStyle: .LongStyle, timeStyle: .LongStyle) //current date formatted for user's timezone
+    }
+    
+    init(date: NSDate) { //custom init, takes as input a date
+        let currentDate = date
+        let calendar = NSCalendar.currentCalendar()
+        let timeZone = calendar.timeZone
+        let components = calendar.componentsInTimeZone(timeZone, fromDate: currentDate)
+        month = components.month
+        day = components.day
+        year = components.year
+        hours = components.hour
+        minutes = components.minute
+        seconds = components.second
     }
     
     func getCurrentDateString() -> String {

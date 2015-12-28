@@ -6,6 +6,7 @@
 // Displays selection options for data entry. Swiping right opens up the visual display VC.
 
 import UIKit
+import HealthKit
 
 class HomeScreenViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
@@ -17,6 +18,9 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
         super.viewDidLoad()
         categoriesTableView.dataSource = self
         categoriesTableView.delegate = self
+        
+        let height = HealthKitConnection().getHeightFromHKStore()
+        print("Height: \(height)")
     }
     
     // MARK: - TV Data Source
