@@ -11,13 +11,15 @@ import HealthKit
 class HomeScreenViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var categoriesTableView: UITableView!
-    let categories = ["Sleep", "Exercise", "Breathing", "Nutrition", "Upper Airway"]
+    
+    let categories = ["Sleep", "Exercise", "Dummy Project 1"]
     let cellColors: [UIColor] = [UIColor.blueColor(), UIColor.greenColor(), UIColor.redColor(), UIColor.brownColor(), UIColor.blackColor()]
     
     override func viewDidLoad() {
         super.viewDidLoad()
         categoriesTableView.dataSource = self
         categoriesTableView.delegate = self
+        categoriesTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
         
         let height = HealthKitConnection().getHeightFromHKStore()
         print("Height: \(height)")
@@ -34,7 +36,7 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("category", forIndexPath: indexPath)
+        let cell = tableView.dequeueReusableCellWithIdentifier("project_cell", forIndexPath: indexPath)
         cell.textLabel?.text = categories[indexPath.row]
         cell.textLabel?.textAlignment = .Center
         cell.textLabel?.textColor = UIColor.whiteColor()
@@ -43,28 +45,39 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        let height = tableView.frame.height/CGFloat(categories.count) //split TV height evenly
-        return height
+//        let height = tableView.frame.height/CGFloat(categories.count) //split TV height evenly
+//        return height
+        return 50
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //Select the appropriate storyboard to navigate to:
+        //Tapping a cell brings up the data visualization flow for that project. 
         var storyboard: UIStoryboard
         var controller: UIViewController
         switch indexPath.row {
         case 0:
             storyboard = UIStoryboard(name: "SleepFlow", bundle: nil)
             controller = storyboard.instantiateInitialViewController()!
+            presentViewController(controller, animated: true, completion: nil) //does not count as segue
+        case 1:
+            storyboard = UIStoryboard(name: "ExerciseFlow", bundle: nil)
+            controller = storyboard.instantiateInitialViewController()!
+            presentViewController(controller, animated: true, completion: nil) //does not count as segue
         default:
-            storyboard = UIStoryboard()
-            controller = UIViewController()
+            performSegueWithIdentifier("showDataVisuals", sender: nil) //transition to ProjectOverviewVC
         }
-        presentViewController(controller, animated: true, completion: nil) //does not count as segue
+    }
+    
+    // MARK: - Button Actions
+    
+    @IBAction func addProjectButtonClick(sender: AnyObject) { //navigate to CreateProject flow
+        let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
+        let controller = storyboard.instantiateInitialViewController()!
+        presentViewController(controller, animated: true, completion: nil)
     }
     
     // MARK: - Navigation
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
     }
 }

@@ -14,6 +14,7 @@ class SleepDataObject {
     private var sleepDictionary: [String: AnyObject] //combined json dict -> DB
     
     init(flow: Int, date: String, time: String) { //initialize w/ flow # & date/time
+        //How are we combining the 2 separate pieces of information from the night before/morning of?
         self.flow = flow
         self.date = date
         self.time = time
