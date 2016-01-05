@@ -27,9 +27,10 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         configureModuleTableView.dataSource = self
         configureModuleTableView.delegate = self
         if (selectedModule == 0) {
-            print("Custom Module")
+            titleBar.topItem?.title = "Custom Module"
         } else {
             print("Different Module")
+            titleBar.topItem?.title = "Different Module"
         }
     }
 
@@ -44,11 +45,13 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         return 1
     }
     
-    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if (selectedModule == 0) { //custom module
-            return "Please add options for your variable"
+            let headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 24), text: "Please add options for your variable")
+            return headerView
         } else { //computations
-            return "Please select the computations you wish to add to the variable"
+            let headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 48), text: "Please select the computations you wish to add to the variable")
+            return headerView
         }
     }
     
