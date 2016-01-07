@@ -47,6 +47,16 @@
 		B1BC886F1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B1BC886D1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld */; };
 		B1C403351C3974A100AF4BB9 /* CreateProjectFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */; };
 		B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */; };
+		B1D0B2B01C3F248800C9438F /* WeatherModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2AF1C3F248800C9438F /* WeatherModule.swift */; };
+		B1D0B2B21C3F24B500C9438F /* TemperatureHumidityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B11C3F24B500C9438F /* TemperatureHumidityModule.swift */; };
+		B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */; };
+		B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B51C3F255A00C9438F /* FoodIntakeModule.swift */; };
+		B1D0B2B81C3F25BC00C9438F /* ExerciseModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */; };
+		B1D0B2BA1C3F25F200C9438F /* Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B91C3F25F200C9438F /* Module.swift */; };
+		B1D0B2BC1C3F262800C9438F /* TimeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2BB1C3F262800C9438F /* TimeModule.swift */; };
+		B1D0B2BE1C3F274200C9438F /* Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2BD1C3F274200C9438F /* Actions.swift */; };
+		B1D0B2C11C3F29B400C9438F /* Project+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2BF1C3F29B400C9438F /* Project+CoreDataProperties.swift */; };
+		B1D0B2C21C3F29B400C9438F /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2C01C3F29B400C9438F /* Project.swift */; };
 		B1D555871C30739C00C20742 /* DateTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555861C30739C00C20742 /* DateTime.swift */; };
 		B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */; };
 /* End PBXBuildFile section */
@@ -158,6 +168,16 @@
 		B1BC886E1C3205930085A4F4 /* BiometricNotebook.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = BiometricNotebook.xcdatamodel; sourceTree = "<group>"; };
 		B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = CreateProjectFlow.storyboard; sourceTree = "<group>"; };
 		B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectSummaryViewController.swift; sourceTree = "<group>"; };
+		B1D0B2AF1C3F248800C9438F /* WeatherModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherModule.swift; sourceTree = "<group>"; };
+		B1D0B2B11C3F24B500C9438F /* TemperatureHumidityModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemperatureHumidityModule.swift; sourceTree = "<group>"; };
+		B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomModule.swift; sourceTree = "<group>"; };
+		B1D0B2B51C3F255A00C9438F /* FoodIntakeModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodIntakeModule.swift; sourceTree = "<group>"; };
+		B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExerciseModule.swift; sourceTree = "<group>"; };
+		B1D0B2B91C3F25F200C9438F /* Module.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Module.swift; sourceTree = "<group>"; };
+		B1D0B2BB1C3F262800C9438F /* TimeModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeModule.swift; sourceTree = "<group>"; };
+		B1D0B2BD1C3F274200C9438F /* Actions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Actions.swift; sourceTree = "<group>"; };
+		B1D0B2BF1C3F29B400C9438F /* Project+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Project+CoreDataProperties.swift"; path = "../Project+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		B1D0B2C01C3F29B400C9438F /* Project.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Project.swift; path = ../Project.swift; sourceTree = "<group>"; };
 		B1D555801C3068FD00C20742 /* NetworkConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkConnection.swift; sourceTree = "<group>"; };
 		B1D555821C30692A00C20742 /* DataParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataParser.swift; sourceTree = "<group>"; };
 		B1D555841C30694A00C20742 /* ReturnedDataObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReturnedDataObject.swift; sourceTree = "<group>"; };
@@ -309,8 +329,8 @@
 		B13CF6D61C2D94B10019D315 /* Data Models */ = {
 			isa = PBXGroup;
 			children = (
-				B1D555861C30739C00C20742 /* DateTime.swift */,
 				B1C403331C3973CB00AF4BB9 /* Core Data */,
+				B1D0B2AE1C3F246200C9438F /* Modules */,
 				B16EC9831C317E380085265C /* HealthKit */,
 				B1D5557F1C3068B100C20742 /* Networking */,
 			);
@@ -405,8 +425,26 @@
 			isa = PBXGroup;
 			children = (
 				B1BC886D1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld */,
+				B1D0B2C01C3F29B400C9438F /* Project.swift */,
+				B1D0B2BF1C3F29B400C9438F /* Project+CoreDataProperties.swift */,
+				B1D0B2BD1C3F274200C9438F /* Actions.swift */,
 			);
 			name = "Core Data";
+			sourceTree = "<group>";
+		};
+		B1D0B2AE1C3F246200C9438F /* Modules */ = {
+			isa = PBXGroup;
+			children = (
+				B1D555861C30739C00C20742 /* DateTime.swift */,
+				B1D0B2B91C3F25F200C9438F /* Module.swift */,
+				B1D0B2BB1C3F262800C9438F /* TimeModule.swift */,
+				B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */,
+				B1D0B2AF1C3F248800C9438F /* WeatherModule.swift */,
+				B1D0B2B11C3F24B500C9438F /* TemperatureHumidityModule.swift */,
+				B1D0B2B51C3F255A00C9438F /* FoodIntakeModule.swift */,
+				B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */,
+			);
+			name = Modules;
 			sourceTree = "<group>";
 		};
 		B1D5557F1C3068B100C20742 /* Networking */ = {
@@ -628,21 +666,31 @@
 				B1BC88651C31F9840085A4F4 /* ExerciseDataObject.swift in Sources */,
 				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
 				B17C210E1C31B5F400B59FB0 /* HealthKitConnection.swift in Sources */,
+				B1D0B2B81C3F25BC00C9438F /* ExerciseModule.swift in Sources */,
+				B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */,
 				B1B1AC561C2EF21800FB254E /* SleepFlowFirstViewController.swift in Sources */,
 				B1B98BE61C399DDB00DDACEE /* ProjectVariablesTableViewController.swift in Sources */,
+				B1D0B2BC1C3F262800C9438F /* TimeModule.swift in Sources */,
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,
+				B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */,
 				B189589D1C39FC0A00378E47 /* Checkbox.swift in Sources */,
+				B1D0B2BE1C3F274200C9438F /* Actions.swift in Sources */,
+				B1D0B2B21C3F24B500C9438F /* TemperatureHumidityModule.swift in Sources */,
 				B1B98BE31C39935C00DDACEE /* InputDataViewController.swift in Sources */,
 				B1BC88631C31F9720085A4F4 /* ExerciseFlowSecondViewController.swift in Sources */,
 				B1D555871C30739C00C20742 /* DateTime.swift in Sources */,
 				B192E0DA1C3080BE00B26936 /* SleepDataObject.swift in Sources */,
+				B1D0B2B01C3F248800C9438F /* WeatherModule.swift in Sources */,
 				B192E0DC1C30891A00B26936 /* SleepFlowSecondViewController.swift in Sources */,
 				B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */,
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
 				B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */,
+				B1D0B2C11C3F29B400C9438F /* Project+CoreDataProperties.swift in Sources */,
 				B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */,
+				B1D0B2BA1C3F25F200C9438F /* Module.swift in Sources */,
 				B1BC88611C31F9630085A4F4 /* ExerciseFlowFirstViewController.swift in Sources */,
 				B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */,
+				B1D0B2C21C3F29B400C9438F /* Project.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

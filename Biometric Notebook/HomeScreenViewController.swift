@@ -23,6 +23,9 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
         
         let height = HealthKitConnection().getHeightFromHKStore()
         print("Height: \(height)")
+        
+        //        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        //        let context = appDelegate.managedObjectContext
     }
     
     // MARK: - TV Data Source

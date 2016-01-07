@@ -460,7 +460,7 @@
                     </tableView>
                     <toolbarItems>
                         <barButtonItem width="253" style="plain" systemItem="fixedSpace" id="7EJ-kd-6vB"/>
-                        <barButtonItem style="plain" systemItem="done" id="D4p-Z6-2zq">
+                        <barButtonItem enabled="NO" style="plain" systemItem="done" id="D4p-Z6-2zq">
                             <connections>
                                 <action selector="doneButtonClick:" destination="e9s-W9-Iki" id="50u-UQ-YK7"/>
                             </connections>

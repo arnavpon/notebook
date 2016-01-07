@@ -131,13 +131,14 @@ class ProjectVariablesTableViewController: UITableViewController {
     }
     
     @IBAction func doneButtonClick(sender: AnyObject) {
+        //Disable this button until at least 1 beforeAction & 1 afterAction variable have been added
         performSegueWithIdentifier("showSummary", sender: nil)
     }
     
     // MARK: - Navigation
     
     @IBAction func unwindToVariablesVC(sender: UIStoryboardSegue) { //unwind segue -> variable VC
-        //Note: requires the IBAction in the beginning to enable the click & drag from a button to the VC's 'Exit' button on the top-most bar. 
+        //Note: requires the '@IBAction' in the beginning to enable the click & drag from a button to the VC's 'Exit' button on the top-most bar.
         if let configureModuleVC = sender.sourceViewController as? ConfigureModuleViewController {
             //If sender is configureModuleVC, grab the input/outcome selection & module information:
             let variableName = configureModuleVC.variableName!
@@ -150,6 +151,9 @@ class ProjectVariablesTableViewController: UITableViewController {
             } else {
                 print("Error in unwindToVariablesVC")
             }
+        }
+        if (beforeActionRows.count > 1) && (afterActionRows.count > 1) { //enable when 1 of each var is added, disable if a variable is deleted or moved & there is no longer 1 of each
+            doneButton.enabled = true
         }
     }
     
