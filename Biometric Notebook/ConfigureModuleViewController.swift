@@ -10,12 +10,13 @@ import UIKit
 class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var titleBar: UINavigationBar!
-    @IBOutlet weak var saveButton: UIBarButtonItem!
+    @IBOutlet weak var saveButton: UIBarButtonItem! //disable until config is complete
     @IBOutlet weak var addOptionButton: UIBarButtonItem!
     @IBOutlet weak var configureModuleTableView: UITableView!
     
+    var createdVariable: Module? //variable w/ completed configuration
     var variableName: String?
-    var selectedModule: Int?
+    var selectedModule: Modules?
     var beforeOrAfterAction: String?
     var availableComputationsArray: [String] = [] //computations available for given module
     var customModuleOptions: [String] = [] //data source for custom module
@@ -26,10 +27,9 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         super.viewDidLoad()
         configureModuleTableView.dataSource = self
         configureModuleTableView.delegate = self
-        if (selectedModule == 0) {
+        if (selectedModule == Modules.CustomModule) {
             titleBar.topItem?.title = "Custom Module"
         } else {
-            print("Different Module")
             titleBar.topItem?.title = "Different Module"
         }
     }
@@ -42,12 +42,20 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     // MARK: - Table View
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+        if (selectedModule == Modules.CustomModule) { //custom module
+            return 2 //in a custom module, the user can either enter their own options or select from a pre-built list
+        }
         return 1
     }
     
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if (selectedModule == 0) { //custom module
-            let headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 24), text: "Please add options for your variable")
+        if (selectedModule == Modules.CustomModule) { //custom module
+            let headerView: CustomTableViewHeader
+            if (section == 0) {
+                headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 24), text: "Please add options for your variable")
+            } else { //section w/ computations
+                headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 24), text: "Or select a pre-built attachment")
+            }
             return headerView
         } else { //computations
             let headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 48), text: "Please select the computations you wish to add to the variable")
@@ -56,8 +64,12 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if (selectedModule == 0) { //custom module
-            return customModuleOptions.count
+        if (selectedModule == Modules.CustomModule) { //custom module
+            if (section == 0) {
+                return customModuleOptions.count
+            } else {
+                return CustomModule.configurations.count
+            }
         } else { //display computations
             return availableComputationsArray.count
         }
@@ -65,12 +77,45 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("configure_module_cell")!
-        if (selectedModule == 0) { //custom module
-            cell.textLabel?.text = customModuleOptions[indexPath.row]
+        if (selectedModule == Modules.CustomModule) { //custom module
+            if (indexPath.section == 0) {
+                cell.textLabel?.text = customModuleOptions[indexPath.row]
+            } else {
+                cell.textLabel?.text = CustomModule.configurations[indexPath.row]
+            }
         } else { //display computations
             cell.textLabel?.text = availableComputationsArray[indexPath.row]
         }
         return cell
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        if (selectedModule == Modules.CustomModule) { //custom module
+            if (indexPath.section == 1) {
+                if (customModuleOptions.count == 0) { //only available if options are empty!
+                    let alert = UIAlertController(title: "Boolean Configuration", message: "A boolean configuration offers two options - 'Yes' and 'No'. Useful for variables with only two possibilities.", preferredStyle: .Alert)
+                    let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in }
+                    let select = UIAlertAction(title: "Select", style: .Default) { (let ok) -> Void in
+                        self.customModuleOptions.append("Yes")
+                        self.customModuleOptions.append("No")
+                        self.configureModuleTableView.reloadData()
+                        self.saveButton.enabled = true
+                    }
+                    alert.addAction(cancel)
+                    alert.addAction(select)
+                    presentViewController(alert, animated: true, completion: nil)
+                }
+            }
+        }
+    }
+    
+    func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        if (selectedModule == Modules.CustomModule) { //custom module
+            if (indexPath.section == 0) {
+                return false //prevent selection of the option rows
+            }
+        }
+        return true
     }
     
     // MARK: - Button Actions
@@ -86,11 +131,29 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
             if (input != "") {
                 self.customModuleOptions.append(input!)
                 self.configureModuleTableView.reloadData()
+                self.saveButton.enabled = true //enable button after 1 option is selected
             }
         }
         alert.addAction(cancel)
         alert.addAction(done)
         presentViewController(alert, animated: true, completion: nil)
     }
+    
+    @IBAction func saveButtonClick(sender: AnyObject) {
+        switch self.selectedModule! { //check which module was attached
+        case .CustomModule:
+            self.createdVariable = CustomModule(name: self.variableName!, options: customModuleOptions)
+        case .TemperatureHumidityModule:
+            self.createdVariable = TemperatureHumidityModule(name: self.variableName!)
+        case .WeatherModule:
+            self.createdVariable = WeatherModule(name: self.variableName!)
+        case .ExerciseModule:
+            self.createdVariable = ExerciseModule(name: self.variableName!)
+        case .FoodIntakeModule:
+            self.createdVariable = FoodIntakeModule(name: self.variableName!)
+        }
+        performSegueWithIdentifier("unwindToVariablesVC", sender: self)
+    }
+    
 
 }

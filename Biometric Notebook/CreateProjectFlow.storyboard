@@ -15,11 +15,11 @@
                         <viewControllerLayoutGuide type="bottom" id="Kd3-i2-7qq"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="7KH-kc-wgs">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="750"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="900"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" bounces="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jty-zy-Jz9">
-                                <rect key="frame" x="0.0" y="64" width="600" height="686"/>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jty-zy-Jz9">
+                                <rect key="frame" x="0.0" y="64" width="600" height="792"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AA7-qg-eLB">
                                         <rect key="frame" x="16" y="8" width="568" height="650"/>
@@ -175,6 +175,48 @@
                                             <constraint firstAttribute="height" constant="650" id="r0s-mN-hKB"/>
                                         </constraints>
                                     </view>
+                                    <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="1" maxValue="9" translatesAutoresizingMaskIntoConstraints="NO" id="7qL-z3-YKm">
+                                        <rect key="frame" x="279" y="692" width="118" height="31"/>
+                                        <animations/>
+                                    </slider>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Select a Number" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4Xw-Jw-yFw">
+                                        <rect key="frame" x="21" y="696" width="128" height="21"/>
+                                        <animations/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Select a Unit" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LxI-wP-u0y">
+                                        <rect key="frame" x="21" y="739" width="98" height="21"/>
+                                        <animations/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VTn-en-vtp">
+                                        <rect key="frame" x="196" y="692" width="46" height="30"/>
+                                        <animations/>
+                                        <state key="normal" title="Button"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8y1-1N-cdM">
+                                        <rect key="frame" x="433" y="692" width="46" height="30"/>
+                                        <animations/>
+                                        <state key="normal" title="Button"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gsx-r8-Nza">
+                                        <rect key="frame" x="196" y="730" width="46" height="30"/>
+                                        <animations/>
+                                        <state key="normal" title="Button"/>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QBv-wF-Tcu">
+                                        <rect key="frame" x="433" y="730" width="46" height="30"/>
+                                        <animations/>
+                                        <state key="normal" title="Button"/>
+                                    </button>
+                                    <slider opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="1" minValue="1" maxValue="9" translatesAutoresizingMaskIntoConstraints="NO" id="H85-os-Acb">
+                                        <rect key="frame" x="279" y="730" width="118" height="31"/>
+                                        <animations/>
+                                    </slider>
                                 </subviews>
                                 <animations/>
                                 <constraints>
@@ -208,7 +250,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-                    <size key="freeformSize" width="600" height="750"/>
+                    <size key="freeformSize" width="600" height="900"/>
                     <connections>
                         <outlet property="actionInstructionLabel" destination="6N9-jA-uaJ" id="3rQ-0z-4tN"/>
                         <outlet property="actionPicker" destination="45k-Jg-Kic" id="64T-w8-tsW"/>
@@ -414,9 +456,9 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Configure Module" id="pB6-c3-Nvx">
-                        <barButtonItem key="rightBarButtonItem" systemItem="save" id="5oD-4v-hP9">
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" systemItem="save" id="5oD-4v-hP9">
                             <connections>
-                                <segue destination="fkl-hE-DbL" kind="unwind" unwindAction="unwindToVariablesVC:" id="GkJ-ev-qx8"/>
+                                <action selector="saveButtonClick:" destination="zTM-eA-nMS" id="GsA-ka-Zim"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -425,6 +467,7 @@
                         <outlet property="configureModuleTableView" destination="ukv-oA-4gY" id="yiJ-P8-w9F"/>
                         <outlet property="saveButton" destination="5oD-4v-hP9" id="gGU-Nn-nAk"/>
                         <outlet property="titleBar" destination="qlh-h8-GzY" id="Pxm-3S-6M2"/>
+                        <segue destination="fkl-hE-DbL" kind="unwind" identifier="unwindToVariablesVC" unwindAction="unwindToVariablesVC:" id="WqY-BK-Jiv"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MfA-QG-7st" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -437,7 +480,7 @@
             <objects>
                 <tableViewController id="e9s-W9-Iki" customClass="ProjectVariablesTableViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="YFe-I9-3HT">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="750"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="900"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -494,11 +537,11 @@
                         <viewControllerLayoutGuide type="bottom" id="O68-aj-PEw"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="DD6-dC-h1g">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="750"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="900"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="7jG-Yl-lTG">
-                                <rect key="frame" x="0.0" y="64" width="600" height="653"/>
+                                <rect key="frame" x="0.0" y="64" width="600" height="803"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
@@ -515,7 +558,7 @@
                                 </prototypes>
                             </tableView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eG3-e2-0TC">
-                                <rect key="frame" x="0.0" y="717" width="600" height="33"/>
+                                <rect key="frame" x="0.0" y="867" width="600" height="33"/>
                                 <animations/>
                                 <color key="backgroundColor" red="0.081715650566599018" green="0.56161279281541865" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>

@@ -7,12 +7,13 @@
 
 import UIKit
 import HealthKit
+import CoreData
 
 class HomeScreenViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var categoriesTableView: UITableView!
     
-    let categories = ["Sleep", "Exercise", "Dummy Project 1"]
+    var categories: [String] = ["Sleep", "Exercise", "Dummy Project 1"]
     let cellColors: [UIColor] = [UIColor.blueColor(), UIColor.greenColor(), UIColor.redColor(), UIColor.brownColor(), UIColor.blackColor()]
     
     override func viewDidLoad() {
@@ -23,9 +24,54 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
         
         let height = HealthKitConnection().getHeightFromHKStore()
         print("Height: \(height)")
+        //clearDataStore()
         
-        //        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        //        let context = appDelegate.managedObjectContext
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        let context = appDelegate.managedObjectContext
+        let request = NSFetchRequest(entityName: "Project")
+        do {
+            let results = try context.executeFetchRequest(request)
+            for result in results {
+                let project = result as! Project
+                categories.append(project.title)
+                let count = project.beforeActionVars.count + project.afterActionVars.count
+                print("Number of variables: \(count)")
+                for (variable, dict) in project.beforeActionVars {
+                    let options = dict["options"] as! [String]
+                    print("Before Action Variable Name: \(variable)")
+                    print("Options: \(options)")
+                }
+                for (variable, dict) in project.afterActionVars {
+                    let options = dict["options"] as! [String]
+                    print("After Action Variable Name: \(variable)")
+                    print("Options: \(options)")
+                }
+            }
+        } catch let error as NSError {
+            print("Error fetching stored projects: \(error)")
+        }
+    }
+    
+    func clearDataStore() {
+        print("Clearing data store...")
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        let context = appDelegate.managedObjectContext
+        let request = NSFetchRequest(entityName: "Project")
+        do {
+            let results = try context.executeFetchRequest(request)
+            for result in results {
+                context.deleteObject(result as! NSManagedObject)
+                print("Deleted object.")
+                do {
+                    print("Context saved!")
+                    try context.save()
+                } catch let error as NSError {
+                    print("Error saving store: \(error)")
+                }
+            }
+        } catch let error as NSError {
+            print("Error fetching stored projects: \(error)")
+        }
     }
     
     // MARK: - TV Data Source

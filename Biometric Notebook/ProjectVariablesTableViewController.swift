@@ -12,10 +12,14 @@ class ProjectVariablesTableViewController: UITableViewController {
     @IBOutlet weak var doneButton: UIBarButtonItem!
     @IBOutlet weak var spacingItem: UIBarButtonItem! //used to space the 'doneButton' to far right
     
-    var beforeActionRows: [String] = [] //data source for rows before the 'Action'
-    var afterActionRows: [String] = [] //data source for rows after the 'Action'
-    var action: String? //action (obtained from CreateProject VC)
-    var variableName: String? //the name of the variable entered by the user
+    var beforeActionRows: [Module] = [] //data source for rows before the 'Action'
+    var afterActionRows: [Module] = [] //data source for rows after the 'Action'
+    var projectTitle: String? //title (obtained from CreateProject VC)
+    var projectQuestion: String? //question for investigation (obtained from CreateProject VC)
+    var projectAction: Action? //action (obtained from CreateProject VC)
+    var projectEndpoint: Endpoint? //endpoint (obtained from CreateProjectVC)
+    var variableName: String? //the name of the variable entered by the user***
+    var createdVariable: Module? //the completed variable created by the user
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,13 +80,13 @@ class ProjectVariablesTableViewController: UITableViewController {
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("variable_cell", forIndexPath: indexPath)
         if (indexPath.section == 0) { //before Action section
-            cell.textLabel?.text = beforeActionRows[indexPath.row]
+            cell.textLabel?.text = beforeActionRows[indexPath.row].variableName
         } else if (indexPath.section == 2) { //after Action section
-            cell.textLabel?.text = afterActionRows[indexPath.row]
+            cell.textLabel?.text = afterActionRows[indexPath.row].variableName
         } else if (indexPath.section == 1) {
             cell.backgroundColor = UIColor.blackColor()
             cell.textLabel?.textColor = UIColor.whiteColor()
-            cell.textLabel?.text = action!
+            cell.textLabel?.text = projectAction!.action.rawValue
         }
         return cell
     }
@@ -121,8 +125,25 @@ class ProjectVariablesTableViewController: UITableViewController {
         let done = UIAlertAction(title: "Add", style: .Default) { (let ok) -> Void in
             let input = alert.textFields?.first?.text
             if (input != "") {
-                self.variableName = input
-                self.performSegueWithIdentifier("showAttachModule", sender: nil)
+                var error: Bool = false
+                for variable in self.beforeActionRows {
+                    if (input?.lowercaseString == variable.variableName.lowercaseString) { //make sure name is unique
+                        print("Error. Duplicate Name.")
+                        error = true
+                        break
+                    }
+                }
+                for variable in self.afterActionRows {
+                    if (input?.lowercaseString == variable.variableName.lowercaseString) { //make sure name is unique
+                        print("Error. Duplicate Name.")
+                        error = true
+                        break
+                    }
+                }
+                if !(error) { //make sure the variable is not a duplicate
+                    self.variableName = input
+                    self.performSegueWithIdentifier("showAttachModule", sender: nil)
+                }
             }
         }
         alert.addAction(cancel)
@@ -141,25 +162,34 @@ class ProjectVariablesTableViewController: UITableViewController {
         //Note: requires the '@IBAction' in the beginning to enable the click & drag from a button to the VC's 'Exit' button on the top-most bar.
         if let configureModuleVC = sender.sourceViewController as? ConfigureModuleViewController {
             //If sender is configureModuleVC, grab the input/outcome selection & module information:
-            let variableName = configureModuleVC.variableName!
+            createdVariable = configureModuleVC.createdVariable
+            if let newVar = createdVariable as? CustomModule {
+                print("Number of options: \(newVar.getOptionsForVariable())")
+            }
             if (configureModuleVC.beforeOrAfterAction == "before") {
-                beforeActionRows.append(variableName)
+                beforeActionRows.append(createdVariable!)
                 tableView.reloadData()
             } else if (configureModuleVC.beforeOrAfterAction == "after") {
-                afterActionRows.append(variableName)
+                afterActionRows.append(createdVariable!)
                 tableView.reloadData()
             } else {
                 print("Error in unwindToVariablesVC")
             }
         }
-        if (beforeActionRows.count > 1) && (afterActionRows.count > 1) { //enable when 1 of each var is added, disable if a variable is deleted or moved & there is no longer 1 of each
+        if (beforeActionRows.count > 0) && (afterActionRows.count > 0) { //enable button when 1 of each var is added, disable if a variable is deleted or moved & there is no longer 1 of each
             doneButton.enabled = true
         }
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if (segue.identifier == "showSummary") {
-            
+            let destination = segue.destinationViewController as! ProjectSummaryViewController
+            destination.projectTitle = self.projectTitle
+            destination.projectQuestion = self.projectQuestion
+            destination.projectEndpoint = self.projectEndpoint
+            destination.projectAction = self.projectAction
+            destination.beforeActionVariables = self.beforeActionRows
+            destination.afterActionVariables = self.afterActionRows
         } else if (segue.identifier == "showAttachModule") { //send name of new variable
             let destination = segue.destinationViewController as! UINavigationController
             let attachModuleVC = destination.topViewController as! AttachModuleViewController

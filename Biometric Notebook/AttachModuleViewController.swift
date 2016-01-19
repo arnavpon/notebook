@@ -14,10 +14,10 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     @IBOutlet weak var outcomeVariableCheckbox: CheckBox!
     @IBOutlet weak var moduleTableView: UITableView!
     
-    let moduleArray: [String] = ["Custom Module", "Temperature/Humidity Module", "Weather Module", "Exercise Module", "Food Module"]
+    let moduleArray: [String] = ["Custom Module", "Temperature/Humidity Module", "Weather Module", "Exercise Module", "Food Intake Module"]
     var variableName: String? //user-entered variable name
-    var selectedModule: Int? //int or enum?
-    var beforeOrAfterAction: String? //determines where to put variable in flow
+    var selectedModule: Modules? //matches TV selection -> enum containing the defined module types
+    var beforeOrAfterAction: String? //determines where to put variable in flow (before or after action)
     
     // MARK: - View Configuration 
     
@@ -52,27 +52,49 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         //Grab the current selection:
         if (beforeOrAfterAction != nil) { //make sure a checkbox is selected before proceeding
-            selectedModule = indexPath.row //indicate selected module
             let alert: UIAlertController
-            let selection: Int
+            var errorCheck = false //makes sure the 'default' statement was not triggered
             switch indexPath.row { //check which module was selected
-            case 0:
-                selection = 0
+            case 0: //first item in 'moduleArray'
+                selectedModule = Modules.CustomModule
                 alert = UIAlertController(title: "Module Description", message: "A custom module allows you to add a variable and a set of options pertaining to that variable.", preferredStyle: .Alert)
+            case 1: //T&H module (2nd item in 'moduleArray')
+                selectedModule = Modules.TemperatureHumidityModule
+                alert = UIAlertController(title: "Module Description", message: "A module that allows you to track temperature and humidity.", preferredStyle: .Alert)
+            case 2: //Weather module (3rd item in 'moduleArray')
+                selectedModule = Modules.WeatherModule
+                alert = UIAlertController(title: "Module Description", message: "A module that allows you to capture the current weather.", preferredStyle: .Alert)
+            case 3: //Exercise module (4th item in 'moduleArray')
+                selectedModule = Modules.ExerciseModule
+                alert = UIAlertController(title: "Module Description", message: "A module that allows you to track exercise-related statistics.", preferredStyle: .Alert)
+            case 4: //FoodIntake module (5th item in 'moduleArray')
+                selectedModule = Modules.FoodIntakeModule
+                alert = UIAlertController(title: "Module Description", message: "A module that allows you to track food intake.", preferredStyle: .Alert)
             default:
-                selection = -1 
+                errorCheck = true
+                selectedModule = nil
                 alert = UIAlertController(title: "Error!", message: "Default in switch statement.", preferredStyle: .Alert)
             }
-            let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in
-                tableView.cellForRowAtIndexPath(indexPath)?.highlighted = false //remove highlighting if module is not attached
-                tableView.reloadData()
+            if (errorCheck == false) { //no errors
+                let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in
+                    self.selectedModule = nil
+                    tableView.cellForRowAtIndexPath(indexPath)?.highlighted = false //remove highlighting if module is not attached
+                    tableView.reloadData()
+                }
+                let attach = UIAlertAction(title: "Attach", style: .Default) { (let ok) -> Void in
+                    //Create the variable object w/ the appropriate class:
+                    self.performSegueWithIdentifier("showConfigureModule", sender: nil)
+                }
+                alert.addAction(cancel)
+                alert.addAction(attach)
+            } else { //error (default statement triggered)
+                let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in
+                    self.selectedModule = nil
+                    tableView.cellForRowAtIndexPath(indexPath)?.highlighted = false
+                    tableView.reloadData()
+                }
+                alert.addAction(cancel)
             }
-            let attach = UIAlertAction(title: "Attach", style: .Default) { (let ok) -> Void in
-                self.selectedModule = selection
-                self.performSegueWithIdentifier("showConfigureModule", sender: nil)
-            }
-            alert.addAction(cancel)
-            alert.addAction(attach)
             presentViewController(alert, animated: true, completion: nil)
         }
     }

@@ -21,15 +21,17 @@ class CreateProjectViewController: UIViewController, UIPickerViewDataSource, UIP
     @IBOutlet weak var endpointInstructionLabel: UILabel!
     @IBOutlet weak var questionInstructionLabel: UILabel!
     
+    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     var endpointPickerFirstComponentArray: [String] = ["Continuous", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
-    var endpointPickerSecondComponentArray: [String] = ["Day(s)", "Week(s)", "Month(s)", "Year(s)"]
-    var actionPickerRowArray: [String] = ["Eat", "Sleep", "Exercise"]
-    
-    var selectedAction: String?
-    var projectHasName: Bool = false //checks if a name has been entered
-    var projectHasQuestion: Bool = false //checks if a question has been entered
+    var endpointPickerSecondComponentArray: [String] = ["Day(s)", "Week(s)", "Month(s)", "Year(s)"] //make sure this array matches the 'rawValue' strings in the 'Endpoint' enum!
+    var actionPickerRowArray: [String] = ["Eat", "Sleep", "Exercise"] //make sure these values match the 'rawValue' strings in the picker enum!
     var actionPickerSelection: String?
     var endpointPickerSelection: (String?, String?)
+    
+    var projectTitle: String? //set value to indicate that a name has been entered
+    var projectQuestion: String? //set value to indicate that a question has been entered
+    var selectedAction: Action? //captures 'action' before segue
+    var selectedEndpoint: Endpoint? //captures 'endpoint' before segue
     
     // MARK: - View Configuration
     
@@ -49,13 +51,13 @@ class CreateProjectViewController: UIViewController, UIPickerViewDataSource, UIP
         projectNameTextView.delegate = self
         projectQuestionTextView.delegate = self
         
+        //Initialize the actionPicker & endpointPicker selections w/ the first item in the array:
         actionPickerSelection = actionPickerRowArray.first
         endpointPickerSelection = (endpointPickerFirstComponentArray.first, endpointPickerSecondComponentArray.first)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     // MARK: - Picker View
@@ -92,12 +94,11 @@ class CreateProjectViewController: UIViewController, UIPickerViewDataSource, UIP
         }
     }
 
-    func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        //save current selection
+    func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) { //save current selection
         if (pickerView == actionPicker) {
             actionPickerSelection = actionPickerRowArray[row]
             print("Current Action: \(actionPickerSelection!)")
-        } else {
+        } else if (pickerView == endpointPicker) {
             if (component == 0) {
                 endpointPickerSelection.0 = endpointPickerFirstComponentArray[row]
             } else {
@@ -109,21 +110,21 @@ class CreateProjectViewController: UIViewController, UIPickerViewDataSource, UIP
     
     // MARK: - Text View
     
-    func textViewDidChange(textView: UITextView) {
+    func textViewDidChange(textView: UITextView) { //enable 'save' button when name & question are entered
         if (textView == projectNameTextView) {
             if (textView.text != "") {
-                projectHasName = true
+                projectTitle = textView.text
             } else {
-                projectHasName = false
+                projectTitle = nil
             }
         } else if (textView == projectQuestionTextView) {
             if (textView.text != "") {
-                projectHasQuestion = true
+                projectQuestion = textView.text
             } else {
-                projectHasQuestion = false
+                projectQuestion = nil
             }
         }
-        if (projectHasQuestion) && (projectHasName) {
+        if (projectQuestion != nil) && (projectTitle != nil) {
             saveButton.enabled = true
         } else {
             saveButton.enabled = false
@@ -134,20 +135,27 @@ class CreateProjectViewController: UIViewController, UIPickerViewDataSource, UIP
     
     @IBAction func saveButtonClick(sender: AnyObject) {
         //Transition -> VariableVC & save project configuration:
-        selectedAction = actionPickerSelection
+        selectedAction = Action(action: actionPickerSelection!) //initializes the enum object w/ the string in the picker
+        selectedEndpoint = Endpoint(firstPickerSelection: endpointPickerSelection.0!, secondPickerSelection: endpointPickerSelection.1!)
         performSegueWithIdentifier("showVariables", sender: nil)
     }
     
-    @IBAction func cancelButtonClick(sender: AnyObject) {
-        //Return to home screen:
+    @IBAction func cancelButtonClick(sender: AnyObject) { //return to home screen
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let controller = storyboard.instantiateInitialViewController()!
+        presentViewController(controller, animated: true, completion: nil)
     }
 
     // MARK: - Navigation
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        //Pass the title, question, action & endpoint through -> the remaining flows so that the complete project can be set up in the 'Summary' section:
         if (segue.identifier == "showVariables") {
             let destination = segue.destinationViewController as! ProjectVariablesTableViewController
-            destination.action = self.selectedAction
+            destination.projectTitle = self.projectTitle
+            destination.projectQuestion = self.projectQuestion
+            destination.projectAction = self.selectedAction
+            destination.projectEndpoint = self.selectedEndpoint
         }
     }
 
