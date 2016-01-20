@@ -25,7 +25,7 @@
                                         <rect key="frame" x="16" y="8" width="568" height="650"/>
                                         <subviews>
                                             <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="72O-M4-Fm8">
-                                                <rect key="frame" x="43" y="206" width="468" height="190"/>
+                                                <rect key="frame" x="43" y="206" width="500" height="190"/>
                                                 <subviews>
                                                     <pickerView contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="BDO-RR-50f">
                                                         <rect key="frame" x="49" y="52" width="370" height="130"/>
@@ -35,7 +35,7 @@
                                                             <constraint firstAttribute="height" constant="130" id="mzF-IE-P0H"/>
                                                         </constraints>
                                                     </pickerView>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Select a Project Endpoint (the amount of time you want the project to run for)" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VMP-GW-5yk">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="3. Select a Project Endpoint (the amount of time you want the project to run for)" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VMP-GW-5yk">
                                                         <rect key="frame" x="99" y="8" width="300" height="44"/>
                                                         <animations/>
                                                         <constraints>
@@ -65,16 +65,16 @@
                                                 </variation>
                                             </view>
                                             <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WQg-KQ-08C">
-                                                <rect key="frame" x="43" y="8" width="476" height="190"/>
+                                                <rect key="frame" x="43" y="8" width="500" height="190"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Enter a name for your project:" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OBf-ni-mow">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="1. Enter a name for your project:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OBf-ni-mow">
                                                         <rect key="frame" x="86" y="4" width="284" height="18"/>
                                                         <animations/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="What is the research question you want to answer?" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="c0n-W8-78i">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="2. What is the research question you want to answer?" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="c0n-W8-78i">
                                                         <rect key="frame" x="32" y="87" width="393" height="18"/>
                                                         <animations/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
@@ -119,7 +119,7 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EoF-fV-S5T">
-                                                <rect key="frame" x="38" y="414" width="504" height="203"/>
+                                                <rect key="frame" x="43" y="412" width="500" height="203"/>
                                                 <subviews>
                                                     <pickerView contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="45k-Jg-Kic">
                                                         <rect key="frame" x="72" y="68" width="361" height="107"/>
@@ -129,7 +129,7 @@
                                                             <constraint firstAttribute="height" constant="130" id="nir-Do-qfX"/>
                                                         </constraints>
                                                     </pickerView>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Choose a Project Action (the action separating the inputs and outputs, for example 'eating' or 'sleeping')" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6N9-jA-uaJ">
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="4. Choose a Project Action (the action separating the inputs and outputs, for example 'eating' or 'sleeping')" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6N9-jA-uaJ">
                                                         <rect key="frame" x="57" y="8" width="413" height="43"/>
                                                         <animations/>
                                                         <constraints>
@@ -183,14 +183,14 @@
                                         <rect key="frame" x="21" y="696" width="128" height="21"/>
                                         <animations/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Select a Unit" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LxI-wP-u0y">
                                         <rect key="frame" x="21" y="739" width="98" height="21"/>
                                         <animations/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VTn-en-vtp">
@@ -398,7 +398,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="EyL-uO-bcx" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="8jV-yM-Z4X" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3576" y="-459"/>
+            <point key="canvasLocation" x="3533" y="-512"/>
         </scene>
         <!--Configure Module-->
         <scene sceneID="CZd-LL-FBh">
@@ -473,7 +473,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MfA-QG-7st" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="fkl-hE-DbL" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="4291" y="-459"/>
+            <point key="canvasLocation" x="4282" y="-512"/>
         </scene>
         <!--Data Flow-->
         <scene sceneID="JHg-6V-g4H">
@@ -642,7 +642,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dc8-Bq-Pzw" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2814" y="-459"/>
+            <point key="canvasLocation" x="2814" y="-512"/>
         </scene>
     </scenes>
     <resources>

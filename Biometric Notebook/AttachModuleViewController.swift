@@ -14,7 +14,7 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     @IBOutlet weak var outcomeVariableCheckbox: CheckBox!
     @IBOutlet weak var moduleTableView: UITableView!
     
-    let moduleArray: [String] = ["Custom Module", "Temperature/Humidity Module", "Weather Module", "Exercise Module", "Food Intake Module"]
+    let moduleArray: [String] = ["Custom Module", "Temperature/Humidity Module", "Weather Module", "Exercise Module", "Food Intake Module", "Biometric Module"]
     var variableName: String? //user-entered variable name
     var selectedModule: Modules? //matches TV selection -> enum containing the defined module types
     var beforeOrAfterAction: String? //determines where to put variable in flow (before or after action)
@@ -70,6 +70,9 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
             case 4: //FoodIntake module (5th item in 'moduleArray')
                 selectedModule = Modules.FoodIntakeModule
                 alert = UIAlertController(title: "Module Description", message: "A module that allows you to track food intake.", preferredStyle: .Alert)
+            case 5: //Biometric module (6th item in 'moduleArray')
+                selectedModule = Modules.BiometricModule
+                alert = UIAlertController(title: "Module Description", message: "A module that allows you to track biometric data like height and weight.", preferredStyle: .Alert)
             default:
                 errorCheck = true
                 selectedModule = nil

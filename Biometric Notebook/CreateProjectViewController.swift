@@ -23,7 +23,7 @@ class CreateProjectViewController: UIViewController, UIPickerViewDataSource, UIP
     
     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
     var endpointPickerFirstComponentArray: [String] = ["Continuous", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
-    var endpointPickerSecondComponentArray: [String] = ["Day(s)", "Week(s)", "Month(s)", "Year(s)"] //make sure this array matches the 'rawValue' strings in the 'Endpoint' enum!
+    var endpointPickerSecondComponentArray: [String] = ["-----", "Day(s)", "Week(s)", "Month(s)", "Year(s)"] //make sure this array matches the 'rawValue' strings in the 'Endpoint' enum!
     var actionPickerRowArray: [String] = ["Eat", "Sleep", "Exercise"] //make sure these values match the 'rawValue' strings in the picker enum!
     var actionPickerSelection: String?
     var endpointPickerSelection: (String?, String?)
@@ -113,7 +113,7 @@ class CreateProjectViewController: UIViewController, UIPickerViewDataSource, UIP
     func textViewDidChange(textView: UITextView) { //enable 'save' button when name & question are entered
         if (textView == projectNameTextView) {
             if (textView.text != "") {
-                projectTitle = textView.text
+                projectTitle = textView.text.capitalizedString
             } else {
                 projectTitle = nil
             }
@@ -135,9 +135,15 @@ class CreateProjectViewController: UIViewController, UIPickerViewDataSource, UIP
     
     @IBAction func saveButtonClick(sender: AnyObject) {
         //Transition -> VariableVC & save project configuration:
-        selectedAction = Action(action: actionPickerSelection!) //initializes the enum object w/ the string in the picker
-        selectedEndpoint = Endpoint(firstPickerSelection: endpointPickerSelection.0!, secondPickerSelection: endpointPickerSelection.1!)
-        performSegueWithIdentifier("showVariables", sender: nil)
+        let numericalValue = endpointPickerSelection.0!
+        let unit = endpointPickerSelection.1!
+        if (numericalValue != "Continuous") && (unit == "-----") { //block transition if '----' is selected w/ a numerical value
+            print("Error. Please select an appropriate unit for the numerical value")
+        } else {
+            selectedAction = Action(action: actionPickerSelection!) //initializes the enum object w/ the string in the picker
+            selectedEndpoint = Endpoint(firstPickerSelection: endpointPickerSelection.0!, secondPickerSelection: endpointPickerSelection.1!)
+            performSegueWithIdentifier("showVariables", sender: nil)
+        }
     }
     
     @IBAction func cancelButtonClick(sender: AnyObject) { //return to home screen

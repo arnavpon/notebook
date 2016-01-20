@@ -43,7 +43,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         if (selectedModule == Modules.CustomModule) { //custom module
-            return 2 //in a custom module, the user can either enter their own options or select from a pre-built list
+            return 3 //in a custom module, the user can either enter a prompt (to replace the variable), their own options, or select an option from a pre-built list
         }
         return 1
     }
@@ -51,10 +51,12 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if (selectedModule == Modules.CustomModule) { //custom module
             let headerView: CustomTableViewHeader
-            if (section == 0) {
+            if (section == 0) { //prompt entry
+                headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 24), text: "If you want, enter a prompt for your variable (replaces the variable name during data entry).")
+            } else if (section == 1) {
                 headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 24), text: "Please add options for your variable")
             } else { //section w/ computations
-                headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 24), text: "Or select a pre-built attachment")
+                headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 24), text: "Or select a pre-built configuration")
             }
             return headerView
         } else { //computations
@@ -66,6 +68,8 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if (selectedModule == Modules.CustomModule) { //custom module
             if (section == 0) {
+                return 1
+            } else if (section == 1) {
                 return customModuleOptions.count
             } else {
                 return CustomModule.configurations.count
@@ -79,6 +83,8 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         let cell = tableView.dequeueReusableCellWithIdentifier("configure_module_cell")!
         if (selectedModule == Modules.CustomModule) { //custom module
             if (indexPath.section == 0) {
+                //prompt
+            } else if (indexPath.section == 1) {
                 cell.textLabel?.text = customModuleOptions[indexPath.row]
             } else {
                 cell.textLabel?.text = CustomModule.configurations[indexPath.row]
@@ -91,7 +97,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if (selectedModule == Modules.CustomModule) { //custom module
-            if (indexPath.section == 1) {
+            if (indexPath.section == 2) {
                 if (customModuleOptions.count == 0) { //only available if options are empty!
                     let alert = UIAlertController(title: "Boolean Configuration", message: "A boolean configuration offers two options - 'Yes' and 'No'. Useful for variables with only two possibilities.", preferredStyle: .Alert)
                     let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in }
@@ -111,8 +117,8 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     
     func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         if (selectedModule == Modules.CustomModule) { //custom module
-            if (indexPath.section == 0) {
-                return false //prevent selection of the option rows
+            if (indexPath.section == 0) || (indexPath.section == 1) {
+                return false //prevent selection of the option rows & the prompt
             }
         }
         return true
@@ -123,15 +129,26 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     @IBAction func addOptionButtonClick(sender: AnyObject) {
         let alert = UIAlertController(title: "New Option", message: "Type the name of the option you wish to add.", preferredStyle: .Alert)
         alert.addTextFieldWithConfigurationHandler { (let field) -> Void in
-            //configure TF
+            field.autocapitalizationType = .Words
         }
         let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in }
         let done = UIAlertAction(title: "Add", style: .Default) { (let ok) -> Void in
             let input = alert.textFields?.first?.text
             if (input != "") {
-                self.customModuleOptions.append(input!)
-                self.configureModuleTableView.reloadData()
-                self.saveButton.enabled = true //enable button after 1 option is selected
+                var error: Bool = false
+                for option in self.customModuleOptions { //make sure input is not a duplicate
+                    if (option.lowercaseString == input?.lowercaseString) {
+                        error = true
+                        break
+                    }
+                }
+                if !(error) {
+                    self.customModuleOptions.append(input!.capitalizedString)
+                    self.configureModuleTableView.reloadData()
+                    self.saveButton.enabled = true //enable button after 1 option is selected
+                } else {
+                    print("Error: input option is a duplicate!")
+                }
             }
         }
         alert.addAction(cancel)
@@ -151,6 +168,8 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
             self.createdVariable = ExerciseModule(name: self.variableName!)
         case .FoodIntakeModule:
             self.createdVariable = FoodIntakeModule(name: self.variableName!)
+        case .BiometricModule:
+            self.createdVariable = BiometricModule(name: self.variableName!)
         }
         performSegueWithIdentifier("unwindToVariablesVC", sender: self)
     }

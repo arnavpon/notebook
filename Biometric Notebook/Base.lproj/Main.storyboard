@@ -77,12 +77,59 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" title="Overview" id="CIL-rP-NO0">
-                        <barButtonItem key="rightBarButtonItem" title="Report Data" id="j0I-6h-qxz"/>
+                        <barButtonItem key="rightBarButtonItem" title="Report Data" id="j0I-6h-qxz">
+                            <connections>
+                                <segue destination="Wm2-lf-4rl" kind="show" identifier="showDataEntry" id="UcK-KL-gXp"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fYf-mg-gx6" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="2372" y="204"/>
+        </scene>
+        <!--Enter Data-->
+        <scene sceneID="ieG-7g-vhc">
+            <objects>
+                <tableViewController id="Wm2-lf-4rl" customClass="DataEntryTableViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="TUN-YK-avs">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <animations/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="variable_cell" id="eNz-sf-jX9">
+                                <rect key="frame" x="0.0" y="92" width="600" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="eNz-sf-jX9" id="hF2-2Y-1Pd">
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <animations/>
+                                </tableViewCellContentView>
+                                <animations/>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="Wm2-lf-4rl" id="rJ0-FD-6yP"/>
+                            <outlet property="delegate" destination="Wm2-lf-4rl" id="e6T-rV-SMw"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Enter Data" id="fCW-Jz-cK7">
+                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="wB7-nA-P3D">
+                            <connections>
+                                <action selector="doneButtonClick:" destination="Wm2-lf-4rl" id="lCZ-3T-Qxc"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="doneButton" destination="wB7-nA-P3D" id="wwB-4w-kPY"/>
+                        <segue destination="qg6-3M-AoO" kind="unwind" identifier="returnToOverview" unwindAction="unwindToOverviewVC:" id="wXu-lP-nm9"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="lJM-PL-nfb" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="qg6-3M-AoO" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="3071" y="204"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="xUI-Dj-27L">

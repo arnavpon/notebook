@@ -119,7 +119,7 @@ class ProjectVariablesTableViewController: UITableViewController {
     @IBAction func addVariableButtonClick(sender: AnyObject) {
         let alert = UIAlertController(title: "New Variable", message: "Type the name of the variable you wish to add.", preferredStyle: .Alert)
         alert.addTextFieldWithConfigurationHandler { (let field) -> Void in
-            //configure TF
+            field.autocapitalizationType = .Words //auto-capitalize words
         }
         let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in }
         let done = UIAlertAction(title: "Add", style: .Default) { (let ok) -> Void in
@@ -141,7 +141,7 @@ class ProjectVariablesTableViewController: UITableViewController {
                     }
                 }
                 if !(error) { //make sure the variable is not a duplicate
-                    self.variableName = input
+                    self.variableName = input?.capitalizedString
                     self.performSegueWithIdentifier("showAttachModule", sender: nil)
                 }
             }

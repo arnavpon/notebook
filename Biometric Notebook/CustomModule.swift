@@ -16,6 +16,7 @@ class CustomModule: Module {
     init(name: String, options: [String]) { //initializer if user did not select a prompt
         self.options = options
         super.init(name: name)
+        self.moduleTitle = "Custom" //overwrite moduleTitle w/ title specific to this class
     }
     
     init(name: String, prompt: String, options: [String]) { //initializer if user did select a prompt
@@ -24,15 +25,15 @@ class CustomModule: Module {
         super.init(name: name)
     }
     
-    internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object). Each variable will occupy 1 spot in the overall dictionary, so we need to merge these individual dictionaries for each variable into 1 master dictionary. Each variable's dictionary will be indicated by the variable name, so MAKE SURE THERE ARE NO REPEAT NAMES!
-        var persistentDictionary: [String: AnyObject] = ["module": "custom", "options": self.options]
+    internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object into a Module subclass). Each variable will occupy 1 spot in the overall dictionary, so we need to merge these individual dictionaries for each variable into 1 master dictionary. Each variable's dictionary will be indicated by the variable name, so MAKE SURE THERE ARE NO REPEAT NAMES!
+        var persistentDictionary: [String: AnyObject] = ["module": self.moduleTitle, "options": self.options] //'module' name matches switch case in 'Project' > 'createModuleObjectFromModuleName' func
         if let headerTitle = prompt {
             persistentDictionary["prompt"] = headerTitle
         }
         return persistentDictionary
     }
     
-    internal func getOptionsForVariable() -> [String] { 
+    internal func getOptionsForVariable() -> [String] { //returns the 'Options' array
         return self.options
     }
     

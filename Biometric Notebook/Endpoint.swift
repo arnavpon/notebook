@@ -44,7 +44,7 @@ struct Endpoint { //storage item for CoreData
             endpoint = Endpoints.Continuous
             endpointInDays = nil
         } else {
-            endpoint = Endpoints(rawValue: secondPickerSelection)!
+            endpoint = Endpoints(rawValue: secondPickerSelection)! 
             if let number = Int(firstPickerSelection) {
                 endpointInDays = (endpoint!.generateEndpoint(number))!
             } else {
