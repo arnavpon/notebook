@@ -42,7 +42,7 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
                 }
                 for (variable, dict) in project.afterActionVars {
                     let options = dict["options"] as? [String]
-                    print("After Action Variable Name: \(variable)")
+                    print("AfterAction Variable Name: \(variable)")
                     print("Options: \(options)")
                 }
                 print("\n")
