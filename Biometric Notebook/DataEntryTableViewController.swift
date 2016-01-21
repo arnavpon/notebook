@@ -226,7 +226,7 @@ class DataEntryTableViewController: UITableViewController {
         do {
             try context.save()
         } catch let error as NSError {
-            print("Error saving context: \(error)")
+            print("Error saving context: \(error).")
         }
     }
 
