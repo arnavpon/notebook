@@ -9,7 +9,7 @@ import UIKit
 import HealthKit
 import CoreData
 
-class HomeScreenViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class HomeScreenViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, LoginViewControllerDelegate {
     
     @IBOutlet weak var categoriesTableView: UITableView!
     
@@ -18,15 +18,39 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     let cellColors: [UIColor] = [UIColor.blueColor(), UIColor.greenColor(), UIColor.redColor(), UIColor.blackColor()]
     var selectedProject: Project? //object to pass on segue
     
+    // MARK: - View Configuration
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        //clearDataStore("Project")
-        categoriesTableView.dataSource = self
-        categoriesTableView.delegate = self
-        categoriesTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
         
+        print("Logged In? \(userDefaults.valueForKey("ISLOGGEDIN"))")
+        print("User: \(userDefaults.valueForKey("USERNAME"))")
+        if (userDefaults.valueForKey("ISLOGGEDIN") as? Bool == true) { //user is logged in
+            loggedIn = true //tell system that user is logged in
+            obtainProjectsFromStore()
+            
+            //clearDataStore("Project")
+            categoriesTableView.dataSource = self
+            categoriesTableView.delegate = self
+            categoriesTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
+        } else {
+            loggedIn = false //transition -> LoginVC
+        }
+    }
+    
+    override func viewWillAppear(animated: Bool) {
+        if (userJustLoggedIn) { //check if user just logged in & set the projects accordingly
+            obtainProjectsFromStore()
+            categoriesTableView.dataSource = self
+            categoriesTableView.delegate = self
+            categoriesTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
+            userJustLoggedIn = false //reset the variable
+        }
+    }
+    
+    func obtainProjectsFromStore() {
         let request = NSFetchRequest(entityName: "Project")
-        do {
+        do { //obtain user's projects from data store
             let results = try context.executeFetchRequest(request)
             for result in results {
                 let project = result as! Project
@@ -34,7 +58,7 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
                 let count = project.beforeActionVars.count + project.afterActionVars.count
                 print("[\(project.title)] Number of variables: \(count)")
                 for (variable, dict) in project.beforeActionVars {
-                    let options = dict["options"] as? [String] //not all vars have an option
+                    let options = dict["options"] as? [String] //not all vars have 'options'
                     let prompt = dict["prompt"] as? String
                     print("Before Action Variable Name: \(variable)")
                     print("Options: \(options)")
@@ -92,6 +116,38 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
         presentViewController(controller, animated: true, completion: nil)
     }
     
+    @IBAction func menuButtonClick(sender: AnyObject) {
+        logout()
+    }
+    
+    // MARK: - Login Logic
+    
+    let userDefaults = NSUserDefaults.standardUserDefaults()
+    var userJustLoggedIn: Bool = false
+    var loggedIn: Bool = false {
+        didSet {
+            if !(loggedIn) { //not logged in
+                performSegueWithIdentifier("showLogin", sender: nil)
+            }
+        }
+    }
+    
+    func didLoginSuccessfully(username: String, email: String?) { //store username & pwd & dismiss LoginVC
+        userDefaults.setObject(username, forKey: "USERNAME") //save username -> preferences
+        if (email != nil) { //consider creating an email formatting class!
+            userDefaults.setObject(email!, forKey: "EMAIL") //save email -> preferences
+        }
+        userDefaults.setBool(true, forKey: "ISLOGGEDIN")
+        let success = userDefaults.synchronize() //update the store
+        print("Sync successful?: \(success)")
+        dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    func logout() {
+        userDefaults.setBool(false, forKey: "ISLOGGEDIN")
+        loggedIn = false
+    }
+    
     // MARK: - Helper Functions
     
     func clearDataStore(entity: String) {
@@ -122,6 +178,9 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
         if (segue.identifier == "showDataVisuals") { //pass the selected project
             let destination = segue.destinationViewController as! ProjectOverviewViewController
             destination.selectedProject = self.selectedProject
+        } else if (segue.identifier == "showLogin") { //set delegate for LoginVC
+            let destination = segue.destinationViewController as! LoginViewController
+            destination.delegate = self
         }
     }
 }

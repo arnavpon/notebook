@@ -30,7 +30,6 @@
 		B17C21101C31D96800B59FB0 /* FoodItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17C210F1C31D96800B59FB0 /* FoodItem.swift */; };
 		B189589D1C39FC0A00378E47 /* Checkbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589C1C39FC0A00378E47 /* Checkbox.swift */; };
 		B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */; };
-		B1B1AC541C2EEC8E00FB254E /* SleepFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1B1AC531C2EEC8E00FB254E /* SleepFlow.storyboard */; };
 		B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */; };
 		B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */; };
 		B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */; };
@@ -51,6 +50,7 @@
 		B1D555871C30739C00C20742 /* DateTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555861C30739C00C20742 /* DateTime.swift */; };
 		B1D868D61C3F58810026334B /* Modules.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D868D51C3F58810026334B /* Modules.swift */; };
 		B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */; };
+		B1F6F3BF1C518BEE001802A7 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -144,7 +144,6 @@
 		B17C210F1C31D96800B59FB0 /* FoodItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodItem.swift; sourceTree = "<group>"; };
 		B189589C1C39FC0A00378E47 /* Checkbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkbox.swift; sourceTree = "<group>"; };
 		B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureModuleViewController.swift; sourceTree = "<group>"; };
-		B1B1AC531C2EEC8E00FB254E /* SleepFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SleepFlow.storyboard; sourceTree = "<group>"; };
 		B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateProjectViewController.swift; sourceTree = "<group>"; };
 		B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectOverviewViewController.swift; sourceTree = "<group>"; };
 		B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleViewController.swift; sourceTree = "<group>"; };
@@ -168,6 +167,7 @@
 		B1D555861C30739C00C20742 /* DateTime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateTime.swift; sourceTree = "<group>"; };
 		B1D868D51C3F58810026334B /* Modules.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Modules.swift; sourceTree = "<group>"; };
 		B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTableViewHeader.swift; sourceTree = "<group>"; };
+		B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -303,7 +303,6 @@
 			children = (
 				B13CF67D1C2D93BA0019D315 /* Main.storyboard */,
 				B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */,
-				B1B1AC531C2EEC8E00FB254E /* SleepFlow.storyboard */,
 				B13CF6821C2D93BA0019D315 /* LaunchScreen.storyboard */,
 			);
 			name = Views;
@@ -323,6 +322,7 @@
 		B13CF6D71C2D94C30019D315 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */,
 				B1CF34671C4F018D001C0F27 /* View Project(s) Flow */,
 				B1B98BD41C39915D00DDACEE /* Create Project Flow */,
 			);
@@ -590,7 +590,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B1C403351C3974A100AF4BB9 /* CreateProjectFlow.storyboard in Resources */,
-				B1B1AC541C2EEC8E00FB254E /* SleepFlow.storyboard in Resources */,
 				B13CF6841C2D93BA0019D315 /* LaunchScreen.storyboard in Resources */,
 				B13CF6811C2D93BA0019D315 /* Assets.xcassets in Resources */,
 				B13CF67F1C2D93BA0019D315 /* Main.storyboard in Resources */,
@@ -635,6 +634,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B1F6F3BF1C518BEE001802A7 /* LoginViewController.swift in Sources */,
 				B1BC886F1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld in Sources */,
 				B1D868D61C3F58810026334B /* Modules.swift in Sources */,
 				B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */,
