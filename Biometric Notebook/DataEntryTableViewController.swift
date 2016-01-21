@@ -185,8 +185,7 @@ class DataEntryTableViewController: UITableViewController {
         //Construct data object containing values stored for the variable & send information -> the DB:
         //dataObject should contain the variable & values entered against it. First check to see that it is a CustomModule object before proceeding. Other modules have different capture behaviors.
         var dataObjectToDatabase = Dictionary<String, [String: String]>()
-        let (date, time) = (DateTime().getCurrentDateString(), DateTime().getCurrentTimeString())
-        let timeStamp = "\(date) \(time)" //get current time as of recording
+        let timeStamp = DateTime().getFullTimeStamp() //get current date/time as of recording
         if let variables = variablesArray {
             for (entryInArray, index) in arrayOfCellsForSection {
                 let variable = variables[entryInArray]

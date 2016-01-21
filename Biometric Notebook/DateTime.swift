@@ -8,12 +8,12 @@
 import Foundation
 
 class DateTime {
-    let month: Int //current month (MM format)
-    let day: Int //current day (DD format)
-    let year: Int //current year (YYYY format)
-    let hours: Int //current time (hours)
-    let minutes: Int //current time (minutes)
-    let seconds: Int //current time (seconds)
+    private let month: Int //current month (MM format)
+    private let day: Int //current day (DD format)
+    private let year: Int //current year (YYYY format)
+    private let hours: Int //current time (hours)
+    private let minutes: Int //current time (minutes)
+    private let seconds: Int //current time (seconds)
     private var dateString: String {
         get {
             return "\(month)/\(day)/\(year)"
@@ -59,5 +59,9 @@ class DateTime {
     
     func getCurrentTimeString() -> String {
         return timeString
+    }
+    
+    func getFullTimeStamp() -> String {
+        return "\(dateString) \(timeString)"
     }
 }
