@@ -37,4 +37,11 @@ class CustomModule: Module {
         return self.options
     }
     
+    internal func getPromptForVariable() -> String? { //returns the 'Options' array
+        return self.prompt
+    }
+    
+    internal func setPromptForVariable(prompt: String) { //returns the 'Options' array
+        self.prompt = prompt
+    }
 }

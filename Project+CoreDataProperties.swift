@@ -7,7 +7,9 @@ import Foundation
 import CoreData
 
 extension Project {
-
+    
+    @NSManaged var inputVariableDataHasBeenEntered: Bool //tracker to check whether input variable data has been input for this project @ the current time (used to determine whether to display IV or OM in the DataEntryTV). **Need to check if saving the MOC on a reconstructed object will be saved the next time the app is opened. 
+    
     @NSManaged var title: String //project title
     @NSManaged var question: String //question being investigated in the project
     @NSManaged var endPoint: NSNumber? //duration of project in # of days

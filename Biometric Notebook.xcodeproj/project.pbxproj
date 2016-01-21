@@ -27,22 +27,14 @@
 		B13CF6BD1C2D93BB0019D315 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */; };
 		B13CF6BF1C2D93BB0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */; };
 		B16EC9801C317D650085265C /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B16EC97F1C317D650085265C /* HealthKit.framework */; };
-		B17C210E1C31B5F400B59FB0 /* HealthKitConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17C210D1C31B5F400B59FB0 /* HealthKitConnection.swift */; };
 		B17C21101C31D96800B59FB0 /* FoodItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17C210F1C31D96800B59FB0 /* FoodItem.swift */; };
 		B189589D1C39FC0A00378E47 /* Checkbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589C1C39FC0A00378E47 /* Checkbox.swift */; };
 		B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */; };
-		B192E0DA1C3080BE00B26936 /* SleepDataObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B192E0D91C3080BE00B26936 /* SleepDataObject.swift */; };
-		B192E0DC1C30891A00B26936 /* SleepFlowSecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B192E0DB1C30891A00B26936 /* SleepFlowSecondViewController.swift */; };
 		B1B1AC541C2EEC8E00FB254E /* SleepFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1B1AC531C2EEC8E00FB254E /* SleepFlow.storyboard */; };
-		B1B1AC561C2EF21800FB254E /* SleepFlowFirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B1AC551C2EF21800FB254E /* SleepFlowFirstViewController.swift */; };
 		B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */; };
 		B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */; };
 		B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */; };
 		B1B98BE61C399DDB00DDACEE /* ProjectVariablesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BE51C399DDB00DDACEE /* ProjectVariablesTableViewController.swift */; };
-		B1BC88611C31F9630085A4F4 /* ExerciseFlowFirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1BC88601C31F9630085A4F4 /* ExerciseFlowFirstViewController.swift */; };
-		B1BC88631C31F9720085A4F4 /* ExerciseFlowSecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1BC88621C31F9720085A4F4 /* ExerciseFlowSecondViewController.swift */; };
-		B1BC88651C31F9840085A4F4 /* ExerciseDataObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1BC88641C31F9840085A4F4 /* ExerciseDataObject.swift */; };
-		B1BC88671C31F9A90085A4F4 /* ExerciseVisualizationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1BC88661C31F9A90085A4F4 /* ExerciseVisualizationViewController.swift */; };
 		B1BC886F1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B1BC886D1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld */; };
 		B1C403351C3974A100AF4BB9 /* CreateProjectFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */; };
 		B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */; };
@@ -152,18 +144,11 @@
 		B17C210F1C31D96800B59FB0 /* FoodItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodItem.swift; sourceTree = "<group>"; };
 		B189589C1C39FC0A00378E47 /* Checkbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkbox.swift; sourceTree = "<group>"; };
 		B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureModuleViewController.swift; sourceTree = "<group>"; };
-		B192E0D91C3080BE00B26936 /* SleepDataObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SleepDataObject.swift; sourceTree = "<group>"; };
-		B192E0DB1C30891A00B26936 /* SleepFlowSecondViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SleepFlowSecondViewController.swift; sourceTree = "<group>"; };
 		B1B1AC531C2EEC8E00FB254E /* SleepFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = SleepFlow.storyboard; sourceTree = "<group>"; };
-		B1B1AC551C2EF21800FB254E /* SleepFlowFirstViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SleepFlowFirstViewController.swift; sourceTree = "<group>"; };
 		B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateProjectViewController.swift; sourceTree = "<group>"; };
 		B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectOverviewViewController.swift; sourceTree = "<group>"; };
 		B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleViewController.swift; sourceTree = "<group>"; };
 		B1B98BE51C399DDB00DDACEE /* ProjectVariablesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectVariablesTableViewController.swift; sourceTree = "<group>"; };
-		B1BC88601C31F9630085A4F4 /* ExerciseFlowFirstViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExerciseFlowFirstViewController.swift; sourceTree = "<group>"; };
-		B1BC88621C31F9720085A4F4 /* ExerciseFlowSecondViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExerciseFlowSecondViewController.swift; sourceTree = "<group>"; };
-		B1BC88641C31F9840085A4F4 /* ExerciseDataObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExerciseDataObject.swift; sourceTree = "<group>"; };
-		B1BC88661C31F9A90085A4F4 /* ExerciseVisualizationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExerciseVisualizationViewController.swift; sourceTree = "<group>"; };
 		B1BC886E1C3205930085A4F4 /* BiometricNotebook.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = BiometricNotebook.xcdatamodel; sourceTree = "<group>"; };
 		B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = CreateProjectFlow.storyboard; sourceTree = "<group>"; };
 		B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectSummaryViewController.swift; sourceTree = "<group>"; };
@@ -340,8 +325,6 @@
 			children = (
 				B1CF34671C4F018D001C0F27 /* View Project(s) Flow */,
 				B1B98BD41C39915D00DDACEE /* Create Project Flow */,
-				B1B1AC591C2EF2F000FB254E /* Sleep Flow */,
-				B1BC885F1C31F91E0085A4F4 /* Exercise Flow */,
 			);
 			name = "View Controllers";
 			sourceTree = "<group>";
@@ -374,16 +357,6 @@
 			name = HealthKit;
 			sourceTree = "<group>";
 		};
-		B1B1AC591C2EF2F000FB254E /* Sleep Flow */ = {
-			isa = PBXGroup;
-			children = (
-				B192E0D91C3080BE00B26936 /* SleepDataObject.swift */,
-				B1B1AC551C2EF21800FB254E /* SleepFlowFirstViewController.swift */,
-				B192E0DB1C30891A00B26936 /* SleepFlowSecondViewController.swift */,
-			);
-			name = "Sleep Flow";
-			sourceTree = "<group>";
-		};
 		B1B98BD41C39915D00DDACEE /* Create Project Flow */ = {
 			isa = PBXGroup;
 			children = (
@@ -395,17 +368,6 @@
 				B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */,
 			);
 			name = "Create Project Flow";
-			sourceTree = "<group>";
-		};
-		B1BC885F1C31F91E0085A4F4 /* Exercise Flow */ = {
-			isa = PBXGroup;
-			children = (
-				B1BC88641C31F9840085A4F4 /* ExerciseDataObject.swift */,
-				B1BC88601C31F9630085A4F4 /* ExerciseFlowFirstViewController.swift */,
-				B1BC88621C31F9720085A4F4 /* ExerciseFlowSecondViewController.swift */,
-				B1BC88661C31F9A90085A4F4 /* ExerciseVisualizationViewController.swift */,
-			);
-			name = "Exercise Flow";
 			sourceTree = "<group>";
 		};
 		B1C403331C3973CB00AF4BB9 /* Core Data */ = {
@@ -677,33 +639,25 @@
 				B1D868D61C3F58810026334B /* Modules.swift in Sources */,
 				B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */,
 				B17C21101C31D96800B59FB0 /* FoodItem.swift in Sources */,
-				B1BC88671C31F9A90085A4F4 /* ExerciseVisualizationViewController.swift in Sources */,
-				B1BC88651C31F9840085A4F4 /* ExerciseDataObject.swift in Sources */,
 				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
-				B17C210E1C31B5F400B59FB0 /* HealthKitConnection.swift in Sources */,
 				B1D0B2B81C3F25BC00C9438F /* ExerciseModule.swift in Sources */,
 				B10838FE1C4D40210023C060 /* Action.swift in Sources */,
 				B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */,
 				B1CF34661C4F0179001C0F27 /* DataEntryTableViewController.swift in Sources */,
-				B1B1AC561C2EF21800FB254E /* SleepFlowFirstViewController.swift in Sources */,
 				B1B98BE61C399DDB00DDACEE /* ProjectVariablesTableViewController.swift in Sources */,
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,
 				B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */,
 				B189589D1C39FC0A00378E47 /* Checkbox.swift in Sources */,
 				B1D0B2B21C3F24B500C9438F /* TemperatureHumidityModule.swift in Sources */,
-				B1BC88631C31F9720085A4F4 /* ExerciseFlowSecondViewController.swift in Sources */,
 				B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */,
 				B1D555871C30739C00C20742 /* DateTime.swift in Sources */,
-				B192E0DA1C3080BE00B26936 /* SleepDataObject.swift in Sources */,
 				B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */,
 				B1D0B2B01C3F248800C9438F /* WeatherModule.swift in Sources */,
-				B192E0DC1C30891A00B26936 /* SleepFlowSecondViewController.swift in Sources */,
 				B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */,
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
 				B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */,
 				B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */,
 				B1D0B2BA1C3F25F200C9438F /* Module.swift in Sources */,
-				B1BC88611C31F9630085A4F4 /* ExerciseFlowFirstViewController.swift in Sources */,
 				B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */,
 				B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */,
 				B1D0B2C21C3F29B400C9438F /* Project.swift in Sources */,

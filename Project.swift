@@ -53,6 +53,9 @@ class Project: NSManagedObject {
         case "Custom":
             let options = variableDict["options"] as! [String]
             object = CustomModule(name: variableName, options: options)
+            if let prompt = variableDict["prompt"] as? String { //check for prompt
+                (object as! CustomModule).setPromptForVariable(prompt)
+            }
         case "Weather":
             object = WeatherModule(name: variableName)
         case "Temperature & Humidity":

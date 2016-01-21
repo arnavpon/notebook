@@ -13,6 +13,7 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     
     @IBOutlet weak var categoriesTableView: UITableView!
     
+    let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     var projects: [Project] = [] //list of project objects
     let cellColors: [UIColor] = [UIColor.blueColor(), UIColor.greenColor(), UIColor.redColor(), UIColor.blackColor()]
     var selectedProject: Project? //object to pass on segue
@@ -24,11 +25,6 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
         categoriesTableView.delegate = self
         categoriesTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
         
-        let height = HealthKitConnection().getHeightFromHKStore()
-        print("Height: \(height)")
-        
-        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
-        let context = appDelegate.managedObjectContext
         let request = NSFetchRequest(entityName: "Project")
         do {
             let results = try context.executeFetchRequest(request)
@@ -38,12 +34,14 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
                 let count = project.beforeActionVars.count + project.afterActionVars.count
                 print("[\(project.title)] Number of variables: \(count)")
                 for (variable, dict) in project.beforeActionVars {
-                    let options = dict["options"] as! [String]
+                    let options = dict["options"] as? [String] //not all vars have an option
+                    let prompt = dict["prompt"] as? String
                     print("Before Action Variable Name: \(variable)")
                     print("Options: \(options)")
+                    print("Prompt: \(prompt)")
                 }
                 for (variable, dict) in project.afterActionVars {
-                    let options = dict["options"] as! [String]
+                    let options = dict["options"] as? [String]
                     print("After Action Variable Name: \(variable)")
                     print("Options: \(options)")
                 }

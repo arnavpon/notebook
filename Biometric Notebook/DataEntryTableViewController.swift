@@ -6,17 +6,27 @@
 // Handles input of information for a specific project
 
 import UIKit
+import CoreData
 
 class DataEntryTableViewController: UITableViewController {
     
     @IBOutlet weak var doneButton: UIBarButtonItem!
+    @IBOutlet weak var resetEntryModeButton: UIBarButtonItem!
+    @IBOutlet weak var toolbarSpacer: UIBarButtonItem!
     
+    let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     var selectedProject: Project?
     var currentSectionToDisplay: Bool = false //set by project overview, false = inputs, true = outputs
     var variablesArray: [Module]? //data source for sections
+    var arrayOfCellsForSection: [Int: NSIndexPath] = Dictionary<Int, NSIndexPath>() //dictionary containing the indexPath of the HIGHLIGHTED cell within a given section
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        toolbarSpacer.width = view.frame.width - resetEntryModeButton.width //space to R edge
+        if (currentSectionToDisplay) { //OM being displayed
+            resetEntryModeButton.enabled = true //enable button
+        }
         
         //Reconstruct variables & set them as TV data source:
         selectedProject!.reconstructProjectFromPersistentRepresentation() //reconstruct variables
@@ -57,7 +67,11 @@ class DataEntryTableViewController: UITableViewController {
         if let variables = variablesArray {
             let variable = variables[section]
             if (variable is CustomModule) { //for CustomModule, each row is an option
-                let numberOfRows = (variable as! CustomModule).getOptionsForVariable().count
+                let variableWithType = variable as! CustomModule
+                let numberOfRows = variableWithType.getOptionsForVariable().count
+                if (variableWithType.getPromptForVariable() != nil) { //check if user has created a prompt
+                    return (numberOfRows + 1) //add row for prompt
+                }
                 return numberOfRows
             } else {
                 return 1
@@ -71,8 +85,24 @@ class DataEntryTableViewController: UITableViewController {
         if let variables = variablesArray {
             let variable = variables[indexPath.section]
             if (variable is CustomModule) { //for CustomModule, each row is an option
-                let options: [String] = (variable as! CustomModule).getOptionsForVariable()
-                cell.textLabel?.text = options[indexPath.row]
+                let variableWithType = variable as! CustomModule
+                let options: [String] = variableWithType.getOptionsForVariable()
+                if (indexPath.row == 0) { //first row
+                    if (variableWithType.getPromptForVariable() != nil) { //user has created a prompt
+                        //Prompt should be 1st row under Custom Variable (& non-selectable):
+                        cell.textLabel?.text = variableWithType.getPromptForVariable()
+                        cell.backgroundColor = UIColor.greenColor() //format cell differently
+                        cell.textLabel?.textColor = UIColor.blueColor()
+                    } else { //no prompt, 1st row is just a normal cell
+                        cell.textLabel?.text = options[indexPath.row]
+                    }
+                } else { //not first row, lay out options
+                    if (variableWithType.getPromptForVariable() != nil) { //there was a prompt, shift index back by 1
+                        cell.textLabel?.text = options[indexPath.row - 1]
+                    } else { //no prompt, don't change index
+                        cell.textLabel?.text = options[indexPath.row]
+                    }
+                }
             } else {
                 //custom behavior for each type of module
             }
@@ -80,54 +110,125 @@ class DataEntryTableViewController: UITableViewController {
         return cell
     }
     
+    override func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        //Prevent prompt row from being selected in custom module:
+        if let variables = variablesArray {
+            let variableForCell = variables[indexPath.section] //get variable for selection
+            if (variableForCell is CustomModule) {
+                let variableWithType = variableForCell as! CustomModule
+                if (variableWithType.getPromptForVariable() != nil) { //check if there is a prompt
+                    if (indexPath.row == 0) {
+                        return false //prevent 1st row from being selected if there is a prompt
+                    }
+                }
+            }
+        
+            //Option selection/highlighting logic:
+            let variable = variables[indexPath.section]
+            if (variable is CustomModule) { //selection behavior for CustomModule vars
+                let selectedCellSection = indexPath.section
+                let selectedCellRow = indexPath.row
+                if let previouslySelectedCellIndexPath = arrayOfCellsForSection[selectedCellSection] { //check if another row in the same section has been selected previously
+                    if (previouslySelectedCellIndexPath.row != selectedCellRow) { //check if it is the same cell
+                        print("Unhighlighted cell: Section - \(previouslySelectedCellIndexPath.section), Row - \(previouslySelectedCellIndexPath.row)")
+                        tableView.cellForRowAtIndexPath(previouslySelectedCellIndexPath)?.selected = false
+                    }
+                }
+                return true
+            }
+        }
+        return false
+    }
+    
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //enable 'Done' button if all variables are entered
+        let section = indexPath.section
+        if let variables = variablesArray {
+            var count = 0 //for now, 'count' ONLY applies to CustomModule vars (later we want to account for all variables [to make sure something is selected for each])
+            for variable in variables {
+                if (variable is CustomModule) { //get # of CustomModule vars
+                    count += 1
+                }
+            }
+            //let count = variables.count //counts # of entries that SHOULD be in arrayOfCells object (normally it counts ALL variables in array, for now we will make it count ONLY the CustomModule variables
+            let variable = variables[indexPath.section] //current selection
+            if (variable is CustomModule) { //selection behavior for CustomModule vars
+                arrayOfCellsForSection[section] = indexPath //stores currently selected cell's index
+                if (arrayOfCellsForSection.count == count) { //check that # of selected items matches # of CustomModule variables for this data entry flow
+                    doneButton.enabled = true
+                }
+            }
+        }
+        print("Currently selected rows: ")
+        for item in arrayOfCellsForSection {
+            print("Section \(item.0): Highlighted Cell @ Row - \(item.1.row)")
+        }
     }
     
     override func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
-        //Disable 'Done' if all variables don't have entries
+        let section = indexPath.section
+        if let variables = variablesArray {
+            let variable = variables[indexPath.section] //current selection
+            if (variable is CustomModule) { //logic for CustomModule items
+                arrayOfCellsForSection[section] = nil //clear array value for that section on deselection
+                doneButton.enabled = false //disable 'Done' if all variables don't have entries
+            }
+        }
+        print("Currently selected rows: ")
+        for item in arrayOfCellsForSection {
+            print("Section \(item.0): Highlighted Cell @ Row - \(item.1.row)")
+        }
     }
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
     
     // MARK: - Button Actions
     
     @IBAction func doneButtonClick(sender: AnyObject) {
-        //return to project overview or home screen?
-        performSegueWithIdentifier("returnToOverview", sender: self)
+        //Construct data object containing values stored for the variable & send information -> the DB:
+        //dataObject should contain the variable & values entered against it. First check to see that it is a CustomModule object before proceeding. Other modules have different capture behaviors.
+        var dataObjectToDatabase = Dictionary<String, [String: String]>()
+        let (date, time) = (DateTime().getCurrentDateString(), DateTime().getCurrentTimeString())
+        let timeStamp = "\(date) \(time)" //get current time as of recording
+        if let variables = variablesArray {
+            for (entryInArray, index) in arrayOfCellsForSection {
+                let variable = variables[entryInArray]
+                let selectedOption = (tableView.cellForRowAtIndexPath(index)?.textLabel?.text)!
+                dataObjectToDatabase[variable.variableName] = Dictionary<String, String>()
+                dataObjectToDatabase[variable.variableName]!["timeStamp"] = timeStamp
+                dataObjectToDatabase[variable.variableName]!["selectedOption"] = selectedOption
+                arrayOfCellsForSection[entryInArray] = nil //clear each dict item
+            }
+        }
+        print("Data points captured: \(dataObjectToDatabase.count).") //add animation here
+        for (variable, dict) in dataObjectToDatabase {
+            let option = dict["selectedOption"]
+            let time = dict["timeStamp"]
+            print("Variable name: \(variable). Selected option: \(option!). Time: \(time!)")
+        }
+        
+        if !(currentSectionToDisplay) { //IV data was entered, set var -> true
+            selectedProject!.inputVariableDataHasBeenEntered = true
+        } else { //OM data was entered, reset variable to prepare for next set of reports
+            selectedProject!.inputVariableDataHasBeenEntered = false
+        }
+        saveManagedObjectContext()
+        performSegueWithIdentifier("returnToOverview", sender: self) //return to project overview or home screen?
+    }
+    
+    @IBAction func resetEntryModeButtonClick(sender: AnyObject) {
+        //Resets project's tracker variable -> 'False' so that IV entry will be displayed (in case user missed the 2nd part of the entry). Do we need to dump the associated data for the first measurement (or still send it -> DB)?
+        currentSectionToDisplay = false //reset to IV (needed for doneButtonClick)
+        selectedProject!.inputVariableDataHasBeenEntered = false
+        saveManagedObjectContext()
+        variablesArray = selectedProject!.getBeforeActionVariablesArray() //reset TV data source
+        tableView.reloadData()
+        resetEntryModeButton.enabled = false
+    }
+    
+    func saveManagedObjectContext() {
+        do {
+            try context.save()
+        } catch let error as NSError {
+            print("Error saving context: \(error)")
+        }
     }
 
     // MARK: - Navigation

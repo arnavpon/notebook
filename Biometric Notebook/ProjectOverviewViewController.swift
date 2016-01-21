@@ -32,7 +32,13 @@ class ProjectOverviewViewController: UIViewController {
         if (segue.identifier == "showDataEntry") {
             let destination = segue.destinationViewController as! DataEntryTableViewController
             destination.selectedProject = self.selectedProject
-            destination.currentSectionToDisplay = false //set whether inputs or outcomes are reported
+            
+            //Check if IVs for the current data entry set (IV + OM) have been entered:
+            if (selectedProject!.inputVariableDataHasBeenEntered) { //IVs entered - show OM reporting flow
+                destination.currentSectionToDisplay = true
+            } else { //IVs not entered - show IV reporting flow
+                destination.currentSectionToDisplay = false
+            }
         }
     }
 

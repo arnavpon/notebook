@@ -19,7 +19,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="OoM-vZ-jYA">
-                                <rect key="frame" x="0.0" y="64" width="600" height="536"/>
+                                <rect key="frame" x="0.0" y="64" width="600" height="492"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
@@ -92,7 +92,7 @@
         <scene sceneID="ieG-7g-vhc">
             <objects>
                 <tableViewController id="Wm2-lf-4rl" customClass="DataEntryTableViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="TUN-YK-avs">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" allowsMultipleSelection="YES" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="TUN-YK-avs">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <animations/>
@@ -114,15 +114,26 @@
                             <outlet property="delegate" destination="Wm2-lf-4rl" id="e6T-rV-SMw"/>
                         </connections>
                     </tableView>
+                    <toolbarItems>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="fCg-Gj-Wzm"/>
+                        <barButtonItem enabled="NO" title="Reset Entry Mode" id="Fr3-ra-4hI">
+                            <connections>
+                                <action selector="resetEntryModeButtonClick:" destination="Wm2-lf-4rl" id="hq1-y2-miF"/>
+                            </connections>
+                        </barButtonItem>
+                    </toolbarItems>
                     <navigationItem key="navigationItem" title="Enter Data" id="fCW-Jz-cK7">
-                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="wB7-nA-P3D">
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" systemItem="done" id="wB7-nA-P3D">
                             <connections>
                                 <action selector="doneButtonClick:" destination="Wm2-lf-4rl" id="lCZ-3T-Qxc"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="doneButton" destination="wB7-nA-P3D" id="wwB-4w-kPY"/>
+                        <outlet property="resetEntryModeButton" destination="Fr3-ra-4hI" id="jSa-jM-gBt"/>
+                        <outlet property="toolbarSpacer" destination="fCg-Gj-Wzm" id="Zi3-1R-8wx"/>
                         <segue destination="qg6-3M-AoO" kind="unwind" identifier="returnToOverview" unwindAction="unwindToOverviewVC:" id="wXu-lP-nm9"/>
                     </connections>
                 </tableViewController>
@@ -134,7 +145,7 @@
         <!--Navigation Controller-->
         <scene sceneID="xUI-Dj-27L">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="FKX-qE-GcO" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" toolbarHidden="NO" id="FKX-qE-GcO" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Bkp-iZ-BP7">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
@@ -142,6 +153,11 @@
                         <animations/>
                     </navigationBar>
                     <nil name="viewControllers"/>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="6Ef-B9-Zes">
+                        <rect key="frame" x="0.0" y="556" width="600" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
+                    </toolbar>
                     <connections>
                         <segue destination="bA5-pz-GfD" kind="relationship" relationship="rootViewController" id="ZHG-k6-n5e"/>
                     </connections>

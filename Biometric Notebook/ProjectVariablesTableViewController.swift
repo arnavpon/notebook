@@ -84,8 +84,8 @@ class ProjectVariablesTableViewController: UITableViewController {
         } else if (indexPath.section == 2) { //after Action section
             cell.textLabel?.text = afterActionRows[indexPath.row].variableName
         } else if (indexPath.section == 1) {
-            cell.backgroundColor = UIColor.blackColor()
-            cell.textLabel?.textColor = UIColor.whiteColor()
+            //cell.backgroundColor = UIColor.blackColor()
+            //cell.textLabel?.textColor = UIColor.whiteColor()
             cell.textLabel?.text = projectAction!.action.rawValue
         }
         return cell
@@ -163,9 +163,6 @@ class ProjectVariablesTableViewController: UITableViewController {
         if let configureModuleVC = sender.sourceViewController as? ConfigureModuleViewController {
             //If sender is configureModuleVC, grab the input/outcome selection & module information:
             createdVariable = configureModuleVC.createdVariable
-            if let newVar = createdVariable as? CustomModule {
-                print("Number of options: \(newVar.getOptionsForVariable())")
-            }
             if (configureModuleVC.beforeOrAfterAction == "before") {
                 beforeActionRows.append(createdVariable!)
                 tableView.reloadData()

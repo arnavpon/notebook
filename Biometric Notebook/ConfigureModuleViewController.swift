@@ -20,6 +20,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     var beforeOrAfterAction: String?
     var availableComputationsArray: [String] = [] //computations available for given module
     var customModuleOptions: [String] = [] //data source for custom module
+    var variablePrompt: String? //prompt for CustomModule
     
     // MARK: - View Configuration
     
@@ -83,7 +84,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         let cell = tableView.dequeueReusableCellWithIdentifier("configure_module_cell")!
         if (selectedModule == Modules.CustomModule) { //custom module
             if (indexPath.section == 0) {
-                //prompt
+                cell.textLabel?.text = variablePrompt
             } else if (indexPath.section == 1) {
                 cell.textLabel?.text = customModuleOptions[indexPath.row]
             } else {
@@ -126,7 +127,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     
     // MARK: - Button Actions
     
-    @IBAction func addOptionButtonClick(sender: AnyObject) {
+    @IBAction func addOptionButtonClick(sender: AnyObject) { //should only be active in CustomModule (ideally it should be visible ONLY when needed, i.e. not for other modules)
         let alert = UIAlertController(title: "New Option", message: "Type the name of the option you wish to add.", preferredStyle: .Alert)
         alert.addTextFieldWithConfigurationHandler { (let field) -> Void in
             field.autocapitalizationType = .Words
@@ -134,22 +135,44 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in }
         let done = UIAlertAction(title: "Add", style: .Default) { (let ok) -> Void in
             let input = alert.textFields?.first?.text
-            if (input != "") {
-                var error: Bool = false
-                for option in self.customModuleOptions { //make sure input is not a duplicate
-                    if (option.lowercaseString == input?.lowercaseString) {
-                        error = true
-                        break
+            if (input!.containsString("[prompt]")) {
+                let index = input!.startIndex.advancedBy(8)
+                self.variablePrompt = input?.substringFromIndex(index)
+                self.configureModuleTableView.reloadData()
+            } else { //temporary location until 'Prompt' is figured out
+                if (input != "") {
+                    var error: Bool = false
+                    for option in self.customModuleOptions { //make sure input is not a duplicate
+                        if (option.lowercaseString == input?.lowercaseString) {
+                            error = true
+                            break
+                        }
+                    }
+                    if !(error) {
+                        self.customModuleOptions.append(input!.capitalizedString)
+                        self.configureModuleTableView.reloadData()
+                        self.saveButton.enabled = true //enable button after 1 option is selected
+                    } else {
+                        print("Error: input option is a duplicate!")
                     }
                 }
-                if !(error) {
-                    self.customModuleOptions.append(input!.capitalizedString)
-                    self.configureModuleTableView.reloadData()
-                    self.saveButton.enabled = true //enable button after 1 option is selected
-                } else {
-                    print("Error: input option is a duplicate!")
-                }
             }
+//            if (input != "") {
+//                var error: Bool = false
+//                for option in self.customModuleOptions { //make sure input is not a duplicate
+//                    if (option.lowercaseString == input?.lowercaseString) {
+//                        error = true
+//                        break
+//                    }
+//                }
+//                if !(error) {
+//                    self.customModuleOptions.append(input!.capitalizedString)
+//                    self.configureModuleTableView.reloadData()
+//                    self.saveButton.enabled = true //enable button after 1 option is selected
+//                } else {
+//                    print("Error: input option is a duplicate!")
+//                }
+//            }
         }
         alert.addAction(cancel)
         alert.addAction(done)
@@ -160,6 +183,9 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         switch self.selectedModule! { //check which module was attached
         case .CustomModule:
             self.createdVariable = CustomModule(name: self.variableName!, options: customModuleOptions)
+            if let prompt = variablePrompt { //set the prompt -> the Custom Variable
+                (createdVariable as! CustomModule).setPromptForVariable(prompt)
+            }
         case .TemperatureHumidityModule:
             self.createdVariable = TemperatureHumidityModule(name: self.variableName!)
         case .WeatherModule:

@@ -15,7 +15,7 @@ class WeatherModule: Module {
     }
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        var persistentDictionary: [String: AnyObject] = ["module": self.moduleTitle]
+        let persistentDictionary: [String: AnyObject] = ["module": self.moduleTitle]
         return persistentDictionary
     }
 }
