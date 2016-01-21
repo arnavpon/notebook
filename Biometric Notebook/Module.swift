@@ -8,7 +8,7 @@
 import Foundation
 
 class Module {
-    //what kinds of behavior are common to all modules? All modules should include a timeStamp variable (every time a measurement is taken for any kind of module, the current date & time of the recording should be noted down as well).
+    //Defines the behaviors that are common to all modules? All modules should include a timeStamp variable (every time a measurement is taken for any kind of module, the current date & time of the recording should be noted down as well).
     internal var moduleTitle: String = "" //overwrite w/ specific module name in each class
     internal let variableName: String //the name given to the variable attached to this module
     
