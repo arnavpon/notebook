@@ -1,16 +1,17 @@
-//  ProjectVariablesTableViewController.swift
+//  ProjectVariablesViewController.swift
 //  Biometric Notebook
-//  Created by Arnav Pondicherry  on 1/3/16.
+//  Created by Arnav Pondicherry  on 1/21/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Page to display input variables, project action (e.g. sleep, eat, exercise) between the IV & OM, and outcome measures.
+// Page to create & display input variables, project action (e.g. sleep, eat, exercise) between the IV & OM, and outcome measures.
 
 import UIKit
 
-class ProjectVariablesTableViewController: UITableViewController {
+class ProjectVariablesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
     
     @IBOutlet weak var doneButton: UIBarButtonItem!
-    @IBOutlet weak var spacingItem: UIBarButtonItem! //used to space the 'doneButton' to far right
+    @IBOutlet weak var endpointPicker: UIPickerView!
+    @IBOutlet weak var actionPicker: UIPickerView!
     
     var beforeActionRows: [Module] = [] //data source for rows before the 'Action'
     var afterActionRows: [Module] = [] //data source for rows after the 'Action'
@@ -21,100 +22,89 @@ class ProjectVariablesTableViewController: UITableViewController {
     var variableName: String? //the name of the variable entered by the user***
     var createdVariable: Module? //the completed variable created by the user
     
+    var actionPickerRowArray: [String] = ["Eat", "Sleep", "Exercise"] //make sure these values match the 'rawValue' strings in the picker enum!
+    var actionPickerSelection: String?
+    var selectedAction: Action? //captures 'action' before segue
+    
+    // MARK: - View Configuration
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        actionPicker.dataSource = self
+        actionPicker.delegate = self
+        endpointPicker.dataSource = self
+        endpointPicker.delegate = self
+        
+        //Initialize the actionPicker & endpointPicker selections w/ the first item in the array:
+        actionPickerSelection = actionPickerRowArray.first
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
-
+    
     // MARK: - Table View
-
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 3
+    
+    func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return nil
     }
     
-    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if (section == 0) { //'before action' section
-            return "Input Variables (variables that are measured before the action is performed)"
-        } else if (section == 2) { //'after action' section
-            return "Output Variables (variables that are measured after the action is performed)"
-        } else { //intermediate section which contains the 'Action'
-            return "Project Action"
-        }
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 0
     }
     
-    override func tableView(tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if (section == 0) || (section == 2) {
-            return 50
-        } else { //'Action' title should be smaller
-            return 24
-        }
-    }
-    
-    override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if (section == 1) {
-            let view = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 24), text: "Project Action")
-            return view
-        } else if (section == 0) {
-            let view = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 48), text: "Input Variables (variables that are measured before the action is performed)")
-            return view
-        } else {
-            let view = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 48), text: "Output Variables (variables that are measured after the action is performed)")
-            return view
-        }
-    }
-    
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if (section == 0) { //'before action' section
-            return beforeActionRows.count
-        } else if (section == 2) { //'after action' section
-            return afterActionRows.count
-        } else { //intermediate section which contains the 'Action'
-            return 1
-        }
-    }
-    
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("variable_cell", forIndexPath: indexPath)
-        if (indexPath.section == 0) { //before Action section
-            cell.textLabel?.text = beforeActionRows[indexPath.row].variableName
-        } else if (indexPath.section == 2) { //after Action section
-            cell.textLabel?.text = afterActionRows[indexPath.row].variableName
-        } else if (indexPath.section == 1) {
-            //cell.backgroundColor = UIColor.blackColor()
-            //cell.textLabel?.textColor = UIColor.whiteColor()
-            cell.textLabel?.text = projectAction!.action.rawValue
-        }
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithIdentifier("")! //*
         return cell
     }
     
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //Display screen that enables editing of attached module
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        //if user taps a cell, allow them to edit a variable's config (segue to ConfigModuleVC)
     }
-
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
+    
+    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle { //user can delete variables from TV
+        return UITableViewCellEditingStyle.Delete
     }
-
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+    
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
             // Delete the row from the data source
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
         }
     }
-
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) { //rearranging TV, don't allow movement into 'Action' section
-
+    
+    func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        //support movement of variables between input & outcome TV:
+        return false
     }
-
+    
+    func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
+        //
+    }
+    
+    // MARK: - Picker View
+    
+    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return actionPickerRowArray.count
+    }
+    
+    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return actionPickerRowArray[row]
+    }
+    
+    func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) { //save current selection
+        actionPickerSelection = actionPickerRowArray[row]
+        print("Current Action: \(actionPickerSelection!)")
+    }
+    
     // MARK: - Button Actions
     
-    @IBAction func addVariableButtonClick(sender: AnyObject) {
+    @IBAction func addVariableButtonClick(sender: AnyObject) { //called by either TV
         let alert = UIAlertController(title: "New Variable", message: "Type the name of the variable you wish to add.", preferredStyle: .Alert)
         alert.addTextFieldWithConfigurationHandler { (let field) -> Void in
             field.autocapitalizationType = .Words //auto-capitalize words
@@ -150,10 +140,12 @@ class ProjectVariablesTableViewController: UITableViewController {
     }
     
     @IBAction func doneButtonClick(sender: AnyObject) {
-        //Disable this button until at least 1 beforeAction & 1 afterAction variable have been added
+        //Disable this button until at least 1 beforeAction & 1 afterAction variable have been added.
+        
+        selectedAction = Action(action: actionPickerSelection!) //initializes the enum object w/ the string in the picker
         performSegueWithIdentifier("showSummary", sender: nil)
     }
-    
+
     // MARK: - Navigation
     
     @IBAction func unwindToVariablesVC(sender: UIStoryboardSegue) { //unwind segue -> variable VC
@@ -163,10 +155,10 @@ class ProjectVariablesTableViewController: UITableViewController {
             createdVariable = configureModuleVC.createdVariable
             if (configureModuleVC.beforeOrAfterAction == "before") {
                 beforeActionRows.append(createdVariable!)
-                tableView.reloadData()
+                //tableView.reloadData()
             } else if (configureModuleVC.beforeOrAfterAction == "after") {
                 afterActionRows.append(createdVariable!)
-                tableView.reloadData()
+                //tableView.reloadData()
             } else {
                 print("Error in unwindToVariablesVC")
             }
@@ -175,7 +167,7 @@ class ProjectVariablesTableViewController: UITableViewController {
             doneButton.enabled = true
         }
     }
-    
+
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if (segue.identifier == "showSummary") {
             let destination = segue.destinationViewController as! ProjectSummaryViewController

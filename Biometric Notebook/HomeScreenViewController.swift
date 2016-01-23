@@ -23,13 +23,11 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print("Logged In? \(userDefaults.valueForKey("ISLOGGEDIN"))")
-        print("User: \(userDefaults.valueForKey("USERNAME"))")
         if (userDefaults.valueForKey("ISLOGGEDIN") as? Bool == true) { //user is logged in
             loggedIn = true //tell system that user is logged in
-            obtainProjectsFromStore()
+            obtainDataFromStore("Project")
             
-            //clearDataStore("Project")
+            //clearCoreDataStoreForEntity(entity: "PROJECT")
             categoriesTableView.dataSource = self
             categoriesTableView.delegate = self
             categoriesTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
@@ -40,7 +38,7 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     
     override func viewWillAppear(animated: Bool) {
         if (userJustLoggedIn) { //check if user just logged in & set the projects accordingly
-            obtainProjectsFromStore()
+            obtainDataFromStore("Project")
             categoriesTableView.dataSource = self
             categoriesTableView.delegate = self
             categoriesTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
@@ -48,8 +46,8 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
         }
     }
     
-    func obtainProjectsFromStore() {
-        let request = NSFetchRequest(entityName: "Project")
+    func obtainDataFromStore(entity: String) {
+        let request = NSFetchRequest(entityName: entity)
         do { //obtain user's projects from data store
             let results = try context.executeFetchRequest(request)
             for result in results {
@@ -80,7 +78,7 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
-        //eventually, we will want to organize projects based on some criteria
+        //eventually, we will want to organize projects using the same framework as for IA
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -146,30 +144,6 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     func logout() {
         userDefaults.setBool(false, forKey: "ISLOGGEDIN")
         loggedIn = false
-    }
-    
-    // MARK: - Helper Functions
-    
-    func clearDataStore(entity: String) {
-        print("Clearing data store...")
-        let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
-        let request = NSFetchRequest(entityName: entity)
-        do {
-            let results = try context.executeFetchRequest(request)
-            for result in results {
-                context.deleteObject(result as! NSManagedObject)
-                print("Deleted object.")
-                do {
-                    print("Context saved!")
-                    try context.save()
-                } catch let error as NSError {
-                    print("Error saving store: \(error)")
-                }
-            }
-            print("Deleted \(results.count) object(s)\n")
-        } catch let error as NSError {
-            print("Error fetching stored projects: \(error)")
-        }
     }
     
     // MARK: - Navigation

@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10838FB1C4D3FDD0023C060 /* Endpoint.swift */; };
 		B10838FE1C4D40210023C060 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10838FD1C4D40210023C060 /* Action.swift */; };
+		B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B921E1C52D8E70079A535 /* HelperFunctions.swift */; };
+		B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B92201C52D9BE0079A535 /* CustomTextView.swift */; };
 		B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1246CBB1C2F60B8004BFA5C /* HomeScreenViewController.swift */; };
 		B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6791C2D93BA0019D315 /* AppDelegate.swift */; };
 		B13CF67F1C2D93BA0019D315 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B13CF67D1C2D93BA0019D315 /* Main.storyboard */; };
@@ -30,10 +32,12 @@
 		B17C21101C31D96800B59FB0 /* FoodItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17C210F1C31D96800B59FB0 /* FoodItem.swift */; };
 		B189589D1C39FC0A00378E47 /* Checkbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589C1C39FC0A00378E47 /* Checkbox.swift */; };
 		B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */; };
+		B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */; };
 		B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */; };
 		B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */; };
 		B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */; };
 		B1B98BE61C399DDB00DDACEE /* ProjectVariablesTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BE51C399DDB00DDACEE /* ProjectVariablesTableViewController.swift */; };
+		B1B9D99A1C528B50000D501E /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B9D9991C528B50000D501E /* CustomSlider.swift */; };
 		B1BC886F1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B1BC886D1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld */; };
 		B1C403351C3974A100AF4BB9 /* CreateProjectFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */; };
 		B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */; };
@@ -112,6 +116,8 @@
 /* Begin PBXFileReference section */
 		B10838FB1C4D3FDD0023C060 /* Endpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
 		B10838FD1C4D40210023C060 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
+		B11B921E1C52D8E70079A535 /* HelperFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
+		B11B92201C52D9BE0079A535 /* CustomTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
 		B1246CBB1C2F60B8004BFA5C /* HomeScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeScreenViewController.swift; sourceTree = "<group>"; };
 		B13CF6761C2D93BA0019D315 /* Biometric Notebook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Biometric Notebook.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B13CF6791C2D93BA0019D315 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -144,10 +150,12 @@
 		B17C210F1C31D96800B59FB0 /* FoodItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodItem.swift; sourceTree = "<group>"; };
 		B189589C1C39FC0A00378E47 /* Checkbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkbox.swift; sourceTree = "<group>"; };
 		B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureModuleViewController.swift; sourceTree = "<group>"; };
+		B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectVariablesViewController.swift; sourceTree = "<group>"; };
 		B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateProjectViewController.swift; sourceTree = "<group>"; };
 		B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectOverviewViewController.swift; sourceTree = "<group>"; };
 		B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleViewController.swift; sourceTree = "<group>"; };
 		B1B98BE51C399DDB00DDACEE /* ProjectVariablesTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectVariablesTableViewController.swift; sourceTree = "<group>"; };
+		B1B9D9991C528B50000D501E /* CustomSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		B1BC886E1C3205930085A4F4 /* BiometricNotebook.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = BiometricNotebook.xcdatamodel; sourceTree = "<group>"; };
 		B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = CreateProjectFlow.storyboard; sourceTree = "<group>"; };
 		B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectSummaryViewController.swift; sourceTree = "<group>"; };
@@ -290,6 +298,7 @@
 		B13CF6D41C2D943B0019D315 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				B11B921E1C52D8E70079A535 /* HelperFunctions.swift */,
 				B13CF6791C2D93BA0019D315 /* AppDelegate.swift */,
 				B13CF6851C2D93BA0019D315 /* Info.plist */,
 				B16EC9811C317D650085265C /* Biometric Notebook.entitlements */,
@@ -322,7 +331,6 @@
 		B13CF6D71C2D94C30019D315 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */,
 				B1CF34671C4F018D001C0F27 /* View Project(s) Flow */,
 				B1B98BD41C39915D00DDACEE /* Create Project Flow */,
 			);
@@ -363,6 +371,7 @@
 				B1D868DB1C3F5A960026334B /* Supplements */,
 				B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */,
 				B1B98BE51C399DDB00DDACEE /* ProjectVariablesTableViewController.swift */,
+				B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */,
 				B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */,
 				B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */,
 				B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */,
@@ -385,6 +394,7 @@
 		B1CF34671C4F018D001C0F27 /* View Project(s) Flow */ = {
 			isa = PBXGroup;
 			children = (
+				B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */,
 				B1246CBB1C2F60B8004BFA5C /* HomeScreenViewController.swift */,
 				B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */,
 				B1CF34651C4F0179001C0F27 /* DataEntryTableViewController.swift */,
@@ -422,6 +432,8 @@
 			children = (
 				B189589C1C39FC0A00378E47 /* Checkbox.swift */,
 				B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */,
+				B11B92201C52D9BE0079A535 /* CustomTextView.swift */,
+				B1B9D9991C528B50000D501E /* CustomSlider.swift */,
 			);
 			name = Supplements;
 			sourceTree = "<group>";
@@ -643,16 +655,20 @@
 				B1D0B2B81C3F25BC00C9438F /* ExerciseModule.swift in Sources */,
 				B10838FE1C4D40210023C060 /* Action.swift in Sources */,
 				B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */,
+				B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */,
 				B1CF34661C4F0179001C0F27 /* DataEntryTableViewController.swift in Sources */,
+				B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */,
 				B1B98BE61C399DDB00DDACEE /* ProjectVariablesTableViewController.swift in Sources */,
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,
 				B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */,
+				B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */,
 				B189589D1C39FC0A00378E47 /* Checkbox.swift in Sources */,
 				B1D0B2B21C3F24B500C9438F /* TemperatureHumidityModule.swift in Sources */,
 				B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */,
 				B1D555871C30739C00C20742 /* DateTime.swift in Sources */,
 				B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */,
 				B1D0B2B01C3F248800C9438F /* WeatherModule.swift in Sources */,
+				B1B9D99A1C528B50000D501E /* CustomSlider.swift in Sources */,
 				B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */,
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
 				B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */,
