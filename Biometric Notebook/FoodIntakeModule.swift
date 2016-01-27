@@ -53,8 +53,26 @@ class FoodIntakeModule: Module {
 
 enum FoodIntakeModuleBehaviors: String {
     case Dummy = ""
+    
+    func getAlertMessageForBehavior() -> String {
+        var message = ""
+        switch self {
+        default:
+            message = ""
+        }
+        return message
+    }
 }
 
 enum FoodIntakeModuleComputations: String {
     case Dummy = ""
+
+    func getAlertMessageForComputation() -> String {
+        var message = ""
+        switch self {
+        default:
+            message = ""
+        }
+        return message
+    }
 }

@@ -23,7 +23,7 @@ class Module {
         
         var viewForSection = Dictionary<String, CustomTableViewHeader>()
         for section in sectionsToDisplay { //assign rows to their respective sections
-            switch section { //use the lowercare string for the dict key
+            switch section { 
             case "behaviors":
                 viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Behavior")
             case "computations":
@@ -36,29 +36,42 @@ class Module {
         
         var rowsForSection = Dictionary<String, [String]>()
         for section in sectionsToDisplay { //assign rows to their respective sections
-            switch section { //use the lowercare string for the dict key
+            switch section {
             case "behaviors":
                 rowsForSection[section] = behaviors
             case "computations":
                 rowsForSection[section] = computations
             default:
-                print("")
+                print("[Module - TVLayout] error: default switch")
             }
         }
         tempObject["rowsForSection"] = rowsForSection
         
         var selectable = Dictionary<String, Bool>()
         for section in sectionsToDisplay { //dict indicating whether rows in a section can be selected
-            switch section { //use the lowercare string for the dict key
+            switch section {
             case "behaviors":
                 selectable[section] = true
             case "computations":
                 selectable[section] = true
             default:
-                print("")
+                print("[Module - TVLayout] error: default switch")
             }
         }
         tempObject["selectable"] = selectable
+        
+        var deletable = Dictionary<String, Bool>()
+        for section in sectionsToDisplay { //dict indicating whether rows in a section can be selected
+            switch section {
+            case "behaviors":
+                deletable[section] = false
+            case "computations":
+                deletable[section] = false
+            default:
+                print("[Module - TVLayout] error: default switch")
+            }
+        }
+        tempObject["deletable"] = deletable
         
         return tempObject
     }

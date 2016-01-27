@@ -54,8 +54,28 @@ class EnvironmentModule: Module {
 enum EnvironmentModuleBehaviors: String {
     case TemperatureAndHumidity = "Temperature & Humidity"
     case Weather = "Weather"
+    
+    func getAlertMessageForBehavior() -> String {
+        var message = ""
+        switch self {
+        case .TemperatureAndHumidity:
+            message = ""
+        case .Weather:
+            message = ""
+        }
+        return message
+    }
 }
 
 enum EnvironmentModuleComputations: String {
     case Dummy = ""
+    
+    func getAlertMessageForComputation() -> String {
+        var message = ""
+        switch self {
+        default:
+            message = ""
+        }
+        return message
+    }
 }

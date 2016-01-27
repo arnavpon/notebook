@@ -21,8 +21,7 @@ class CustomModule: Module {
                 switch section { //use the lowercare string for the dict key
                 case "options":
                     //To this view, we want to position the 'add' button in the ConfigureVC on top of the section! Set up the behavior for this here:
-                    let header = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Or add options for your variable")
-                    viewForSection[section] = header
+                    viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Or add options for your variable")
                 case "behaviors":
                     viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Select a pre-built configuration")
                 default:
@@ -33,7 +32,7 @@ class CustomModule: Module {
             
             var rowsForSection = Dictionary<String, [String]>()
             for section in sectionsToDisplay { //assign rows to their respective sections
-                switch section { //use the lowercare string for the dict key
+                switch section {
                 case "options":
                     rowsForSection[section] = options
                 case "behaviors":
@@ -48,7 +47,7 @@ class CustomModule: Module {
             
             var selectable = Dictionary<String, Bool>()
             for section in sectionsToDisplay { //dict indicating whether rows in a section can be selected
-                switch section { //use the lowercare string for the dict key
+                switch section {
                 case "options":
                     selectable[section] = false
                 case "behaviors":
@@ -60,6 +59,29 @@ class CustomModule: Module {
                 }
             }
             tempObject["selectable"] = selectable
+            
+            var alertMessage = Dictionary<String, [String: String]>() //first key is section name, second key is behavior/computation name, value is message for the alertController; only for options that can be selected
+            var messageForBehavior = Dictionary<String, String>()
+            for behavior in behaviors {
+                messageForBehavior[behavior] = CustomModuleBehaviors(rawValue: behavior)?.getAlertMessageForBehavior()
+            }
+            alertMessage["behaviors"] = messageForBehavior
+            tempObject["alertMessage"] = alertMessage
+            
+            var deletable = Dictionary<String, Bool>()
+            for section in sectionsToDisplay { //dict indicating whether rows in a section can be deleted
+                switch section { 
+                case "options":
+                    deletable[section] = true
+                case "behaviors":
+                    deletable[section] = false
+                case "computations":
+                    deletable[section] = false
+                default:
+                    print("Custom - TVLayout] error: default switch")
+                }
+            }
+            tempObject["deletable"] = deletable
             
             tempObject["buttons"] = ["add", "prompt"] //indicate if there are any buttons that need to be added to the view (CustomMod needs a + button for adding options & a 'prompt' button for adding an options prompt). 
             //Custom view creation paradigm: create the view object in the Module class declaration & then add it to the superview (applying any view resizing/formatting) in the VC.
@@ -137,5 +159,16 @@ class CustomModule: Module {
 
 enum CustomModuleBehaviors: String {
     case Binary = "Binary" //automatically creates 2 options, 'Yes' & 'No'.
-    case Scale = "<Range Scale" //gives users the option to select a value on a scale from A - B, where the user selects what the lower & upper limits are when they adopt this behavior; in data entry mode, the user will then select a value from this range using a slider/picker (TBD).
+    case Scale = "<Range Scale>" //gives users the option to select a value on a scale from A - B, where the user selects what the lower & upper limits are when they adopt this behavior; in data entry mode, the user will then select a value from this range using a slider/picker (TBD).
+    
+    func getAlertMessageForBehavior() -> String {
+        var message = ""
+        switch self {
+        case .Binary:
+            message = "A binary configuration offers two options - 'Yes' and 'No'. Useful for variables with only two possibilities."
+        case .Scale:
+            message = "A scale allows the user to pick a value between the minimum and the maximum that you set."
+        }
+        return message
+    }
 }

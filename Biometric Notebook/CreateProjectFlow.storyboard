@@ -407,21 +407,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7h7-kp-FDv">
-                                <rect key="frame" x="550" y="64" width="30" height="48"/>
-                                <animations/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="48" id="9YW-0X-2rI"/>
-                                    <constraint firstAttribute="width" constant="30" id="l1I-6U-cX1"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="30"/>
-                                <state key="normal" title="+"/>
-                                <connections>
-                                    <action selector="addOptionButtonClick:" destination="zTM-eA-nMS" eventType="touchUpInside" id="T60-a6-CEt"/>
-                                </connections>
-                            </button>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="ukv-oA-4gY">
-                                <rect key="frame" x="0.0" y="108" width="600" height="492"/>
+                                <rect key="frame" x="0.0" y="64" width="600" height="536"/>
                                 <animations/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
@@ -437,14 +424,27 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7h7-kp-FDv">
+                                <rect key="frame" x="576" y="64" width="24" height="24"/>
+                                <animations/>
+                                <color key="backgroundColor" red="1" green="0.0" blue="0.083229066429999998" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="24" id="9YW-0X-2rI"/>
+                                    <constraint firstAttribute="width" constant="24" id="l1I-6U-cX1"/>
+                                </constraints>
+                                <state key="normal" image="Plus White Circle"/>
+                                <connections>
+                                    <action selector="addOptionButtonClick:" destination="zTM-eA-nMS" eventType="touchUpInside" id="T60-a6-CEt"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="7h7-kp-FDv" firstAttribute="top" secondItem="Iy4-Gf-eck" secondAttribute="bottom" id="49r-6R-ZIg"/>
                             <constraint firstItem="ZWr-gc-4LD" firstAttribute="top" secondItem="ukv-oA-4gY" secondAttribute="bottom" id="Dge-fr-W4i"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="7h7-kp-FDv" secondAttribute="trailing" id="HBp-J3-Wml"/>
-                            <constraint firstItem="ukv-oA-4gY" firstAttribute="top" secondItem="Iy4-Gf-eck" secondAttribute="bottom" constant="44" id="Hct-mi-mzZ"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="7h7-kp-FDv" secondAttribute="trailing" constant="-20" id="HBp-J3-Wml"/>
+                            <constraint firstItem="ukv-oA-4gY" firstAttribute="top" secondItem="Iy4-Gf-eck" secondAttribute="bottom" id="Hct-mi-mzZ"/>
                             <constraint firstItem="ukv-oA-4gY" firstAttribute="leading" secondItem="Us6-o9-f7P" secondAttribute="leadingMargin" constant="-20" id="gf9-7l-94z"/>
                             <constraint firstAttribute="trailingMargin" secondItem="ukv-oA-4gY" secondAttribute="trailing" constant="-20" id="qE8-Ba-hJR"/>
                         </constraints>
@@ -458,6 +458,7 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
+                        <outlet property="addButtonTopConstraint" destination="49r-6R-ZIg" id="QSX-Oc-Ejx"/>
                         <outlet property="addOptionButton" destination="7h7-kp-FDv" id="cgh-9x-D0f"/>
                         <outlet property="configureModuleNavItem" destination="pB6-c3-Nvx" id="3mb-Dj-tKk"/>
                         <outlet property="configureModuleTableView" destination="ukv-oA-4gY" id="yiJ-P8-w9F"/>
@@ -712,6 +713,7 @@
         <image name="1" width="98" height="113"/>
         <image name="2" width="98" height="113"/>
         <image name="3" width="98" height="113"/>
+        <image name="Plus White Circle" width="50" height="50"/>
         <image name="check" width="83" height="167"/>
     </resources>
 </document>

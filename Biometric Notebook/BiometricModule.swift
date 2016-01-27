@@ -55,9 +55,31 @@ enum BiometricModuleBehaviors: String {
     //how do we deal w/ static pieces of data like DOB? We could pull it from HK; the difference is these variables WON'T be measured on each run of dataEntry mode.
     case Height = "Height"
     case Weight = "Weight"
+    
+    func getAlertMessageForBehavior() -> String {
+        var message = ""
+        switch self {
+        case .Height:
+            message = ""
+        case .Weight:
+            message = ""
+        }
+        return message
+    }
 }
 
 enum BiometricModuleComputations: String {
     case Age = "Age"
     case BMI = "BMI"
+    
+    func getAlertMessageForComputation() -> String {
+        var message = ""
+        switch self {
+        case .Age:
+            message = ""
+        case .BMI:
+            message = ""
+        }
+        return message
+    }
 }

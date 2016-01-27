@@ -53,8 +53,28 @@ class ExerciseModule: Module {
 enum ExerciseModuleBehaviors: String {
     case Exercise = "<Single Workout>" //'Workout' allows the user to add a single exercise to the list for tracking the # of reps, weight, & # of sets.
     case BeforeAndAfter = "Before & After Picture" //'Before & After' allows user to take picture & save.
+    
+    func getAlertMessageForBehavior() -> String {
+        var message = ""
+        switch self {
+        case .Exercise:
+            message = ""
+        case .BeforeAndAfter:
+            message = ""
+        }
+        return message
+    }
 }
 
 enum ExerciseModuleComputations: String {
     case Dummy = ""
+    
+    func getAlertMessageForComputation() -> String {
+        var message = ""
+        switch self {
+        default:
+            message = ""
+        }
+        return message
+    }
 }

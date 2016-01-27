@@ -9,9 +9,10 @@ import UIKit
 
 class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
+    @IBOutlet weak var addButtonTopConstraint: NSLayoutConstraint!
     @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint! //distance from TV -> top layout guide
     @IBOutlet weak var configureModuleNavItem: UINavigationItem!
-    @IBOutlet weak var addOptionButton: UIButton! //we want to add this button to the 'Options' view of the Custom Module. We will custom draw this in the class declaration & remove this object!
+    @IBOutlet weak var addOptionButton: UIButton!
     @IBOutlet weak var saveButton: UIBarButtonItem! //disable until config is complete
     @IBOutlet weak var configureModuleTableView: UITableView!
     
@@ -24,7 +25,15 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     override func viewWillAppear(animated: Bool) { //layout buttons & TV appropriately
         if let buttons = createdVariable?.tableViewLayoutObject["buttons"] as? [String] {
             if (buttons.contains("add")) {
-                addOptionButton.hidden = false
+                if let rowsForSection = createdVariable?.tableViewLayoutObject["rowsForSection"] {
+                    if let rows = (rowsForSection["behaviors"] as? [String]) {
+                        let numberOfBehaviors = rows.count
+                        //Constraint distance down = height of 'Behaviors' headerView (24) + # of behaviors + 48*(height of each row) + offset:
+                        addButtonTopConstraint.constant = CGFloat(24 + 48 * numberOfBehaviors) + 4
+                        print("Constant: \(addButtonTopConstraint.constant)")
+                        addOptionButton.hidden = false //place the add button on the 'options section' header
+                    }
+                }
             } else {
                 addOptionButton.hidden = true
             }
@@ -36,11 +45,11 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
             addOptionButton.hidden = true
         }
         
-        if (addOptionButton.hidden == true) { //adjust TV position depending on addOptionsButton
-            tableViewTopConstraint.constant = 0
-        } else {
-            tableViewTopConstraint.constant = addOptionButton.frame.height
-        }
+//        if (promptButton.hidden == true) { //adjust TV position depending on promptButton!
+//            tableViewTopConstraint.constant = 0
+//        } else {
+//            tableViewTopConstraint.constant = promptButton.frame.height
+//        }
     }
     
     override func viewDidLoad() {
@@ -67,6 +76,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if let sectionView = createdVariable?.tableViewLayoutObject["viewForSection"] as? Dictionary<String, CustomTableViewHeader>, sectionTitle = createdVariable?.sectionsToDisplay[section] {
             if let headerView = sectionView[sectionTitle] {
+                //When the user selects a pre-built or adds an option (& it removes the 'behaviors' section from display, we need to change the header title to 'Options').
                 let height = headerView.frame.height
                 headerView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: height) //recreate frame w/ view's width
                 headerView.setNeedsDisplay()
@@ -77,8 +87,8 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let dict = createdVariable?.tableViewLayoutObject, sectionTitle = createdVariable?.sectionsToDisplay[section] {
-            if let rows = (dict["rowsForSection"]![sectionTitle] as? [String]) {
+        if let rowsForSection = createdVariable?.tableViewLayoutObject["rowsForSection"], sectionTitle = createdVariable?.sectionsToDisplay[section] {
+            if let rows = (rowsForSection[sectionTitle] as? [String]) {
                 return rows.count
             }
         }
@@ -87,31 +97,44 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("configure_module_cell")!
-        if let dict = createdVariable?.tableViewLayoutObject, sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section] {
-            if let rowsArray = (dict["rowsForSection"]![sectionTitle] as? [String]) {
-                cell.textLabel?.text = rowsArray[indexPath.row]
+        if let rowsForSection = createdVariable?.tableViewLayoutObject["rowsForSection"], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section] {
+            if let rows = (rowsForSection[sectionTitle] as? [String]) {
+                cell.textLabel?.text = rows[indexPath.row]
             }
         }
         return cell
     }
     
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 48 //used in calculation for positioning the + button
+    }
+    
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        if let dict = createdVariable?.tableViewLayoutObject, sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section] {
-            if let rowsArray = dict["rowsForSection"]![sectionTitle] as? [String] {
+        if let rowsForSection = createdVariable?.tableViewLayoutObject["rowsForSection"], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section] {
+            if let rows = rowsForSection[sectionTitle] as? [String] {
                 var alert = UIAlertController()
-                var cancel = UIAlertAction()
+                let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in }
                 var select = UIAlertAction()
                 if (sectionTitle == "behaviors") {
-                    alert = UIAlertController(title: "Binary Configuration", message: "A binary configuration offers two options - 'Yes' and 'No'. Useful for variables with only two possibilities.", preferredStyle: .Alert)
-                    cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in }
-                    select = UIAlertAction(title: "Select", style: .Default) { (let ok) -> Void in
-                        self.createdVariable?.selectedBehavior = rowsArray[indexPath.row]
-                        self.configureModuleTableView.reloadData()
-                        self.addOptionButton.enabled = false //prevent further custom additions
-                        self.saveButton.enabled = true //allow user to save variable
+                    let selectedBehavior = rows[indexPath.row]
+                    
+                    //Get alert message:
+                    if let alertMessage = createdVariable?.tableViewLayoutObject["alertMessage"] as? [String: [String: String]] {
+                        if let messageForBehavior = alertMessage[sectionTitle] {
+                            let message = messageForBehavior[selectedBehavior]
+                            alert = UIAlertController(title: "\(selectedBehavior) Behavior", message: message, preferredStyle: .Alert)
+                            select = UIAlertAction(title: "Select", style: .Default) { (let ok) -> Void in
+                                self.createdVariable?.selectedBehavior = selectedBehavior
+                                self.configureModuleTableView.reloadData()
+                                
+                                //Later on, these should be automatically set when TV reloads:
+                                self.addOptionButton.enabled = false //prevent further custom additions
+                                self.saveButton.enabled = true //allow user to save variable
+                            }
+                        }
                     }
                 } else if (sectionTitle == "computations") {
-                    createdVariable?.selectedComputations?.append(rowsArray[indexPath.row])
+                    createdVariable?.selectedComputations?.append(rows[indexPath.row])
                     configureModuleTableView.reloadData()
                 }
                 alert.addAction(cancel)
@@ -122,14 +145,44 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     }
 
     func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        if let dict = createdVariable?.tableViewLayoutObject, sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section] {
-            if let selectable = (dict["selectable"]![sectionTitle] as? Bool) {//check if rows for the given section are selectable
-                if !(selectable) { //not selectable -> don't allow highlighting
+        if let selectable = createdVariable?.tableViewLayoutObject["selectable"], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section] {
+            if let canSelect = (selectable[sectionTitle] as? Bool) {//check if section rows are selectable
+                if !(canSelect) { //not selectable -> don't allow highlighting
                     return false
                 }
             }
         }
         return true
+    }
+    
+    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle { //only allow deleting variables from TV in CustomModule options
+        if let deletable = createdVariable?.tableViewLayoutObject["deletable"], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section] {
+            if let canDelete = (deletable[sectionTitle] as? Bool) {//check if section rows can be deleted
+                if (canDelete) { //deletable
+                    return UITableViewCellEditingStyle.Delete
+                }
+            }
+        }
+        return UITableViewCellEditingStyle.None
+    }
+    
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        if editingStyle == .Delete {
+            // Delete the row from the data source & update the variable's options (Custom Module)
+            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+            
+            if let variable = (createdVariable as? CustomModule) {
+                if (variable.options.isEmpty) { //if there are no more options & the 'behaviors' list is being displayed, move the plus button accordingly
+                    if let rowsForSection = createdVariable?.tableViewLayoutObject["rowsForSection"] {
+                        if let rows = (rowsForSection["behaviors"] as? [String]) {
+                            let numberOfBehaviors = rows.count
+                            //Constraint distance down = height of 'Behaviors' headerView (24) + # of behaviors + 48*(height of each row) + weird offset of 4:
+                            addButtonTopConstraint.constant = CGFloat(24 + 48 * numberOfBehaviors) + 4
+                        }
+                    }
+                }
+            }
+        }
     }
     
     // MARK: - Button Actions
@@ -159,6 +212,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
                     if !(error) {
                         (self.createdVariable as! CustomModule).options.append(input!)
                         self.configureModuleTableView.reloadData()
+                        self.addButtonTopConstraint.constant = 0
                         self.saveButton.enabled = true //enable button after 1 option is selected
                     } else {
                         print("Error: input option is a duplicate!")
@@ -191,5 +245,4 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         performSegueWithIdentifier("unwindToVariablesVC", sender: self)
     }
     
-
 }
