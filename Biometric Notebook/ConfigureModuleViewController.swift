@@ -128,7 +128,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
                                 self.configureModuleTableView.reloadData()
                                 
                                 //Later on, these should be automatically set when TV reloads:
-                                self.addOptionButton.enabled = false //prevent further custom additions
+                                self.addOptionButton.hidden = true //prevent further custom additions
                                 self.saveButton.enabled = true //allow user to save variable
                             }
                         }
@@ -178,6 +178,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
                             let numberOfBehaviors = rows.count
                             //Constraint distance down = height of 'Behaviors' headerView (24) + # of behaviors + 48*(height of each row) + weird offset of 4:
                             addButtonTopConstraint.constant = CGFloat(24 + 48 * numberOfBehaviors) + 4
+                            addOptionButton.hidden = false
                         }
                     }
                 }

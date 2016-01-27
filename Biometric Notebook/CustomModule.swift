@@ -21,7 +21,7 @@ class CustomModule: Module {
                 switch section { //use the lowercare string for the dict key
                 case "options":
                     //To this view, we want to position the 'add' button in the ConfigureVC on top of the section! Set up the behavior for this here:
-                    viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Or add options for your variable")
+                    viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: optionsSectionTitle)
                 case "behaviors":
                     viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Select a pre-built configuration")
                 default:
@@ -90,6 +90,14 @@ class CustomModule: Module {
         }
     }
     
+    private var optionsSectionTitle: String { //header title for the 'options' section
+        if (options.isEmpty) {
+            return "Or add options for your variable"
+        } else {
+            return "Options"
+        }
+    }
+    
     private let customModuleBehaviors: [CustomModuleBehaviors] = [CustomModuleBehaviors.Binary, CustomModuleBehaviors.Scale]
     override var behaviors: [String] { //'behaviors' = instance variables containing pre-defined behaviors that the module can adopt in place of the standard user-created options
         var behaviorTitles: [String] = []
@@ -119,7 +127,7 @@ class CustomModule: Module {
     var options: [String] = [] { //array of user-created options associated w/ the variable/prompt
         didSet { //if user adds an option, remove the behavior options
             if (options.isEmpty) { //no options, 'behaviors' are available
-                sectionsToDisplay.insert("behaviors", atIndex: 0) //*
+                sectionsToDisplay.insert("behaviors", atIndex: 0)
             } else { //options have been entered, hide the behaviors
                 if let index = sectionsToDisplay.indexOf("behaviors") {
                     sectionsToDisplay.removeAtIndex(index)
@@ -167,7 +175,7 @@ enum CustomModuleBehaviors: String {
         case .Binary:
             message = "A binary configuration offers two options - 'Yes' and 'No'. Useful for variables with only two possibilities."
         case .Scale:
-            message = "A scale allows the user to pick a value between the minimum and the maximum that you set."
+            message = "A scale allows the user to pick an integer value between the minimum and the maximum that you set."
         }
         return message
     }
