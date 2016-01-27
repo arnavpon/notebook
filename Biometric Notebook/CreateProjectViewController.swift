@@ -21,6 +21,7 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
     @IBOutlet weak var firstSuccessIndicator: UIImageView!
     @IBOutlet weak var secondSuccessIndicator: UIImageView!
     @IBOutlet weak var thirdSuccessIndicator: UIImageView!
+    @IBOutlet weak var endpointView: UIView!
     
     var projectTitle: String? //set value to indicate that a name has been entered
     var projectQuestion: String? //set value to indicate that a question has been entered
@@ -35,11 +36,29 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         thirdSuccessIndicator.hidden = true
         projectTitleTextView.delegate = self
         projectQuestionTextView.delegate = self
+        
+        let frame = CGRect(x: 10, y: 50, width: 240, height: 80)
+        let dataPoints = ["Continuous", "Day(s)", "Week(s)", "Month(s)", "Year(s)"]
+        let colorScheme = (UIColor.whiteColor(), UIColor.greenColor(), 1)
+        let customSlider = CustomSlider(frame: frame, selectionPoints: dataPoints, scheme: colorScheme)
+        endpointView.addSubview(customSlider)
+        endpointView.bringSubviewToFront(customSlider)
+        customSlider.addTarget(self, action: "customSliderValueHasChanged:", forControlEvents: .ValueChanged)
+        
+        //test ui changes:
+        let time = dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC))
+        dispatch_after(time, dispatch_get_main_queue()) { () -> Void in
+            customSlider.controlTintColor = UIColor.purpleColor()
+        }
     }
     
     override func viewDidAppear(animated: Bool) { //add placeholders (view is properly set @ this time)
         projectTitleTextView.placeholder = "Enter a title for your new project"
         projectQuestionTextView.placeholder = "What is the question that your project is trying to answer?"
+    }
+    
+    func customSliderValueHasChanged(customSlider: CustomSlider) {
+        print("New Slider Value: \(customSlider.currentValue)")
     }
 
     // MARK: - TextView Behavior
@@ -82,6 +101,18 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
             }
         }
         return true
+    }
+    
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) { //if touch is outside textView, resign 1st responder; doesn't drop 1stR when I touch slider for some reason
+        let touch = touches.first
+        if let location = touch?.locationInView(self.view) {
+            if !(projectQuestionTextView.frame.contains(location)) {
+                projectQuestionTextView.resignFirstResponder()
+            }
+            if !(projectTitleTextView.frame.contains(location)) {
+                projectTitleTextView.resignFirstResponder()
+            }
+        }
     }
     
     // MARK: - Button Actions

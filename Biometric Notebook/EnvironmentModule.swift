@@ -1,18 +1,18 @@
-//  FoodIntakeModule.swift
+//  EnvironmentModule.swift
 //  Biometric Notebook
-//  Created by Arnav Pondicherry  on 1/7/16.
+//  Created by Arnav Pondicherry  on 1/27/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Module for inputting food intake data & computing calorific consumption & nutritional intake.
+// Module used to collect weather data (outdoor environment) based on the user's location. Also the mdodule used to measure temperature & humidity data (indoor environment) from sensor.
 
 import Foundation
 
-class FoodIntakeModule: Module {
+class EnvironmentModule: Module {
     
-    private let foodIntakeModuleBehaviors: [FoodIntakeModuleBehaviors] = []
+    private let environmentModuleBehaviors: [EnvironmentModuleBehaviors] = [EnvironmentModuleBehaviors.TemperatureAndHumidity, EnvironmentModuleBehaviors.Weather]
     override var behaviors: [String] {
         var behaviorTitles: [String] = []
-        for behavior in foodIntakeModuleBehaviors {
+        for behavior in environmentModuleBehaviors {
             behaviorTitles.append(behavior.rawValue)
         }
         return behaviorTitles
@@ -24,10 +24,10 @@ class FoodIntakeModule: Module {
         }
     }
     
-    private let foodIntakeModuleComputations: [FoodIntakeModuleComputations] = []
+    private let environmentModuleComputations: [EnvironmentModuleComputations] = []
     override var computations: [String] {
         var computationTitles: [String] = []
-        for computation in foodIntakeModuleComputations {
+        for computation in environmentModuleComputations {
             computationTitles.append(computation.rawValue)
         }
         return computationTitles
@@ -41,7 +41,7 @@ class FoodIntakeModule: Module {
     
     override init(name: String) {
         super.init(name: name)
-        self.moduleTitle = Modules.FoodIntakeModule.rawValue
+        self.moduleTitle = Modules.EnvironmentModule.rawValue
     }
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
@@ -51,10 +51,11 @@ class FoodIntakeModule: Module {
     
 }
 
-enum FoodIntakeModuleBehaviors: String {
-    case Dummy = ""
+enum EnvironmentModuleBehaviors: String {
+    case TemperatureAndHumidity = "Temperature & Humidity"
+    case Weather = "Weather"
 }
 
-enum FoodIntakeModuleComputations: String {
+enum EnvironmentModuleComputations: String {
     case Dummy = ""
 }

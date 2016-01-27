@@ -31,3 +31,26 @@ func clearCoreDataStoreForEntity(entity entity: String) {
     }
 }
 
+//Code for two interdependent checkboxes (when one is clicked, the other is unclicked):
+//@IBAction func inputVariableCheckboxClicked(sender: AnyObject) {
+//    if !(inputVariableCheckbox.isChecked) { //box is NOT currently checked
+//        beforeOrAfterAction = false //set value for variable
+//    } else { //box is currently checked & is being unchecked (so NO boxes will be selected)
+//        beforeOrAfterAction = nil
+//    }
+//    if (outcomeVariableCheckbox.isChecked) { //uncheck other box if checked
+//        outcomeVariableCheckbox.isChecked = false
+//    }
+//}
+//
+//@IBAction func outcomeVariableCheckboxClicked(sender: AnyObject) {
+//    if !(outcomeVariableCheckbox.isChecked) { //box is NOT currently checked
+//        beforeOrAfterAction = true //set value for variable
+//    } else { //box is currently checked & is being unchecked (so NO boxes will be selected)
+//        beforeOrAfterAction = nil
+//    }
+//    if (inputVariableCheckbox.isChecked) { //uncheck other box if checked
+//        inputVariableCheckbox.isChecked = false
+//    }
+//}
+

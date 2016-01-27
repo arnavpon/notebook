@@ -9,16 +9,26 @@ import UIKit
 
 class CustomTableViewHeader: UIView {
     
-    let label: LabelWithPadding
+    private var label: LabelWithPadding?
+    
+    var labelInsets: UIEdgeInsets {
+        get {
+            return UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20) //give user ability to modify insets
+        } set {
+            configureLabel() //*
+        }
+    }
+    
     let text: String
     
     init(frame: CGRect, text: String) {
-        let inset = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20) //alternatively we can set insets in tableVC (default insets change depending on whether there is a TV in tableVC or normal VC)
-        label = LabelWithPadding(frame: frame, inset: inset)
         self.text = text
         super.init(frame: frame)
         configureLabel()
-        self.addSubview(label)
+    }
+    
+    override func setNeedsDisplay() { //call whenever frame changes to redraw label
+        configureLabel()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -26,9 +36,11 @@ class CustomTableViewHeader: UIView {
     }
     
     func configureLabel() { //label occupies the entire view (but is padded)
-        label.numberOfLines = 2
-        label.backgroundColor = UIColor.redColor()
-        label.text = text
+        label = LabelWithPadding(frame: frame, inset: labelInsets)
+        label!.numberOfLines = 2
+        label!.backgroundColor = UIColor.redColor()
+        label!.text = text
+        self.addSubview(label!)
     }
 
 }

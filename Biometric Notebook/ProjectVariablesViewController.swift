@@ -10,8 +10,9 @@ import UIKit
 class ProjectVariablesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
     
     @IBOutlet weak var doneButton: UIBarButtonItem!
-    @IBOutlet weak var endpointPicker: UIPickerView!
     @IBOutlet weak var actionPicker: UIPickerView!
+    @IBOutlet weak var inputVariablesTV: UITableView!
+    @IBOutlet weak var outcomeVariablesTV: UITableView!
     
     var beforeActionRows: [Module] = [] //data source for rows before the 'Action'
     var afterActionRows: [Module] = [] //data source for rows after the 'Action'
@@ -22,19 +23,18 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     var variableName: String? //the name of the variable entered by the user***
     var createdVariable: Module? //the completed variable created by the user
     
-    var actionPickerRowArray: [String] = ["Eat", "Sleep", "Exercise"] //make sure these values match the 'rawValue' strings in the picker enum!
+    var actionPickerRowArray: [String] = ["", "Eat", "Sleep", "Exercise", "Custom"] //make sure these values match the 'rawValue' strings in the picker enum!
     var actionPickerSelection: String?
     var selectedAction: Action? //captures 'action' before segue
+    var tableViewForVariableAddition: UITableView? //notes which TV a new variable is going to
     
     // MARK: - View Configuration
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        actionPicker.dataSource = self
-        actionPicker.delegate = self
-        endpointPicker.dataSource = self
-        endpointPicker.delegate = self
+        //actionPicker.dataSource = self //*
+        //actionPicker.delegate = self
         
         //Initialize the actionPicker & endpointPicker selections w/ the first item in the array:
         actionPickerSelection = actionPickerRowArray.first
@@ -71,6 +71,9 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         if editingStyle == .Delete {
             // Delete the row from the data source
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+            if !(beforeActionRows.count > 0) || !(afterActionRows.count > 0) {
+                doneButton.enabled = false
+            }
         }
     }
     
@@ -81,6 +84,9 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     
     func tableView(tableView: UITableView, moveRowAtIndexPath sourceIndexPath: NSIndexPath, toIndexPath destinationIndexPath: NSIndexPath) {
         //
+        if !(beforeActionRows.count > 0) || !(afterActionRows.count > 0) {
+            doneButton.enabled = false
+        }
     }
     
     // MARK: - Picker View
@@ -104,7 +110,17 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     
     // MARK: - Button Actions
     
-    @IBAction func addVariableButtonClick(sender: AnyObject) { //called by either TV
+    @IBAction func inputVariablesAddButtonClick(sender: AnyObject) { //called by either TV
+        //Depending on which TV was selected, it will send the variable to that TV's data source. Make 2 separate addVariable IBActions, but 1 common function handling behavior of both!
+        addVariable(inputVariablesTV)
+    }
+    
+    @IBAction func outcomeVariablesAddButtonClick(sender: AnyObject) {
+        addVariable(outcomeVariablesTV)
+    }
+    
+    func addVariable(sender: UITableView) {
+        tableViewForVariableAddition = sender //clear this after the variable is added
         let alert = UIAlertController(title: "New Variable", message: "Type the name of the variable you wish to add.", preferredStyle: .Alert)
         alert.addTextFieldWithConfigurationHandler { (let field) -> Void in
             field.autocapitalizationType = .Words //auto-capitalize words
@@ -142,7 +158,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     @IBAction func doneButtonClick(sender: AnyObject) {
         //Disable this button until at least 1 beforeAction & 1 afterAction variable have been added.
         
-        selectedAction = Action(action: actionPickerSelection!) //initializes the enum object w/ the string in the picker
+        selectedAction = Action(action: actionPickerSelection!) //initializes 'Actions' enum object w/ the string in the picker
         performSegueWithIdentifier("showSummary", sender: nil)
     }
 
@@ -153,14 +169,12 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         if let configureModuleVC = sender.sourceViewController as? ConfigureModuleViewController {
             //If sender is configureModuleVC, grab the input/outcome selection & module information:
             createdVariable = configureModuleVC.createdVariable
-            if (configureModuleVC.beforeOrAfterAction == "before") {
+            if (tableViewForVariableAddition == inputVariablesTV) {
                 beforeActionRows.append(createdVariable!)
                 //tableView.reloadData()
-            } else if (configureModuleVC.beforeOrAfterAction == "after") {
+            } else if (tableViewForVariableAddition == outcomeVariablesTV) {
                 afterActionRows.append(createdVariable!)
                 //tableView.reloadData()
-            } else {
-                print("Error in unwindToVariablesVC")
             }
         }
         if (beforeActionRows.count > 0) && (afterActionRows.count > 0) { //enable button when 1 of each var is added, disable if a variable is deleted or moved & there is no longer 1 of each

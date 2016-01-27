@@ -15,7 +15,6 @@ class CustomTextView: UITextView {
         didSet {
             if (placeholder != nil) { //add the placeholder (default setting)
                 let insets = UIEdgeInsets(top: 0, left: 3, bottom: 0, right: 0)
-                print(self.frame.width, self.frame.height)
                 let labelFrame = CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height)
                 placeholderLabel = LabelWithPadding(frame: labelFrame, inset: insets)
                 placeholderLabel?.text = placeholder
@@ -28,6 +27,11 @@ class CustomTextView: UITextView {
                     placeholderLabel?.font = UIFont(name: fontName, size: placeholderFontSize)
                 }
                 self.addSubview(placeholderLabel!)
+                if (self.text == "") { //check if there is any text currently
+                    placeholderLabel?.hidden = false
+                } else {
+                    placeholderLabel?.hidden = true
+                }
             }
         }
     }

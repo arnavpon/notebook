@@ -161,15 +161,8 @@ class ProjectVariablesTableViewController: UITableViewController {
         if let configureModuleVC = sender.sourceViewController as? ConfigureModuleViewController {
             //If sender is configureModuleVC, grab the input/outcome selection & module information:
             createdVariable = configureModuleVC.createdVariable
-            if (configureModuleVC.beforeOrAfterAction == "before") {
-                beforeActionRows.append(createdVariable!)
-                tableView.reloadData()
-            } else if (configureModuleVC.beforeOrAfterAction == "after") {
-                afterActionRows.append(createdVariable!)
-                tableView.reloadData()
-            } else {
-                print("Error in unwindToVariablesVC")
-            }
+            beforeActionRows.append(createdVariable!)
+            tableView.reloadData()
         }
         if (beforeActionRows.count > 0) && (afterActionRows.count > 0) { //enable button when 1 of each var is added, disable if a variable is deleted or moved & there is no longer 1 of each
             doneButton.enabled = true

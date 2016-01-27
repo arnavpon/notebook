@@ -14,10 +14,10 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     @IBOutlet weak var outcomeVariableCheckbox: CheckBox!
     @IBOutlet weak var moduleTableView: UITableView!
     
-    let moduleArray: [String] = ["Custom Module", "Temperature/Humidity Module", "Weather Module", "Exercise Module", "Food Intake Module", "Biometric Module"]
+    let moduleArray: [Modules] = Module.modules
     var variableName: String? //user-entered variable name
     var selectedModule: Modules? //matches TV selection -> enum containing the defined module types
-    var beforeOrAfterAction: String? //determines where to put variable in flow (before or after action)
+    var createdVariable: Module? //attach a type to this variable & initialize it before -> ConfigureVC
     
     // MARK: - View Configuration 
     
@@ -45,108 +45,67 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("module_cell")!
-        cell.textLabel?.text = moduleArray[indexPath.row]
+        let moduleTitle = "\(moduleArray[indexPath.row].rawValue) Module"
+        cell.textLabel?.text = moduleTitle
         return cell
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         //Grab the current selection:
-        if (beforeOrAfterAction != nil) { //make sure a checkbox is selected before proceeding
-            let alert: UIAlertController
-            var errorCheck = false //makes sure the 'default' statement was not triggered
-            switch indexPath.row { //check which module was selected
-            case 0: //first item in 'moduleArray'
-                selectedModule = Modules.CustomModule
-                alert = UIAlertController(title: "Module Description", message: "A custom module allows you to add a variable and a set of options pertaining to that variable.", preferredStyle: .Alert)
-            case 1: //T&H module (2nd item in 'moduleArray')
-                selectedModule = Modules.TemperatureHumidityModule
-                alert = UIAlertController(title: "Module Description", message: "A module that allows you to track temperature and humidity.", preferredStyle: .Alert)
-            case 2: //Weather module (3rd item in 'moduleArray')
-                selectedModule = Modules.WeatherModule
-                alert = UIAlertController(title: "Module Description", message: "A module that allows you to capture the current weather.", preferredStyle: .Alert)
-            case 3: //Exercise module (4th item in 'moduleArray')
-                selectedModule = Modules.ExerciseModule
-                alert = UIAlertController(title: "Module Description", message: "A module that allows you to track exercise-related statistics.", preferredStyle: .Alert)
-            case 4: //FoodIntake module (5th item in 'moduleArray')
-                selectedModule = Modules.FoodIntakeModule
-                alert = UIAlertController(title: "Module Description", message: "A module that allows you to track food intake.", preferredStyle: .Alert)
-            case 5: //Biometric module (6th item in 'moduleArray')
-                selectedModule = Modules.BiometricModule
-                alert = UIAlertController(title: "Module Description", message: "A module that allows you to track biometric data like height and weight.", preferredStyle: .Alert)
-            default:
-                errorCheck = true
-                selectedModule = nil
-                alert = UIAlertController(title: "Error!", message: "Default in switch statement.", preferredStyle: .Alert)
-            }
-            if (errorCheck == false) { //no errors
-                let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in
-                    self.selectedModule = nil
-                    tableView.cellForRowAtIndexPath(indexPath)?.highlighted = false //remove highlighting if module is not attached
-                    tableView.reloadData()
-                }
-                let attach = UIAlertAction(title: "Attach", style: .Default) { (let ok) -> Void in
-                    //Create the variable object w/ the appropriate class:
-                    self.performSegueWithIdentifier("showConfigureModule", sender: nil)
-                }
-                alert.addAction(cancel)
-                alert.addAction(attach)
-            } else { //error (default statement triggered)
-                let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in
-                    self.selectedModule = nil
-                    tableView.cellForRowAtIndexPath(indexPath)?.highlighted = false
-                    tableView.reloadData()
-                }
-                alert.addAction(cancel)
-            }
-            presentViewController(alert, animated: true, completion: nil)
+        let alert: UIAlertController
+        selectedModule = moduleArray[indexPath.row] //set selectedModule based on data source
+        switch selectedModule! { //check which module was selected
+        case .CustomModule:
+            alert = UIAlertController(title: "Module Description", message: "A custom module allows you to add a variable and a set of options pertaining to that variable.", preferredStyle: .Alert)
+        case .EnvironmentModule:
+            alert = UIAlertController(title: "Module Description", message: "A module that allows you to capture aspects of the ambient environment, such as temperature and humidity.", preferredStyle: .Alert)
+        case .ExerciseModule:
+            alert = UIAlertController(title: "Module Description", message: "A module that allows you to track exercise-related statistics.", preferredStyle: .Alert)
+        case .FoodIntakeModule:
+            alert = UIAlertController(title: "Module Description", message: "A module that allows you to track food intake.", preferredStyle: .Alert)
+        case .BiometricModule:
+            alert = UIAlertController(title: "Module Description", message: "A module that allows you to track biometric data like height and weight.", preferredStyle: .Alert)
         }
+        let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in
+            self.selectedModule = nil //clear selection
+            tableView.cellForRowAtIndexPath(indexPath)?.highlighted = false //remove highlighting if module is not attached
+            tableView.reloadData()
+        }
+        let attach = UIAlertAction(title: "Attach", style: .Default) { (let ok) -> Void in
+            switch self.selectedModule! { //create the variable object w/ the appropriate class
+            case .CustomModule:
+                self.createdVariable = CustomModule(name: self.variableName!)
+            case .EnvironmentModule:
+                self.createdVariable = EnvironmentModule(name: self.variableName!)
+            case .FoodIntakeModule:
+                self.createdVariable = FoodIntakeModule(name: self.variableName!)
+            case .ExerciseModule:
+                self.createdVariable = ExerciseModule(name: self.variableName!)
+            case .BiometricModule:
+                self.createdVariable = BiometricModule(name: self.variableName!)
+            }
+            self.performSegueWithIdentifier("showConfigureModule", sender: nil)
+        }
+        alert.addAction(cancel)
+        alert.addAction(attach)
+        presentViewController(alert, animated: true, completion: nil)
     }
     
     func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         //If you return false for this function, it does not register the user clicking the TV cell at all (nothing happens when the cell is tapped)!
-        if (beforeOrAfterAction != nil) { //only highlight if a checkbox is currently selected
-            return true
-        } else { //don't highlight if no checkbox is selected
-            let alert = UIAlertController(title: "Oops!", message: "Please click on a checkbox to indicate whether the variable is an input or outcome before trying to attach a module.", preferredStyle: .Alert)
-            let ok = UIAlertAction(title: "Got It!", style: .Default) { (let ok) -> Void in }
-            alert.addAction(ok)
-            presentViewController(alert, animated: true, completion: nil)
-            return false
-        }
+        return true
     }
     
     // MARK: - Button Actions
     
-    @IBAction func inputVariableCheckboxClicked(sender: AnyObject) {
-        if !(inputVariableCheckbox.isChecked) { //box is NOT currently checked
-            beforeOrAfterAction = "before" //set value for variable
-        } else { //box is currently checked & is being unchecked (so NO boxes will be selected)
-            beforeOrAfterAction = nil
-        }
-        if (outcomeVariableCheckbox.isChecked) { //uncheck other box if checked
-            outcomeVariableCheckbox.isChecked = false
-        }
-    }
     
-    @IBAction func outcomeVariableCheckboxClicked(sender: AnyObject) {
-        if !(outcomeVariableCheckbox.isChecked) { //box is NOT currently checked
-            beforeOrAfterAction = "after" //set value for variable
-        } else { //box is currently checked & is being unchecked (so NO boxes will be selected)
-            beforeOrAfterAction = nil
-        }
-        if (inputVariableCheckbox.isChecked) { //uncheck other box if checked
-            inputVariableCheckbox.isChecked = false
-        }
-    }
     
     // MARK: - Navigation
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if (segue.identifier == "showConfigureModule") { //pass selected module
+        if (segue.identifier == "showConfigureModule") { //pass created variable over
             let destination = segue.destinationViewController as! ConfigureModuleViewController
-            destination.variableName = self.variableName
-            destination.selectedModule = self.selectedModule
-            destination.beforeOrAfterAction = self.beforeOrAfterAction
+            destination.createdVariable = self.createdVariable
         }
     }
 

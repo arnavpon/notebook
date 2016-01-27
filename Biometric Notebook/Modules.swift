@@ -8,10 +8,9 @@
 import Foundation
 
 enum Modules: String {
-    case CustomModule = "custom"
-    case WeatherModule = "weather"
-    case TemperatureHumidityModule = "tempAndHumidity"
-    case FoodIntakeModule = "foodIntake"
-    case ExerciseModule = "exercise"
-    case BiometricModule = "biometric"
+    case CustomModule = "Custom"
+    case EnvironmentModule = "Environment"
+    case FoodIntakeModule = "Food Intake"
+    case ExerciseModule = "Exercise"
+    case BiometricModule = "Biometric"
 }

@@ -32,7 +32,7 @@ class Project: NSManagedObject {
     }
     
     internal func reconstructProjectFromPersistentRepresentation() {
-        //Uses the project's CoreData representation to reconstruct its variables as Module objects:
+        //Use the project's CoreData representation to reconstruct its variables as Module objects:
         beforeActionVariablesArray = [] //initialize variableArray
         afterActionVariablesArray = [] //initialize variableArray
         for (variable, dict) in self.beforeActionVars {
@@ -49,26 +49,25 @@ class Project: NSManagedObject {
     
     private func createModuleObjectFromModuleName(moduleName: String, variableName: String, variableDict: [String: AnyObject]) -> Module {
         var object: Module
-        switch moduleName { //make sure these match the moduleTitle used to construct the dict!
-        case "Custom":
+        switch moduleName { //the Modules enum's raw string is the moduleName for unpacking
+        case Modules.CustomModule.rawValue:
             let options = variableDict["options"] as! [String]
-            object = CustomModule(name: variableName, options: options)
+            object = CustomModule(name: variableName)
+            (object as! CustomModule).options = options
             if let prompt = variableDict["prompt"] as? String { //check for prompt
                 (object as! CustomModule).setPromptForVariable(prompt)
             }
-        case "Weather":
-            object = WeatherModule(name: variableName)
-        case "Temperature & Humidity":
-            object = TemperatureHumidityModule(name: variableName)
-        case "Food Intake":
+        case Modules.EnvironmentModule.rawValue:
+            object = EnvironmentModule(name: variableName)
+        case Modules.FoodIntakeModule.rawValue:
             object = FoodIntakeModule(name: variableName)
-        case "Exercise":
+        case Modules.ExerciseModule.rawValue:
             object = ExerciseModule(name: variableName)
-        case "Biometric":
+        case Modules.BiometricModule.rawValue:
             object = BiometricModule(name: variableName)
         default:
             object = Module(name: variableName) //should never be called
-            print("Error: default switch in Project > 'createModuleObjectFromModuleName'")
+            print("Error: default switch in [Project > 'createModuleObjectFromModuleName()']")
         }
         return object
     }

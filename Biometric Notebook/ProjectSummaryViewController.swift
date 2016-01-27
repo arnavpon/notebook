@@ -130,11 +130,8 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
             case is CustomModule:
                 let variableWithType = variable as! CustomModule
                 dictionary[variable.variableName] = variableWithType.createDictionaryForCoreDataStore()
-            case is TemperatureHumidityModule:
-                let variableWithType = variable as! TemperatureHumidityModule
-                dictionary[variable.variableName] = variableWithType.createDictionaryForCoreDataStore()
-            case is WeatherModule:
-                let variableWithType = variable as! WeatherModule
+            case is EnvironmentModule:
+                let variableWithType = variable as! EnvironmentModule
                 dictionary[variable.variableName] = variableWithType.createDictionaryForCoreDataStore()
             case is ExerciseModule:
                 let variableWithType = variable as! ExerciseModule

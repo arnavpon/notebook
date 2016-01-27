@@ -3,123 +3,130 @@
 //  Created by Arnav Pondicherry  on 1/3/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Apply settings for the selected module.
+// Apply settings for the selected module - every bit of code in this VC should be applicable to every variable, regardless of the type of module that was selected. All logic for layout & rendering should be set in the Module class declaration & 1 generic template for applying it should be available here!
 
 import UIKit
 
 class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
-    @IBOutlet weak var titleBar: UINavigationBar!
+    @IBOutlet weak var tableViewTopConstraint: NSLayoutConstraint! //distance from TV -> top layout guide
+    @IBOutlet weak var configureModuleNavItem: UINavigationItem!
+    @IBOutlet weak var addOptionButton: UIButton! //we want to add this button to the 'Options' view of the Custom Module. We will custom draw this in the class declaration & remove this object!
     @IBOutlet weak var saveButton: UIBarButtonItem! //disable until config is complete
-    @IBOutlet weak var addOptionButton: UIBarButtonItem!
     @IBOutlet weak var configureModuleTableView: UITableView!
     
     var createdVariable: Module? //variable w/ completed configuration
-    var variableName: String?
-    var selectedModule: Modules?
-    var beforeOrAfterAction: String?
-    var availableComputationsArray: [String] = [] //computations available for given module
-    var customModuleOptions: [String] = [] //data source for custom module
-    var variablePrompt: String? //prompt for CustomModule
+    
+    //var variablePrompt: String? //prompt for CustomModule
     
     // MARK: - View Configuration
+    
+    override func viewWillAppear(animated: Bool) { //layout buttons & TV appropriately
+        if let buttons = createdVariable?.tableViewLayoutObject["buttons"] as? [String] {
+            if (buttons.contains("add")) {
+                addOptionButton.hidden = false
+            } else {
+                addOptionButton.hidden = true
+            }
+            if (buttons.contains("prompt")) {
+                //display the prompt button
+            }
+        } else {
+            //hide all buttons
+            addOptionButton.hidden = true
+        }
+        
+        if (addOptionButton.hidden == true) { //adjust TV position depending on addOptionsButton
+            tableViewTopConstraint.constant = 0
+        } else {
+            tableViewTopConstraint.constant = addOptionButton.frame.height
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         configureModuleTableView.dataSource = self
         configureModuleTableView.delegate = self
-        if (selectedModule == Modules.CustomModule) {
-            titleBar.topItem?.title = "Custom Module"
-        } else {
-            titleBar.topItem?.title = "Different Module"
-        }
+        configureModuleNavItem.title = "Configure \(createdVariable!.moduleTitle) Var"
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     // MARK: - Table View
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        if (selectedModule == Modules.CustomModule) { //custom module
-            return 3 //in a custom module, the user can either enter a prompt (to replace the variable), their own options, or select an option from a pre-built list
+        let numberOfSections = createdVariable?.sectionsToDisplay.count
+        if let count = numberOfSections {
+            return count
         }
-        return 1
+        return 0
     }
     
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if (selectedModule == Modules.CustomModule) { //custom module
-            let headerView: CustomTableViewHeader
-            if (section == 0) { //prompt entry
-                headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 24), text: "If you want, enter a prompt for your variable (replaces the variable name during data entry).")
-            } else if (section == 1) {
-                headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 24), text: "Please add options for your variable")
-            } else { //section w/ computations
-                headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 24), text: "Or select a pre-built configuration")
+        if let sectionView = createdVariable?.tableViewLayoutObject["viewForSection"] as? Dictionary<String, CustomTableViewHeader>, sectionTitle = createdVariable?.sectionsToDisplay[section] {
+            if let headerView = sectionView[sectionTitle] {
+                let height = headerView.frame.height
+                headerView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: height) //recreate frame w/ view's width
+                headerView.setNeedsDisplay()
+                return headerView
             }
-            return headerView
-        } else { //computations
-            let headerView = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 48), text: "Please select the computations you wish to add to the variable")
-            return headerView
         }
+        return nil
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if (selectedModule == Modules.CustomModule) { //custom module
-            if (section == 0) {
-                return 1
-            } else if (section == 1) {
-                return customModuleOptions.count
-            } else {
-                return CustomModule.configurations.count
+        if let dict = createdVariable?.tableViewLayoutObject, sectionTitle = createdVariable?.sectionsToDisplay[section] {
+            if let rows = (dict["rowsForSection"]![sectionTitle] as? [String]) {
+                return rows.count
             }
-        } else { //display computations
-            return availableComputationsArray.count
         }
+        return 0
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("configure_module_cell")!
-        if (selectedModule == Modules.CustomModule) { //custom module
-            if (indexPath.section == 0) {
-                cell.textLabel?.text = variablePrompt
-            } else if (indexPath.section == 1) {
-                cell.textLabel?.text = customModuleOptions[indexPath.row]
-            } else {
-                cell.textLabel?.text = CustomModule.configurations[indexPath.row]
+        if let dict = createdVariable?.tableViewLayoutObject, sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section] {
+            if let rowsArray = (dict["rowsForSection"]![sectionTitle] as? [String]) {
+                cell.textLabel?.text = rowsArray[indexPath.row]
             }
-        } else { //display computations
-            cell.textLabel?.text = availableComputationsArray[indexPath.row]
         }
         return cell
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        if (selectedModule == Modules.CustomModule) { //custom module
-            if (indexPath.section == 2) {
-                if (customModuleOptions.count == 0) { //only available if options are empty!
-                    let alert = UIAlertController(title: "Boolean Configuration", message: "A boolean configuration offers two options - 'Yes' and 'No'. Useful for variables with only two possibilities.", preferredStyle: .Alert)
-                    let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in }
-                    let select = UIAlertAction(title: "Select", style: .Default) { (let ok) -> Void in
-                        self.customModuleOptions.append("Yes")
-                        self.customModuleOptions.append("No")
+        if let dict = createdVariable?.tableViewLayoutObject, sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section] {
+            if let rowsArray = dict["rowsForSection"]![sectionTitle] as? [String] {
+                var alert = UIAlertController()
+                var cancel = UIAlertAction()
+                var select = UIAlertAction()
+                if (sectionTitle == "behaviors") {
+                    alert = UIAlertController(title: "Binary Configuration", message: "A binary configuration offers two options - 'Yes' and 'No'. Useful for variables with only two possibilities.", preferredStyle: .Alert)
+                    cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in }
+                    select = UIAlertAction(title: "Select", style: .Default) { (let ok) -> Void in
+                        self.createdVariable?.selectedBehavior = rowsArray[indexPath.row]
                         self.configureModuleTableView.reloadData()
-                        self.saveButton.enabled = true
+                        self.addOptionButton.enabled = false //prevent further custom additions
+                        self.saveButton.enabled = true //allow user to save variable
                     }
-                    alert.addAction(cancel)
-                    alert.addAction(select)
-                    presentViewController(alert, animated: true, completion: nil)
+                } else if (sectionTitle == "computations") {
+                    createdVariable?.selectedComputations?.append(rowsArray[indexPath.row])
+                    configureModuleTableView.reloadData()
                 }
+                alert.addAction(cancel)
+                alert.addAction(select)
+                presentViewController(alert, animated: true, completion: nil)
             }
         }
     }
-    
+
     func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        if (selectedModule == Modules.CustomModule) { //custom module
-            if (indexPath.section == 0) || (indexPath.section == 1) {
-                return false //prevent selection of the option rows & the prompt
+        if let dict = createdVariable?.tableViewLayoutObject, sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section] {
+            if let selectable = (dict["selectable"]![sectionTitle] as? Bool) {//check if rows for the given section are selectable
+                if !(selectable) { //not selectable -> don't allow highlighting
+                    return false
+                }
             }
         }
         return true
@@ -133,23 +140,24 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
             field.autocapitalizationType = .Words
         }
         let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in }
-        let done = UIAlertAction(title: "Add", style: .Default) { (let ok) -> Void in
+        let add = UIAlertAction(title: "Add", style: .Default) { (let ok) -> Void in
             let input = alert.textFields?.first?.text
             if (input!.containsString("[prompt]")) {
                 let index = input!.startIndex.advancedBy(8)
-                self.variablePrompt = input?.substringFromIndex(index)
+                //self.variablePrompt = input?.substringFromIndex(index)
                 self.configureModuleTableView.reloadData()
             } else { //temporary location until 'Prompt' is figured out
                 if (input != "") {
                     var error: Bool = false
-                    for option in self.customModuleOptions { //make sure input is not a duplicate
+                    let options = (self.createdVariable as! CustomModule).options
+                    for option in options { //make sure input is not a duplicate
                         if (option.lowercaseString == input?.lowercaseString) {
                             error = true
                             break
                         }
                     }
                     if !(error) {
-                        self.customModuleOptions.append(input!.capitalizedString)
+                        (self.createdVariable as! CustomModule).options.append(input!)
                         self.configureModuleTableView.reloadData()
                         self.saveButton.enabled = true //enable button after 1 option is selected
                     } else {
@@ -175,28 +183,11 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
 //            }
         }
         alert.addAction(cancel)
-        alert.addAction(done)
+        alert.addAction(add)
         presentViewController(alert, animated: true, completion: nil)
     }
     
     @IBAction func saveButtonClick(sender: AnyObject) {
-        switch self.selectedModule! { //check which module was attached
-        case .CustomModule:
-            self.createdVariable = CustomModule(name: self.variableName!, options: customModuleOptions)
-            if let prompt = variablePrompt { //set the prompt -> the Custom Variable
-                (createdVariable as! CustomModule).setPromptForVariable(prompt)
-            }
-        case .TemperatureHumidityModule:
-            self.createdVariable = TemperatureHumidityModule(name: self.variableName!)
-        case .WeatherModule:
-            self.createdVariable = WeatherModule(name: self.variableName!)
-        case .ExerciseModule:
-            self.createdVariable = ExerciseModule(name: self.variableName!)
-        case .FoodIntakeModule:
-            self.createdVariable = FoodIntakeModule(name: self.variableName!)
-        case .BiometricModule:
-            self.createdVariable = BiometricModule(name: self.variableName!)
-        }
         performSegueWithIdentifier("unwindToVariablesVC", sender: self)
     }
     

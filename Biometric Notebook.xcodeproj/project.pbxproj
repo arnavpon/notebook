@@ -33,6 +33,7 @@
 		B189589D1C39FC0A00378E47 /* Checkbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589C1C39FC0A00378E47 /* Checkbox.swift */; };
 		B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */; };
 		B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */; };
+		B1B106931C59097800463612 /* EnvironmentModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B106921C59097800463612 /* EnvironmentModule.swift */; };
 		B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */; };
 		B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */; };
 		B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */; };
@@ -43,8 +44,6 @@
 		B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */; };
 		B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */; };
 		B1CF34661C4F0179001C0F27 /* DataEntryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CF34651C4F0179001C0F27 /* DataEntryTableViewController.swift */; };
-		B1D0B2B01C3F248800C9438F /* WeatherModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2AF1C3F248800C9438F /* WeatherModule.swift */; };
-		B1D0B2B21C3F24B500C9438F /* TemperatureHumidityModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B11C3F24B500C9438F /* TemperatureHumidityModule.swift */; };
 		B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */; };
 		B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B51C3F255A00C9438F /* FoodIntakeModule.swift */; };
 		B1D0B2B81C3F25BC00C9438F /* ExerciseModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */; };
@@ -151,6 +150,7 @@
 		B189589C1C39FC0A00378E47 /* Checkbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkbox.swift; sourceTree = "<group>"; };
 		B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureModuleViewController.swift; sourceTree = "<group>"; };
 		B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectVariablesViewController.swift; sourceTree = "<group>"; };
+		B1B106921C59097800463612 /* EnvironmentModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnvironmentModule.swift; sourceTree = "<group>"; };
 		B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateProjectViewController.swift; sourceTree = "<group>"; };
 		B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectOverviewViewController.swift; sourceTree = "<group>"; };
 		B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleViewController.swift; sourceTree = "<group>"; };
@@ -161,8 +161,6 @@
 		B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectSummaryViewController.swift; sourceTree = "<group>"; };
 		B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricModule.swift; sourceTree = "<group>"; };
 		B1CF34651C4F0179001C0F27 /* DataEntryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataEntryTableViewController.swift; sourceTree = "<group>"; };
-		B1D0B2AF1C3F248800C9438F /* WeatherModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherModule.swift; sourceTree = "<group>"; };
-		B1D0B2B11C3F24B500C9438F /* TemperatureHumidityModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TemperatureHumidityModule.swift; sourceTree = "<group>"; };
 		B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomModule.swift; sourceTree = "<group>"; };
 		B1D0B2B51C3F255A00C9438F /* FoodIntakeModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodIntakeModule.swift; sourceTree = "<group>"; };
 		B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExerciseModule.swift; sourceTree = "<group>"; };
@@ -408,8 +406,7 @@
 				B1D868DC1C3F5AB50026334B /* Supplements */,
 				B1D0B2B91C3F25F200C9438F /* Module.swift */,
 				B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */,
-				B1D0B2AF1C3F248800C9438F /* WeatherModule.swift */,
-				B1D0B2B11C3F24B500C9438F /* TemperatureHumidityModule.swift */,
+				B1B106921C59097800463612 /* EnvironmentModule.swift */,
 				B1D0B2B51C3F255A00C9438F /* FoodIntakeModule.swift */,
 				B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */,
 				B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */,
@@ -663,12 +660,11 @@
 				B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */,
 				B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */,
 				B189589D1C39FC0A00378E47 /* Checkbox.swift in Sources */,
-				B1D0B2B21C3F24B500C9438F /* TemperatureHumidityModule.swift in Sources */,
 				B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */,
 				B1D555871C30739C00C20742 /* DateTime.swift in Sources */,
 				B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */,
-				B1D0B2B01C3F248800C9438F /* WeatherModule.swift in Sources */,
 				B1B9D99A1C528B50000D501E /* CustomSlider.swift in Sources */,
+				B1B106931C59097800463612 /* EnvironmentModule.swift in Sources */,
 				B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */,
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
 				B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */,
