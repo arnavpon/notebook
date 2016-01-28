@@ -31,6 +31,15 @@ func clearCoreDataStoreForEntity(entity entity: String) {
     }
 }
 
+func createRectAroundCenter(centerPoint: CGPoint, size: CGSize) -> CGRect { //creates a rectangle of the given size situated evenly around the given center point
+    let width = size.width
+    let height = size.height
+    let originX = centerPoint.x - width/2
+    let originY = centerPoint.y - height/2
+    let rectangle: CGRect = CGRect(x: originX, y: originY, width: width, height: height)
+    return rectangle
+}
+
 //Code for two interdependent checkboxes (when one is clicked, the other is unclicked):
 //@IBAction func inputVariableCheckboxClicked(sender: AnyObject) {
 //    if !(inputVariableCheckbox.isChecked) { //box is NOT currently checked

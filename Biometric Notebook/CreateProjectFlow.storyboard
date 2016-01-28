@@ -311,6 +311,8 @@
                         <outlet property="createProjectButton" destination="eO5-gt-PNQ" id="Dcp-59-J7D"/>
                         <outlet property="endpointInstructionLabel" destination="fUD-ns-kgX" id="dAI-B0-URS"/>
                         <outlet property="endpointView" destination="yZu-ew-aYk" id="9e6-ts-Msf"/>
+                        <outlet property="endpointViewLeftLabel" destination="cJ9-vr-5Yb" id="vjL-8K-pxn"/>
+                        <outlet property="endpointViewNumberImage" destination="B6i-aR-M7y" id="JCA-ZP-ICJ"/>
                         <outlet property="firstSuccessIndicator" destination="K0f-gz-fP8" id="z1C-4g-6Jv"/>
                         <outlet property="projectEndpointView" destination="RnJ-18-hwy" id="Jqe-Ix-6Fj"/>
                         <outlet property="projectQuestionTextView" destination="IL6-oA-zU4" id="hIt-2o-jIF"/>

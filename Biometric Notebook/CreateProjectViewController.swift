@@ -9,19 +9,24 @@ import UIKit
 
 class CreateProjectViewController: UIViewController, UITextViewDelegate {
     
+    
     @IBOutlet weak var createProjectButton: UIBarButtonItem!
-    @IBOutlet weak var titleInstructionLabel: UILabel!
-    @IBOutlet weak var questionInstructionLabel: UILabel!
-    @IBOutlet weak var endpointInstructionLabel: UILabel!
     @IBOutlet weak var projectTitleView: UIView!
+    @IBOutlet weak var titleInstructionLabel: UILabel!
     @IBOutlet weak var projectTitleTextView: CustomTextView!
-    @IBOutlet weak var projectQuestionView: UIView!
-    @IBOutlet weak var projectQuestionTextView: CustomTextView!
-    @IBOutlet weak var projectEndpointView: UIView!
     @IBOutlet weak var firstSuccessIndicator: UIImageView!
+    
+    @IBOutlet weak var projectQuestionView: UIView!
+    @IBOutlet weak var questionInstructionLabel: UILabel!
+    @IBOutlet weak var projectQuestionTextView: CustomTextView!
     @IBOutlet weak var secondSuccessIndicator: UIImageView!
+    
+    @IBOutlet weak var projectEndpointView: UIView! //larger view
+    @IBOutlet weak var endpointInstructionLabel: UILabel! //main lbl
+    @IBOutlet weak var endpointView: UIView! //smaller view
+    @IBOutlet weak var endpointViewLeftLabel: UILabel! //'indefinite length' label
+    @IBOutlet weak var endpointViewNumberImage: UIImageView! //(3) image
     @IBOutlet weak var thirdSuccessIndicator: UIImageView!
-    @IBOutlet weak var endpointView: UIView!
     
     var projectTitle: String? //set value to indicate that a name has been entered
     var projectQuestion: String? //set value to indicate that a question has been entered
@@ -37,10 +42,21 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         projectTitleTextView.delegate = self
         projectQuestionTextView.delegate = self
         
-        let frame = CGRect(x: 10, y: 50, width: 240, height: 80)
-        let dataPoints = ["Continuous", "Day(s)", "Week(s)", "Month(s)", "Year(s)"]
+        let widthPercentage: CGFloat = 0.87 //% of remaining view that slider width takes
+        let viewWidth: CGFloat = (view.frame.width - endpointViewNumberImage.frame.width - thirdSuccessIndicator.frame.width - 16) //endpointView width is total width - width of #3 label - 16 (fixed offset) - width of 3rdsuccessindicator.
+        let heightPercentage: CGFloat = 0.60 //% of remaining view that slider height takes
+        let viewHeight: CGFloat = (view.frame.height - 36 - projectTitleView.frame.height - projectQuestionView.frame.height - endpointInstructionLabel.frame.height - endpointViewNumberImage.frame.height - endpointViewLeftLabel.frame.height - 10) //remainder of view after subtracting view heights, navBar height (36), label height & offset of 10 (from bottom); still not the proper height!
+        print("view height: \(viewHeight)")
+        let sliderWidth = widthPercentage * viewWidth
+        let sliderHeight = heightPercentage * viewHeight
+        let centerX: CGFloat = sliderWidth/2 + (1 - widthPercentage)/2 * viewWidth
+        let centerY: CGFloat = endpointViewLeftLabel.frame.height + sliderHeight/2 + 10
+        let center = CGPoint(x: centerX, y: centerY)
+        let size = CGSize(width: sliderWidth, height: sliderHeight)
+        let frame = createRectAroundCenter(center, size: size)
+        let endpoints = ["NONE", "DAY", "WEEK", "MONTH", "YEAR"]
         let colorScheme = (UIColor.whiteColor(), UIColor.greenColor(), 1)
-        let customSlider = CustomSlider(frame: frame, selectionPoints: dataPoints, scheme: colorScheme)
+        let customSlider = CustomSlider(frame: frame, selectionPoints: endpoints, scheme: colorScheme)
         endpointView.addSubview(customSlider)
         endpointView.bringSubviewToFront(customSlider)
         customSlider.addTarget(self, action: "customSliderValueHasChanged:", forControlEvents: .ValueChanged)
