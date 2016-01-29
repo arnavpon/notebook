@@ -3,8 +3,7 @@
 //  Created by Arnav Pondicherry  on 1/22/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Custom slider item for CreateProjectVC's endpoint selection. We want to make this as generic as possible in terms of configuration (colors, number/positioning of data points, & labels for the data points). The artwork making up the controls & the slider track along w/ the animation for slider movement should be consistent. At its essence, we want a slider w/ FIXED points where the control can reside (as opposed to a continuous slider).
-// When 'touchesEnded' is called, check which node the slider is closest to & lock it there.
+// Custom slider item for CreateProjectVC's endpoint selection. We want to make this as generic as possible in terms of configuration (colors, number/positioning of data points, & labels for the data points). The artwork making up the controls & the slider track along w/ the animation for slider movement should be consistent. At its essence, this is a slider w/ FIXED points where the control can reside (as opposed to a continuous slider).
 
 import UIKit
 import QuartzCore
@@ -15,7 +14,9 @@ class CustomSlider: UIControl {
     private let maxValue = 1.0 //maximum value along track
     var currentValue: Double = 0.0 { //current position of control on track (starts @ node0)
         didSet {
-            setNodeAsSelected() //highlight the label for the selectedNode
+            if (currentValue == 0.0) { //make sure crownLayerValue is clear if currentVal = 0
+                crownLayerValue = nil
+            }
             updateLayerFrames() //update control's frame when 'currentValue' is changed (updateFrames() is invoked for properties that affect the control's layout)
         }
     }
@@ -31,13 +32,6 @@ class CustomSlider: UIControl {
             counter += 1
         }
         return array
-    }
-    
-    var colorScheme: (UIColor, UIColor, Int) //color scheme for the slider track - lowColor is the bottom-most color in the gradient, highColor is the top-most color in the gradient, 'startPoint' is the data point @ which to begin gradienting (everything before the startPoint will be the lowColor).
-    var controlTintColor = UIColor.blueColor() {
-        didSet {
-            controlLayer.setNeedsDisplay() //call setNeedsDisplay for any affected layers if they are changed by the setting of a property
-        }
     }
     
     override var frame: CGRect { //updates slider visuals when frame is changed
@@ -64,6 +58,13 @@ class CustomSlider: UIControl {
     var controlLayerOriginY: CGFloat { //bottom of control touches bottom of track (trackLayerMaxY)
         return trackLayerMaxY - controlWidth
     }
+    var controlLayerCenter: CGFloat { //center X value for control
+        return CGFloat(positionForValue(currentValue)) //get control center pt
+    }
+    var controlLayerOriginX: CGFloat { //left-most x value for control
+        return controlLayerCenter - controlWidth/2
+    }
+    
     var controlWidth: CGFloat { //width & height of control object (match to asset)
         return 16
     }
@@ -71,27 +72,55 @@ class CustomSlider: UIControl {
         return CGSize(width: 6, height: 10)
     }
     
-    var previousLocation = CGPoint() //tracks last touch point
+    private var nodes: [CustomSliderNodeLayer] = [] //so we can refer back to nodes
+    private var nodeLabels: [UILabel] = [] //so we can refer back to labels
+    private var currentlySelectedNode: CustomSliderNodeLayer?
+    
+    private let crownLayer = CustomSliderCrownLayer() //crown for controlLayer
+    private var crownLayerHeight: CGFloat {
+        return 5
+    }
+    var crownLayerValue: Int? {
+        didSet {
+            if let value = crownLayerValue { //reveal crown & set label
+                crownLayer.value = value
+                crownLabel.text = "\(value)"
+                crownLabel.hidden = false
+            } else { //hide crown & label if value is removed
+                crownLayer.value = nil
+                crownLabel.text = nil
+                crownLabel.hidden = true
+            }
+        }
+    }
+    private var crownLabel = UILabel() //should be hidden if crownLayer is hidden
+    private var crownLabelHeight: CGFloat {
+        return 15
+    }
     
     //Externally available variable for location to transition background colors (defined by the color scheme's int #):
     var colorChangePoint: CGFloat = 0
-    
-    private var nodes: [CustomSliderNodeLayer] = [] //so we can refer back to nodes
-    private var nodeLabels: [UILabel] = [] //so we can refer back to labels
+    var colorScheme: (UIColor, UIColor, Int) //color scheme for the slider track - lowColor is the bottom-most color in the gradient, highColor is the top-most color in the gradient, 'startPoint' is the data point @ which to begin gradienting (everything before the startPoint will be the lowColor).
+    var controlTintColor = UIColor.blueColor() {
+        didSet {
+            controlLayer.setNeedsDisplay() //call setNeedsDisplay for any affected layers if they are changed by the setting of a property
+        }
+    }
+    var previousLocation = CGPoint() //tracks last touch point
     
     // MARK: - Init
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("Custom Slider fatal error")
+    }
     
     init(frame: CGRect, selectionPoints: [String], scheme: (UIColor, UIColor, Int)) {
         self.fixedSelectionPointNames = selectionPoints
         self.colorScheme = scheme
         super.init(frame: frame)
         
-        self.layer.borderWidth = 1 //*
-        self.layer.borderColor = UIColor.blackColor().CGColor //*
-        
         trackLayer.customSlider = self
         trackLayer.contentsScale = UIScreen.mainScreen().scale //ensures visuals are crisp on retina disp
-        trackLayer.backgroundColor = UIColor.whiteColor().CGColor
         trackLayer.borderColor = UIColor.blackColor().CGColor
         trackLayer.borderWidth = 0.5
         self.layer.addSublayer(trackLayer)
@@ -100,12 +129,22 @@ class CustomSlider: UIControl {
         controlLayer.contentsScale = UIScreen.mainScreen().scale
         self.layer.addSublayer(controlLayer)
         
+        crownLayer.customSlider = self
+        crownLayer.hidden = true //hide until crownValue is set
+        crownLayer.contentsScale = UIScreen.mainScreen().scale
+        self.layer.addSublayer(crownLayer)
+        
+        crownLabel.hidden = true //hide until crownValue is set
+        crownLabel.layer.borderColor = UIColor.blackColor().CGColor //border not showing properly!!!
+        crownLabel.layer.cornerRadius = 0.2
+        crownLabel.layer.borderWidth = 0.5
+        crownLabel.textAlignment = .Center
+        crownLabel.adjustsFontSizeToFitWidth = true
+        crownLabel.font = UIFont.systemFontOfSize(9, weight: 1.6)
+        self.addSubview(crownLabel)
+        
         createNodesAndLabelsForOptions() //create nodes & labels
-        nodes[0].selected = true //first node is selected
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("Custom Slider fatal error")
+        setNodeAsSelected() //highlights first nodeLabel @ start
     }
     
     // MARK: - Visual Configuration
@@ -113,12 +152,13 @@ class CustomSlider: UIControl {
     func createNodesAndLabelsForOptions() { //for each option, creates point on track + matching label
         var counter = 0
         for point in self.fixedSelectionPointNames {
-            //Determine center position of each node (used to align the text label). The CENTER of the node should be @ each numerical interval value (in this case 0, 0.25, 0.5, 0.75, 1).
+            //Determine center position of each node (used to align the nodeLabel). The CENTER of the node should be @ each numerical interval value (in this case 0, 0.25, 0.5, 0.75, 1).
             let nodeWidth: CGFloat = nodeSize.width
             let nodeHeight: CGFloat = nodeSize.height
             let nodeMinX = CGFloat(fixedSelectionPointNumbers[counter]) * trackLayerWidth - nodeWidth/2 //minimum X position of the node
             let nodeCenterX = nodeMinX + nodeWidth / 2 //center X position of node
             let nodeLayer = CustomSliderNodeLayer(positionInNodeArray: counter) //add as sublayer -> super layer BEFORE specifying coordinates (so that coords are in the super layer's system)
+            nodeLayer.contentsScale = UIScreen.mainScreen().scale
             nodes.append(nodeLayer) //add node -> array
             
             trackLayer.addSublayer(nodeLayer)
@@ -134,7 +174,7 @@ class CustomSlider: UIControl {
             let labelSize = CGSize(width: 45, height: labelHeight)
             let labelFrame = createRectAroundCenter(centerPoint, size: labelSize)
             let label = UILabel(frame: labelFrame)
-            label.font = UIFont.boldSystemFontOfSize(11)
+            label.font = UIFont.systemFontOfSize(9)
             label.text = point
             label.textAlignment = .Center
             nodeLabels.append(label) //add label -> array
@@ -144,27 +184,27 @@ class CustomSlider: UIControl {
         }
     }
     
-    func setNodeAsSelected() { //uses the current position of slider to determine which node is selected
-        //if you set the value manually like currentVal = 0.75, it works. Only when it is coming through the currentValue automatically does it not work! WHY???
-        if let index = fixedSelectionPointNumbers.indexOf(currentValue) {
-            let selectedNode = nodes[index]
-            for node in nodes { //remove selection from other nodes
-                node.selected = false
-            }
-            selectedNode.selected = true
-        }
-    }
-    
-    func updateLayerFrames() { //updates layer frames to fit
+    func updateLayerFrames() { //updates track, control, & crown layer visuals
         CATransaction.begin()
         CATransaction.setDisableActions(true) //suppresses animations until transaction is committed
         
-        trackLayer.frame = CGRect(x: -nodeSize.width/2, y: 25, width: self.frame.width + nodeSize.width, height: 8) //we drew the track beyond its true bounds b/c we need the track to cover the leading edge of node1 & trailing edge of node 2
+        //Set frame for track:
+        trackLayer.frame = CGRect(x: -nodeSize.width/2, y: 25, width: self.frame.width + nodeSize.width, height: 8) //we drew the track beyond its true bounds b/c we need the track to cover the leading edge of node1 & trailing edge of node2
         trackLayer.setNeedsDisplay() //updates the view for this layer
+    
+        //Set frame for control:
+        //let controlLayerCenter = CGFloat(positionForValue(currentValue)) //gets current center for control (should lock on center of a node); 'currentValue' is value between 0 & 1
+        //let controlLayerOriginX = controlLayerCenter - controlWidth/2
+        controlLayer.frame = CGRect(x: controlLayerOriginX, y: controlLayerOriginY, width: controlWidth, height: controlWidth)
+    
+        //Set frame for crown (mounted on top of the control, to fill in empty arc):
+        let crownLayerY = controlLayerOriginY - crownLayerHeight //shift the starting y point up by height
+        crownLayer.frame = CGRect(x: controlLayerOriginX, y: crownLayerY, width: controlWidth, height: crownLayerHeight)
+        crownLayer.backgroundColor = UIColor.greenColor().CGColor
         
-        let controlLayerCenter = CGFloat(positionForValue(currentValue)) //gets current center for control (should lock on center of a node); 'currentValue' is value between 0 & 1 (instead of 0 & 240)
-        let controlLayerX = controlLayerCenter - controlWidth/2
-        controlLayer.frame = CGRect(x: controlLayerX, y: controlLayerOriginY, width: controlWidth, height: controlWidth)
+        //Set frame for label (mounted on top of the crown):
+        let yValue = crownLayer.frame.origin.y - crownLabelHeight
+        crownLabel.frame = CGRect(x: crownLayer.frame.origin.x, y: yValue, width: crownLayer.frame.width, height: crownLabelHeight)
         
         CATransaction.commit() //CATransaction code wraps the entire frame update into 1 transaction so the transitions are smooth & disables animations on the layer
     }
@@ -176,34 +216,50 @@ class CustomSlider: UIControl {
     
     // MARK: - Interaction Logic
     
+    private var nodeAtStartOfTouch: Int? //node where control was locked when user touched the control
+    private var crownLayerValueAtStartOfTouch: Int? //crownValue when user touched the control
+    var suppressAlert: Bool = false //used to stop alert in VC from appearing
+    
+    func getNodeForCurrentValue() -> Int? { //uses currentVal to obtain node's index
+        let index = fixedSelectionPointNumbers.indexOf(currentValue)
+        return index
+    }
+    
     func boundValue(value: Double, toLowerValue lowerValue: Double, upperValue: Double) -> Double { //clamps the passed in value so it is > lowerValue & < upperValue
         return min(max(value, lowerValue), upperValue)
     }
     
     override func beginTrackingWithTouch(touch: UITouch, withEvent event: UIEvent?) -> Bool {
         previousLocation = touch.locationInView(self) //translates touch event -> self's coordinate space
-        
         if (controlLayer.frame.contains(previousLocation)) { //check if touch was in controlLayer's frame
             controlLayer.highlighted = true
+            nodeAtStartOfTouch = getNodeForCurrentValue() //currentNode when the touch began
+            crownLayerValueAtStartOfTouch = crownLayerValue //crownValue when the touch began
+            
+            //Remove highlighting from label & hide crownLayer until controlLayer locks on a node again:
+            crownLayerValue = nil //unless it locks on the previous value?
+            currentlySelectedNode?.selected = false
+            
+            //Start movement animation - (1) Detach control from node (shift frame up by 3 pt):
+            controlLayer.frame = CGRect(x: controlLayerOriginX, y: controlLayerOriginY - 3, width: controlWidth, height: controlWidth)
+            controlLayer.setNeedsDisplay() //when we try to slide, it falls back on track b/c of currentValue being changed, calling updateFrames()
         }
         return controlLayer.highlighted //informs UIControl whether subsequent touches should be tracked (tracking touch events continues only if the controlLayer is highlighted)
     }
     
+    var controlLayerPositionY: CGFloat? { //*
+        return nil
+    }
+    
     override func continueTrackingWithTouch(touch: UITouch, withEvent event: UIEvent?) -> Bool {
         let location = touch.locationInView(self)
-        
-        //Determine by how much the user dragged:
-        let changeInPosition = Double(location.x - previousLocation.x)
-        //let changeInValue = (maxValue - minValue) * changeInPosition / Double(bounds.width - controlWidth) //gets the change in position as a % of the trackLayer's width (so that it can be added to the currentValue, which is also a %)
-        let changeInValue = (maxValue - minValue) * changeInPosition / Double(bounds.width)
+        let changeInPosition = Double(location.x - previousLocation.x) //determine how much user dragged
+        let changeInValue = (maxValue - minValue) * changeInPosition / Double(bounds.width) //gets change in position as % of trackLayer width (so it can be added to currentValue, which is also a %)
         previousLocation = location //set previous location -> new location
-        
-        //Update value of the controlLayer depending on where the user dragged it:
-        if (controlLayer.highlighted) {
+        if (controlLayer.highlighted) { //update value of controlLayer depending on where user dragged it
             currentValue += changeInValue
             currentValue = boundValue(currentValue, toLowerValue: minValue, upperValue: maxValue)
         }
-        
         return true
     }
     
@@ -222,11 +278,17 @@ class CustomSlider: UIControl {
                         let distanceToUpper: CGFloat = upperPoint - locationAsPercentage
                         var truePosition = Double()
                         if (distanceFromLower >= distanceToUpper) { //lock final location -> upperPoint
-                            truePosition = positionForValue(Double(upperPoint))
+                            truePosition = Double(upperPoint)
                         } else { //Lock final location of controlLayer -> lowerPoint
-                            truePosition = positionForValue(Double(lowerPoint))
+                            truePosition = Double(lowerPoint)
                         }
-                        currentValue = truePosition / Double(trackLayerWidth) //lock controlLyr -> node
+                        currentValue = truePosition //lock controlLyr -> node
+                        if (nodeAtStartOfTouch == getNodeForCurrentValue()) {
+                            //if user drops control on same node where it started, reset crownValue:
+                            crownLayerValue = crownLayerValueAtStartOfTouch
+                            suppressAlert = true //suppress the alert popup
+                        }
+                        setNodeAsSelected() //highlight the label for the selectedNode
                         break
                     }
                 }
@@ -235,25 +297,36 @@ class CustomSlider: UIControl {
         sendActionsForControlEvents(.ValueChanged) //notification code in Target Action pattern - notifies any subscribed targets that the slider's value has changed
         controlLayer.highlighted = false //ends tracking event
     }
+    
+    func setNodeAsSelected() { //uses the current position of slider to determine which node is selected
+        if let index = fixedSelectionPointNumbers.indexOf(currentValue) {
+            let selectedNode = nodes[index]
+            for node in nodes { //remove selection from other nodes
+                node.selected = false
+            }
+            selectedNode.selected = true
+            currentlySelectedNode = selectedNode
+        }
+    }
+    
 }
 
 // MARK: - Control Layer
 
 class CustomSliderControlLayer: CALayer { //class for slider's Control object
+    
+    weak var customSlider: CustomSlider?
     var highlighted = false {
         didSet { //put tilt animation in here???
             setNeedsDisplay() //changes fill color slightly when touch event is active
         }
     }
-    
     override var frame: CGRect {
         didSet { //redraw view if the frame changes
             self.setNeedsDisplay()
         }
     }
 
-    weak var customSlider: CustomSlider?
-    
     override func drawInContext(ctx: CGContext) {
         if let slider = customSlider {
             let controlFrame = self.bounds
@@ -301,7 +374,6 @@ class CustomSliderTrackLayer: CALayer { //class for slider's Track object
 // MARK: - Node Layer
 
 class CustomSliderNodeLayer: CALayer { //class for slider's fixed selection points
-    
     weak var customSlider: CustomSlider?
     let positionInNodeArray: Int //number of this node in the nodeArray
     var selected: Bool = false { //checks if the controlLayer is currently locked on this node
@@ -324,7 +396,7 @@ class CustomSliderNodeLayer: CALayer { //class for slider's fixed selection poin
         self.positionInNodeArray = positionInNodeArray
         super.init()
     }
-
+    
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -340,30 +412,36 @@ class CustomSliderNodeLayer: CALayer { //class for slider's fixed selection poin
     
     func formatSelectedLabel() { //if the current node is selected, highlight its label
         if let label = nodeLabel {
-            label.backgroundColor = UIColor.greenColor()
+            label.textColor = UIColor.redColor()
+            label.font = UIFont.systemFontOfSize(10, weight: 1.8)
         }
     }
     
     func removeSelectionFormatFromLabel() { //if the node becomes unselected, remove lbl formatting
         if let label = nodeLabel {
-            label.backgroundColor = UIColor.clearColor()
+            label.textColor = UIColor.blackColor()
+            label.font = UIFont.systemFontOfSize(9)
         }
     }
 }
 
 // MARK: - Crown Layer
 
-class CustomSliderCrownLayer: CALayer { //crown contains the entered #; where should the drawing behavior be executed? When the node is created? Or should we just create 1 crown & line it up w/ whatever node it is matched to?
+class CustomSliderCrownLayer: CALayer { //the crown is a little rectangle on top of the control on top of which the value label sits
     
-    var value: Int
-    
-    init(value: Int) { //initialize w/ the crown's number to display
-        self.value = value
-        super.init()
-    }
-
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    weak var customSlider: CustomSlider?
+    var value: Int? {
+        didSet {
+            if let slider = customSlider {
+                if (value != nil) { //reveal crown if value is set
+                    slider.crownLabel.text = String(value)
+                    self.hidden = false
+                } else { //hide crown if value is removed
+                    slider.crownLabel.text = nil
+                    self.hidden = true
+                }
+            }
+        }
     }
     
     override func drawInContext(ctx: CGContext) {
@@ -371,7 +449,7 @@ class CustomSliderCrownLayer: CALayer { //crown contains the entered #; where sh
         CGContextAddRect(ctx, rect)
         CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
         CGContextStrokePath(ctx)
-        CGContextSetFillColorWithColor(ctx, UIColor.blackColor().CGColor)
+        CGContextSetFillColorWithColor(ctx, UIColor.redColor().CGColor)
         CGContextFillRect(ctx, rect)
     }
 }

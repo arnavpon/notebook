@@ -31,7 +31,47 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
     var projectTitle: String? //set value to indicate that a name has been entered
     var projectQuestion: String? //set value to indicate that a question has been entered
     var selectedEndpoint: Endpoint? //captures endpoint for segue
-    let endpoints = ["NONE", "DAY", "WEEK", "MONTH", "YEAR"] //endpoints for slider
+    let endpoints = ["NONE", "DAYS", "WEEKS", "MONTHS", "YEARS"] //endpoints for slider
+    
+    var firstSuccessIndicatorIsSet: Bool = false { //handles display of 1st checkmark
+        didSet {
+            if (firstSuccessIndicatorIsSet) {
+                firstSuccessIndicator.hidden = false
+                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) && (thirdSuccessIndicatorIsSet) { //if all 3 checkmarks are set, enable the 'Done' button
+                    createProjectButton.enabled = true
+                }
+            } else {
+                firstSuccessIndicator.hidden = true
+                createProjectButton.enabled = false
+            }
+        }
+    }
+    var secondSuccessIndicatorIsSet: Bool = false { //handles display of 1st checkmark
+        didSet {
+            if (secondSuccessIndicatorIsSet) {
+                secondSuccessIndicator.hidden = false
+                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) && (thirdSuccessIndicatorIsSet) { //if all 3 checkmarks are set, enable the 'Done' button
+                    createProjectButton.enabled = true
+                }
+            } else {
+                secondSuccessIndicator.hidden = true
+                createProjectButton.enabled = false
+            }
+        }
+    }
+    var thirdSuccessIndicatorIsSet: Bool = false { //handles display of 1st checkmark
+        didSet {
+            if (thirdSuccessIndicatorIsSet) {
+                thirdSuccessIndicator.hidden = false
+                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) && (thirdSuccessIndicatorIsSet) { //if all 3 checkmarks are set, enable the 'Done' button
+                    createProjectButton.enabled = true
+                }
+            } else {
+                thirdSuccessIndicator.hidden = true
+                createProjectButton.enabled = false
+            }
+        }
+    }
     
     // MARK: - View Configuration
     
@@ -67,31 +107,44 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         projectQuestionTextView.placeholder = "What is the question that your project is trying to answer?"
     }
     
-    func customSliderValueHasChanged(customSlider: CustomSlider) { //if the slider lands on a fixedPoint that is NOT 'none', create an alert for adding the amount
+    func customSliderValueHasChanged(customSlider: CustomSlider) { //if slider lands on a fixedPoint that is NOT 'none', create an alert for adding the amount
+        
+        if (customSlider.suppressAlert) { //check if alert should be allowed to appear
+            customSlider.suppressAlert = false //reset suppression alert
+            return //break function early
+        }
+        
         let selectedValue = customSlider.currentValue
-        print("Selected Value: \(selectedValue)")
         //Match the selected value -> a node:
         if let index = customSlider.fixedSelectionPointNumbers.indexOf(selectedValue) {
             let selection = endpoints[index]
-            print("Selection: \(selection)")
             if (selection != endpoints.first) { //make sure the 1st item wasn't selected
-                let alert = UIAlertController(title: "Add a Value", message: "Add an integer value for your selection - e.g. '5' days.", preferredStyle: UIAlertControllerStyle.Alert)
+                let alert = UIAlertController(title: "Add a Value", message: "Add an integer value to complete your endpoint.", preferredStyle: UIAlertControllerStyle.Alert)
                 let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: { (let cancel) -> Void in
-                    //set slider back -> 'None'
-                    customSlider.currentValue = 0.0
+                    customSlider.currentValue = 0.0 //set slider back -> 'None'
+                    customSlider.setNodeAsSelected() //change highlighting to reflect currentNode
+                    self.thirdSuccessIndicatorIsSet = false
                 })
                 let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: { (let ok) -> Void in
-                    //add the typed value -> the crown for the slider; need to type check to make sure it is a #
+                    //add typed value -> crown for the slider; type check to make sure it is an int:
                     if let input = Int((alert.textFields?.first?.text)!) {
-                        print("Input: \(input)")
+                        customSlider.crownLayerValue = input //*
+                        self.thirdSuccessIndicatorIsSet = true
+                    } else { //if input is not an integer value
+                        customSlider.currentValue = 0.0
+                        customSlider.setNodeAsSelected() //change highlighting to reflect currentNode
+                        self.thirdSuccessIndicatorIsSet = false
                     }
                 })
                 alert.addAction(cancel)
                 alert.addAction(ok)
                 alert.addTextFieldWithConfigurationHandler({ (let textField) -> Void in
-                    //configure TF
+                    //configure TF so that numbers so up on keyboard
+                    textField.keyboardType = UIKeyboardType.NumberPad
                 })
                 presentViewController(alert, animated: true, completion: nil)
+            } else {
+                self.thirdSuccessIndicatorIsSet = false
             }
         }
     }
@@ -102,24 +155,19 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         if (textView == projectTitleTextView) {
             if (textView.text != "") {
                 projectTitle = textView.text.capitalizedString
-                firstSuccessIndicator.hidden = false
+                firstSuccessIndicatorIsSet = true
             } else {
                 projectTitle = nil
-                firstSuccessIndicator.hidden = true
+                firstSuccessIndicatorIsSet = false
             }
         } else if (textView == projectQuestionTextView) {
             if (textView.text != "") {
                 projectQuestion = textView.text
-                secondSuccessIndicator.hidden = false
+                secondSuccessIndicatorIsSet = true
             } else {
                 projectQuestion = nil
-                 secondSuccessIndicator.hidden = true
+                 secondSuccessIndicatorIsSet = false
             }
-        }
-        if (projectQuestion != nil) && (projectTitle != nil) {
-            createProjectButton.enabled = true
-        } else {
-            createProjectButton.enabled = false
         }
     }
     
