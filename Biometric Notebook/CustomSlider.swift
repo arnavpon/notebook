@@ -55,9 +55,18 @@ class CustomSlider: UIControl {
     }
     
     let controlLayer = CustomSliderControlLayer() //drawing layer for the slider control
+    private var lockedToNode: Bool = true //indicates whether control is locked -> node, default is locked
     var controlLayerOriginY: CGFloat { //bottom of control touches bottom of track (trackLayerMaxY)
         return trackLayerMaxY - controlWidth
     }
+    private var controlLayerPositionY: CGFloat { //sets Y position depending on whether ctrl is locked
+        if (lockedToNode) { //position is same as originY if the frame is locked
+            return controlLayerOriginY
+        } else { //unique position (shifted upwards) when frame is moving
+            return (controlLayerOriginY - controlFrameshift) //* might need to adjust for rotation
+        }
+    }
+    private let controlFrameshift: CGFloat = 3 //amount frame shifts up on click
     var controlLayerCenter: CGFloat { //center X value for control
         return CGFloat(positionForValue(currentValue)) //get control center pt
     }
@@ -193,10 +202,8 @@ class CustomSlider: UIControl {
         trackLayer.setNeedsDisplay() //updates the view for this layer
     
         //Set frame for control:
-        //let controlLayerCenter = CGFloat(positionForValue(currentValue)) //gets current center for control (should lock on center of a node); 'currentValue' is value between 0 & 1
-        //let controlLayerOriginX = controlLayerCenter - controlWidth/2
-        controlLayer.frame = CGRect(x: controlLayerOriginX, y: controlLayerOriginY, width: controlWidth, height: controlWidth)
-    
+        controlLayer.frame = CGRect(x: controlLayerOriginX, y: controlLayerPositionY, width: controlWidth, height: controlWidth)
+        
         //Set frame for crown (mounted on top of the control, to fill in empty arc):
         let crownLayerY = controlLayerOriginY - crownLayerHeight //shift the starting y point up by height
         crownLayer.frame = CGRect(x: controlLayerOriginX, y: crownLayerY, width: controlWidth, height: crownLayerHeight)
@@ -241,14 +248,11 @@ class CustomSlider: UIControl {
             currentlySelectedNode?.selected = false
             
             //Start movement animation - (1) Detach control from node (shift frame up by 3 pt):
-            controlLayer.frame = CGRect(x: controlLayerOriginX, y: controlLayerOriginY - 3, width: controlWidth, height: controlWidth)
+            lockedToNode = false
+            controlLayer.frame = CGRect(x: controlLayerOriginX, y: controlLayerPositionY, width: controlWidth, height: controlWidth)
             controlLayer.setNeedsDisplay() //when we try to slide, it falls back on track b/c of currentValue being changed, calling updateFrames()
         }
         return controlLayer.highlighted //informs UIControl whether subsequent touches should be tracked (tracking touch events continues only if the controlLayer is highlighted)
-    }
-    
-    var controlLayerPositionY: CGFloat? { //*
-        return nil
     }
     
     override func continueTrackingWithTouch(touch: UITouch, withEvent event: UIEvent?) -> Bool {
@@ -282,7 +286,8 @@ class CustomSlider: UIControl {
                         } else { //Lock final location of controlLayer -> lowerPoint
                             truePosition = Double(lowerPoint)
                         }
-                        currentValue = truePosition //lock controlLyr -> node
+                        lockedToNode = true //lock control -> node
+                        currentValue = truePosition //set currentValue @ a node
                         if (nodeAtStartOfTouch == getNodeForCurrentValue()) {
                             //if user drops control on same node where it started, reset crownValue:
                             crownLayerValue = crownLayerValueAtStartOfTouch
@@ -292,6 +297,14 @@ class CustomSlider: UIControl {
                         break
                     }
                 }
+            } else { //if control is > 1 or < 0, we still need to lock -> node so it settles on track
+                lockedToNode = true //lock control -> node
+                updateLayerFrames() //update frame so control settles on track
+                if (nodeAtStartOfTouch == getNodeForCurrentValue()) { //check for lastNode match
+                    crownLayerValue = crownLayerValueAtStartOfTouch
+                    suppressAlert = true //suppress the alert popup
+                }
+                setNodeAsSelected() //highlight label for the selectedNode
             }
         }
         sendActionsForControlEvents(.ValueChanged) //notification code in Target Action pattern - notifies any subscribed targets that the slider's value has changed
