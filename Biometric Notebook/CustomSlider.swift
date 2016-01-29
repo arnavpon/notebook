@@ -106,6 +106,7 @@ class CustomSlider: UIControl {
     private var crownLabelHeight: CGFloat {
         return 15
     }
+    private var nodeLabelFontSize: CGFloat = 11.5
     
     //Externally available variable for location to transition background colors (defined by the color scheme's int #):
     var colorChangePoint: CGFloat = 0
@@ -130,8 +131,6 @@ class CustomSlider: UIControl {
         
         trackLayer.customSlider = self
         trackLayer.contentsScale = UIScreen.mainScreen().scale //ensures visuals are crisp on retina disp
-        trackLayer.borderColor = UIColor.blackColor().CGColor
-        trackLayer.borderWidth = 0.5
         self.layer.addSublayer(trackLayer)
         
         controlLayer.customSlider = self
@@ -145,7 +144,7 @@ class CustomSlider: UIControl {
         
         crownLabel.hidden = true //hide until crownValue is set
         crownLabel.layer.borderColor = UIColor.blackColor().CGColor //border not showing properly!!!
-        crownLabel.layer.cornerRadius = 0.2
+        crownLabel.layer.cornerRadius = 3
         crownLabel.layer.borderWidth = 0.5
         crownLabel.textAlignment = .Center
         crownLabel.adjustsFontSizeToFitWidth = true
@@ -176,14 +175,14 @@ class CustomSlider: UIControl {
             nodeLayer.setNeedsDisplay()
             
             //Create corresponding label (centered @ the node's center but shifted down so there is a little space below the node):
-            let labelHeight: CGFloat = 25
+            let labelHeight: CGFloat = 30
             let nodeBottomY: CGFloat = trackLayerMaxY + nodeLayer.frame.height + 6 //get the point for the bottom of the node & then add 6 (distance between node & lbl)
             let labelY: CGFloat = nodeBottomY + labelHeight/2
             let centerPoint = CGPoint(x: nodeCenterX, y: labelY) //label horizontal center = node's centerX; vertical center is around a point 6 + half lbl height from bottom of node
-            let labelSize = CGSize(width: 45, height: labelHeight)
+            let labelSize = CGSize(width: 55, height: labelHeight)
             let labelFrame = createRectAroundCenter(centerPoint, size: labelSize)
             let label = UILabel(frame: labelFrame)
-            label.font = UIFont.systemFontOfSize(9)
+            label.font = UIFont.systemFontOfSize(nodeLabelFontSize)
             label.text = point
             label.textAlignment = .Center
             nodeLabels.append(label) //add label -> array
@@ -198,7 +197,7 @@ class CustomSlider: UIControl {
         CATransaction.setDisableActions(true) //suppresses animations until transaction is committed
         
         //Set frame for track:
-        trackLayer.frame = CGRect(x: -nodeSize.width/2, y: 25, width: self.frame.width + nodeSize.width, height: 8) //we drew the track beyond its true bounds b/c we need the track to cover the leading edge of node1 & trailing edge of node2
+        trackLayer.frame = CGRect(x: -nodeSize.width/2, y: 25, width: self.frame.width + nodeSize.width, height: 10) //we drew the track beyond its true bounds b/c we need the track to cover the leading edge of node1 & trailing edge of node2
         trackLayer.setNeedsDisplay() //updates the view for this layer
     
         //Set frame for control:
@@ -374,13 +373,36 @@ class CustomSliderTrackLayer: CALayer { //class for slider's Track object
     weak var customSlider: CustomSlider?
     
     override func drawInContext(ctx: CGContext) {
-        let path = UIBezierPath(rect: bounds) //draw rectangle around bounds of the track
-        CGContextAddPath(ctx, path.CGPath)
+        if let slider = customSlider {
+            //First path (from start -> node #2):
+            let height = bounds.height
+            let firstPathWidth = bounds.width/CGFloat(slider.fixedSelectionPointNumbers.count - 1) + slider.nodeSize.width/2
+            let x = bounds.origin.x
+            let y = bounds.origin.y
+            let startRect = CGRect(x: x, y: y, width: firstPathWidth, height: height)
+            let startPath = UIBezierPath(rect: startRect) //first path is up til 2nd node
+            let firstColor = slider.colorScheme.0.CGColor
+            CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
+            CGContextAddPath(ctx, startPath.CGPath)
+            CGContextStrokePath(ctx) //stroke
+            CGContextSetFillColorWithColor(ctx, firstColor)
+            CGContextAddPath(ctx, startPath.CGPath)
+            CGContextFillPath(ctx) //fill
             
-        //Fill the track (look up how to apply gradient fill):
-        CGContextSetFillColorWithColor(ctx, UIColor.greenColor().CGColor)
-        CGContextAddPath(ctx, path.CGPath)
-        CGContextFillPath(ctx)
+            //Second path (from node#2 -> end):
+            let endRect = CGRect(x: (x + firstPathWidth), y: y, width: (bounds.width - firstPathWidth), height: height)
+            let endPath = UIBezierPath(rect: endRect)
+            CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
+            CGContextAddPath(ctx, endPath.CGPath)
+            CGContextStrokePath(ctx)
+            let colorSpace = CGColorSpaceCreateDeviceRGB()
+            let colors = [slider.colorScheme.0.CGColor, slider.colorScheme.1.CGColor]
+            let colorLocations: [CGFloat] = [0.0, 1.0] //sets gradient color change points
+            let start = CGPoint(x: (x + firstPathWidth), y: y)
+            let end = CGPoint(x: bounds.width, y: height)
+            let gradient = CGGradientCreateWithColors(colorSpace, colors, colorLocations)
+            CGContextDrawLinearGradient(ctx, gradient, start, end, .DrawsAfterEndLocation)
+        }
     }
 }
 
@@ -424,16 +446,16 @@ class CustomSliderNodeLayer: CALayer { //class for slider's fixed selection poin
     }
     
     func formatSelectedLabel() { //if the current node is selected, highlight its label
-        if let label = nodeLabel {
-            label.textColor = UIColor.redColor()
-            label.font = UIFont.systemFontOfSize(10, weight: 1.8)
+        if let label = nodeLabel, slider = customSlider {
+            label.textColor = UIColor.whiteColor()
+            label.font = UIFont.systemFontOfSize(slider.nodeLabelFontSize, weight: 1.8)
         }
     }
     
     func removeSelectionFormatFromLabel() { //if the node becomes unselected, remove lbl formatting
-        if let label = nodeLabel {
+        if let label = nodeLabel, slider = customSlider {
             label.textColor = UIColor.blackColor()
-            label.font = UIFont.systemFontOfSize(9)
+            label.font = UIFont.systemFontOfSize(slider.nodeLabelFontSize)
         }
     }
 }

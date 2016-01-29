@@ -107,63 +107,12 @@
                                             <constraint firstAttribute="height" constant="40" id="bF0-DG-6Xm"/>
                                         </constraints>
                                     </imageView>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yZu-ew-aYk">
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yZu-ew-aYk" customClass="CustomSliderBackgroundView" customModule="Biometric_Notebook" customModuleProvider="target">
                                         <rect key="frame" x="28" y="56" width="536" height="185"/>
-                                        <subviews>
-                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sWJ-a8-8A2">
-                                                <rect key="frame" x="80" y="0.0" width="456" height="185"/>
-                                                <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Finite Length" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ORI-EE-c2N">
-                                                        <rect key="frame" x="184" y="5" width="89" height="18"/>
-                                                        <animations/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                </subviews>
-                                                <animations/>
-                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                <constraints>
-                                                    <constraint firstItem="ORI-EE-c2N" firstAttribute="top" secondItem="sWJ-a8-8A2" secondAttribute="top" constant="5" id="7MA-fg-kUf"/>
-                                                    <constraint firstItem="ORI-EE-c2N" firstAttribute="centerX" secondItem="sWJ-a8-8A2" secondAttribute="centerX" id="9Py-1l-qc2"/>
-                                                </constraints>
-                                            </view>
-                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8kL-ei-GtY">
-                                                <rect key="frame" x="0.0" y="0.0" width="80" height="185"/>
-                                                <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Indefinite Length" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cJ9-vr-5Yb">
-                                                        <rect key="frame" x="0.0" y="5" width="80" height="36"/>
-                                                        <animations/>
-                                                        <constraints>
-                                                            <constraint firstAttribute="height" constant="36" id="RE5-BO-xm9"/>
-                                                        </constraints>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                </subviews>
-                                                <animations/>
-                                                <color key="backgroundColor" red="0.7859059343" green="0.7859059343" blue="0.7859059343" alpha="1" colorSpace="calibratedRGB"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="80" id="27X-lp-czK"/>
-                                                    <constraint firstItem="cJ9-vr-5Yb" firstAttribute="centerX" secondItem="8kL-ei-GtY" secondAttribute="centerX" id="C8s-9e-rU9"/>
-                                                    <constraint firstItem="cJ9-vr-5Yb" firstAttribute="top" secondItem="8kL-ei-GtY" secondAttribute="top" constant="5" id="G80-Uz-tH2"/>
-                                                    <constraint firstItem="cJ9-vr-5Yb" firstAttribute="leading" secondItem="8kL-ei-GtY" secondAttribute="leading" id="Ulc-bL-2Ju"/>
-                                                    <constraint firstAttribute="trailing" secondItem="cJ9-vr-5Yb" secondAttribute="trailing" id="h3V-t1-qgg"/>
-                                                </constraints>
-                                            </view>
-                                        </subviews>
                                         <animations/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <color key="backgroundColor" red="0.84744039660000003" green="0.54449326325950353" blue="0.60239295192787778" alpha="1" colorSpace="calibratedRGB"/>
                                         <constraints>
-                                            <constraint firstAttribute="bottom" secondItem="8kL-ei-GtY" secondAttribute="bottom" id="3yw-zy-Dwo"/>
-                                            <constraint firstItem="8kL-ei-GtY" firstAttribute="leading" secondItem="yZu-ew-aYk" secondAttribute="leading" id="Bat-HO-I1h"/>
                                             <constraint firstAttribute="height" relation="lessThanOrEqual" constant="150" id="DAN-PF-MEe"/>
-                                            <constraint firstAttribute="bottom" secondItem="sWJ-a8-8A2" secondAttribute="bottom" id="LRC-5f-yKA"/>
-                                            <constraint firstItem="8kL-ei-GtY" firstAttribute="top" secondItem="yZu-ew-aYk" secondAttribute="top" id="MlG-j7-i4Y"/>
-                                            <constraint firstAttribute="trailing" secondItem="sWJ-a8-8A2" secondAttribute="trailing" id="PRY-l8-fjM"/>
-                                            <constraint firstItem="sWJ-a8-8A2" firstAttribute="leading" secondItem="8kL-ei-GtY" secondAttribute="trailing" id="VVe-dB-XQX"/>
-                                            <constraint firstItem="sWJ-a8-8A2" firstAttribute="top" secondItem="yZu-ew-aYk" secondAttribute="top" id="gPY-nF-3eD"/>
                                             <constraint firstAttribute="height" constant="120" id="pzw-to-1TH"/>
                                         </constraints>
                                         <variation key="default">
@@ -311,7 +260,6 @@
                         <outlet property="createProjectButton" destination="eO5-gt-PNQ" id="Dcp-59-J7D"/>
                         <outlet property="endpointInstructionLabel" destination="fUD-ns-kgX" id="dAI-B0-URS"/>
                         <outlet property="endpointView" destination="yZu-ew-aYk" id="9e6-ts-Msf"/>
-                        <outlet property="endpointViewLeftLabel" destination="cJ9-vr-5Yb" id="vjL-8K-pxn"/>
                         <outlet property="endpointViewNumberImage" destination="B6i-aR-M7y" id="JCA-ZP-ICJ"/>
                         <outlet property="firstSuccessIndicator" destination="K0f-gz-fP8" id="z1C-4g-6Jv"/>
                         <outlet property="projectEndpointView" destination="RnJ-18-hwy" id="Jqe-Ix-6Fj"/>

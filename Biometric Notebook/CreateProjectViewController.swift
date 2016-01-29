@@ -23,8 +23,7 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
     
     @IBOutlet weak var projectEndpointView: UIView! //larger view
     @IBOutlet weak var endpointInstructionLabel: UILabel! //main lbl
-    @IBOutlet weak var endpointView: UIView! //smaller view
-    @IBOutlet weak var endpointViewLeftLabel: UILabel! //'indefinite length' label
+    @IBOutlet weak var endpointView: CustomSliderBackgroundView! //smaller view
     @IBOutlet weak var endpointViewNumberImage: UIImageView! //(3) image
     @IBOutlet weak var thirdSuccessIndicator: UIImageView!
     
@@ -83,28 +82,44 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         projectTitleTextView.delegate = self
         projectQuestionTextView.delegate = self
         
-        let widthPercentage: CGFloat = 0.87 //% of remaining view that slider width takes
+        let widthPercentage: CGFloat = 0.8 //% of remaining view that slider width takes
         let viewWidth: CGFloat = (view.frame.width - endpointViewNumberImage.frame.width - thirdSuccessIndicator.frame.width - 16) //endpointView width is total width - width of #3 label - 16 (fixed offset) - width of 3rdsuccessindicator.
-        let heightPercentage: CGFloat = 0.60 //% of remaining view that slider height takes
-        let viewHeight: CGFloat = (view.frame.height - 36 - projectTitleView.frame.height - projectQuestionView.frame.height - endpointInstructionLabel.frame.height - endpointViewNumberImage.frame.height - endpointViewLeftLabel.frame.height - 10) //remainder of view after subtracting view heights, navBar height (36), label height & offset of 10 (from bottom); still not the proper height!
-        print("view height: \(viewHeight)")
+        let heightPercentage: CGFloat = 0.65 //% of remaining view that slider height takes
+        
+        let leftViewHeight = CGFloat(80) //*for 5S
+        let viewHeight: CGFloat = (view.frame.height - 36 - projectTitleView.frame.height - projectQuestionView.frame.height - endpointInstructionLabel.frame.height - endpointViewNumberImage.frame.height - leftViewHeight - 10) //remainder of view after subtracting view heights, navBar height (36), label height & offset of 10 (from bottom); still not the proper height b/c Lviewheight is not set til viewDidAppear
         let sliderWidth = widthPercentage * viewWidth
         let sliderHeight = heightPercentage * viewHeight
         let centerX: CGFloat = sliderWidth/2 + (1 - widthPercentage)/2 * viewWidth
-        let centerY: CGFloat = endpointViewLeftLabel.frame.height + sliderHeight/2 + 10
+        
+        let leftLabelHeight = endpointView.leftLabelHeight
+        let centerY: CGFloat = leftLabelHeight + sliderHeight/2 + 10 //offset by 10 from bottom of lbl
         let center = CGPoint(x: centerX, y: centerY)
         let size = CGSize(width: sliderWidth, height: sliderHeight)
         let frame = createRectAroundCenter(center, size: size)
-        let colorScheme = (UIColor.whiteColor(), UIColor.greenColor(), 1)
+        let color2 = UIColor(red: 50/255, green: 163/255, blue: 216/255, alpha: 1)
+        let colorScheme = (UIColor.whiteColor(), color2, 1)
         let customSlider = CustomSlider(frame: frame, selectionPoints: endpoints, scheme: colorScheme)
+        customSlider.backgroundColor = UIColor.clearColor()
         endpointView.addSubview(customSlider)
         endpointView.bringSubviewToFront(customSlider)
         customSlider.addTarget(self, action: "customSliderValueHasChanged:", forControlEvents: .ValueChanged)
+        
+        endpointView.customSlider = customSlider
+        endpointView.offsetLength = (1 - widthPercentage)/2 * viewWidth
     }
     
     override func viewDidAppear(animated: Bool) { //add placeholders (view is properly set @ this time)
         projectTitleTextView.placeholder = "Enter a title for your new project"
         projectQuestionTextView.placeholder = "What is the question that your project is trying to answer?"
+        
+        //Reset frame for endpointView after view frames have been set:
+        let frame = endpointView.frame
+        endpointView.frame = frame
+        
+        print("L view height: \(endpointView.leftView.frame.height)")
+        print("View height: \(projectEndpointView.frame.height)")
+
     }
     
     func customSliderValueHasChanged(customSlider: CustomSlider) { //if slider lands on a fixedPoint that is NOT 'none', create an alert for adding the amount
