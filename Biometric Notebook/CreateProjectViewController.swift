@@ -31,6 +31,7 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
     var projectTitle: String? //set value to indicate that a name has been entered
     var projectQuestion: String? //set value to indicate that a question has been entered
     var selectedEndpoint: Endpoint? //captures endpoint for segue
+    let endpoints = ["NONE", "DAY", "WEEK", "MONTH", "YEAR"] //endpoints for slider
     
     // MARK: - View Configuration
     
@@ -54,18 +55,11 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         let center = CGPoint(x: centerX, y: centerY)
         let size = CGSize(width: sliderWidth, height: sliderHeight)
         let frame = createRectAroundCenter(center, size: size)
-        let endpoints = ["NONE", "DAY", "WEEK", "MONTH", "YEAR"]
         let colorScheme = (UIColor.whiteColor(), UIColor.greenColor(), 1)
         let customSlider = CustomSlider(frame: frame, selectionPoints: endpoints, scheme: colorScheme)
         endpointView.addSubview(customSlider)
         endpointView.bringSubviewToFront(customSlider)
         customSlider.addTarget(self, action: "customSliderValueHasChanged:", forControlEvents: .ValueChanged)
-        
-        //test ui changes:
-        let time = dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC))
-        dispatch_after(time, dispatch_get_main_queue()) { () -> Void in
-            customSlider.controlTintColor = UIColor.purpleColor()
-        }
     }
     
     override func viewDidAppear(animated: Bool) { //add placeholders (view is properly set @ this time)
@@ -73,8 +67,33 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         projectQuestionTextView.placeholder = "What is the question that your project is trying to answer?"
     }
     
-    func customSliderValueHasChanged(customSlider: CustomSlider) {
-        print("New Slider Value: \(customSlider.currentValue)")
+    func customSliderValueHasChanged(customSlider: CustomSlider) { //if the slider lands on a fixedPoint that is NOT 'none', create an alert for adding the amount
+        let selectedValue = customSlider.currentValue
+        print("Selected Value: \(selectedValue)")
+        //Match the selected value -> a node:
+        if let index = customSlider.fixedSelectionPointNumbers.indexOf(selectedValue) {
+            let selection = endpoints[index]
+            print("Selection: \(selection)")
+            if (selection != endpoints.first) { //make sure the 1st item wasn't selected
+                let alert = UIAlertController(title: "Add a Value", message: "Add an integer value for your selection - e.g. '5' days.", preferredStyle: UIAlertControllerStyle.Alert)
+                let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: { (let cancel) -> Void in
+                    //set slider back -> 'None'
+                    customSlider.currentValue = 0.0
+                })
+                let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: { (let ok) -> Void in
+                    //add the typed value -> the crown for the slider; need to type check to make sure it is a #
+                    if let input = Int((alert.textFields?.first?.text)!) {
+                        print("Input: \(input)")
+                    }
+                })
+                alert.addAction(cancel)
+                alert.addAction(ok)
+                alert.addTextFieldWithConfigurationHandler({ (let textField) -> Void in
+                    //configure TF
+                })
+                presentViewController(alert, animated: true, completion: nil)
+            }
+        }
     }
 
     // MARK: - TextView Behavior
