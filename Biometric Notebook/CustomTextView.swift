@@ -22,9 +22,9 @@ class CustomTextView: UITextView {
                 placeholderLabel?.numberOfLines = 2
                 placeholderLabel?.sizeToFit() //resizes bounds to fit around text
                 placeholderLabel?.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.50)
-                if let fontName = self.font?.fontName, let fontSize = self.font?.pointSize {
+                if let fontSize = self.font?.pointSize {
                     let placeholderFontSize = fontSize - 2
-                    placeholderLabel?.font = UIFont(name: fontName, size: placeholderFontSize)
+                    placeholderLabel?.font = UIFont.systemFontOfSize(placeholderFontSize)
                 }
                 self.addSubview(placeholderLabel!)
                 if (self.text == "") { //check if there is any text currently

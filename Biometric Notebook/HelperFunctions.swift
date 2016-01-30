@@ -40,6 +40,10 @@ func createRectAroundCenter(centerPoint: CGPoint, size: CGSize) -> CGRect { //cr
     return rectangle
 }
 
+func boundValue(value: Double, toLowerValue lowerValue: Double, upperValue: Double) -> Double { //clamps the passed in value so it is > lowerValue & < upperValue
+    return min(max(value, lowerValue), upperValue)
+}
+
 //Code for two interdependent checkboxes (when one is clicked, the other is unclicked):
 //@IBAction func inputVariableCheckboxClicked(sender: AnyObject) {
 //    if !(inputVariableCheckbox.isChecked) { //box is NOT currently checked

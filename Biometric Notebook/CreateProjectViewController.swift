@@ -65,7 +65,7 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         super.viewDidLoad()
         firstSuccessIndicator.hidden = true
         secondSuccessIndicator.hidden = true
-        thirdSuccessIndicator.hidden = false //normally on, except when slider is moving
+        thirdSuccessIndicator.hidden = true //normally on, except when slider is moving
         projectTitleTextView.delegate = self
         projectQuestionTextView.delegate = self
         
@@ -98,16 +98,13 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
     }
     
     override func viewDidAppear(animated: Bool) { //add placeholders (view is properly set @ this time)
+        thirdSuccessIndicator.hidden = false //normally on, except when slider is moving
         projectTitleTextView.placeholder = "Enter a title for your new project"
         projectQuestionTextView.placeholder = "What is the question that your project is trying to answer?"
         
         //Reset frame for endpointView after view frames have been set:
         let frame = endpointView.frame
         endpointView.frame = frame
-        
-        print("L view height: \(endpointView.leftView.frame.height)")
-        print("View height: \(projectEndpointView.frame.height)")
-
     }
     
     func customSliderValueHasChanged(customSlider: CustomSlider) { //if slider lands on a fixedPoint that is NOT 'none', create an alert for adding the amount

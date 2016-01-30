@@ -55,16 +55,16 @@ class CustomSliderBackgroundView: UIView {
         leftLabel.numberOfLines = 2
         leftLabel.lineBreakMode = .ByWordWrapping
         leftLabel.textAlignment = .Center
-        leftLabel.font = UIFont.systemFontOfSize(12)
+        leftLabel.font = UIFont.systemFontOfSize(12, weight: 0.1)
         
         //Right Subview:
         self.addSubview(rightView)
         self.sendSubviewToBack(rightView)
         rightView.addSubview(rightLabel)
-        rightView.backgroundColor = UIColor(red: 255/255, green: 199/255, blue: 168/255, alpha: 1)
+        rightView.backgroundColor = UIColor(red: 216/255, green: 86/255, blue: 95/255, alpha: 1)
         rightLabel.text = "Fixed Length Project"
         rightLabel.textAlignment = .Center
-        rightLabel.font = UIFont.systemFontOfSize(13)
+        rightLabel.font = UIFont.systemFontOfSize(13, weight: 0.1)
         
         updateFrames()
     }

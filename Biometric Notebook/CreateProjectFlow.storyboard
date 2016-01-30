@@ -110,7 +110,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yZu-ew-aYk" customClass="CustomSliderBackgroundView" customModule="Biometric_Notebook" customModuleProvider="target">
                                         <rect key="frame" x="28" y="56" width="536" height="185"/>
                                         <animations/>
-                                        <color key="backgroundColor" red="0.84744039660000003" green="0.54449326325950353" blue="0.60239295192787778" alpha="1" colorSpace="calibratedRGB"/>
+                                        <color key="backgroundColor" red="0.84744039660000003" green="0.33631223166736435" blue="0.37249873102624731" alpha="1" colorSpace="calibratedRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="height" relation="lessThanOrEqual" constant="150" id="DAN-PF-MEe"/>
                                             <constraint firstAttribute="height" constant="120" id="pzw-to-1TH"/>
