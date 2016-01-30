@@ -9,11 +9,11 @@ import Foundation
 
 enum Endpoints: String { //assign raw values (string representations) to each enum case
     
-    case Continuous = "Continuous"
-    case Day = "Day(s)"
-    case Week = "Week(s)"
-    case Month = "Month(s)"
-    case Year = "Year(s)"
+    case Continuous = "None"
+    case Day = "Days"
+    case Week = "Weeks"
+    case Month = "Months"
+    case Year = "Years"
     
     func generateEndpoint(numberOfUnits: Int) -> Int? { //generates the combined endpoint, defined as the # of days from the current start point that the project will last for
         let endPoint: Int
@@ -36,20 +36,22 @@ enum Endpoints: String { //assign raw values (string representations) to each en
 
 struct Endpoint { //storage item for CoreData
     
-    let endpoint: Endpoints?
+    let endpoint: Endpoints
     var endpointInDays: Int?
     
-    init(firstPickerSelection: String, secondPickerSelection: String) { //initializer from user selection - sets enum object & obtains the endpoint as # of days
-        if (firstPickerSelection == "Continuous") {
-            endpoint = Endpoints.Continuous
+    init(endpoint: Endpoints, number: Int?) { //initializer from user selection - sets enum object & obtains the endpoint as # of days
+        if (endpoint == .Continuous) {
+            self.endpoint = endpoint
             endpointInDays = nil
-        } else {
-            endpoint = Endpoints(rawValue: secondPickerSelection)! 
-            if let number = Int(firstPickerSelection) {
-                endpointInDays = (endpoint!.generateEndpoint(number))!
-            } else {
+        } else { //endpoints w/ numerical values
+            self.endpoint = endpoint
+            if let value = number {
+                endpointInDays = (endpoint.generateEndpoint(value))!
+            } else { //not intialized w/ # for endpoint
+                print("Error. Endpoint does not have associated number!")
                 endpointInDays = nil
             }
+            
         }
     }
     
@@ -57,9 +59,10 @@ struct Endpoint { //storage item for CoreData
         //If no endpointInDays is entered, it is assumed that this is a 'continuous' project
         self.endpointInDays = endpointInDays
         if (self.endpointInDays == nil) {
-            endpoint = Endpoints.Continuous
+            self.endpoint = Endpoints.Continuous
         } else {
-            endpoint = nil
+            //Reconstruct the endpoint based on the value:
+            self.endpoint = Endpoints.Day //*
         }
     }
 }

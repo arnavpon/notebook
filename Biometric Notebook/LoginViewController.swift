@@ -26,7 +26,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //Config:
+        //Configure VC:
         activityIndicator.hidesWhenStopped = true
         errorMessageLabel.text = "Oops! Incorrect username or password."
         usernameTextField.delegate = self

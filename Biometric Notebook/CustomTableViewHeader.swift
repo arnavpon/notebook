@@ -55,7 +55,8 @@ class LabelWithPadding: UILabel { //label w/ padded text
     }
     
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        self.paddingInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10) //default
+        super.init(coder: aDecoder)
     }
     
     override func drawTextInRect(rect: CGRect) {

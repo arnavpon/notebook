@@ -3,16 +3,19 @@
 //  Created by Arnav Pondicherry  on 1/21/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Page to create & display input variables, project action (e.g. sleep, eat, exercise) between the IV & OM, and outcome measures.
+// Page to create & display input variables, project action (e.g. sleep, eat, exercise) between the IV & OV, and outcome variables.
 
 import UIKit
 
 class ProjectVariablesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
     
+    @IBOutlet weak var inputVariablesView: UIView!
+    @IBOutlet weak var inputVariablesTV: UITableView!
+    @IBOutlet weak var addActionButton: UIButton!
+    @IBOutlet weak var outcomeVariablesView: UIView!
+    @IBOutlet weak var outcomeVariablesTV: UITableView!
     @IBOutlet weak var doneButton: UIBarButtonItem!
     @IBOutlet weak var actionPicker: UIPickerView!
-    @IBOutlet weak var inputVariablesTV: UITableView!
-    @IBOutlet weak var outcomeVariablesTV: UITableView!
     
     var beforeActionRows: [Module] = [] //data source for rows before the 'Action'
     var afterActionRows: [Module] = [] //data source for rows after the 'Action'
@@ -28,13 +31,27 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     var selectedAction: Action? //captures 'action' before segue
     var tableViewForVariableAddition: UITableView? //notes which TV a new variable is going to
     
+    private let viewBorderWidth: CGFloat = 5
+    private let viewCornerRadius: CGFloat = 20
+    
     // MARK: - View Configuration
+    
+    override func viewWillAppear(animated: Bool) {
+        //Round the view (& button) edges:
+        inputVariablesView.layer.borderColor = inputVariablesView.backgroundColor?.CGColor
+        inputVariablesView.layer.borderWidth = viewBorderWidth
+        inputVariablesView.layer.cornerRadius = viewCornerRadius
+        outcomeVariablesView.layer.borderColor = outcomeVariablesView.backgroundColor?.CGColor
+        outcomeVariablesView.layer.borderWidth = viewBorderWidth
+        outcomeVariablesView.layer.cornerRadius = viewCornerRadius
+        addActionButton.layer.cornerRadius = viewCornerRadius/2
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //actionPicker.dataSource = self //*
-        //actionPicker.delegate = self
+        actionPicker.dataSource = self
+        actionPicker.delegate = self
         
         //Initialize the actionPicker & endpointPicker selections w/ the first item in the array:
         actionPickerSelection = actionPickerRowArray.first
@@ -109,6 +126,10 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     }
     
     // MARK: - Button Actions
+    
+    @IBAction func addActionButtonClick(sender: AnyObject) {
+        //reveal actionPicker
+    }
     
     @IBAction func inputVariablesAddButtonClick(sender: AnyObject) { //called by either TV
         //Depending on which TV was selected, it will send the variable to that TV's data source. Make 2 separate addVariable IBActions, but 1 common function handling behavior of both!

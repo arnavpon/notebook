@@ -29,14 +29,14 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
     
     var projectTitle: String? //set value to indicate that a name has been entered
     var projectQuestion: String? //set value to indicate that a question has been entered
-    var selectedEndpoint: Endpoint? //captures endpoint for segue
-    let endpoints = ["NONE", "DAYS", "WEEKS", "MONTHS", "YEARS"] //endpoints for slider
+    var selectedEndpoint: Endpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil) //captures endpoint for segue
+    let endpoints = [Endpoints.Continuous.rawValue, Endpoints.Day.rawValue, Endpoints.Week.rawValue, Endpoints.Month.rawValue, Endpoints.Year.rawValue] //endpoints for slider
     
     var firstSuccessIndicatorIsSet: Bool = false { //handles display of 1st checkmark
         didSet {
             if (firstSuccessIndicatorIsSet) {
                 firstSuccessIndicator.hidden = false
-                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) { //if all 3 checkmarks are set, enable the 'Done' button (3rd success is always on unless user is interating w/ the slider)
+                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) { //if all 3 checkmarks are set, enable 'Done' button (3rd success is always on unless user is interating w/ the slider)
                     createProjectButton.enabled = true
                 }
             } else {
@@ -49,7 +49,7 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         didSet {
             if (secondSuccessIndicatorIsSet) {
                 secondSuccessIndicator.hidden = false
-                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) { //if all 3 checkmarks are set, enable the 'Done' button (3rd success is always on unless user is interating w/ the slider)
+                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) {
                     createProjectButton.enabled = true
                 }
             } else {
@@ -122,14 +122,32 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
                 let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: { (let cancel) -> Void in
                     customSlider.currentValue = 0.0 //set slider back -> 'None'
                     customSlider.setNodeAsSelected() //change highlighting to reflect currentNode
+                    self.selectedEndpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil)
                 })
                 let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: { (let ok) -> Void in
                     //add typed value -> crown for the slider; type check to make sure it is an int:
                     if let input = Int((alert.textFields?.first?.text)!) {
                         customSlider.crownLayerValue = input
+                        
+                        //Set the selectedEndpoint:
+                        var counter = 0
+                        var selection: String = ""
+                        for selectionPoint in customSlider.fixedSelectionPointNumbers {
+                            if (customSlider.currentValue == selectionPoint) { //get node #
+                                selection = self.endpoints[counter] //get node name
+                                break
+                            }
+                            counter += 1
+                        }
+                        if let select: Endpoints = Endpoints(rawValue: selection) { //match -> endpoint
+                            self.selectedEndpoint = Endpoint(endpoint: select, number: input)
+                        } else {
+                            print("Error: selectedEndpoint does not match known endpoint!")
+                        }
                     } else { //if input is not an integer value
                         customSlider.currentValue = 0.0
                         customSlider.setNodeAsSelected() //change highlighting to reflect currentNode
+                        self.selectedEndpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil)
                     }
                 })
                 alert.addAction(cancel)
@@ -139,6 +157,8 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
                     textField.keyboardType = UIKeyboardType.NumberPad
                 })
                 presentViewController(alert, animated: true, completion: nil)
+            } else { //user selected 'None' -> continuous endpoint
+                selectedEndpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil)
             }
         }
     }
@@ -195,7 +215,17 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
     // MARK: - Button Actions
     
     @IBAction func createProjectButtonClick(sender: AnyObject) { //transition -> VariablesVC
-        performSegueWithIdentifier("showVariables", sender: nil)
+        //Check user defaults for preferences:
+        let userDefaults = NSUserDefaults.standardUserDefaults()
+        if let showDescription = userDefaults.valueForKey("SHOW_VARS_DESCRIPTION") as? Bool {
+            if (showDescription) { //navigate -> descriptions pg.
+                performSegueWithIdentifier("showVariablesDescription", sender: nil)
+            } else { //go directly -> projectsVC page
+                performSegueWithIdentifier("showVariables", sender: nil)
+            }
+        } else { //could not cast (means the value has not been set in defaults yet), -> descriptions page
+            performSegueWithIdentifier("showVariablesDescription", sender: nil)
+        }
     }
     
     @IBAction func cancelButtonClick(sender: AnyObject) { //return to home screen
@@ -208,7 +238,12 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         //Pass the title, question, & endpoint through -> the remaining flows so that the complete project can be set up in the 'Summary' section:
-        if (segue.identifier == "showVariables") {
+        if (segue.identifier == "showVariablesDescription") { //description screen
+            let nextVC = segue.destinationViewController as! ProjectVariablesDescriptionViewController
+            nextVC.projectTitle = self.projectTitle
+            nextVC.projectQuestion = self.projectQuestion
+            nextVC.projectEndpoint = self.selectedEndpoint
+        } else if (segue.identifier == "showVariables") {
             let destination = segue.destinationViewController as! ProjectVariablesViewController
             destination.projectTitle = self.projectTitle
             destination.projectQuestion = self.projectQuestion
