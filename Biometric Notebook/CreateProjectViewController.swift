@@ -36,7 +36,7 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         didSet {
             if (firstSuccessIndicatorIsSet) {
                 firstSuccessIndicator.hidden = false
-                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) && (thirdSuccessIndicatorIsSet) { //if all 3 checkmarks are set, enable the 'Done' button
+                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) { //if all 3 checkmarks are set, enable the 'Done' button (3rd success is always on unless user is interating w/ the slider)
                     createProjectButton.enabled = true
                 }
             } else {
@@ -45,28 +45,15 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
             }
         }
     }
-    var secondSuccessIndicatorIsSet: Bool = false { //handles display of 1st checkmark
+    var secondSuccessIndicatorIsSet: Bool = false { //handles display of 2nd checkmark
         didSet {
             if (secondSuccessIndicatorIsSet) {
                 secondSuccessIndicator.hidden = false
-                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) && (thirdSuccessIndicatorIsSet) { //if all 3 checkmarks are set, enable the 'Done' button
+                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) { //if all 3 checkmarks are set, enable the 'Done' button (3rd success is always on unless user is interating w/ the slider)
                     createProjectButton.enabled = true
                 }
             } else {
                 secondSuccessIndicator.hidden = true
-                createProjectButton.enabled = false
-            }
-        }
-    }
-    var thirdSuccessIndicatorIsSet: Bool = false { //handles display of 1st checkmark
-        didSet {
-            if (thirdSuccessIndicatorIsSet) {
-                thirdSuccessIndicator.hidden = false
-                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) && (thirdSuccessIndicatorIsSet) { //if all 3 checkmarks are set, enable the 'Done' button
-                    createProjectButton.enabled = true
-                }
-            } else {
-                thirdSuccessIndicator.hidden = true
                 createProjectButton.enabled = false
             }
         }
@@ -78,7 +65,7 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         super.viewDidLoad()
         firstSuccessIndicator.hidden = true
         secondSuccessIndicator.hidden = true
-        thirdSuccessIndicator.hidden = true
+        thirdSuccessIndicator.hidden = false //normally on, except when slider is moving
         projectTitleTextView.delegate = self
         projectQuestionTextView.delegate = self
         
@@ -98,9 +85,10 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         let size = CGSize(width: sliderWidth, height: sliderHeight)
         let frame = createRectAroundCenter(center, size: size)
         let color2 = UIColor(red: 50/255, green: 163/255, blue: 216/255, alpha: 1)
-        let colorScheme = (UIColor.whiteColor(), color2, 1)
+        let colorScheme = (UIColor.whiteColor(), color2)
         let customSlider = CustomSlider(frame: frame, selectionPoints: endpoints, scheme: colorScheme)
         customSlider.backgroundColor = UIColor.clearColor()
+        customSlider.thirdSuccessIndicator = self.thirdSuccessIndicator
         endpointView.addSubview(customSlider)
         endpointView.bringSubviewToFront(customSlider)
         customSlider.addTarget(self, action: "customSliderValueHasChanged:", forControlEvents: .ValueChanged)
@@ -123,7 +111,6 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
     }
     
     func customSliderValueHasChanged(customSlider: CustomSlider) { //if slider lands on a fixedPoint that is NOT 'none', create an alert for adding the amount
-        
         if (customSlider.suppressAlert) { //check if alert should be allowed to appear
             customSlider.suppressAlert = false //reset suppression alert
             return //break function early
@@ -134,21 +121,18 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         if let index = customSlider.fixedSelectionPointNumbers.indexOf(selectedValue) {
             let selection = endpoints[index]
             if (selection != endpoints.first) { //make sure the 1st item wasn't selected
-                let alert = UIAlertController(title: "Add a Value", message: "Add an integer value to complete your endpoint.", preferredStyle: UIAlertControllerStyle.Alert)
+                let alert = UIAlertController(title: "Add a Value", message: "Enter a number to complete your endpoint setup.", preferredStyle: UIAlertControllerStyle.Alert)
                 let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: { (let cancel) -> Void in
                     customSlider.currentValue = 0.0 //set slider back -> 'None'
                     customSlider.setNodeAsSelected() //change highlighting to reflect currentNode
-                    self.thirdSuccessIndicatorIsSet = false
                 })
                 let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: { (let ok) -> Void in
                     //add typed value -> crown for the slider; type check to make sure it is an int:
                     if let input = Int((alert.textFields?.first?.text)!) {
-                        customSlider.crownLayerValue = input //*
-                        self.thirdSuccessIndicatorIsSet = true
+                        customSlider.crownLayerValue = input
                     } else { //if input is not an integer value
                         customSlider.currentValue = 0.0
                         customSlider.setNodeAsSelected() //change highlighting to reflect currentNode
-                        self.thirdSuccessIndicatorIsSet = false
                     }
                 })
                 alert.addAction(cancel)
@@ -158,8 +142,6 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
                     textField.keyboardType = UIKeyboardType.NumberPad
                 })
                 presentViewController(alert, animated: true, completion: nil)
-            } else {
-                self.thirdSuccessIndicatorIsSet = false
             }
         }
     }

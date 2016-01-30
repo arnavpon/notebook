@@ -55,7 +55,17 @@ class CustomSlider: UIControl {
     }
     
     let controlLayer = CustomSliderControlLayer() //drawing layer for the slider control
-    private var lockedToNode: Bool = true //indicates whether control is locked -> node, default is locked
+    private var lockedToNode: Bool = true { //indicate whether control is locked -> node, default = locked
+        didSet {
+            if !(lockedToNode) { //hide checkmark when ctrlLayer is NOT on a node
+                thirdSuccessIndicator?.hidden = true
+            } else {
+                if (currentValue == fixedSelectionPointNumbers[0]) { //reveal on locking node -> 'none'
+                    thirdSuccessIndicator?.hidden = false
+                }
+            }
+        }
+    }
     var controlLayerOriginY: CGFloat { //bottom of control touches bottom of track (trackLayerMaxY)
         return trackLayerMaxY - controlLayerSize.height
     }
@@ -95,6 +105,7 @@ class CustomSlider: UIControl {
                 crownLabel.text = "\(value)"
                 crownLabel.hidden = false
                 controlLayer.valueIsSet = true
+                thirdSuccessIndicator?.hidden = false
             } else { //hide crown & label if value is removed
                 crownLayer.value = nil
                 crownLabel.text = nil
@@ -105,19 +116,13 @@ class CustomSlider: UIControl {
     }
     private var crownLabel = UILabel() //should be hidden if crownLayer is hidden
     private var crownLabelHeight: CGFloat {
-        return 15
+        return 20
     }
     private var nodeLabelFontSize: CGFloat = 11.5
     
-    //Externally available variable for location to transition background colors (defined by the color scheme's int #):
-    var colorChangePoint: CGFloat = 0
-    var colorScheme: (UIColor, UIColor, Int) //color scheme for the slider track - lowColor is the bottom-most color in the gradient, highColor is the top-most color in the gradient, 'startPoint' is the data point @ which to begin gradienting (everything before the startPoint will be the lowColor).
-    var controlTintColor = UIColor.blueColor() {
-        didSet {
-            controlLayer.setNeedsDisplay() //call setNeedsDisplay for any affected layers if they are changed by the setting of a property
-        }
-    }
+    var colorScheme: (UIColor, UIColor) //color scheme for the slider track - lowColor is the bottom-most color in the gradient, highColor is the top-most color in the gradient, 'startPoint' is the data point @ which to begin gradienting (everything before the startPoint will be the lowColor).
     var previousLocation = CGPoint() //tracks last touch point
+    weak var thirdSuccessIndicator: UIView? 
     
     // MARK: - Init
     
@@ -125,7 +130,7 @@ class CustomSlider: UIControl {
         fatalError("Custom Slider fatal error")
     }
     
-    init(frame: CGRect, selectionPoints: [String], scheme: (UIColor, UIColor, Int)) {
+    init(frame: CGRect, selectionPoints: [String], scheme: (UIColor, UIColor)) {
         self.fixedSelectionPointNames = selectionPoints
         self.colorScheme = scheme
         super.init(frame: frame)
@@ -144,12 +149,11 @@ class CustomSlider: UIControl {
         self.layer.addSublayer(crownLayer)
         
         crownLabel.hidden = true //hide until crownValue is set
-        crownLabel.layer.borderColor = UIColor.blackColor().CGColor //border not showing properly!!!
-        crownLabel.layer.cornerRadius = 3
-        crownLabel.layer.borderWidth = 0.5
+        crownLabel.layer.cornerRadius = 5
+        crownLabel.backgroundColor = UIColor.greenColor()
+        crownLabel.textColor = UIColor.whiteColor()
         crownLabel.textAlignment = .Center
-        crownLabel.adjustsFontSizeToFitWidth = true
-        crownLabel.font = UIFont.systemFontOfSize(9, weight: 1.6)
+        crownLabel.font = UIFont.systemFontOfSize(12, weight: 1.5)
         self.addSubview(crownLabel)
         
         createNodesAndLabelsForOptions() //create nodes & labels
@@ -175,7 +179,7 @@ class CustomSlider: UIControl {
             
             //Create corresponding label (centered @ the node's center but shifted down so there is a little space below the node):
             let labelHeight: CGFloat = 30
-            let nodeBottomY: CGFloat = trackLayerMaxY + nodeLayer.frame.height + 6 //get the point for the bottom of the node & then add 6 (distance between node & lbl)
+            let nodeBottomY: CGFloat = trackLayerMaxY + nodeLayer.frame.height + 3 //get the point for the bottom of the node & then add an offset (distance between node & lbl)
             let labelY: CGFloat = nodeBottomY + labelHeight/2
             let centerPoint = CGPoint(x: nodeCenterX, y: labelY) //label horizontal center = node's centerX; vertical center is around a point 6 + half lbl height from bottom of node
             let labelSize = CGSize(width: 55, height: labelHeight)
@@ -244,13 +248,16 @@ class CustomSlider: UIControl {
             crownLayerValue = nil //unless it locks on the previous value?
             currentlySelectedNode?.selected = false
             
-            //Start movement animation - (1) Detach control from node (shift frame up by 3 pt):
+            //Movement Animation - (1) Detach control from node (shift frame up by 3 pt):
             lockedToNode = false
             controlLayer.frame = CGRect(x: controlLayerOriginX, y: controlLayerPositionY, width: controlLayerSize.width, height: controlLayerSize.height)
             controlLayer.setNeedsDisplay()
         }
         return controlLayer.currentlyHighlighted
     }
+    
+    let tiltAngle: CGFloat = CGFloat(15.0 * M_PI / 180.0)
+    let negativeTiltAngle: CGFloat = CGFloat(-15.0 * M_PI / 180.0)
     
     override func continueTrackingWithTouch(touch: UITouch, withEvent event: UIEvent?) -> Bool {
         let location = touch.locationInView(self)
@@ -260,6 +267,19 @@ class CustomSlider: UIControl {
         if (controlLayer.currentlyHighlighted) { //update ctrlLayer depending on where user dragged it
             currentValue += changeInValue
             currentValue = boundValue(currentValue, toLowerValue: minValue, upperValue: maxValue)
+            
+            //Movement Animation - (2) Tilt the control in the direction of motion:
+            if (currentValue == 0.0) || (currentValue == 1.0) { //remove tilt @ edges
+                controlLayer.transform = CGAffineTransformMakeRotation(0)
+            } else {
+                if (changeInValue > 0) { // positive change, tilt RIGHT
+                    controlLayer.transform = CGAffineTransformMakeRotation(tiltAngle)
+                } else if (changeInValue < 0) { // negative change, tilt LEFT
+                    controlLayer.transform = CGAffineTransformMakeRotation(negativeTiltAngle)
+                } else {
+                    controlLayer.transform = CGAffineTransformMakeRotation(0)
+                }
+            }
         }
         return true
     }
@@ -267,6 +287,7 @@ class CustomSlider: UIControl {
     override func endTrackingWithTouch(touch: UITouch?, withEvent event: UIEvent?) {
         //Lock the controlLayer onto whichever node it is closest to:
         if let locationX = touch?.locationInView(self).x {
+            controlLayer.transform = CGAffineTransformMakeRotation(0) //remove tilt
             let locationAsPercentage: CGFloat = locationX / trackLayerWidth //convert abs location -> %
             if !(locationAsPercentage <= 0.0) && !(locationAsPercentage >= 1.0) { //if control lies between 0 & 1, lock control -> node (auto-locks if value is outside this range)
                 let numberOfTwoPointRanges = fixedSelectionPointNumbers.count - 1 //# of 2 point ranges (e.g. 0 - 0.25, 0.25 - 0.5, etc.) is 1 minus the total # of points
@@ -284,7 +305,7 @@ class CustomSlider: UIControl {
                             truePosition = Double(lowerPoint)
                         }
                         lockedToNode = true //lock control -> node
-                        currentValue = truePosition //set currentValue @ a node
+                        currentValue = truePosition //set currentValue -> node center
                         if (nodeAtStartOfTouch == getNodeForCurrentValue()) {
                             //if user drops control on same node where it started, reset crownValue:
                             crownLayerValue = crownLayerValueAtStartOfTouch
@@ -305,8 +326,7 @@ class CustomSlider: UIControl {
             }
         }
         sendActionsForControlEvents(.ValueChanged) //notification code in Target Action pattern - notifies any subscribed targets that the slider's value has changed
-        //controlLayer.highlighted = false //ends tracking event
-        controlLayer.currentlyHighlighted = false
+        controlLayer.currentlyHighlighted = false //end tracking event
     }
     
     func setNodeAsSelected() { //uses the current position of slider to determine which node is selected
@@ -327,11 +347,7 @@ class CustomSlider: UIControl {
 class CustomSliderControlLayer: UIImageView { //class for slider's Control object
     
     weak var customSlider: CustomSlider?
-    var currentlyHighlighted = false {
-        didSet { //put tilt animation in here???
-            setNeedsDisplay() //changes fill color slightly when touch event is active
-        }
-    }
+    var currentlyHighlighted = false
     override var frame: CGRect {
         didSet { //redraw view if the frame changes
             self.setNeedsDisplay()
@@ -424,30 +440,30 @@ class CustomSliderNodeLayer: UIImageView { //class for slider's fixed selection 
     
     func formatSelectedLabel() { //if the current node is selected, highlight its label
         if let label = nodeLabel, slider = customSlider {
-            label.textColor = UIColor.whiteColor()
-            label.font = UIFont.systemFontOfSize(slider.nodeLabelFontSize, weight: 1.8)
+            label.textColor = UIColor.greenColor()
+            label.font = UIFont.systemFontOfSize(slider.nodeLabelFontSize, weight: 1.9)
         }
     }
     
     func removeSelectionFormatFromLabel() { //if the node becomes unselected, remove lbl formatting
         if let label = nodeLabel, slider = customSlider {
-            label.textColor = UIColor.blackColor()
-            label.font = UIFont.systemFontOfSize(slider.nodeLabelFontSize)
+            label.textColor = UIColor.grayColor()
+            label.font = UIFont.systemFontOfSize(slider.nodeLabelFontSize, weight: 1.4)
         }
     }
 }
 
 // MARK: - Crown Layer
 
-class CustomSliderCrownLayer: CALayer { //the crown lies btwn the control & its number label
+class CustomSliderCrownLayer: CALayer { //the crown controls the behavior of the number label
     weak var customSlider: CustomSlider?
     var value: Int? {
         didSet {
             if let slider = customSlider {
-                if (value != nil) { //reveal crown if value is set
+                if (value != nil) { //reveal crown/label if value is set
                     slider.crownLabel.text = String(value)
                     self.hidden = false
-                } else { //hide crown if value is removed
+                } else { //hide crown/label if value is removed
                     slider.crownLabel.text = nil
                     self.hidden = true
                 }
