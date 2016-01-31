@@ -17,8 +17,8 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     var projectQuestion: String? //question for investigation (obtained from ProjectVariablesVC)
     var projectAction: Action? //action (obtained from ProjectVariablesVC)
     var projectEndpoint: Endpoint? //endpoint (obtained from ProjectVariablesVC)
-    var beforeActionVariables: [Module]? //obtained from ProjectVariablesVC
-    var afterActionVariables: [Module]? //obtained from ProjectVariablesVC
+    var inputVariables: [Module]? //obtained from ProjectVariablesVC
+    var outcomeVariables: [Module]? //obtained from ProjectVariablesVC
     
     // MARK: - View Configuration
     
@@ -68,11 +68,11 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         case 2:
             return 1
         case 3:
-            return (beforeActionVariables?.count)!
+            return (inputVariables?.count)!
         case 4:
             return 1
         case 5:
-            return (afterActionVariables?.count)!
+            return (outcomeVariables?.count)!
         default:
             return 0
         }
@@ -86,14 +86,34 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         case 1:
             cell.textLabel?.text = projectQuestion
         case 2: //project's endpoint
-            cell.textLabel?.text = "Project ends \(projectEndpoint!.endpointInDays) days from now"
-        case 3: //beforeActionVars
-            cell.textLabel?.text = beforeActionVariables![indexPath.row].variableName
+            if let endpoint = projectEndpoint {
+                if let numberOfDays = endpoint.endpointInDays {
+                    cell.textLabel?.text = "Project ends \(numberOfDays) days from now"
+                } else { //continuous project
+                    cell.textLabel?.text = "Continuous project (indefinite length)"
+                }
+            } else {
+                print("Error - projectEndpoint is nil")
+                cell.textLabel?.text = ""
+            }
+        case 3: //input variables
+            cell.textLabel?.text = inputVariables![indexPath.row].variableName
+            cell.detailTextLabel?.text = inputVariables![indexPath.row].moduleTitle
         case 4: //project action
-            cell.textLabel?.text = projectAction?.action.rawValue
-        case 5: //afterActionVars
-            cell.textLabel?.text = afterActionVariables![indexPath.row].variableName
-        default:
+            if let action = projectAction {
+                if let customAction = action.customAction { //custom action
+                    cell.textLabel?.text = customAction
+                } else { //pre-defined action
+                    cell.textLabel?.text = action.action.rawValue
+                }
+            } else {
+                print("Error - projectAction is nil")
+                cell.textLabel?.text = ""
+            }
+        case 5: //outcome variables
+            cell.textLabel?.text = outcomeVariables![indexPath.row].variableName
+            cell.detailTextLabel?.text = outcomeVariables![indexPath.row].moduleTitle
+        default: //should NOT trigger
             cell.textLabel?.text = ""
         }
         return cell
@@ -103,12 +123,29 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         //Allow user to go to correct location to edit.
     }
     
+    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
+        if (indexPath.section == 3) || (indexPath.section == 5) { //enable deletion for project vars
+            return .Delete
+        } else {
+            return .None
+        }
+    }
+    
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        if (indexPath.section == 3) {
+            inputVariables?.removeAtIndex(indexPath.row)
+        } else if (indexPath.section == 5) {
+            outcomeVariables?.removeAtIndex(indexPath.row)
+        }
+        tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+    }
+    
     // MARK: - Button Actions
     
     @IBAction func doneButtonClick(sender: AnyObject) {
         //Add before & after variable arrays to the current object & then save it -> persistent store before returning to homescreen:
-        let beforeActionVariablesDict = createDictionaryForCoreData(beforeActionVariables!)
-        let afterActionVariablesDict = createDictionaryForCoreData(afterActionVariables!)
+        let beforeActionVariablesDict = createDictionaryForCoreData(inputVariables!)
+        let afterActionVariablesDict = createDictionaryForCoreData(outcomeVariables!)
         let context = appDelegate.managedObjectContext
         let _ = Project(title: projectTitle!, question: projectQuestion!, endPoint: projectEndpoint?.endpointInDays, action: (projectAction?.action.rawValue)!, beforeVariables: beforeActionVariablesDict, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context)
         do {

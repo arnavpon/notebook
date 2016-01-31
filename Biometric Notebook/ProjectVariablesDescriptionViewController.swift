@@ -19,6 +19,10 @@ class ProjectVariablesDescriptionViewController: UIViewController {
         super.viewDidLoad()
     }
     
+    override func viewDidAppear(animated: Bool) {
+        checkbox.isChecked = false
+    }
+    
     // MARK: - Button Actions
     
     @IBAction func checkboxClick(sender: AnyObject) {

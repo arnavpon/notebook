@@ -168,9 +168,8 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
-            // Delete the row from the data source & update the variable's options (Custom Module)
+            (createdVariable as! CustomModule).options.removeAtIndex(indexPath.row)
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-            
             if let variable = (createdVariable as? CustomModule) {
                 if (variable.options.isEmpty) { //if there are no more options & the 'behaviors' list is being displayed, move the plus button accordingly
                     if let rowsForSection = createdVariable?.tableViewLayoutObject["rowsForSection"] {

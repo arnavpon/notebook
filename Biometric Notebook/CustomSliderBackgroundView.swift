@@ -23,7 +23,6 @@ class CustomSliderBackgroundView: UIView {
         if let slider = customSlider {
             let numberOfNodes = slider.fixedSelectionPointNumbers.count
             let width = slider.bounds.width
-            print(slider.bounds.width)
             let distance = width / CGFloat(numberOfNodes - 1)
             return distance
         }
