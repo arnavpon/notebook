@@ -14,6 +14,8 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     @IBOutlet weak var tutorialDescriptionLabel: UILabel!
     
     @IBOutlet weak var inputVariablesView: UIView!
+    @IBOutlet weak var inputVariablesTitleView: UIView!
+    @IBOutlet weak var inputVariablesTitleLabel: UILabel!
     @IBOutlet weak var inputVariablesTV: UITableView!
     @IBOutlet weak var inputVariablesTVButton: UIButton!
     @IBOutlet weak var inputViewArrow: UIImageView!
@@ -23,6 +25,8 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     @IBOutlet weak var actionPicker: UIPickerView!
     
     @IBOutlet weak var outcomeVariablesView: UIView!
+    @IBOutlet weak var outcomeVariablesTitleView: UIView!
+    @IBOutlet weak var outcomeVariablesTitleLabel: UILabel!
     @IBOutlet weak var outcomeVariablesTV: UITableView!
     @IBOutlet weak var outcomeVariablesTVButton: UIButton!
     @IBOutlet weak var doneButton: UIBarButtonItem!
@@ -113,6 +117,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         var cell = UITableViewCell()
         if (tutorialIsOn) { //user is in tutorial
+            cell.contentView.alpha = dimmedAlpha
             if (tableView == inputVariablesTV) { //inputs TV
                 cell.textLabel?.text = inputsTableDummyData[indexPath.row]
                 cell.detailTextLabel?.text = "<> Module" //*not working!
@@ -121,6 +126,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 cell.detailTextLabel?.text = "<> Module" //*
             }
         } else { //NOT in tutorial
+            cell.contentView.alpha = 1
             if (tableView == inputVariablesTV) { //inputs TV
                 cell = tableView.dequeueReusableCellWithIdentifier("input_cell")!
                 cell.textLabel?.text = inputVariableRows[indexPath.row].variableName
@@ -420,6 +426,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     
     // MARK: - Tutorial
     
+    let dimmedAlpha = CGFloat(0.3)
     var currentDrawingLayer1: TutorialCircleLayer?
     var currentDrawingLayer2: TutorialCircleLayer?
     var currentTextLayer: CATextLayer?
@@ -427,39 +434,43 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     var currentLineLayer2: LineLayer?
     
     func setVisualsForTutorialDescription(tutorialViewIsShowing showing: Bool) {
-        let dimmedAlpha = CGFloat(0.3)
         if (showing) { //if box is visible, dim the view
-            inputVariablesView.alpha = dimmedAlpha
+            //Dim all items in the view:
+            inputVariablesTitleLabel.alpha = dimmedAlpha
+            inputVariablesTVButton.alpha = dimmedAlpha
+            outcomeVariablesTitleLabel.alpha = dimmedAlpha
+            outcomeVariablesTVButton.alpha = dimmedAlpha
             inputViewArrow.alpha = dimmedAlpha
-            inputVariablesTVButton.enabled = false
             addActionButton.alpha = dimmedAlpha
-            addActionButton.enabled = false
             actionButtonArrow.alpha = dimmedAlpha
-            outcomeVariablesView.alpha = dimmedAlpha
+            
+            inputVariablesTVButton.enabled = false
+            addActionButton.enabled = false
             outcomeVariablesTVButton.enabled = false
+            
         } else { //start the tutorial
             tutorialDescriptionViewMode = false //turn off tutorialView
-            inputVariablesView.alpha = 1
-            inputViewArrow.alpha = 1
-            inputVariablesTVButton.enabled = true //enable button for tutorial part 1
-            addActionButton.alpha = 1
-            actionButtonArrow.alpha = 1
-            outcomeVariablesView.alpha = 1
-            outcomeVariablesTVButton.enabled = true //enable button for tutorial part 1
+            inputVariablesTVButton.superview?.alpha = 1
+            inputVariablesTVButton.alpha = 1
+            
+            inputVariablesTVButton.enabled = true //enable & reveal button for tutorial part 1
+            outcomeVariablesTVButton.alpha = 1
+            outcomeVariablesTVButton.enabled = true //enable & reveal button for tutorial part 1
             setVisualsForTutorial(screenNumber) //bring up first part of tutorial
         }
     }
     
-    func setVisualsForTutorial(screenToPresent: Int) { //draws layer on screen
-        //We need to transform the object's frame rect from coordinates of the object's superview -> VC view's coords! If the object is already a subview of the VC view, the transform has no effect, so it can still be applied. A subLayer of VC view draws IN THE VISIBLE AREA (point 0,0 corresponds to top left corner just BELOW the nav bar), so no adjustment is needed.
+    func setVisualsForTutorial(screenToPresent: Int) { //drawing logic for tutorial layers
+        //We need to transform the object (to be circled)'s frame rect from coordinates of object's superview -> VC view's coords! If object is already a subview of VC view, the transform has no effect, so it can still be applied. A subLayer of VC view draws IN THE VISIBLE AREA (point 0,0 corresponds to top left corner just BELOW the nav bar), so no adjustment is needed.
         if (screenToPresent > 5) {
-            return //break if number exceeds last tutorial screen
+            return //break function if number exceeds last tutorial screen (it shouldn't)
+                print("Max tutorial screen exceeded")
         }
         switch screenToPresent {
         case 1: //adding variables
             getDrawingLayerForView(inputVariablesTVButton)
             getDrawingLayerForView(outcomeVariablesTVButton)
-            let textForDisplay = "Click the + button when you want to add to the Input Variables or Outcome Variables tables."
+            let textForDisplay = "Click the + button when you want to add to the 'Input Variables' or 'Outcome Variables' tables."
             getTextLayerForDrawingLayer(textForDisplay, drawingLayer: currentDrawingLayer1!)
             drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.TopMiddle, drawingLayer: currentDrawingLayer1!, drawingLayerCorner: Corners.LeftMiddle)
             drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.BottomMiddle, drawingLayer: currentDrawingLayer2!, drawingLayerCorner: Corners.TopLeft)
@@ -471,21 +482,21 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         case 3: //TV cell rearranging
             getDrawingLayerForView(inputVariablesTV)
             getDrawingLayerForView(outcomeVariablesTV)
-            let textForDisplay = "You can rearrange the variables in each table by tapping and holding. Remember, the order you set here is the order in which data will be reported."
+            let textForDisplay = "You can rearrange the variables in a table by pressing and holding a row. The order you set here is the order in which data will be reported."
             getTextLayerForDrawingLayer(textForDisplay, drawingLayer: currentDrawingLayer1!)
-            drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.TopLeft, drawingLayer: currentDrawingLayer1!, drawingLayerCorner: Corners.TopMiddle)
+            drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.LeftMiddle, drawingLayer: currentDrawingLayer1!, drawingLayerCorner: Corners.Center)
             drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.BottomMiddle, drawingLayer: currentDrawingLayer2!, drawingLayerCorner: Corners.TopMiddle)
-        case 4: //TV cell deletion
+        case 4: //editing a variable's configuration
             getDrawingLayerForView(inputVariablesTV.cellForRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0))!)
             getDrawingLayerForView(outcomeVariablesTV.cellForRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0))!)
             let textForDisplay = "Tapping on a variable in the table will allow you to edit its settings."
             getTextLayerForDrawingLayer(textForDisplay, drawingLayer: currentDrawingLayer1!)
             drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.TopMiddle, drawingLayer: currentDrawingLayer1!, drawingLayerCorner: Corners.BottomMiddle)
             drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.BottomMiddle, drawingLayer: currentDrawingLayer2!, drawingLayerCorner: Corners.TopMiddle)
-        case 5:
+        case 5: //TV cell deletion
             getDrawingLayerForView(inputVariablesTV.cellForRowAtIndexPath(NSIndexPath(forRow: 1, inSection: 0))!)
             getDrawingLayerForView(outcomeVariablesTV.cellForRowAtIndexPath(NSIndexPath(forRow: 1, inSection: 0))!)
-            let textForDisplay = "If you no longer want a variable, swipe the right edge of that row in the table and tap 'Delete' to remove it."
+            let textForDisplay = "If you no longer want a variable, swipe the right edge of its row in the table and tap 'Delete' to remove it."
             getTextLayerForDrawingLayer(textForDisplay, drawingLayer: currentDrawingLayer1!)
             drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.TopLeft, drawingLayer: currentDrawingLayer1!, drawingLayerCorner: Corners.BottomMiddle)
             drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.BottomMiddle, drawingLayer: currentDrawingLayer2!, drawingLayerCorner: Corners.TopMiddle)
@@ -494,22 +505,47 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         }
     }
     
-    func closeTutorialScreenNumber(number: Int) {
+    func closeTutorialScreenNumber(number: Int) { //renders visuals @ end of each tutorial step
         if (number == 1) { //ready view for actionBtn tutorial
+            inputVariablesTVButton.alpha = dimmedAlpha
             inputVariablesTVButton.enabled = false
+            outcomeVariablesTVButton.alpha = dimmedAlpha
             outcomeVariablesTVButton.enabled = false
-            addActionButton.enabled = true //ready view for rearranging tutorial
-        } else if (number == 2) { //actionButton tutorial screen
+            addActionButton.alpha = 1
+            addActionButton.enabled = true
+        } else if (number == 2) { //ready view for TV rearranging tutorial
+            addActionButton.alpha = dimmedAlpha
             addActionButton.enabled = false
+            for cell in inputVariablesTV.visibleCells {
+                cell.contentView.alpha = 1
+            }
+            for cell in outcomeVariablesTV.visibleCells {
+                cell.contentView.alpha = 1
+            }
         } else if (number == 3) { //ready view for tap cell tutorial
-            //nothing additional to do
+            for cell in inputVariablesTV.visibleCells {
+                cell.contentView.alpha = dimmedAlpha
+            }
+            for cell in outcomeVariablesTV.visibleCells {
+                cell.contentView.alpha = dimmedAlpha
+            }
+            let indexPath = NSIndexPath(forRow: 0, inSection: 0)
+            inputVariablesTV.cellForRowAtIndexPath(indexPath)!.contentView.alpha = 1
+            outcomeVariablesTV.cellForRowAtIndexPath(indexPath)!.contentView.alpha = 1
         } else if (number == 4) { //ready view for swipe to delete tutorial
-            //nothing additional to do
+            let oldIndexPath = NSIndexPath(forRow: 0, inSection: 0)
+            let newIndexPath = NSIndexPath(forRow: 1, inSection: 0)
+            inputVariablesTV.cellForRowAtIndexPath(oldIndexPath)!.contentView.alpha = dimmedAlpha
+            outcomeVariablesTV.cellForRowAtIndexPath(oldIndexPath)!.contentView.alpha = dimmedAlpha
+            inputVariablesTV.cellForRowAtIndexPath(newIndexPath)!.contentView.alpha = 1
+            outcomeVariablesTV.cellForRowAtIndexPath(newIndexPath)!.contentView.alpha = 1
         } else if (number == 5) { //ready view for proper use
             inputVariablesTVButton.enabled = true
+            addActionButton.enabled = true
             outcomeVariablesTVButton.enabled = true
-            addActionButton.enabled = true //next button up
+            resetAlphaForAllSubviews(ofView: self.view)
             
+            //Alert user that tutorial is over:
             let alert = UIAlertController(title: "Tutorial Complete!", message: "Great work! You have completed this tutorial. You're ready to set up your own projects.", preferredStyle: UIAlertControllerStyle.Alert)
             let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: { (let ok) -> Void in
                 //Reload TVs & turn tutorial off:
@@ -534,7 +570,16 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         currentLineLayer2 = nil
         
         screenNumber += 1
-        setVisualsForTutorial(screenNumber) //open next screen in the list
+        setVisualsForTutorial(screenNumber) //open next screen in the tutorial
+    }
+    
+    func resetAlphaForAllSubviews(ofView view: UIView) { //recursive function
+        print("Recursive called")
+        for subview in view.subviews { //sets alpha value to 1 for all views/subview
+            //The following won't be called if 'subviews' is empty (ending recursion @ deepest nest):
+            subview.alpha = 1
+            resetAlphaForAllSubviews(ofView: subview)
+        }
     }
     
     func getDrawingLayerForView(viewAtCenter: UIView) { //generates circle around a view
@@ -547,14 +592,12 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             self.view.layer.addSublayer(currentDrawingLayer1!)
             currentDrawingLayer1!.frame = getDrawingRectangleForFrame(transformedRect)
             currentDrawingLayer1!.setNeedsDisplay() //update visuals (calls layer's drawInContext method)
-            print("Drawing Frame: \(currentDrawingLayer1?.frame)")
         } else { //1st layer was already drawn, fill in 2nd layer
             currentDrawingLayer2 = TutorialCircleLayer()
             currentDrawingLayer2!.contentsScale = UIScreen.mainScreen().scale
             self.view.layer.addSublayer(currentDrawingLayer2!)
             currentDrawingLayer2!.frame = getDrawingRectangleForFrame(transformedRect)
             currentDrawingLayer2!.setNeedsDisplay() //update visuals (calls layer's drawInContext method)
-            print("Drawing Frame: \(currentDrawingLayer2?.frame)")
         }
     }
     
@@ -571,39 +614,12 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         return centeredFrame
     }
     
-    func getPointForCorner(layer: CALayer, corner: Corners) -> CGPoint { //returns pt from a view's corner
-        let originX = layer.frame.origin.x
-        let originY = layer.frame.origin.y
-        let width = layer.frame.width
-        let height = layer.frame.height
-        var pointForCorner = CGPoint()
-        switch corner {
-        case .TopLeft:
-            pointForCorner = CGPoint(x: originX, y: originY)
-        case .TopRight:
-            pointForCorner = CGPoint(x: (originX + width), y: originY)
-        case .BottomLeft:
-            pointForCorner = CGPoint(x: originX, y: (originY + height))
-        case .BottomRight:
-            pointForCorner = CGPoint(x: (originX + width), y: (originY + height))
-        case .TopMiddle:
-            pointForCorner = CGPoint(x: (originX + width/2), y: originY)
-        case .RightMiddle:
-            pointForCorner = CGPoint(x: (originX + width), y: (originY + height/2))
-        case .BottomMiddle:
-            pointForCorner = CGPoint(x: (originX + width/2), y: (originY + height))
-        case .LeftMiddle:
-            pointForCorner = CGPoint(x: originX, y: (originY + height/2))
-        }
-        return pointForCorner
-    }
-    
     func getTextLayerForDrawingLayer(text: String, drawingLayer: TutorialCircleLayer) { //renders txtLayer near the circle it is annotating
         currentTextLayer = CATextLayer()
         currentTextLayer!.string = text
         //currentTextLayer!.borderWidth = 1
         let fontName: CFStringRef = "Noteworthy-Light"
-        currentTextLayer!.foregroundColor = UIColor.redColor().CGColor
+        currentTextLayer!.foregroundColor = UIColor.blueColor().CGColor
         currentTextLayer!.wrapped = true
         currentTextLayer!.alignmentMode = kCAAlignmentLeft
         currentTextLayer!.contentsScale = UIScreen.mainScreen().scale
@@ -621,7 +637,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         var textLayerOriginX = CGFloat()
         var textLayerOriginY = CGFloat()
         if (screenNumber == 1) { //TV btns screen
-            textLayerWidth = 155
+            textLayerWidth = 158
             textLayerHeight = 115
             textLayerOriginX = drawingLayerX + drawingLayerWidth - textLayerWidth - 5
             textLayerOriginY = drawingLayerY + drawingLayerHeight + 10

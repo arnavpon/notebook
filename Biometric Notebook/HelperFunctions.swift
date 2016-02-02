@@ -31,6 +31,8 @@ func clearCoreDataStoreForEntity(entity entity: String) {
     }
 }
 
+// MARK: - Centered Rectangle
+
 func createRectAroundCenter(centerPoint: CGPoint, size: CGSize) -> CGRect { //creates a rectangle of the given size situated evenly around the given center point
     let width = size.width
     let height = size.height
@@ -43,6 +45,51 @@ func createRectAroundCenter(centerPoint: CGPoint, size: CGSize) -> CGRect { //cr
 func boundValue(value: Double, toLowerValue lowerValue: Double, upperValue: Double) -> Double { //clamps the passed in value so it is > lowerValue & < upperValue
     return min(max(value, lowerValue), upperValue)
 }
+
+// MARK: - UIView Corners/Edges
+
+enum Corners { //represents corners/edges of a rectangle
+    case TopLeft
+    case TopRight
+    case BottomLeft
+    case BottomRight
+    case LeftMiddle
+    case TopMiddle
+    case RightMiddle
+    case BottomMiddle
+    case Center //views center point
+}
+
+func getPointForCorner(layer: CALayer, corner: Corners) -> CGPoint { //returns point from a view's corner
+    let originX = layer.frame.origin.x
+    let originY = layer.frame.origin.y
+    let width = layer.frame.width
+    let height = layer.frame.height
+    var pointForCorner = CGPoint()
+    switch corner {
+    case .TopLeft:
+        pointForCorner = CGPoint(x: originX, y: originY)
+    case .TopRight:
+        pointForCorner = CGPoint(x: (originX + width), y: originY)
+    case .BottomLeft:
+        pointForCorner = CGPoint(x: originX, y: (originY + height))
+    case .BottomRight:
+        pointForCorner = CGPoint(x: (originX + width), y: (originY + height))
+    case .TopMiddle:
+        pointForCorner = CGPoint(x: (originX + width/2), y: originY)
+    case .RightMiddle:
+        pointForCorner = CGPoint(x: (originX + width), y: (originY + height/2))
+    case .BottomMiddle:
+        pointForCorner = CGPoint(x: (originX + width/2), y: (originY + height))
+    case .LeftMiddle:
+        pointForCorner = CGPoint(x: originX, y: (originY + height/2))
+    case .Center:
+        pointForCorner = CGPoint(x: (originX + width/2), y: (originY + height/2))
+    }
+    return pointForCorner
+}
+
+//*****
 
 //Code for two interdependent checkboxes (when one is clicked, the other is unclicked):
 //@IBAction func inputVariableCheckboxClicked(sender: AnyObject) {

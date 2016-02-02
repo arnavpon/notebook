@@ -495,16 +495,6 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Sfk-LR-hOd">
                                         <rect key="frame" x="5" y="5" width="580" height="30"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Outcome Variables" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="e3k-kT-a7t">
-                                                <rect key="frame" x="218" y="5" width="145" height="21"/>
-                                                <animations/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="21" id="8OK-aJ-ivN"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YRn-ke-Igm">
                                                 <rect key="frame" x="550" y="5" width="20" height="20"/>
                                                 <animations/>
@@ -517,6 +507,16 @@
                                                     <action selector="outcomeVariablesAddButtonClick:" destination="DdO-PX-bxy" eventType="touchUpInside" id="Ppv-ud-g0d"/>
                                                 </connections>
                                             </button>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Outcome Variables" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="e3k-kT-a7t">
+                                                <rect key="frame" x="218" y="5" width="145" height="21"/>
+                                                <animations/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="21" id="8OK-aJ-ivN"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
                                         </subviews>
                                         <animations/>
                                         <color key="backgroundColor" red="1" green="0.67645848755520177" blue="0.59698125398676549" alpha="1" colorSpace="calibratedRGB"/>
@@ -855,10 +855,14 @@
                         <outlet property="doneButton" destination="F5n-es-k6d" id="5wk-qI-uh5"/>
                         <outlet property="inputVariablesTV" destination="Xsh-p6-d11" id="v4O-Ab-MyD"/>
                         <outlet property="inputVariablesTVButton" destination="WRY-gd-1aD" id="JED-5r-b66"/>
+                        <outlet property="inputVariablesTitleLabel" destination="d0l-EZ-EnI" id="VPg-1P-Xgc"/>
+                        <outlet property="inputVariablesTitleView" destination="2Cb-EZ-OlH" id="e4r-Ox-gd1"/>
                         <outlet property="inputVariablesView" destination="Th1-Ne-tWh" id="Neg-bf-hXU"/>
                         <outlet property="inputViewArrow" destination="9Se-YK-kCv" id="zQZ-4T-PYc"/>
                         <outlet property="outcomeVariablesTV" destination="ixJ-hs-CZg" id="Xha-dH-Yj9"/>
                         <outlet property="outcomeVariablesTVButton" destination="YRn-ke-Igm" id="itP-bS-aM9"/>
+                        <outlet property="outcomeVariablesTitleLabel" destination="e3k-kT-a7t" id="TXi-vy-KFl"/>
+                        <outlet property="outcomeVariablesTitleView" destination="Sfk-LR-hOd" id="EQx-L1-prs"/>
                         <outlet property="outcomeVariablesView" destination="OTb-mx-RQH" id="k8X-Uy-zdS"/>
                         <outlet property="tutorialDescriptionLabel" destination="vJ7-98-yMj" id="u76-JT-qA1"/>
                         <outlet property="tutorialDescriptionView" destination="H55-zp-6Ag" id="Jua-XZ-f2g"/>

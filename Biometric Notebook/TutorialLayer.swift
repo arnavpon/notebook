@@ -54,14 +54,3 @@ class LineLayer: CALayer { //draws line from 1 point to another
     }
     
 }
-
-enum Corners { //represents corners/edges of a rectangle
-    case TopLeft
-    case TopRight
-    case BottomLeft
-    case BottomRight
-    case LeftMiddle
-    case TopMiddle
-    case RightMiddle
-    case BottomMiddle
-}
