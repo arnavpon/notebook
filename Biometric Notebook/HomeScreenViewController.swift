@@ -97,7 +97,7 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
 //        let height = tableView.frame.height/CGFloat(categories.count) //split TV height evenly
 //        return height
-        return 50
+        return 75
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {

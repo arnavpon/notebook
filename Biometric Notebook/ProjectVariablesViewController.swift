@@ -9,13 +9,29 @@ import UIKit
 
 class ProjectVariablesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
     
+    @IBOutlet weak var tutorialDescriptionView: UIView!
+    @IBOutlet weak var tutorialViewHeight: NSLayoutConstraint!
+    @IBOutlet weak var tutorialDescriptionLabel: UILabel!
+    
     @IBOutlet weak var inputVariablesView: UIView!
     @IBOutlet weak var inputVariablesTV: UITableView!
+    @IBOutlet weak var inputVariablesTVButton: UIButton!
+    @IBOutlet weak var inputViewArrow: UIImageView!
+    
     @IBOutlet weak var addActionButton: UIButton!
+    @IBOutlet weak var actionButtonArrow: UIImageView!
+    @IBOutlet weak var actionPicker: UIPickerView!
+    
     @IBOutlet weak var outcomeVariablesView: UIView!
     @IBOutlet weak var outcomeVariablesTV: UITableView!
+    @IBOutlet weak var outcomeVariablesTVButton: UIButton!
     @IBOutlet weak var doneButton: UIBarButtonItem!
-    @IBOutlet weak var actionPicker: UIPickerView!
+    
+    var tutorialDescriptionViewMode: Bool = true //handles display of tutorial description
+    var tutorialIsOn: Bool = false
+    var screenNumber: Int = 1 //determines what aspect of the tutorial is visible (starts @ first screen)
+    var inputsTableDummyData: [String] = ["Input Variable 1", "Input Variable 2", "Input Variable 3"]
+    var outcomesTableDummyData: [String] = ["Outcome Variable 1", "Outcome Variable 2"]
     
     var projectTitle: String? //title (obtained from CreateProject VC)
     var projectQuestion: String? //question for investigation (obtained from CreateProject VC)
@@ -35,7 +51,10 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     
     // MARK: - View Configuration
     
-    override func viewWillAppear(animated: Bool) { //round the view (& button) edges:
+    override func viewWillAppear(animated: Bool) { //add borders for the views, button, & picker
+        tutorialDescriptionView.layer.borderColor = UIColor.blackColor().CGColor
+        tutorialDescriptionView.layer.borderWidth = viewBorderWidth/2
+        tutorialDescriptionView.layer.cornerRadius = viewCornerRadius
         inputVariablesView.layer.borderColor = inputVariablesView.backgroundColor?.CGColor
         inputVariablesView.layer.borderWidth = viewBorderWidth
         inputVariablesView.layer.cornerRadius = viewCornerRadius
@@ -43,10 +62,22 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         outcomeVariablesView.layer.borderWidth = viewBorderWidth
         outcomeVariablesView.layer.cornerRadius = viewCornerRadius
         addActionButton.layer.cornerRadius = viewCornerRadius/2
+        addActionButton.layer.borderColor = UIColor.blackColor().CGColor
+        addActionButton.layer.borderWidth = viewBorderWidth/2
+        actionPicker.layer.cornerRadius = viewCornerRadius/2
+        actionPicker.layer.borderColor = UIColor.blackColor().CGColor
+        actionPicker.layer.borderWidth = viewBorderWidth/2
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if (tutorialDescriptionViewMode) { //dim background if descriptionView is visible
+            tutorialIsOn = true //start interactive tutorial (so TV will show dummy variables)
+            tutorialDescriptionLabel.font = UIFont.systemFontOfSize(16, weight: 0.2)
+            setVisualsForTutorialDescription(tutorialViewIsShowing: tutorialDescriptionViewMode)
+        }
+        
         actionPicker.dataSource = self
         actionPicker.delegate = self
         inputVariablesTV.dataSource = self
@@ -60,78 +91,113 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         outcomeVariablesTV.addGestureRecognizer(outcomeLongPress)
     }
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-    }
-    
     // MARK: - Table View
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if (tableView == inputVariablesTV) { //inputs TV
-            return inputVariableRows.count
-        } else if (tableView == outcomeVariablesTV) { //outcomes TV
-            return outcomeVariableRows.count
+        if (tutorialIsOn) { //user is in tutorial
+            if (tableView == inputVariablesTV) { //inputs TV
+                return inputsTableDummyData.count
+            } else if (tableView == outcomeVariablesTV) { //outcomes TV
+                return outcomesTableDummyData.count
+            }
+        } else { //user is not in tutorial
+            if (tableView == inputVariablesTV) { //inputs TV
+                return inputVariableRows.count
+            } else if (tableView == outcomeVariablesTV) { //outcomes TV
+                return outcomeVariableRows.count
+            }
         }
         return 0
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         var cell = UITableViewCell()
-        if (tableView == inputVariablesTV) { //inputs TV
-            cell = tableView.dequeueReusableCellWithIdentifier("input_cell")!
-            cell.textLabel?.text = inputVariableRows[indexPath.row].variableName
-            cell.detailTextLabel?.text = "\(inputVariableRows[indexPath.row].moduleTitle) Module"
-        } else if (tableView == outcomeVariablesTV) { //outcomes TV
-            cell = tableView.dequeueReusableCellWithIdentifier("outcome_cell")!
-            cell.textLabel?.text = outcomeVariableRows[indexPath.row].variableName
-            cell.detailTextLabel?.text = "\(outcomeVariableRows[indexPath.row].moduleTitle) Module"
+        if (tutorialIsOn) { //user is in tutorial
+            if (tableView == inputVariablesTV) { //inputs TV
+                cell.textLabel?.text = inputsTableDummyData[indexPath.row]
+                cell.detailTextLabel?.text = "<> Module" //*not working!
+            } else if (tableView == outcomeVariablesTV) { //outcomes TV
+                cell.textLabel?.text = outcomesTableDummyData[indexPath.row]
+                cell.detailTextLabel?.text = "<> Module" //*
+            }
+        } else { //NOT in tutorial
+            if (tableView == inputVariablesTV) { //inputs TV
+                cell = tableView.dequeueReusableCellWithIdentifier("input_cell")!
+                cell.textLabel?.text = inputVariableRows[indexPath.row].variableName
+                cell.detailTextLabel?.text = "\(inputVariableRows[indexPath.row].moduleTitle) Module"
+            } else if (tableView == outcomeVariablesTV) { //outcomes TV
+                cell = tableView.dequeueReusableCellWithIdentifier("outcome_cell")!
+                cell.textLabel?.text = outcomeVariableRows[indexPath.row].variableName
+                cell.detailTextLabel?.text = "\(outcomeVariableRows[indexPath.row].moduleTitle) Module"
+            }
         }
         return cell
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         //if user taps a cell, allow them to edit a variable's config (segue -> ConfigModuleVC)
-        if (tableView == inputVariablesTV) { //inputs TV
-            //
-        } else if (tableView == outcomeVariablesTV) { //outcomes TV
-            //
+        if (!tutorialDescriptionViewMode) && !(tutorialIsOn) { //normal behavior
+            if (tableView == inputVariablesTV) { //inputs TV
+                //
+            } else if (tableView == outcomeVariablesTV) { //outcomes TV
+                //
+            }
+        } else { //tutorial behavior
+            if (screenNumber == 4) {
+                tableView.cellForRowAtIndexPath(indexPath)?.selected = false
+                closeTutorialScreenNumber(4) //close screen
+            }
         }
     }
     
     func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        if (interactionEnabled) {
-            return true
+        if !(tutorialDescriptionViewMode) {
+            if (tutorialIsOn) { //special tutorial behavior
+                if (screenNumber == 4) && (indexPath.row == 0) { //handle tutorial rendering
+                    return true //allow highlight animation but don't go anywhere
+                }
+            } else { //normal behavior
+                return true
+            }
         }
         return false
     }
     
     func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle { //user can delete variables from TV
-        if (interactionEnabled) {
+        if (!tutorialDescriptionViewMode) && !(tutorialIsOn) { //not in tutorial, default behavior
             return UITableViewCellEditingStyle.Delete
+        } else { //tutorial is on, only allow swipe to register on screen #5
+            if (screenNumber == 5) && (indexPath.row == 1) {
+                return UITableViewCellEditingStyle.Delete
+            }
         }
         return UITableViewCellEditingStyle.None
     }
     
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if (editingStyle == .Delete) { //delete row from data source
-            if (tableView == inputVariablesTV) { //inputs TV
-                inputVariableRows.removeAtIndex(indexPath.row)
-            } else if (tableView == outcomeVariablesTV) { //outcomes TV
-                outcomeVariableRows.removeAtIndex(indexPath.row)
+        if (!tutorialDescriptionViewMode) && !(tutorialIsOn) { //normal behavior
+            if (editingStyle == .Delete) { //delete row from data source
+                if (tableView == inputVariablesTV) { //inputs TV
+                    inputVariableRows.removeAtIndex(indexPath.row)
+                } else if (tableView == outcomeVariablesTV) { //outcomes TV
+                    outcomeVariableRows.removeAtIndex(indexPath.row)
+                }
+                tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+                if !(inputVariableRows.count > 0) || !(outcomeVariableRows.count > 0) {
+                    doneButton.enabled = false
+                }
+            }
+        } else { //tutorial behavior
+            if (editingStyle == .Delete) { //delete row from fake data source
+                if (tableView == inputVariablesTV) { //inputs TV
+                    inputsTableDummyData.removeAtIndex(indexPath.row)
+                } else if (tableView == outcomeVariablesTV) { //outcomes TV
+                    outcomesTableDummyData.removeAtIndex(indexPath.row)
+                }
             }
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-            if !(inputVariableRows.count > 0) || !(outcomeVariableRows.count > 0) {
-                doneButton.enabled = false
-            }
+            closeTutorialScreenNumber(5) //close tutorial out
         }
-    }
-    
-    func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        //Support movement of variables in inputTV & outcome TV:
-        if (interactionEnabled) {
-            return true
-        }
-        return false
     }
     
     // MARK: - Table View Row Movement Logic
@@ -140,20 +206,42 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     var sourceIndexPath: NSIndexPath?
     
     @IBAction func inputLongPressRecognized(longPress: UILongPressGestureRecognizer) {//called when inputsTV is longPressed
-        let state = longPress.state
-        let location = longPress.locationInView(inputVariablesTV)
-        let indexPath = inputVariablesTV.indexPathForRowAtPoint(location) //gets the indexPath of the row that was long pressed
-        handleRowMovement(state, location: location, indexPath: indexPath, tableView: inputVariablesTV, tableViewDataSource: inputVariableRows) { (let newArray) -> Void in
-            self.inputVariableRows = newArray
+        if !(tutorialIsOn) { //normal behavior
+            let state = longPress.state
+            let location = longPress.locationInView(inputVariablesTV)
+            let indexPath = inputVariablesTV.indexPathForRowAtPoint(location) //gets the indexPath of the row that was long pressed
+            handleRowMovement(state, location: location, indexPath: indexPath, tableView: inputVariablesTV, tableViewDataSource: inputVariableRows) { (let newArray) -> Void in
+                self.inputVariableRows = newArray as! [Module]
+            }
+        } else { //tutorial on, special behavior
+            if (screenNumber == 3) {
+                let state = longPress.state
+                let location = longPress.locationInView(inputVariablesTV)
+                let indexPath = inputVariablesTV.indexPathForRowAtPoint(location) //gets the indexPath of the row that was long pressed
+                handleRowMovement(state, location: location, indexPath: indexPath, tableView: inputVariablesTV, tableViewDataSource: inputsTableDummyData) { (let newArray) -> Void in
+                    self.inputsTableDummyData = newArray as! [String]
+                }
+            }
         }
     }
     
     @IBAction func outcomeLongPressRecognized(longPress: UILongPressGestureRecognizer) { //called when outcomesTV is longPressed
-        let state = longPress.state
-        let location = longPress.locationInView(outcomeVariablesTV)
-        let indexPath = outcomeVariablesTV.indexPathForRowAtPoint(location) //gets indxPath of touched row
-        handleRowMovement(state, location: location, indexPath: indexPath, tableView: outcomeVariablesTV, tableViewDataSource: outcomeVariableRows) { (let newArray) -> Void in
-            self.outcomeVariableRows = newArray
+        if !(tutorialIsOn) { //normal behavior
+            let state = longPress.state
+            let location = longPress.locationInView(outcomeVariablesTV)
+            let indexPath = outcomeVariablesTV.indexPathForRowAtPoint(location) //gets indxPath of touched row
+            handleRowMovement(state, location: location, indexPath: indexPath, tableView: outcomeVariablesTV, tableViewDataSource: outcomeVariableRows) { (let newArray) -> Void in
+                self.outcomeVariableRows = newArray as! [Module]
+            }
+        } else {
+            if (screenNumber == 3) {
+                let state = longPress.state
+                let location = longPress.locationInView(outcomeVariablesTV)
+                let indexPath = outcomeVariablesTV.indexPathForRowAtPoint(location) //gets indxPath of touched row
+                handleRowMovement(state, location: location, indexPath: indexPath, tableView: outcomeVariablesTV, tableViewDataSource: outcomesTableDummyData) { (let newArray) -> Void in
+                    self.outcomesTableDummyData = newArray as! [String]
+                }
+            }
         }
     }
     
@@ -173,23 +261,15 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     }
     
     func exchangeElements(var array: [AnyObject], fromIndex index: Int, toIndex: Int) -> [AnyObject] {
-        for item in array {
-            let name = (item as! CustomModule).variableName
-            print("Old Array: \(name)")
-        }
         var newArray = array
         let fromObject = array[index]
         let toObject = array[toIndex]
         newArray[index] = toObject
         newArray[toIndex] = fromObject
-        for item in newArray {
-            let name = (item as! CustomModule).variableName
-            print("New Array: \(name))")
-        }
         return newArray
     }
     
-    func handleRowMovement(state: UIGestureRecognizerState, location: CGPoint, indexPath: NSIndexPath?, tableView: UITableView, var tableViewDataSource: [Module], completion: ([Module]) -> Void) {
+    func handleRowMovement(state: UIGestureRecognizerState, location: CGPoint, indexPath: NSIndexPath?, tableView: UITableView, tableViewDataSource: [AnyObject], completion: ([AnyObject]) -> Void) {
         switch state {
         case UIGestureRecognizerState.Began:
             if ((indexPath) != nil) {
@@ -221,8 +301,13 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             
             //Check if destination is another TV row:
             if (indexPath != nil) && !(indexPath!.isEqual(sourceIndexPath)) {
-                let newDataSource = exchangeElements(tableViewDataSource, fromIndex: (sourceIndexPath?.row)!, toIndex: (indexPath?.row)!) as! [Module] //update data source
-                completion(newDataSource) //pass modified array back out
+                if !(tutorialIsOn) { //default behavior
+                    let newDataSource = exchangeElements(tableViewDataSource, fromIndex: (sourceIndexPath?.row)!, toIndex: (indexPath?.row)!) as! [Module] //update data source
+                    completion(newDataSource) //pass modified array back out
+                } else { //tutorial on, special behavior
+                    let newDataSource = exchangeElements(tableViewDataSource, fromIndex: (sourceIndexPath?.row)!, toIndex: (indexPath?.row)!) as! [String] //update fake data source
+                    completion(newDataSource) //pass modified array back out
+                }
                 tableView.moveRowAtIndexPath(sourceIndexPath!, toIndexPath: indexPath!) //move the rows
                 sourceIndexPath = indexPath //update sourceIndex
             }
@@ -241,6 +326,9 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                     self.snapshot?.removeFromSuperview()
                     self.snapshot = nil
             })
+            if (tutorialIsOn) { //if tutorial is on, close this screen after rows are switched
+                closeTutorialScreenNumber(3) //end this part of tutorial
+            }
             break
         }
     }
@@ -311,6 +399,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 }
             }
         } else { //hide picker & set 'actionButton' title
+            addActionButton.setTitleColor(UIColor.blackColor(), forState: .Normal)
             if let name = actionName {
                 addActionButton.setTitle(name, forState: .Normal)
             } else {
@@ -329,24 +418,307 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         }
     }
     
+    // MARK: - Tutorial
+    
+    var currentDrawingLayer1: TutorialCircleLayer?
+    var currentDrawingLayer2: TutorialCircleLayer?
+    var currentTextLayer: CATextLayer?
+    var currentLineLayer1: LineLayer?
+    var currentLineLayer2: LineLayer?
+    
+    func setVisualsForTutorialDescription(tutorialViewIsShowing showing: Bool) {
+        let dimmedAlpha = CGFloat(0.3)
+        if (showing) { //if box is visible, dim the view
+            inputVariablesView.alpha = dimmedAlpha
+            inputViewArrow.alpha = dimmedAlpha
+            inputVariablesTVButton.enabled = false
+            addActionButton.alpha = dimmedAlpha
+            addActionButton.enabled = false
+            actionButtonArrow.alpha = dimmedAlpha
+            outcomeVariablesView.alpha = dimmedAlpha
+            outcomeVariablesTVButton.enabled = false
+        } else { //start the tutorial
+            tutorialDescriptionViewMode = false //turn off tutorialView
+            inputVariablesView.alpha = 1
+            inputViewArrow.alpha = 1
+            inputVariablesTVButton.enabled = true //enable button for tutorial part 1
+            addActionButton.alpha = 1
+            actionButtonArrow.alpha = 1
+            outcomeVariablesView.alpha = 1
+            outcomeVariablesTVButton.enabled = true //enable button for tutorial part 1
+            setVisualsForTutorial(screenNumber) //bring up first part of tutorial
+        }
+    }
+    
+    func setVisualsForTutorial(screenToPresent: Int) { //draws layer on screen
+        //We need to transform the object's frame rect from coordinates of the object's superview -> VC view's coords! If the object is already a subview of the VC view, the transform has no effect, so it can still be applied. A subLayer of VC view draws IN THE VISIBLE AREA (point 0,0 corresponds to top left corner just BELOW the nav bar), so no adjustment is needed.
+        if (screenToPresent > 5) {
+            return //break if number exceeds last tutorial screen
+        }
+        switch screenToPresent {
+        case 1: //adding variables
+            getDrawingLayerForView(inputVariablesTVButton)
+            getDrawingLayerForView(outcomeVariablesTVButton)
+            let textForDisplay = "Click the + button when you want to add to the Input Variables or Outcome Variables tables."
+            getTextLayerForDrawingLayer(textForDisplay, drawingLayer: currentDrawingLayer1!)
+            drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.TopMiddle, drawingLayer: currentDrawingLayer1!, drawingLayerCorner: Corners.LeftMiddle)
+            drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.BottomMiddle, drawingLayer: currentDrawingLayer2!, drawingLayerCorner: Corners.TopLeft)
+        case 2: //adding Action
+            getDrawingLayerForView(addActionButton)
+            let textForDisplay = "Click here to add an action to your project. An action must be set for every project."
+            getTextLayerForDrawingLayer(textForDisplay, drawingLayer: currentDrawingLayer1!)
+            drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.BottomLeft, drawingLayer: currentDrawingLayer1!, drawingLayerCorner: Corners.TopMiddle)
+        case 3: //TV cell rearranging
+            getDrawingLayerForView(inputVariablesTV)
+            getDrawingLayerForView(outcomeVariablesTV)
+            let textForDisplay = "You can rearrange the variables in each table by tapping and holding. Remember, the order you set here is the order in which data will be reported."
+            getTextLayerForDrawingLayer(textForDisplay, drawingLayer: currentDrawingLayer1!)
+            drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.TopLeft, drawingLayer: currentDrawingLayer1!, drawingLayerCorner: Corners.TopMiddle)
+            drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.BottomMiddle, drawingLayer: currentDrawingLayer2!, drawingLayerCorner: Corners.TopMiddle)
+        case 4: //TV cell deletion
+            getDrawingLayerForView(inputVariablesTV.cellForRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0))!)
+            getDrawingLayerForView(outcomeVariablesTV.cellForRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0))!)
+            let textForDisplay = "Tapping on a variable in the table will allow you to edit its settings."
+            getTextLayerForDrawingLayer(textForDisplay, drawingLayer: currentDrawingLayer1!)
+            drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.TopMiddle, drawingLayer: currentDrawingLayer1!, drawingLayerCorner: Corners.BottomMiddle)
+            drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.BottomMiddle, drawingLayer: currentDrawingLayer2!, drawingLayerCorner: Corners.TopMiddle)
+        case 5:
+            getDrawingLayerForView(inputVariablesTV.cellForRowAtIndexPath(NSIndexPath(forRow: 1, inSection: 0))!)
+            getDrawingLayerForView(outcomeVariablesTV.cellForRowAtIndexPath(NSIndexPath(forRow: 1, inSection: 0))!)
+            let textForDisplay = "If you no longer want a variable, swipe the right edge of that row in the table and tap 'Delete' to remove it."
+            getTextLayerForDrawingLayer(textForDisplay, drawingLayer: currentDrawingLayer1!)
+            drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.TopLeft, drawingLayer: currentDrawingLayer1!, drawingLayerCorner: Corners.BottomMiddle)
+            drawLineBetweenTextAndCircle(currentTextLayer!, textLayerCorner: Corners.BottomMiddle, drawingLayer: currentDrawingLayer2!, drawingLayerCorner: Corners.TopMiddle)
+        default:
+            print("error - setVisualsForTutorial switch default")
+        }
+    }
+    
+    func closeTutorialScreenNumber(number: Int) {
+        if (number == 1) { //ready view for actionBtn tutorial
+            inputVariablesTVButton.enabled = false
+            outcomeVariablesTVButton.enabled = false
+            addActionButton.enabled = true //ready view for rearranging tutorial
+        } else if (number == 2) { //actionButton tutorial screen
+            addActionButton.enabled = false
+        } else if (number == 3) { //ready view for tap cell tutorial
+            //nothing additional to do
+        } else if (number == 4) { //ready view for swipe to delete tutorial
+            //nothing additional to do
+        } else if (number == 5) { //ready view for proper use
+            inputVariablesTVButton.enabled = true
+            outcomeVariablesTVButton.enabled = true
+            addActionButton.enabled = true //next button up
+            
+            let alert = UIAlertController(title: "Tutorial Complete!", message: "Great work! You have completed this tutorial. You're ready to set up your own projects.", preferredStyle: UIAlertControllerStyle.Alert)
+            let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: { (let ok) -> Void in
+                //Reload TVs & turn tutorial off:
+                self.tutorialIsOn = false
+                self.inputVariablesTV.reloadData()
+                self.outcomeVariablesTV.reloadData()
+            })
+            alert.addAction(ok)
+            presentViewController(alert, animated: true, completion: nil)
+        }
+        
+        //Clear all layers after each run:
+        currentDrawingLayer1?.removeFromSuperlayer()
+        currentDrawingLayer1 = nil
+        currentDrawingLayer2?.removeFromSuperlayer()
+        currentDrawingLayer2 = nil
+        currentTextLayer?.removeFromSuperlayer()
+        currentTextLayer = nil
+        currentLineLayer1?.removeFromSuperlayer()
+        currentLineLayer1 = nil
+        currentLineLayer2?.removeFromSuperlayer()
+        currentLineLayer2 = nil
+        
+        screenNumber += 1
+        setVisualsForTutorial(screenNumber) //open next screen in the list
+    }
+    
+    func getDrawingLayerForView(viewAtCenter: UIView) { //generates circle around a view
+        let viewRect = viewAtCenter.frame
+        let viewSuperview = viewAtCenter.superview
+        let transformedRect = view.convertRect(viewRect, fromView: viewSuperview)
+        if (currentDrawingLayer1 == nil) { //fill in 1st layer if it isn't drawn
+            currentDrawingLayer1 = TutorialCircleLayer()
+            currentDrawingLayer1!.contentsScale = UIScreen.mainScreen().scale
+            self.view.layer.addSublayer(currentDrawingLayer1!)
+            currentDrawingLayer1!.frame = getDrawingRectangleForFrame(transformedRect)
+            currentDrawingLayer1!.setNeedsDisplay() //update visuals (calls layer's drawInContext method)
+            print("Drawing Frame: \(currentDrawingLayer1?.frame)")
+        } else { //1st layer was already drawn, fill in 2nd layer
+            currentDrawingLayer2 = TutorialCircleLayer()
+            currentDrawingLayer2!.contentsScale = UIScreen.mainScreen().scale
+            self.view.layer.addSublayer(currentDrawingLayer2!)
+            currentDrawingLayer2!.frame = getDrawingRectangleForFrame(transformedRect)
+            currentDrawingLayer2!.setNeedsDisplay() //update visuals (calls layer's drawInContext method)
+            print("Drawing Frame: \(currentDrawingLayer2?.frame)")
+        }
+    }
+    
+    func getDrawingRectangleForFrame(frame: CGRect) -> CGRect {
+        //Takes in a view & generates the drawing frame for the tutorial layer. This needs to be OUTSIDE of the layer class b/c we can't generate the frame within the class & then update the frame in the same function b/c it won't get redrawn (& in order to redraw, we would need to call that same function again, which would again change the frame, causing a cycle).
+        let objectHeight = frame.height
+        let objectWidth = frame.width
+        let objectX = frame.origin.x
+        let objectY = frame.origin.y
+        let objectCenter = CGPoint(x: (objectX + objectWidth/2), y: (objectY + objectHeight/2)) //find the centerPoint for the object to draw our frame around
+        let frameOffset = CGFloat(16)
+        let frameSize = CGSize(width: objectWidth + frameOffset, height: objectHeight + frameOffset)
+        let centeredFrame = createRectAroundCenter(objectCenter, size: frameSize) //layer's frame
+        return centeredFrame
+    }
+    
+    func getPointForCorner(layer: CALayer, corner: Corners) -> CGPoint { //returns pt from a view's corner
+        let originX = layer.frame.origin.x
+        let originY = layer.frame.origin.y
+        let width = layer.frame.width
+        let height = layer.frame.height
+        var pointForCorner = CGPoint()
+        switch corner {
+        case .TopLeft:
+            pointForCorner = CGPoint(x: originX, y: originY)
+        case .TopRight:
+            pointForCorner = CGPoint(x: (originX + width), y: originY)
+        case .BottomLeft:
+            pointForCorner = CGPoint(x: originX, y: (originY + height))
+        case .BottomRight:
+            pointForCorner = CGPoint(x: (originX + width), y: (originY + height))
+        case .TopMiddle:
+            pointForCorner = CGPoint(x: (originX + width/2), y: originY)
+        case .RightMiddle:
+            pointForCorner = CGPoint(x: (originX + width), y: (originY + height/2))
+        case .BottomMiddle:
+            pointForCorner = CGPoint(x: (originX + width/2), y: (originY + height))
+        case .LeftMiddle:
+            pointForCorner = CGPoint(x: originX, y: (originY + height/2))
+        }
+        return pointForCorner
+    }
+    
+    func getTextLayerForDrawingLayer(text: String, drawingLayer: TutorialCircleLayer) { //renders txtLayer near the circle it is annotating
+        currentTextLayer = CATextLayer()
+        currentTextLayer!.string = text
+        //currentTextLayer!.borderWidth = 1
+        let fontName: CFStringRef = "Noteworthy-Light"
+        currentTextLayer!.foregroundColor = UIColor.redColor().CGColor
+        currentTextLayer!.wrapped = true
+        currentTextLayer!.alignmentMode = kCAAlignmentLeft
+        currentTextLayer!.contentsScale = UIScreen.mainScreen().scale
+        currentTextLayer!.font = CTFontCreateWithName(fontName, 4, nil)
+        currentTextLayer!.fontSize = 16
+        self.view.layer.addSublayer(currentTextLayer!)
+        
+        //Draw textLayer in relation to the drawingLayer:
+        let drawingLayerX = drawingLayer.frame.origin.x
+        let drawingLayerY = drawingLayer.frame.origin.y
+        let drawingLayerWidth = drawingLayer.frame.width
+        let drawingLayerHeight = drawingLayer.frame.height
+        var textLayerWidth = CGFloat()
+        var textLayerHeight = CGFloat()
+        var textLayerOriginX = CGFloat()
+        var textLayerOriginY = CGFloat()
+        if (screenNumber == 1) { //TV btns screen
+            textLayerWidth = 155
+            textLayerHeight = 115
+            textLayerOriginX = drawingLayerX + drawingLayerWidth - textLayerWidth - 5
+            textLayerOriginY = drawingLayerY + drawingLayerHeight + 10
+        } else if (screenNumber == 2) { //addAction btn screen
+            let viewTopMid = getPointForCorner(drawingLayer, corner: Corners.TopMiddle)
+            textLayerWidth = 140
+            textLayerHeight = 110
+            textLayerOriginX = viewTopMid.x + 10
+            textLayerOriginY = viewTopMid.y - textLayerHeight - 35
+        } else if (screenNumber == 3) {
+            textLayerWidth = 140
+            textLayerHeight = 185
+            textLayerOriginX = drawingLayerX + drawingLayerWidth - textLayerWidth - 10
+            textLayerOriginY = drawingLayerY + drawingLayerHeight - textLayerHeight
+        } else if (screenNumber == 4) {
+            textLayerWidth = 140
+            textLayerHeight = 90
+            textLayerOriginX = drawingLayerX + drawingLayerWidth - textLayerWidth - 10
+            textLayerOriginY = drawingLayerY + drawingLayerHeight + 10
+        } else if (screenNumber == 5) {
+            textLayerWidth = 140
+            textLayerHeight = 130
+            textLayerOriginX = drawingLayerX + drawingLayerWidth - textLayerWidth - 10
+            textLayerOriginY = drawingLayerY + drawingLayerHeight + 3
+        }
+        currentTextLayer!.frame = CGRect(x: textLayerOriginX, y: textLayerOriginY, width: textLayerWidth, height: textLayerHeight) //set relative to circleLayer's frame depending on the object
+        currentTextLayer!.setNeedsDisplay() //update visuals
+    }
+    
+    func drawLineBetweenTextAndCircle(textLayer: CATextLayer, textLayerCorner: Corners, drawingLayer: TutorialCircleLayer, drawingLayerCorner: Corners) { //connects txtLyr & circleLyr
+        let fromPoint = getPointForCorner(textLayer, corner: textLayerCorner)
+        let toPoint = getPointForCorner(drawingLayer, corner: drawingLayerCorner)
+        if (currentLineLayer1 == nil) { //first line is NOT set
+            currentLineLayer1 = LineLayer(viewToDrawIn: self.view, fromPoint: fromPoint, toPoint: toPoint)
+            currentLineLayer1!.lineColor = UIColor.greenColor().CGColor
+            self.view.layer.addSublayer(currentLineLayer1!)
+            currentLineLayer1!.setNeedsDisplay()
+        } else { //1st line is set, draw in 2nd object
+            currentLineLayer2 = LineLayer(viewToDrawIn: self.view, fromPoint: fromPoint, toPoint: toPoint)
+            currentLineLayer2!.lineColor = UIColor.greenColor().CGColor
+            self.view.layer.addSublayer(currentLineLayer2!)
+            currentLineLayer2!.setNeedsDisplay()
+        }
+    }
+    
     // MARK: - Button Actions
     
+    @IBAction func closeTutorialViewButtonClick(sender: AnyObject) { //hides tutorialView
+        for subview in tutorialDescriptionView.subviews { //clear tutorialView from VC
+            let constraints = subview.constraints
+            subview.removeConstraints(constraints)
+            subview.hidden = true
+            subview.removeFromSuperview()
+        }
+        tutorialViewHeight.constant = 0 //hide view AFTER constraints are removed
+        
+        self.view.layoutSubviews() //updates the frames after tutorialView is hidden
+        outcomeVariablesView.layoutSubviews() //update subview frames after resizing
+        inputVariablesView.layoutSubviews() //update subview frames after resizing
+        setVisualsForTutorialDescription(tutorialViewIsShowing: false)
+        
+        let userDefaults = NSUserDefaults.standardUserDefaults() //update defaults
+        userDefaults.setBool(true, forKey: "SHOW_VARS_TUTORIAL") //set 'showVars' key -> false to block VC
+    }
+    
     @IBAction func addActionButtonClick(sender: AnyObject) { //reveal actionPicker & set to first value
-        actionPicker.selectRow(0, inComponent: 0, animated: false)
-        shouldShowPickerView(showPicker: true, actionName: nil)
+        if (tutorialIsOn) { //special behavior when tutorial is present
+            closeTutorialScreenNumber(2) //transition -> screen 3
+        } else { //normal behavior
+            actionPicker.selectRow(0, inComponent: 0, animated: false)
+            shouldShowPickerView(showPicker: true, actionName: nil)
+        }
     }
     
     @IBAction func inputVariablesAddButtonClick(sender: AnyObject) {
-        addVariable(inputVariablesTV)
+        if (tutorialIsOn) { //special tutorial behavior - remove previous layers & draw part 2
+            if (screenNumber == 1) { //only works on first screen
+                closeTutorialScreenNumber(1)
+            }
+        } else { //normal behavior
+            addVariable(inputVariablesTV) //transition to second tutorial screen
+        }
     }
     
     @IBAction func outcomeVariablesAddButtonClick(sender: AnyObject) {
-        addVariable(outcomeVariablesTV)
+        if (tutorialIsOn) { //special tutorial behavior
+            if (screenNumber == 1) { //only works on first screen
+                closeTutorialScreenNumber(1) //transition to second tutorial screen
+            }
+        } else { //normal behavior
+            addVariable(outcomeVariablesTV)
+        }
     }
     
     func addVariable(sender: UITableView) {
         tableViewForVariableAddition = sender //clear this after the variable is added
-        let alert = UIAlertController(title: "New Variable", message: "Type the name of the variable you wish to add.", preferredStyle: .Alert)
+        let alert = UIAlertController(title: "New Variable", message: "Type the name of the variable you wish to add. Two variables should not have the same name.", preferredStyle: .Alert)
         alert.addTextFieldWithConfigurationHandler { (let field) -> Void in
             field.autocapitalizationType = .Words //auto-capitalize words
         }

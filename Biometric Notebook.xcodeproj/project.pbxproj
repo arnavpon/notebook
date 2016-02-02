@@ -35,6 +35,8 @@
 		B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */; };
 		B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */; };
 		B1B106931C59097800463612 /* EnvironmentModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B106921C59097800463612 /* EnvironmentModule.swift */; };
+		B1B20A6B1C5E8576003B791B /* LabelWithPadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */; };
+		B1B20A6D1C5E9CD0003B791B /* TutorialLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B20A6C1C5E9CD0003B791B /* TutorialLayer.swift */; };
 		B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */; };
 		B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */; };
 		B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */; };
@@ -52,7 +54,6 @@
 		B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D4EA821C4D962100054A5F /* Project+CoreDataProperties.swift */; };
 		B1D555871C30739C00C20742 /* DateTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555861C30739C00C20742 /* DateTime.swift */; };
 		B1D868D61C3F58810026334B /* Modules.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D868D51C3F58810026334B /* Modules.swift */; };
-		B1F164E71C5D41AF00CBD88F /* ProjectVariablesDescriptionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F164E61C5D41AE00CBD88F /* ProjectVariablesDescriptionViewController.swift */; };
 		B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */; };
 		B1F6F3BF1C518BEE001802A7 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */; };
 /* End PBXBuildFile section */
@@ -153,6 +154,8 @@
 		B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSliderBackgroundView.swift; sourceTree = "<group>"; };
 		B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectVariablesViewController.swift; sourceTree = "<group>"; };
 		B1B106921C59097800463612 /* EnvironmentModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnvironmentModule.swift; sourceTree = "<group>"; };
+		B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LabelWithPadding.swift; sourceTree = "<group>"; };
+		B1B20A6C1C5E9CD0003B791B /* TutorialLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TutorialLayer.swift; sourceTree = "<group>"; };
 		B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateProjectViewController.swift; sourceTree = "<group>"; };
 		B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectOverviewViewController.swift; sourceTree = "<group>"; };
 		B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleViewController.swift; sourceTree = "<group>"; };
@@ -173,7 +176,6 @@
 		B1D555841C30694A00C20742 /* ReturnedDataObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReturnedDataObject.swift; sourceTree = "<group>"; };
 		B1D555861C30739C00C20742 /* DateTime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateTime.swift; sourceTree = "<group>"; };
 		B1D868D51C3F58810026334B /* Modules.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Modules.swift; sourceTree = "<group>"; };
-		B1F164E61C5D41AE00CBD88F /* ProjectVariablesDescriptionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectVariablesDescriptionViewController.swift; sourceTree = "<group>"; };
 		B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTableViewHeader.swift; sourceTree = "<group>"; };
 		B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -370,7 +372,6 @@
 			children = (
 				B1D868DB1C3F5A960026334B /* Supplements */,
 				B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */,
-				B1F164E61C5D41AE00CBD88F /* ProjectVariablesDescriptionViewController.swift */,
 				B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */,
 				B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */,
 				B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */,
@@ -429,11 +430,13 @@
 		B1D868DB1C3F5A960026334B /* Supplements */ = {
 			isa = PBXGroup;
 			children = (
+				B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */,
 				B189589C1C39FC0A00378E47 /* Checkbox.swift */,
 				B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */,
 				B11B92201C52D9BE0079A535 /* CustomTextView.swift */,
 				B1B9D9991C528B50000D501E /* CustomSlider.swift */,
 				B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */,
+				B1B20A6C1C5E9CD0003B791B /* TutorialLayer.swift */,
 			);
 			name = Supplements;
 			sourceTree = "<group>";
@@ -671,12 +674,13 @@
 				B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */,
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
 				B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */,
+				B1B20A6B1C5E8576003B791B /* LabelWithPadding.swift in Sources */,
 				B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */,
 				B1D0B2BA1C3F25F200C9438F /* Module.swift in Sources */,
 				B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */,
-				B1F164E71C5D41AF00CBD88F /* ProjectVariablesDescriptionViewController.swift in Sources */,
 				B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */,
 				B1D0B2C21C3F29B400C9438F /* Project.swift in Sources */,
+				B1B20A6D1C5E9CD0003B791B /* TutorialLayer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

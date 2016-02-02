@@ -44,23 +44,3 @@ class CustomTableViewHeader: UIView {
     }
 
 }
-
-class LabelWithPadding: UILabel { //label w/ padded text
-    
-    let paddingInset: UIEdgeInsets //how much padding you want
-    
-    init(frame: CGRect, inset: UIEdgeInsets) {
-        self.paddingInset = inset
-        super.init(frame: frame)
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        self.paddingInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10) //default
-        super.init(coder: aDecoder)
-    }
-    
-    override func drawTextInRect(rect: CGRect) {
-        let rectangle = UIEdgeInsetsInsetRect(rect, self.paddingInset) //adjusts existing rect w/ insets
-        super.drawTextInRect(rectangle)
-    }
-}

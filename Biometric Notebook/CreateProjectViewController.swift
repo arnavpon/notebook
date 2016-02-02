@@ -73,8 +73,8 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         let viewWidth: CGFloat = (view.frame.width - endpointViewNumberImage.frame.width - thirdSuccessIndicator.frame.width - 16) //endpointView width is total width - width of #3 label - 16 (fixed offset) - width of 3rdsuccessindicator.
         let heightPercentage: CGFloat = 0.65 //% of remaining view that slider height takes
         
-        let leftViewHeight = CGFloat(80) //*for 5S
-        let viewHeight: CGFloat = (view.frame.height - 36 - projectTitleView.frame.height - projectQuestionView.frame.height - endpointInstructionLabel.frame.height - endpointViewNumberImage.frame.height - leftViewHeight - 10) //remainder of view after subtracting view heights, navBar height (36), label height & offset of 10 (from bottom); still not the proper height b/c Lviewheight is not set til viewDidAppear
+        let viewHeight = CGFloat(endpointView.frame.height - 48) //fixed height
+        //let viewHeight: CGFloat = (view.frame.height - 36 - projectTitleView.frame.height - projectQuestionView.frame.height - endpointInstructionLabel.frame.height - endpointViewNumberImage.frame.height - leftViewHeight - 10) //remainder of view after subtracting view heights, navBar height (36), label height & offset of 10 (from bottom); still not the proper height b/c Lviewheight is not set til viewDidAppear
         let sliderWidth = widthPercentage * viewWidth
         let sliderHeight = heightPercentage * viewHeight
         let centerX: CGFloat = sliderWidth/2 + (1 - widthPercentage)/2 * viewWidth
@@ -214,18 +214,14 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
     
     // MARK: - Button Actions
     
-    @IBAction func createProjectButtonClick(sender: AnyObject) { //transition -> VariablesVC
-        //Check user defaults for preferences:
+    var showTutorial: Bool = true //sets tutorial to active in ProjectVarsVC
+    
+    @IBAction func createProjectButtonClick(sender: AnyObject) { //show tutorial (check userDefaults)
         let userDefaults = NSUserDefaults.standardUserDefaults()
-        if let showDescription = userDefaults.valueForKey("SHOW_VARS_DESCRIPTION") as? Bool {
-            if (showDescription) { //navigate -> descriptions pg.
-                performSegueWithIdentifier("showVariablesDescription", sender: nil)
-            } else { //go directly -> projectsVC page
-                performSegueWithIdentifier("showVariables", sender: nil)
-            }
-        } else { //could not cast (means the value has not been set in defaults yet), -> descriptions page
-            performSegueWithIdentifier("showVariablesDescription", sender: nil)
+        if let shouldShowTutorial = userDefaults.valueForKey("SHOW_VARS_TUTORIAL") as? Bool {
+            showTutorial = shouldShowTutorial
         }
+        performSegueWithIdentifier("showVariables", sender: nil)
     }
     
     @IBAction func cancelButtonClick(sender: AnyObject) { //return to home screen
@@ -237,14 +233,10 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
     // MARK: - Navigation
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        //Pass the title, question, & endpoint through -> the remaining flows so that the complete project can be set up in the 'Summary' section:
-        if (segue.identifier == "showVariablesDescription") { //description screen
-            let nextVC = segue.destinationViewController as! ProjectVariablesDescriptionViewController
-            nextVC.projectTitle = self.projectTitle
-            nextVC.projectQuestion = self.projectQuestion
-            nextVC.projectEndpoint = self.selectedEndpoint
-        } else if (segue.identifier == "showVariables") {
+        //Pass the title, question, & endpoint through -> the remaining flows:
+        if (segue.identifier == "showVariables") {
             let destination = segue.destinationViewController as! ProjectVariablesViewController
+            destination.tutorialDescriptionViewMode = self.showTutorial //true => show tutorial
             destination.projectTitle = self.projectTitle
             destination.projectQuestion = self.projectQuestion
             destination.projectEndpoint = self.selectedEndpoint
