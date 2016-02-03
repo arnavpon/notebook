@@ -236,7 +236,8 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         //Pass the title, question, & endpoint through -> the remaining flows:
         if (segue.identifier == "showVariables") {
             let destination = segue.destinationViewController as! ProjectVariablesViewController
-            destination.tutorialDescriptionViewMode = self.showTutorial //true => show tutorial
+            destination.tutorialDescriptionViewMode = false //**
+            //destination.tutorialDescriptionViewMode = self.showTutorial //true => show tutorial
             destination.projectTitle = self.projectTitle
             destination.projectQuestion = self.projectQuestion
             destination.projectEndpoint = self.selectedEndpoint

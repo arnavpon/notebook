@@ -46,6 +46,12 @@ func boundValue(value: Double, toLowerValue lowerValue: Double, upperValue: Doub
     return min(max(value, lowerValue), upperValue)
 }
 
+func createCardForView(view: UIView, color: CGColor, borderWidth: CGFloat, radius: CGFloat) { //creates a card-like appearance w/ a view
+    view.layer.borderColor = color
+    view.layer.borderWidth = borderWidth
+    view.layer.cornerRadius = radius
+}
+
 // MARK: - UIView Corners/Edges
 
 enum Corners { //represents corners/edges of a rectangle

@@ -44,6 +44,7 @@
 		B1BC886F1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B1BC886D1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld */; };
 		B1C403351C3974A100AF4BB9 /* CreateProjectFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */; };
 		B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */; };
+		B1C623FC1C619C72006DDD13 /* AttachModuleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */; };
 		B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */; };
 		B1CF34661C4F0179001C0F27 /* DataEntryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CF34651C4F0179001C0F27 /* DataEntryTableViewController.swift */; };
 		B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */; };
@@ -163,6 +164,7 @@
 		B1BC886E1C3205930085A4F4 /* BiometricNotebook.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = BiometricNotebook.xcdatamodel; sourceTree = "<group>"; };
 		B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = CreateProjectFlow.storyboard; sourceTree = "<group>"; };
 		B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectSummaryViewController.swift; sourceTree = "<group>"; };
+		B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleTableViewCell.swift; sourceTree = "<group>"; };
 		B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricModule.swift; sourceTree = "<group>"; };
 		B1CF34651C4F0179001C0F27 /* DataEntryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataEntryTableViewController.swift; sourceTree = "<group>"; };
 		B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomModule.swift; sourceTree = "<group>"; };
@@ -437,6 +439,7 @@
 				B1B9D9991C528B50000D501E /* CustomSlider.swift */,
 				B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */,
 				B1B20A6C1C5E9CD0003B791B /* TutorialLayer.swift */,
+				B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */,
 			);
 			name = Supplements;
 			sourceTree = "<group>";
@@ -673,6 +676,7 @@
 				B1B106931C59097800463612 /* EnvironmentModule.swift in Sources */,
 				B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */,
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
+				B1C623FC1C619C72006DDD13 /* AttachModuleTableViewCell.swift in Sources */,
 				B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */,
 				B1B20A6B1C5E8576003B791B /* LabelWithPadding.swift in Sources */,
 				B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */,

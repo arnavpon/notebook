@@ -109,7 +109,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         return 48 //used in calculation for positioning the + button
     }
     
-    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    func tableView(tableView: UITableView, accessoryButtonTappedForRowWithIndexPath indexPath: NSIndexPath) {
         if let rowsForSection = createdVariable?.tableViewLayoutObject["rowsForSection"], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section] {
             if let rows = rowsForSection[sectionTitle] as? [String] {
                 var alert = UIAlertController()
@@ -140,6 +140,26 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
                 alert.addAction(cancel)
                 alert.addAction(select)
                 presentViewController(alert, animated: true, completion: nil)
+            }
+        }
+    }
+    
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        if let rowsForSection = createdVariable?.tableViewLayoutObject["rowsForSection"], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section] {
+            if let rows = rowsForSection[sectionTitle] as? [String] {
+                if (sectionTitle == "behaviors") {
+                    let selectedBehavior = rows[indexPath.row]
+                    
+                    self.createdVariable?.selectedBehavior = selectedBehavior
+                    self.configureModuleTableView.reloadData()
+                                
+                    //Later on, these should be automatically set when TV reloads:
+                    self.addOptionButton.hidden = true //prevent further custom additions
+                    self.saveButton.enabled = true //allow user to save variable
+                } else if (sectionTitle == "computations") {
+                    createdVariable?.selectedComputations?.append(rows[indexPath.row])
+                    configureModuleTableView.reloadData()
+                }
             }
         }
     }

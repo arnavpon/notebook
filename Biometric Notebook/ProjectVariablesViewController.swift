@@ -31,6 +31,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     @IBOutlet weak var outcomeVariablesTVButton: UIButton!
     @IBOutlet weak var doneButton: UIBarButtonItem!
     
+    let userDefaults = NSUserDefaults.standardUserDefaults() //update defaults
     var tutorialDescriptionViewMode: Bool = true //handles display of tutorial description
     var tutorialIsOn: Bool = false
     var screenNumber: Int = 1 //determines what aspect of the tutorial is visible (starts @ first screen)
@@ -56,21 +57,11 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     // MARK: - View Configuration
     
     override func viewWillAppear(animated: Bool) { //add borders for the views, button, & picker
-        tutorialDescriptionView.layer.borderColor = UIColor.blackColor().CGColor
-        tutorialDescriptionView.layer.borderWidth = viewBorderWidth/2
-        tutorialDescriptionView.layer.cornerRadius = viewCornerRadius
-        inputVariablesView.layer.borderColor = inputVariablesView.backgroundColor?.CGColor
-        inputVariablesView.layer.borderWidth = viewBorderWidth
-        inputVariablesView.layer.cornerRadius = viewCornerRadius
-        outcomeVariablesView.layer.borderColor = outcomeVariablesView.backgroundColor?.CGColor
-        outcomeVariablesView.layer.borderWidth = viewBorderWidth
-        outcomeVariablesView.layer.cornerRadius = viewCornerRadius
-        addActionButton.layer.cornerRadius = viewCornerRadius/2
-        addActionButton.layer.borderColor = UIColor.blackColor().CGColor
-        addActionButton.layer.borderWidth = viewBorderWidth/2
-        actionPicker.layer.cornerRadius = viewCornerRadius/2
-        actionPicker.layer.borderColor = UIColor.blackColor().CGColor
-        actionPicker.layer.borderWidth = viewBorderWidth/2
+        createCardForView(tutorialDescriptionView, color: UIColor.blackColor().CGColor, borderWidth: viewBorderWidth/2, radius: viewCornerRadius)
+        createCardForView(inputVariablesView, color: UIColor.blackColor().CGColor, borderWidth: viewBorderWidth, radius: viewCornerRadius)
+        createCardForView(outcomeVariablesView, color: UIColor.blackColor().CGColor, borderWidth: viewBorderWidth, radius: viewCornerRadius)
+        createCardForView(addActionButton, color: UIColor.blackColor().CGColor, borderWidth: viewBorderWidth/2, radius: viewCornerRadius/2)
+        createCardForView(actionPicker, color: UIColor.blackColor().CGColor, borderWidth: viewBorderWidth/2, radius: viewCornerRadius/2)
     }
     
     override func viewDidLoad() {
@@ -80,6 +71,8 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             tutorialIsOn = true //start interactive tutorial (so TV will show dummy variables)
             tutorialDescriptionLabel.font = UIFont.systemFontOfSize(16, weight: 0.2)
             setVisualsForTutorialDescription(tutorialViewIsShowing: tutorialDescriptionViewMode)
+        } else { //hide description
+            hideTutorialDescriptionView()
         }
         
         actionPicker.dataSource = self
@@ -574,7 +567,6 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     }
     
     func resetAlphaForAllSubviews(ofView view: UIView) { //recursive function
-        print("Recursive called")
         for subview in view.subviews { //sets alpha value to 1 for all views/subview
             //The following won't be called if 'subviews' is empty (ending recursion @ deepest nest):
             subview.alpha = 1
@@ -685,7 +677,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     
     // MARK: - Button Actions
     
-    @IBAction func closeTutorialViewButtonClick(sender: AnyObject) { //hides tutorialView
+    func hideTutorialDescriptionView() {
         for subview in tutorialDescriptionView.subviews { //clear tutorialView from VC
             let constraints = subview.constraints
             subview.removeConstraints(constraints)
@@ -697,9 +689,11 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         self.view.layoutSubviews() //updates the frames after tutorialView is hidden
         outcomeVariablesView.layoutSubviews() //update subview frames after resizing
         inputVariablesView.layoutSubviews() //update subview frames after resizing
+    }
+    
+    @IBAction func closeTutorialViewButtonClick(sender: AnyObject) { //hides tutorialView
+        hideTutorialDescriptionView()
         setVisualsForTutorialDescription(tutorialViewIsShowing: false)
-        
-        let userDefaults = NSUserDefaults.standardUserDefaults() //update defaults
         userDefaults.setBool(true, forKey: "SHOW_VARS_TUTORIAL") //set 'showVars' key -> false to block VC
     }
     
@@ -732,6 +726,8 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         }
     }
     
+    var showDescription: Bool = false //indicates whether to show descriptionView in attachModuleVC
+    
     func addVariable(sender: UITableView) {
         tableViewForVariableAddition = sender //clear this after the variable is added
         let alert = UIAlertController(title: "New Variable", message: "Type the name of the variable you wish to add. Two variables should not have the same name.", preferredStyle: .Alert)
@@ -759,6 +755,13 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 }
                 if !(error) { //make sure the variable is not a duplicate
                     self.variableName = input?.capitalizedString
+                    if let show = self.userDefaults.valueForKey("SHOW_ATTACH_DESCRIPTION") as? Bool { //check for description show key
+                        if (show) { //key is set to true, show description
+                            self.showDescription = true
+                        }
+                    } else { //key is not set (1st time going to view), show description
+                        self.showDescription = true
+                    }
                     self.performSegueWithIdentifier("showAttachModule", sender: nil)
                 }
             }
@@ -805,6 +808,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             let destination = segue.destinationViewController as! UINavigationController
             let attachModuleVC = destination.topViewController as! AttachModuleViewController
             attachModuleVC.variableName = self.variableName
+            attachModuleVC.showDescriptionView = showDescription
         }
     }
 

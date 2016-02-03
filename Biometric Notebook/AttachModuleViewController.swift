@@ -9,11 +9,15 @@ import UIKit
 
 class AttachModuleViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
-    @IBOutlet weak var doneButton: UIBarButtonItem!
-    @IBOutlet weak var inputVariableCheckbox: CheckBox!
-    @IBOutlet weak var outcomeVariableCheckbox: CheckBox!
+    @IBOutlet weak var descriptionViewBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var descriptionViewTopConstraint: NSLayoutConstraint!
+    @IBOutlet weak var descriptionView: UIView!
+    @IBOutlet weak var descriptionViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var descriptionViewLabel: UILabel!
+    @IBOutlet weak var descriptionViewButton: UIButton!
     @IBOutlet weak var moduleTableView: UITableView!
     
+    var showDescriptionView: Bool = false //default is false
     let moduleArray: [Modules] = Module.modules
     var variableName: String? //user-entered variable name
     var selectedModule: Modules? //matches TV selection -> enum containing the defined module types
@@ -21,18 +25,35 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     
     // MARK: - View Configuration 
     
+    override func viewWillAppear(animated: Bool) {
+        setDescriptionViewVisuals(showDescriptionView) //handle rendering of descriptionView
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         moduleTableView.dataSource = self
         moduleTableView.delegate = self
-        moduleTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "module_cell")
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+        //moduleTableView.registerClass(AttachModuleTableViewCell.self, forCellReuseIdentifier: "module_cell")
     }
     
+    func setDescriptionViewVisuals(showDescription: Bool) {
+        if (showDescription) { //show view
+            createCardForView(descriptionView, color: UIColor.blackColor().CGColor, borderWidth: 3, radius: 20)
+            moduleTableView.alpha = 0.3
+        } else { //hide view
+            moduleTableView.alpha = 1
+            for subview in descriptionView.subviews { //clear tutorialView from VC
+                let constraints = subview.constraints
+                subview.removeConstraints(constraints)
+                subview.hidden = true
+                subview.removeFromSuperview()
+            }
+            descriptionViewTopConstraint.constant = 0
+            descriptionViewBottomConstraint.constant = 0
+            descriptionViewHeightConstraint.constant = 0 //hide view AFTER constraints are removed
+        }
+    }
+
     // MARK: - Table View
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -43,15 +64,30 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
         return moduleArray.count
     }
     
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return 75
+    }
+    
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("module_cell")!
-        let moduleTitle = "\(moduleArray[indexPath.row].rawValue) Module"
-        cell.textLabel?.text = moduleTitle
+        let cell = tableView.dequeueReusableCellWithIdentifier("module_cell") as! AttachModuleTableViewCell
+        let moduleTitle = "\(moduleArray[indexPath.row].rawValue) Module".uppercaseString
+        cell.centeredTextLabel.text = moduleTitle
+        cell.layer.borderWidth = 1.5
+        cell.backgroundImageView.image = setBackgroundForCell(indexPath.row)
         return cell
     }
     
+    func setBackgroundForCell(row: Int) -> UIImage { //adds background view for each row
+        let image = UIImage()
+        return image
+    }
+    
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //Grab the current selection:
+        selectedModule = moduleArray[indexPath.row] //grab the current selection
+        attachSelectedModule(selectedModule!)
+    }
+    
+    func tableView(tableView: UITableView, accessoryButtonTappedForRowWithIndexPath indexPath: NSIndexPath) {
         let alert: UIAlertController
         selectedModule = moduleArray[indexPath.row] //set selectedModule based on data source
         switch selectedModule! { //check which module was selected
@@ -72,33 +108,38 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
             tableView.reloadData()
         }
         let attach = UIAlertAction(title: "Attach", style: .Default) { (let ok) -> Void in
-            switch self.selectedModule! { //create the variable object w/ the appropriate class
-            case .CustomModule:
-                self.createdVariable = CustomModule(name: self.variableName!)
-            case .EnvironmentModule:
-                self.createdVariable = EnvironmentModule(name: self.variableName!)
-            case .FoodIntakeModule:
-                self.createdVariable = FoodIntakeModule(name: self.variableName!)
-            case .ExerciseModule:
-                self.createdVariable = ExerciseModule(name: self.variableName!)
-            case .BiometricModule:
-                self.createdVariable = BiometricModule(name: self.variableName!)
-            }
-            self.performSegueWithIdentifier("showConfigureModule", sender: nil)
+            self.attachSelectedModule(self.selectedModule!)
         }
         alert.addAction(cancel)
         alert.addAction(attach)
         presentViewController(alert, animated: true, completion: nil)
     }
     
-    func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        //If you return false for this function, it does not register the user clicking the TV cell at all (nothing happens when the cell is tapped)!
-        return true
+    func attachSelectedModule(selectedModule: Modules) {
+        switch self.selectedModule! { //create the variable object w/ the appropriate class
+        case .CustomModule:
+            self.createdVariable = CustomModule(name: self.variableName!)
+        case .EnvironmentModule:
+            self.createdVariable = EnvironmentModule(name: self.variableName!)
+        case .FoodIntakeModule:
+            self.createdVariable = FoodIntakeModule(name: self.variableName!)
+        case .ExerciseModule:
+            self.createdVariable = ExerciseModule(name: self.variableName!)
+        case .BiometricModule:
+            self.createdVariable = BiometricModule(name: self.variableName!)
+        }
+        self.performSegueWithIdentifier("showConfigureModule", sender: nil)
     }
     
     // MARK: - Button Actions
     
-    
+    @IBAction func descriptionViewButtonClick(sender: AnyObject) {
+        //hide description view & set defaults:
+        showDescriptionView = false
+        setDescriptionViewVisuals(showDescriptionView)
+        let defaults = NSUserDefaults.standardUserDefaults()
+        defaults.setBool(true, forKey: "SHOW_ATTACH_DESCRIPTION")
+    }
     
     // MARK: - Navigation
 
