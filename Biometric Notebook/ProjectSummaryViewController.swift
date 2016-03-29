@@ -31,7 +31,6 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
     // MARK: - Table View
@@ -175,6 +174,9 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                 dictionary[variable.variableName] = variableWithType.createDictionaryForCoreDataStore()
             case is FoodIntakeModule:
                 let variableWithType = variable as! FoodIntakeModule
+                dictionary[variable.variableName] = variableWithType.createDictionaryForCoreDataStore()
+            case is CarbonEmissionsModule:
+                let variableWithType = variable as! CarbonEmissionsModule
                 dictionary[variable.variableName] = variableWithType.createDictionaryForCoreDataStore()
             default:
                 print("Error - default triggered in beforeAction switch")

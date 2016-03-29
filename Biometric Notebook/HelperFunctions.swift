@@ -9,6 +9,16 @@ import CoreData
 
 // MARK: - Core Data
 
+func saveManagedObjectContext() {
+    let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
+    do {
+        try context.save()
+        print("MOC was saved successfully.")
+    } catch let error as NSError {
+        print("Error saving context: \(error).")
+    }
+}
+
 func clearCoreDataStoreForEntity(entity entity: String) {
     print("Clearing data store...")
     let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext

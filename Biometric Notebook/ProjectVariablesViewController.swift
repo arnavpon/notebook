@@ -82,9 +82,9 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         outcomeVariablesTV.dataSource = self
         outcomeVariablesTV.delegate = self
         
-        let inputLongPress = UILongPressGestureRecognizer(target: self, action: "inputLongPressRecognized:")
+        let inputLongPress = UILongPressGestureRecognizer(target: self, action: #selector(ProjectVariablesViewController.inputLongPressRecognized(_:)))
         inputVariablesTV.addGestureRecognizer(inputLongPress)
-        let outcomeLongPress = UILongPressGestureRecognizer(target: self, action: "outcomeLongPressRecognized:")
+        let outcomeLongPress = UILongPressGestureRecognizer(target: self, action: #selector(ProjectVariablesViewController.outcomeLongPressRecognized(_:)))
         outcomeVariablesTV.addGestureRecognizer(outcomeLongPress)
     }
     
@@ -259,7 +259,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         return snapshot!
     }
     
-    func exchangeElements(var array: [AnyObject], fromIndex index: Int, toIndex: Int) -> [AnyObject] {
+    func exchangeElements(array: [AnyObject], fromIndex index: Int, toIndex: Int) -> [AnyObject] {
         var newArray = array
         let fromObject = array[index]
         let toObject = array[toIndex]
@@ -782,6 +782,17 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         if let configureModuleVC = sender.sourceViewController as? ConfigureModuleViewController {
             //If sender is configureModuleVC, grab the input/outcome selection & module information:
             createdVariable = configureModuleVC.createdVariable
+            if (tableViewForVariableAddition == inputVariablesTV) {
+                inputVariableRows.append(createdVariable!)
+                inputVariablesTV.reloadData()
+            } else if (tableViewForVariableAddition == outcomeVariablesTV) {
+                outcomeVariableRows.append(createdVariable!)
+                outcomeVariablesTV.reloadData()
+            }
+        }
+        if let configOptionsVC = sender.sourceViewController as? ConfigurationOptionsViewController {
+            //If sender is configOptionsVC, grab the input/outcome selection & module information:
+            createdVariable = configOptionsVC.createdVariable
             if (tableViewForVariableAddition == inputVariablesTV) {
                 inputVariableRows.append(createdVariable!)
                 inputVariablesTV.reloadData()

@@ -3,7 +3,7 @@
 //  Created by Arnav Pondicherry  on 1/19/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Handles input of information for a specific project
+// Offers an interface within which to input information for a specific project & its variables.
 
 import UIKit
 import CoreData
@@ -14,7 +14,6 @@ class DataEntryTableViewController: UITableViewController {
     @IBOutlet weak var resetEntryModeButton: UIBarButtonItem!
     @IBOutlet weak var toolbarSpacer: UIBarButtonItem!
     
-    let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     var selectedProject: Project?
     var currentSectionToDisplay: Bool = false //set by project overview, false = inputs, true = outputs
     var variablesArray: [Module]? //data source for sections
@@ -38,10 +37,17 @@ class DataEntryTableViewController: UITableViewController {
         
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
+        
+        registerCustomTVCells() //register all possible cell types
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+    }
+    
+    func registerCustomTVCells() { //registers all possible custom cell types
+        //        tableView.registerClass(BaseTableViewCell.self, forCellReuseIdentifier: NSStringFromClass(BaseTableViewCell))
+        //        tableView.registerClass(CustomWithCounterTableViewCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithCounterTableViewCell))
     }
 
     // MARK: - TV Data Source
@@ -222,14 +228,6 @@ class DataEntryTableViewController: UITableViewController {
         resetEntryModeButton.enabled = false
     }
     
-    func saveManagedObjectContext() {
-        do {
-            try context.save()
-        } catch let error as NSError {
-            print("Error saving context: \(error).")
-        }
-    }
-
     // MARK: - Navigation
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {

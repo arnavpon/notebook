@@ -1,27 +1,27 @@
-//  EnvironmentModule.swift
+//  CarbonEmissionsModule.swift
 //  Biometric Notebook
-//  Created by Arnav Pondicherry  on 1/27/16.
+//  Created by Arnav Pondicherry  on 3/24/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Module used to collect weather data (outdoor environment) based on the user's location. Also the mdodule used to measure temperature & humidity data (indoor environment) from sensor.
+// Used to track carbon emissions.
 
 import Foundation
 
-class EnvironmentModule: Module {
+class CarbonEmissionsModule: Module {
     
-    private let environmentModuleBehaviors: [EnvironmentModuleBehaviors] = [EnvironmentModuleBehaviors.TemperatureAndHumidity, EnvironmentModuleBehaviors.Weather]
+    private let carbonEmissionsModuleBehaviors: [CarbonEmissionsModuleBehaviors] = []
     override var behaviors: [String] {
         var behaviorTitles: [String] = []
-        for behavior in environmentModuleBehaviors {
+        for behavior in carbonEmissionsModuleBehaviors {
             behaviorTitles.append(behavior.rawValue)
         }
         return behaviorTitles
     }
     
-    private let environmentModuleComputations: [EnvironmentModuleComputations] = []
+    private let carbonEmissionsModuleComputations: [CarbonEmissionsModuleComputations] = []
     override var computations: [String] {
         var computationTitles: [String] = []
-        for computation in environmentModuleComputations {
+        for computation in carbonEmissionsModuleComputations {
             computationTitles.append(computation.rawValue)
         }
         return computationTitles
@@ -35,7 +35,7 @@ class EnvironmentModule: Module {
     
     override init(name: String) {
         super.init(name: name)
-        self.moduleTitle = Modules.EnvironmentModule.rawValue
+        self.moduleTitle = Modules.CarbonEmissionsModule.rawValue
     }
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
@@ -45,31 +45,28 @@ class EnvironmentModule: Module {
     
 }
 
-enum EnvironmentModuleBehaviors: String {
-    case TemperatureAndHumidity = "Temperature & Humidity"
-    case Weather = "Weather"
+enum CarbonEmissionsModuleBehaviors: String {
+    case Dummy
     
     func getAlertMessageForBehavior() -> String {
-        var message = ""
-        switch self {
-        case .TemperatureAndHumidity:
-            message = ""
-        case .Weather:
-            message = ""
-        }
+        let message = ""
+//        switch self {
+//        case .Height:
+//            message = ""
+//        }
         return message
     }
 }
 
-enum EnvironmentModuleComputations: String {
-    case Dummy = ""
+enum CarbonEmissionsModuleComputations: String {
+    case Dummy
     
     func getAlertMessageForComputation() -> String {
-        var message = ""
-        switch self {
-        default:
-            message = ""
-        }
+        let message = ""
+//        switch self {
+//        case .Age:
+//            message = ""
+//        }
         return message
     }
 }

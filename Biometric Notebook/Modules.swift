@@ -13,4 +13,5 @@ enum Modules: String {
     case FoodIntakeModule = "Food Intake"
     case ExerciseModule = "Exercise"
     case BiometricModule = "Biometric"
+    case CarbonEmissionsModule = "Carbon Emissions"
 }

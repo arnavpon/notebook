@@ -38,8 +38,8 @@ class CustomTextView: UITextView {
     
     required init?(coder aDecoder: NSCoder) { //super.init() must be set if you are creating view from IB
         super.init(coder: aDecoder)
-        notificationCenter.addObserver(self, selector: "textViewStartedEditing:", name: UITextViewTextDidBeginEditingNotification, object: self)
-        notificationCenter.addObserver(self, selector: "textViewStoppedEditing:", name: UITextViewTextDidEndEditingNotification, object: self)
+        notificationCenter.addObserver(self, selector: #selector(CustomTextView.textViewStartedEditing(_:)), name: UITextViewTextDidBeginEditingNotification, object: self)
+        notificationCenter.addObserver(self, selector: #selector(CustomTextView.textViewStoppedEditing(_:)), name: UITextViewTextDidEndEditingNotification, object: self)
     }
     
     deinit { //unregister the notifications to this class

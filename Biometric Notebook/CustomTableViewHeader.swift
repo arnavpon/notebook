@@ -27,14 +27,16 @@ class CustomTableViewHeader: UIView {
         configureLabel()
     }
     
-    override func setNeedsDisplay() { //call whenever frame changes to redraw label
-        configureLabel()
-    }
-
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Visual Layout
+    
+    override func setNeedsDisplay() { //call whenever frame changes to redraw label
+        configureLabel()
+    }
+
     func configureLabel() { //label occupies the entire view (but is padded)
         label = LabelWithPadding(frame: frame, inset: labelInsets)
         label!.numberOfLines = 2

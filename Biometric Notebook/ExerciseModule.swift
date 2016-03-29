@@ -18,12 +18,6 @@ class ExerciseModule: Module {
         return behaviorTitles
     }
     
-    override var selectedBehavior: String? { //handle selection of a behavior
-        didSet {
-            
-        }
-    }
-    
     private let exerciseModuleComputations: [ExerciseModuleComputations] = []
     override var computations: [String] {
         var computationTitles: [String] = []
@@ -33,19 +27,19 @@ class ExerciseModule: Module {
         return computationTitles
     }
     
-    override var selectedComputations: [String]? { //handle selection of computation(s)
+    override var selectedFunctionality: String? { //handle selection of a behavior/computation
         didSet {
             
         }
     }
-
+    
     override init(name: String) {
         super.init(name: name)
         self.moduleTitle = Modules.ExerciseModule.rawValue
     }
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        let persistentDictionary: [String: AnyObject] = ["module": self.moduleTitle]
+        let persistentDictionary: [String: AnyObject] = [BMNModuleTitleKey: self.moduleTitle]
         return persistentDictionary
     }
 }

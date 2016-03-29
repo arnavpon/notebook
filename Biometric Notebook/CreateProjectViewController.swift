@@ -9,7 +9,6 @@ import UIKit
 
 class CreateProjectViewController: UIViewController, UITextViewDelegate {
     
-    
     @IBOutlet weak var createProjectButton: UIBarButtonItem!
     @IBOutlet weak var projectTitleView: UIView!
     @IBOutlet weak var titleInstructionLabel: UILabel!
@@ -91,7 +90,7 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         customSlider.thirdSuccessIndicator = self.thirdSuccessIndicator
         endpointView.addSubview(customSlider)
         endpointView.bringSubviewToFront(customSlider)
-        customSlider.addTarget(self, action: "customSliderValueHasChanged:", forControlEvents: .ValueChanged)
+        customSlider.addTarget(self, action: #selector(CreateProjectViewController.customSliderValueHasChanged(_:)), forControlEvents: .ValueChanged)
         
         endpointView.customSlider = customSlider
         endpointView.offsetLength = (1 - widthPercentage)/2 * viewWidth
@@ -236,7 +235,7 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
         //Pass the title, question, & endpoint through -> the remaining flows:
         if (segue.identifier == "showVariables") {
             let destination = segue.destinationViewController as! ProjectVariablesViewController
-            destination.tutorialDescriptionViewMode = false //**
+            destination.tutorialDescriptionViewMode = false //**enable/disable tutorial
             //destination.tutorialDescriptionViewMode = self.showTutorial //true => show tutorial
             destination.projectTitle = self.projectTitle
             destination.projectQuestion = self.projectQuestion

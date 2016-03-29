@@ -101,6 +101,8 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
             alert = UIAlertController(title: "Module Description", message: "A module that allows you to track food intake.", preferredStyle: .Alert)
         case .BiometricModule:
             alert = UIAlertController(title: "Module Description", message: "A module that allows you to track biometric data like height and weight.", preferredStyle: .Alert)
+        case .CarbonEmissionsModule:
+            alert = UIAlertController(title: "Module Description", message: "A module that allows you to track your carbon emissions.", preferredStyle: .Alert)
         }
         let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in
             self.selectedModule = nil //clear selection
@@ -127,6 +129,8 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
             self.createdVariable = ExerciseModule(name: self.variableName!)
         case .BiometricModule:
             self.createdVariable = BiometricModule(name: self.variableName!)
+        case .CarbonEmissionsModule:
+            self.createdVariable = CarbonEmissionsModule(name: self.variableName!)
         }
         self.performSegueWithIdentifier("showConfigureModule", sender: nil)
     }

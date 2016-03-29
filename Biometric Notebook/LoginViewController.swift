@@ -10,7 +10,7 @@ import UIKit
 protocol LoginViewControllerDelegate {
     var loggedIn: Bool {get set}
     var userJustLoggedIn: Bool {get set}
-    func didLoginSuccessfully(username: String, email: String?) //don't need to keep password on default b/c it will be matched against an online DB
+    func didLoginSuccessfully(username: String, email: String?) //don't need to keep password in user defaults b/c it will be matched against an online DB
 }
 
 class LoginViewController: UIViewController, UITextFieldDelegate {

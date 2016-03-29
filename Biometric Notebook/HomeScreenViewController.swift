@@ -15,7 +15,7 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     
     let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     var projects: [Project] = [] //list of project objects
-    let cellColors: [UIColor] = [UIColor.blueColor(), UIColor.greenColor(), UIColor.redColor(), UIColor.blackColor()]
+    let cellColors: [UIColor] = [UIColor.blueColor(), UIColor.greenColor(), UIColor.redColor(), UIColor.blackColor()] //adjust the colors so that they have some meaning
     var selectedProject: Project? //object to pass on segue
     
     // MARK: - View Configuration
@@ -56,14 +56,14 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
                 let count = project.beforeActionVars.count + project.afterActionVars.count
                 print("[\(project.title)] Number of variables: \(count)")
                 for (variable, dict) in project.beforeActionVars {
-                    let options = dict["options"] as? [String] //not all vars have 'options'
+                    let options = dict[BMNCustomModuleOptionsKey] as? [String] //not all vars have 'options'
                     let prompt = dict["prompt"] as? String
                     print("Before Action Variable Name: \(variable)")
                     print("Options: \(options)")
                     print("Prompt: \(prompt)")
                 }
                 for (variable, dict) in project.afterActionVars {
-                    let options = dict["options"] as? [String]
+                    let options = dict[BMNCustomModuleOptionsKey] as? [String]
                     print("After Action Variable Name: \(variable)")
                     print("Options: \(options)")
                 }

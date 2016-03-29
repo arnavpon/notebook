@@ -3,7 +3,7 @@
 //  Created by Arnav Pondicherry  on 1/3/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Pulled up on clicking cell w/ a current project. Used to display summary of data that has been obtained/visualize data. May also be used to report new information.
+// Pulled up on clicking cell w/ a current project. Used to display summary of data that has been obtained/visualize data. Offers a link to the data reporting flow.
 
 import UIKit
 
@@ -15,11 +15,6 @@ class ProjectOverviewViewController: UIViewController {
         super.viewDidLoad()
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
     // MARK: - Navigation
     
     @IBAction func unwindToOverviewVC(sender: UIStoryboardSegue) { //unwind segue -> overviewVC
