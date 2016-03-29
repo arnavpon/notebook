@@ -9,7 +9,7 @@ import UIKit
 
 class BaseTableViewCell: UITableViewCell {
     
-    var module: Module? { //all data to be displayed will be determined through the module property! For subviews of the base cell, the module property will be more specific module types!
+    weak var module: Module? { //all data to be displayed will be determined through the module property! For subviews of the base cell, the module property will be more specific module types!
         didSet {
             if let mod = module { //update cell labels accordingly
                 titleLabel.text = "\(mod.variableName): \(mod.moduleTitle)"

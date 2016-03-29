@@ -82,7 +82,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
                 let select = UIAlertAction(title: "Select", style: .Default) { (let ok) -> Void in
                     print("Selected Functionality: \(rows[indexPath.row])")
                     variable.selectedFunctionality = selection
-                    if (variable.configurationRequired) { //-> ConfigOptionsVC if further config is needed
+                    if (variable.configurationOptionsLayoutObject != nil) { //-> ConfigOptionsVC if further config is needed
                         self.performSegueWithIdentifier("showConfigOptions", sender: nil)
                     } else { //otherwise, create variable & -> ProjectVariablesVC
                         self.performSegueWithIdentifier("unwindToVariablesVC", sender: nil)
@@ -100,7 +100,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         if let variable = createdVariable, rowsForSection = variable.configureModuleLayoutObject[BMNRowsForSectionKey], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section], rows = rowsForSection[sectionTitle] as? [String] {
             print("Selected Functionality: \(rows[indexPath.row])")
             createdVariable?.selectedFunctionality = rows[indexPath.row]
-            if (variable.configurationRequired) { //-> ConfigOptions if further config is needed
+            if (variable.configurationOptionsLayoutObject != nil) { //-> ConfigOptions if further config is needed
                 self.performSegueWithIdentifier("showConfigOptions", sender: nil)
             } else { //otherwise, create variable & -> ProjectVariablesVC
                 self.performSegueWithIdentifier("unwindToVariablesVC", sender: nil)

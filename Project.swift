@@ -51,10 +51,10 @@ class Project: NSManagedObject {
         var object: Module
         switch moduleName { //the Modules enum's raw string is the moduleName for unpacking
         case Modules.CustomModule.rawValue:
-            let options = variableDict["options"] as! [String]
+            let options = variableDict[BMNCustomModuleOptionsKey] as! [String]
             object = CustomModule(name: variableName)
-            (object as! CustomModule).options = options
-            if let prompt = variableDict["prompt"] as? String { //check for prompt
+//            (object as! CustomModule).options = options
+            if let prompt = variableDict[BMNCustomModulePromptKey] as? String { //check for prompt
                 (object as! CustomModule).setPromptForVariable(prompt)
             }
         case Modules.EnvironmentModule.rawValue:

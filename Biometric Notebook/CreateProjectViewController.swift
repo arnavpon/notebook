@@ -212,7 +212,6 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
     }
     
     // MARK: - Button Actions
-    
     var showTutorial: Bool = true //sets tutorial to active in ProjectVarsVC
     
     @IBAction func createProjectButtonClick(sender: AnyObject) { //show tutorial (check userDefaults)

@@ -4,7 +4,6 @@
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
 // Module used to capture text based information based on a variable & its options. When we store this information to CoreData, we create a dictionary containing all necessary information & pass this to the managed object. When the app is reopened, this dictionary is broken down to produce individual components, which will be used for data capture.
-// In a custom module, the user can either enter a prompt (to replace the variable name as a section title), their own options, or select a behavior from a pre-built list.
 
 import Foundation
 import UIKit
@@ -13,51 +12,7 @@ class CustomModule: Module {
     
     override var configureModuleLayoutObject: Dictionary<String, AnyObject> {
         get {
-            //This whole viewLayout object needs to be reworked since we are only laying out the options in the ConfigurationOptionsVC. Remove extraneous stuff!
-            var tempObject = Dictionary<String, AnyObject>()
-            
-            var viewForSection = Dictionary<String, CustomTableViewHeader>()
-            for section in sectionsToDisplay { //assign rows to their respective sections
-                switch section { //use the lowercare string for the dict key
-                case BMNBehaviorsKey:
-                    viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Available Behaviors")
-                case BMNComputationsKey:
-                    viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Available Computations")
-                default:
-                    print("[Custom - TVLayout] error: default switch [viewForSection]")
-                }
-            }
-            tempObject[BMNViewForSectionKey] = viewForSection
-            
-            var rowsForSection = Dictionary<String, [String]>()
-            for section in sectionsToDisplay { //assign rows to their respective sections
-                switch section {
-                case BMNCustomModuleOptionsKey:
-                    rowsForSection[section] = options
-                case BMNBehaviorsKey:
-                    rowsForSection[section] = behaviors
-                case BMNComputationsKey:
-                    rowsForSection[section] = computations
-                default:
-                    print("[Custom - TVLayout] error: default switch")
-                }
-            }
-            tempObject[BMNRowsForSectionKey] = rowsForSection
-            
-            var selectable = Dictionary<String, Bool>() //**may be obsolete now (all rows should be selectable in ConfigModuleVC)
-            for section in sectionsToDisplay { //dict indicating whether rows in a section can be selected
-                switch section {
-                case BMNCustomModuleOptionsKey:
-                    selectable[section] = false
-                case BMNBehaviorsKey:
-                    selectable[section] = true
-                case BMNComputationsKey:
-                    selectable[section] = true
-                default:
-                    print("Custom - TVLayout] error: default switch")
-                }
-            }
-            tempObject[BMNCellIsSelectableKey] = selectable
+            var tempObject = super.configureModuleLayoutObject //obtain super's dict & ADD TO IT
             
             var alertMessage = Dictionary<String, [String: String]>() //1st key is section name, 2nd key is behavior/computation name, value is a message for the alertController
             var messageForBehavior = Dictionary<String, String>()
@@ -72,41 +27,18 @@ class CustomModule: Module {
             alertMessage[BMNComputationsKey] = messageForComputation
             tempObject[BMNAlertMessageKey] = alertMessage //merge dictionaries
             
-            var deletable = Dictionary<String, Bool>()
-            for section in sectionsToDisplay { //dict indicating whether rows in a section can be deleted
-                switch section { 
-                case BMNCustomModuleOptionsKey:
-                    deletable[section] = true
-                case BMNBehaviorsKey:
-                    deletable[section] = false
-                case BMNComputationsKey:
-                    deletable[section] = false
-                default:
-                    print("Custom - TVLayout] error: default switch")
-                }
-            }
-            tempObject[BMNCellIsDeletableKey] = deletable
-            
-            //**This stuff may be extraneous:
-            tempObject["buttons"] = ["add", "prompt"] //indicate if there are any buttons that need to be added to the view (CustomMod needs a + button for adding options & a 'prompt' button for adding an options prompt). 
-            //Custom view creation paradigm: create the view object in the Module class declaration & then add it to the superview (applying any view resizing/formatting) in the VC.
-            
             return tempObject
         }
     }
     
-    override var configurationOptionsLayoutObject: Dictionary<String, [String]> {
-        //
-    }
-    
     private let customModuleBehaviors: [CustomModuleBehaviors] = [CustomModuleBehaviors.CustomOptions, CustomModuleBehaviors.Binary, CustomModuleBehaviors.Counter, CustomModuleBehaviors.Scale]
-    override var behaviors: [String] { //'behaviors' = instance variables containing pre-defined behaviors that the module can adopt in place of the standard user-created options
+    override var behaviors: [String] {
         var behaviorTitles: [String] = []
         for behavior in customModuleBehaviors {
             behaviorTitles.append(behavior.rawValue)
         }
         return behaviorTitles
-    } //HIDE these options if the user creates any of their own choices!
+    }
     
     private let customModuleComputations: [CustomModuleComputations] = [CustomModuleComputations.TimeDifference]
     override var computations: [String] {
@@ -117,43 +49,63 @@ class CustomModule: Module {
         return computationTitles
     }
     
-    override var selectedFunctionality: String? { //handle selection of a behavior/computation (by assigning a SPECIFIC class to the TV cell object for data reporting)
-        didSet { //when user selects a behavior, set the options accordingly; disable the + button so that user cannot add further items & enable the 'Save' option in the VC
-            if let function = selectedFunctionality {
-                switch function {
-                case CustomModuleBehaviors.CustomOptions.rawValue:
-                    configurationRequired = true
-                    showTopBar = true
-                case CustomModuleBehaviors.Binary.rawValue:
-                    options = ["Yes", "No"]
-                    configurationRequired = false
-                case CustomModuleBehaviors.Counter.rawValue:
-                    configurationRequired = false
-                    //clear 'options' property
-                case CustomModuleBehaviors.Scale.rawValue:
-                    configurationRequired = true
-                    showTopBar = false
-                    //clear 'options' property
-                case CustomModuleComputations.TimeDifference.rawValue: 
-                    configurationRequired = true
-                    showTopBar = false
-                    //clear 'options' property
-                default:
-                    print("[Custom] error: default switch 'selectedBehavior'")
-                }
-            }
-        }
-    }
-    
     private var prompt: String? //the (optional) prompt attached to the variable (replaces the variable's name as the section header in Data Entry mode)
-    var options: [String] = [] //array of user-created options associated w/ the variable/prompt
+    private var options: [String] = [] //array of user-created options associated w/ the variable/prompt
     
     override init(name: String) {
         super.init(name: name)
         self.moduleTitle = Modules.CustomModule.rawValue //title specific to this class
     }
     
-    // MARK: - View Layout
+    // MARK: - Configuration Options
+    
+    internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the topBar visibility; (2) Sets the 'options' value as needed; (3) Constructs the configuration TV cells.
+        if let selection = selectedFunctionality { //make sure behavior/computation was selected & only set the configOptionsObject if further configuration is required
+            var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = []
+            switch selection {
+            case CustomModuleBehaviors.CustomOptions.rawValue:
+                
+                topBarPrompt = "Add Custom Options"
+                //Only 1 config cell is needed (to set the PROMPT if the user desires):
+                array.append((ConfigurationOptionCellTypes.SimpleText, [BMNInstructionsLabelKey: "If you want, set a prompt:"]))
+                configurationOptionsLayoutObject = array
+                
+            case CustomModuleBehaviors.Binary.rawValue:
+                
+                options = ["Yes", "No"]
+                topBarPrompt = nil
+                configurationOptionsLayoutObject = nil //no further config needed
+                
+            case CustomModuleBehaviors.Counter.rawValue:
+                
+                topBarPrompt = nil
+                options = [] //clear options
+                configurationOptionsLayoutObject = nil //no further config needed
+                
+            case CustomModuleBehaviors.Scale.rawValue:
+                topBarPrompt = nil
+                options = [] //clear options
+                
+                //3 config cells are needed (asking for minimum, maximum, & increment): **need to indicate default values to the TV through the data source
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMNInstructionsLabelKey: "Enter a minimum value for your scale (default 0):", BMNDefaultNumberKey: 0]))
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMNInstructionsLabelKey: "Enter a maximum value for your scale (default 10):", BMNDefaultNumberKey: 10]))
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMNInstructionsLabelKey: "Enter an increment value for your scale (default 1):", BMNDefaultNumberKey: 1]))
+                configurationOptionsLayoutObject = array
+                
+            case CustomModuleComputations.TimeDifference.rawValue:
+                
+                topBarPrompt = nil
+                options = [] //clear options
+                
+            default:
+                print("[CustomMod: getConfigOptions] Error - default in switch!")
+            }
+        } else { //no selection, set configOptionsObj -> nil
+            configurationOptionsLayoutObject = nil
+        }
+    }
+    
+    // MARK: - Data Persistence
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object into a Module subclass). Each variable will occupy 1 spot in the overall dictionary, so we need to merge these individual dictionaries for each variable into 1 master dictionary. Each variable's dictionary will be indicated by the variable name, so MAKE SURE THERE ARE NO REPEAT NAMES!
         var persistentDictionary: [String: AnyObject] = [BMNModuleTitleKey: self.moduleTitle, BMNCustomModuleOptionsKey: self.options] //moduleTitle matches switch case in 'Project' > 'createModuleObjectFromModuleName' func
@@ -163,8 +115,20 @@ class CustomModule: Module {
         return persistentDictionary
     }
     
+    // MARK: - View Layout
+    
     internal func getOptionsForVariable() -> [String] { //returns the 'Options' array
         return self.options
+    }
+    
+    internal func setOptionsForVariable(add: Bool, option: String) { //if 'add' is TRUE, append the option; if 'add' is FALSE, delete that option from the array
+        if (add) { //append new option
+            self.options.append(option)
+        } else { //remove option from array
+            if let index = self.options.indexOf(option) {
+                self.options.removeAtIndex(index)
+            }
+        }
     }
     
     internal func getPromptForVariable() -> String? { //returns the 'Options' array

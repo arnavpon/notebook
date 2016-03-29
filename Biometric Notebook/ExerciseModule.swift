@@ -33,6 +33,8 @@ class ExerciseModule: Module {
         }
     }
     
+    // MARK: - Initializers
+    
     override init(name: String) {
         super.init(name: name)
         self.moduleTitle = Modules.ExerciseModule.rawValue
@@ -42,6 +44,11 @@ class ExerciseModule: Module {
         let persistentDictionary: [String: AnyObject] = [BMNModuleTitleKey: self.moduleTitle]
         return persistentDictionary
     }
+    
+    internal override func setConfigurationOptionsForSelection() {
+        //
+    }
+    
 }
 
 enum ExerciseModuleBehaviors: String {

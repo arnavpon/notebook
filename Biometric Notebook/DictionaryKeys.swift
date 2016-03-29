@@ -17,8 +17,16 @@ let BMNAlertMessageKey = "alertMessage"
 let BMNBehaviorsKey = "behaviors"
 let BMNComputationsKey = "computations"
 
+// MARK: - ConfigurationOptions Data Source Keys
+
+let BMNInstructionsLabelKey = "instructions_key"
+let BMNDefaultNumberKey = "default_number_key"
+
 // MARK: - Data Persistence Keys
 
 let BMNModuleTitleKey = "module_title"
+
+// MARK: - Custom Module Keys
+
 let BMNCustomModuleOptionsKey = "custom_module_options"
 let BMNCustomModulePromptKey = "custom_module_prompt"

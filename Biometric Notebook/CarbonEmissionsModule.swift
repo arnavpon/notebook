@@ -33,6 +33,8 @@ class CarbonEmissionsModule: Module {
         }
     }
     
+    // MARK: - Initializers
+    
     override init(name: String) {
         super.init(name: name)
         self.moduleTitle = Modules.CarbonEmissionsModule.rawValue
@@ -43,6 +45,10 @@ class CarbonEmissionsModule: Module {
         return persistentDictionary
     }
     
+    internal override func setConfigurationOptionsForSelection() {
+        //
+    }
+
 }
 
 enum CarbonEmissionsModuleBehaviors: String {
