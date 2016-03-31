@@ -16,35 +16,34 @@ class Module { //defines the behaviors that are common to all modules
     internal let variableName: String //the name given to the variable attached to this module
     internal var sectionsToDisplay: [String] = [] //sections to display in ConfigureModuleVC
     
-    //This entire variable may be extraneous!!! Determine @ some point whether to keep or remove (may serve as a model for the configuration options). Migrate the useful behaviors over -> the variable that handles the visual layout for Custom Configuration TV Cells.
-    internal var configureModuleLayoutObject: Dictionary<String, AnyObject> { //dataObject for laying out the behaviors & computations in the ConfigureModuleVC
+    internal var configureModuleLayoutObject: Dictionary<String, AnyObject> { //dataObject for laying out the available behaviors & computations in the ConfigureModuleVC
         var tempObject = Dictionary<String, AnyObject>()
         
         var viewForSection = Dictionary<String, CustomTableViewHeader>()
         for section in sectionsToDisplay { //assign headerViews to their respective sections
             switch section { 
-            case BMNBehaviorsKey:
+            case BMN_BehaviorsKey:
                 viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Available Behaviors")
-            case BMNComputationsKey:
+            case BMN_ComputationsKey:
                 viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Available Computations")
             default:
                 print("[Custom - TVLayout viewForSection] error: default switch")
             }
         }
-        tempObject[BMNViewForSectionKey] = viewForSection
+        tempObject[BMN_ViewForSectionKey] = viewForSection
         
         var rowsForSection = Dictionary<String, [String]>()
         for section in sectionsToDisplay { //assign behaviors & computations to their respective sections
             switch section {
-            case BMNBehaviorsKey:
+            case BMN_BehaviorsKey:
                 rowsForSection[section] = behaviors
-            case BMNComputationsKey:
+            case BMN_ComputationsKey:
                 rowsForSection[section] = computations
             default:
                 print("[Module - TVLayout] error: default switch")
             }
         }
-        tempObject[BMNRowsForSectionKey] = rowsForSection
+        tempObject[BMN_RowsForSectionKey] = rowsForSection
         
         return tempObject
     }
@@ -61,16 +60,6 @@ class Module { //defines the behaviors that are common to all modules
         }
     }
     
-    //Variable's Configuration Options:
-    internal var topBarPrompt: String? //text for instructionLabel in topBar
-    internal var selectedFunctionality: String? { //the behavior OR computation (picked from the enums defined in each module object) that the user selected for this variable
-        didSet { //set configurationOptions based on selection
-            print("User selected behavior: '\(selectedFunctionality!)'.")
-            setConfigurationOptionsForSelection()
-        }
-    }
-    internal var configurationOptionsLayoutObject: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)]? //obj that handles layout of ConfigurationOptionsVC TV cells
-    
     // MARK: - Initializers
     
     init(name: String) {
@@ -78,11 +67,31 @@ class Module { //defines the behaviors that are common to all modules
         
         //Add items to 'sectionsToDisplay' array for ConfigureModuleVC:
         if !(behaviors.isEmpty) { //check if there are behaviors to display
-            self.sectionsToDisplay.append(BMNBehaviorsKey)
+            self.sectionsToDisplay.append(BMN_BehaviorsKey)
         }
         if !(computations.isEmpty) { //check if there are computations to display
-            self.sectionsToDisplay.append(BMNComputationsKey)
+            self.sectionsToDisplay.append(BMN_ComputationsKey)
         }
+    }
+    
+    //MARK: - Variable Configuration
+    
+    internal var topBarPrompt: String? //text for instructionLabel in topBar
+    internal var selectedFunctionality: String? { //the behavior OR computation (picked from the enums defined in each module object) that the user selected for this variable
+        didSet { //set configurationOptions based on selection
+            print("User selected behavior: '\(selectedFunctionality!)'.")
+            setConfigurationOptionsForSelection()
+        }
+    }
+    internal var configurationOptionsLayoutObject: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)]? //object that handles layout of ConfigurationOptionsVC TV cells
+    
+    internal func setConfigurationOptionsForSelection() { //override in subclasses
+        //Assigns configurationOptions based on the user's selection of a behavior/computation
+        configurationOptionsLayoutObject = nil
+    }
+    
+    internal func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) {
+        //Matches reportedData from configurationCells -> properties in the Module object
     }
     
     // MARK: - Basic Behaviors
@@ -92,8 +101,4 @@ class Module { //defines the behaviors that are common to all modules
         return DateTime()
     }
     
-    internal func setConfigurationOptionsForSelection() { //override in subclasses
-        //Assigns configurationOptions based on the user's selection of a behavior/computation
-        configurationOptionsLayoutObject = nil
-    }
 }

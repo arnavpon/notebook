@@ -73,12 +73,12 @@ class DataEntryTableViewController: UITableViewController {
         if let variables = variablesArray {
             let variable = variables[section]
             if (variable is CustomModule) { //for CustomModule, each row is an option
-                let variableWithType = variable as! CustomModule
-                let numberOfRows = variableWithType.getOptionsForVariable().count
-                if (variableWithType.getPromptForVariable() != nil) { //check if user has created a prompt
-                    return (numberOfRows + 1) //add row for prompt
-                }
-                return numberOfRows
+//                let variableWithType = variable as! CustomModule
+//                let numberOfRows = variableWithType.getOptionsForVariable().count
+//                if (variableWithType.getPromptForVariable() != nil) { //check if user has created a prompt
+//                    return (numberOfRows + 1) //add row for prompt
+//                }
+//                return numberOfRows
             } else {
                 return 1
             }
@@ -92,7 +92,7 @@ class DataEntryTableViewController: UITableViewController {
             let variable = variables[indexPath.section]
             if (variable is CustomModule) { //for CustomModule, each row is an option
                 let variableWithType = variable as! CustomModule
-                let options: [String] = variableWithType.getOptionsForVariable()
+//                let options: [String] = variableWithType.getOptionsForVariable()
                 if (indexPath.row == 0) { //first row
                     if (variableWithType.getPromptForVariable() != nil) { //user has created a prompt
                         //Prompt should be 1st row under Custom Variable (& non-selectable):
@@ -100,13 +100,13 @@ class DataEntryTableViewController: UITableViewController {
                         cell.backgroundColor = UIColor.greenColor() //format cell differently
                         cell.textLabel?.textColor = UIColor.blueColor()
                     } else { //no prompt, 1st row is just a normal cell
-                        cell.textLabel?.text = options[indexPath.row]
+//                        cell.textLabel?.text = options[indexPath.row]
                     }
                 } else { //not first row, lay out options
                     if (variableWithType.getPromptForVariable() != nil) { //there was a prompt, shift index back by 1
-                        cell.textLabel?.text = options[indexPath.row - 1]
+//                        cell.textLabel?.text = options[indexPath.row - 1]
                     } else { //no prompt, don't change index
-                        cell.textLabel?.text = options[indexPath.row]
+//                        cell.textLabel?.text = options[indexPath.row]
                     }
                 }
             } else {

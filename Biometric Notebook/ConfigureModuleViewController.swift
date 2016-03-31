@@ -36,7 +36,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     }
     
     func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if let sectionView = createdVariable?.configureModuleLayoutObject[BMNViewForSectionKey] as? Dictionary<String, CustomTableViewHeader>, sectionTitle = createdVariable?.sectionsToDisplay[section] {
+        if let sectionView = createdVariable?.configureModuleLayoutObject[BMN_ViewForSectionKey] as? Dictionary<String, CustomTableViewHeader>, sectionTitle = createdVariable?.sectionsToDisplay[section] {
             if let headerView = sectionView[sectionTitle] {
                 let height = headerView.frame.height
                 headerView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: height) //recreate frame w/ the VC view's width
@@ -48,7 +48,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let rowsForSection = createdVariable?.configureModuleLayoutObject[BMNRowsForSectionKey], sectionTitle = createdVariable?.sectionsToDisplay[section], rows = (rowsForSection[sectionTitle] as? [String]) {
+        if let rowsForSection = createdVariable?.configureModuleLayoutObject[BMN_RowsForSectionKey], sectionTitle = createdVariable?.sectionsToDisplay[section], rows = (rowsForSection[sectionTitle] as? [String]) {
             return rows.count
         }
         return 0
@@ -56,7 +56,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("configure_module_cell")!
-        if let rowsForSection = createdVariable?.configureModuleLayoutObject[BMNRowsForSectionKey], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section], rows = (rowsForSection[sectionTitle] as? [String]) {
+        if let rowsForSection = createdVariable?.configureModuleLayoutObject[BMN_RowsForSectionKey], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section], rows = (rowsForSection[sectionTitle] as? [String]) {
             cell.textLabel?.text = rows[indexPath.row]
         }
         return cell
@@ -67,17 +67,17 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     }
     
     func tableView(tableView: UITableView, accessoryButtonTappedForRowWithIndexPath indexPath: NSIndexPath) {
-        if let variable = createdVariable, rowsForSection = variable.configureModuleLayoutObject[BMNRowsForSectionKey], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section], rows = rowsForSection[sectionTitle] as? [String] {
+        if let variable = createdVariable, rowsForSection = variable.configureModuleLayoutObject[BMN_RowsForSectionKey], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section], rows = rowsForSection[sectionTitle] as? [String] {
             let selection = rows[indexPath.row]
             var msgTitle = ""
-            if (sectionTitle == BMNBehaviorsKey) {
+            if (sectionTitle == BMN_BehaviorsKey) {
                 msgTitle = "\(selection) Behavior"
-            } else if (sectionTitle == BMNComputationsKey) {
+            } else if (sectionTitle == BMN_ComputationsKey) {
                 msgTitle = "\(selection) Computation"
             }
             
             //Get the alert message corresponding w/ the selected row:
-            if let alertDict = variable.configureModuleLayoutObject[BMNAlertMessageKey] as? [String: [String: String]], alertMsg = alertDict[sectionTitle], message = alertMsg[selection] {
+            if let alertDict = variable.configureModuleLayoutObject[BMN_AlertMessageKey] as? [String: [String: String]], alertMsg = alertDict[sectionTitle], message = alertMsg[selection] {
                 let alert = UIAlertController(title: msgTitle, message: message, preferredStyle: .Alert)
                 let select = UIAlertAction(title: "Select", style: .Default) { (let ok) -> Void in
                     print("Selected Functionality: \(rows[indexPath.row])")
@@ -97,7 +97,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        if let variable = createdVariable, rowsForSection = variable.configureModuleLayoutObject[BMNRowsForSectionKey], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section], rows = rowsForSection[sectionTitle] as? [String] {
+        if let variable = createdVariable, rowsForSection = variable.configureModuleLayoutObject[BMN_RowsForSectionKey], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section], rows = rowsForSection[sectionTitle] as? [String] {
             print("Selected Functionality: \(rows[indexPath.row])")
             createdVariable?.selectedFunctionality = rows[indexPath.row]
             if (variable.configurationOptionsLayoutObject != nil) { //-> ConfigOptions if further config is needed

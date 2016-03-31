@@ -17,8 +17,8 @@ class BaseTableViewCell: UITableViewCell {
             }
         }
     }
-    var titleLabel = UILabel(frame: CGRectZero)
-    var insetBackground = UIView(frame: CGRectZero)
+    let titleLabel = UILabel(frame: CGRectZero)
+    let insetBackground = UIView(frame: CGRectZero)
     
     //MARK: - Initializer
     

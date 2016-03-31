@@ -12,20 +12,20 @@ class CustomModule: Module {
     
     override var configureModuleLayoutObject: Dictionary<String, AnyObject> {
         get {
-            var tempObject = super.configureModuleLayoutObject //obtain super's dict & ADD TO IT
+            var tempObject = super.configureModuleLayoutObject //obtain superclass' dict & ADD TO IT
             
             var alertMessage = Dictionary<String, [String: String]>() //1st key is section name, 2nd key is behavior/computation name, value is a message for the alertController
             var messageForBehavior = Dictionary<String, String>()
             for behavior in behaviors {
                 messageForBehavior[behavior] = CustomModuleBehaviors(rawValue: behavior)?.getAlertMessageForBehavior()
             }
-            alertMessage[BMNBehaviorsKey] = messageForBehavior
+            alertMessage[BMN_BehaviorsKey] = messageForBehavior
             var messageForComputation = Dictionary<String, String>()
             for computation in computations {
                 messageForComputation[computation] = CustomModuleComputations(rawValue: computation)?.getAlertMessageForComputation()
             }
-            alertMessage[BMNComputationsKey] = messageForComputation
-            tempObject[BMNAlertMessageKey] = alertMessage //merge dictionaries
+            alertMessage[BMN_ComputationsKey] = messageForComputation
+            tempObject[BMN_AlertMessageKey] = alertMessage //merge dictionaries
             
             return tempObject
         }
@@ -50,14 +50,17 @@ class CustomModule: Module {
     }
     
     private var prompt: String? //the (optional) prompt attached to the variable (replaces the variable's name as the section header in Data Entry mode)
-    private var options: [String] = [] //array of user-created options associated w/ the variable/prompt
+    private var options: [String]? //array of user-created options associated w/ the variable/prompt
+    private var rangeScaleParameters: (Int, Int, Int)? //(minimum, maximum, increment)
+    
+    // MARK: - Initializers
     
     override init(name: String) {
         super.init(name: name)
         self.moduleTitle = Modules.CustomModule.rawValue //title specific to this class
     }
     
-    // MARK: - Configuration Options
+    // MARK: - Variable Configuration
     
     internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the topBar visibility; (2) Sets the 'options' value as needed; (3) Constructs the configuration TV cells.
         if let selection = selectedFunctionality { //make sure behavior/computation was selected & only set the configOptionsObject if further configuration is required
@@ -67,7 +70,7 @@ class CustomModule: Module {
                 
                 topBarPrompt = "Add Custom Options"
                 //Only 1 config cell is needed (to set the PROMPT if the user desires):
-                array.append((ConfigurationOptionCellTypes.SimpleText, [BMNInstructionsLabelKey: "If you want, set a prompt:"]))
+                array.append((ConfigurationOptionCellTypes.SimpleText, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_PromptID, BMN_Configuration_CellIsOptionalKey: true, BMN_Configuration_InstructionsLabelKey: "If you want, set a prompt:"]))
                 configurationOptionsLayoutObject = array
                 
             case CustomModuleBehaviors.Binary.rawValue:
@@ -83,13 +86,15 @@ class CustomModule: Module {
                 configurationOptionsLayoutObject = nil //no further config needed
                 
             case CustomModuleBehaviors.Scale.rawValue:
+                
                 topBarPrompt = nil
                 options = [] //clear options
                 
-                //3 config cells are needed (asking for minimum, maximum, & increment): **need to indicate default values to the TV through the data source
-                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMNInstructionsLabelKey: "Enter a minimum value for your scale (default 0):", BMNDefaultNumberKey: 0]))
-                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMNInstructionsLabelKey: "Enter a maximum value for your scale (default 10):", BMNDefaultNumberKey: 10]))
-                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMNInstructionsLabelKey: "Enter an increment value for your scale (default 1):", BMNDefaultNumberKey: 1]))
+                //3 config cells are needed (asking for minimum, maximum, & increment):
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_MinimumID, BMN_Configuration_InstructionsLabelKey: "Minimum for scale (default 0):", BMN_Configuration_DefaultNumberKey: 0])) //minimum value
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_MaximumID, BMN_Configuration_InstructionsLabelKey: "Maximum for scale (default 10):", BMN_Configuration_DefaultNumberKey: 10])) //maximum value
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_IncrementID, BMN_Configuration_InstructionsLabelKey: "Increment for scale (default 1):", BMN_Configuration_DefaultNumberKey: 1])) //increment value
+                
                 configurationOptionsLayoutObject = array
                 
             case CustomModuleComputations.TimeDifference.rawValue:
@@ -105,39 +110,55 @@ class CustomModule: Module {
         }
     }
     
+    internal override func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) {
+        //(1) Takes as INPUT the data that was entered into each configuration cell. (2) Given the var's 'selectedFunctionality', matches the configuration data -> properties in the Module object by accessing specific configuration cell identifiers (in 'HelperFx' > 'Dictionary Keys').
+        if let selection = selectedFunctionality {
+            switch selection { //only needed for sections that require configuration
+            case CustomModuleBehaviors.CustomOptions.rawValue:
+                
+                self.prompt = configurationData[BMN_CustomModule_CustomOptions_PromptID] as? String
+                self.options = configurationData[BMN_CustomModule_CustomOptions_OptionsID] as? [String]
+                
+            case CustomModuleBehaviors.Scale.rawValue: //inc data is INT
+                
+                if let min = (configurationData[BMN_CustomModule_RangeScale_MinimumID] as? Int), max = (configurationData[BMN_CustomModule_RangeScale_MaximumID] as? Int), increment = (configurationData[BMN_CustomModule_RangeScale_IncrementID] as? Int) {
+                    rangeScaleParameters = (min, max, increment)
+                }
+                
+            case CustomModuleComputations.TimeDifference.rawValue:
+                print("time difference...")
+            default:
+                print("[CustomMod: matchConfigToProps] Error! Default in switch!")
+            }
+        }
+    }
+    
     // MARK: - Data Persistence
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object into a Module subclass). Each variable will occupy 1 spot in the overall dictionary, so we need to merge these individual dictionaries for each variable into 1 master dictionary. Each variable's dictionary will be indicated by the variable name, so MAKE SURE THERE ARE NO REPEAT NAMES!
-        var persistentDictionary: [String: AnyObject] = [BMNModuleTitleKey: self.moduleTitle, BMNCustomModuleOptionsKey: self.options] //moduleTitle matches switch case in 'Project' > 'createModuleObjectFromModuleName' func
-        if let headerTitle = prompt {
-            persistentDictionary[BMNCustomModulePromptKey] = headerTitle
+        
+        //**Instead of having to clear all unrelated variables each time we set functionality for the selected variable, we will control that in this section. ONLY set the coreData dictionary depending on the 'selectedFunctionality'. That way, when the object is recreated in data reporting mode, all of the extraneous information will be removed & we will only be left w/ properties pertaining to the selected behavior/computation. As a result, we don't have to worry about nullifying all extraneous variables when we are creating the 'configurationLayoutOptionsObject'!**
+        
+        var persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle] //moduleTitle matches switch case in 'Project' > 'createModuleObjectFromModuleName' func
+        if let headerTitle = self.prompt {
+            persistentDictionary[BMN_CustomModule_PromptKey] = headerTitle
+        }
+        if let opts = self.options {
+            persistentDictionary[BMN_CustomModule_OptionsKey] = opts
         }
         return persistentDictionary
     }
     
     // MARK: - View Layout
     
-    internal func getOptionsForVariable() -> [String] { //returns the 'Options' array
+    internal func getOptionsForVariable() -> [String]? { //returns the 'Options' array
         return self.options
-    }
-    
-    internal func setOptionsForVariable(add: Bool, option: String) { //if 'add' is TRUE, append the option; if 'add' is FALSE, delete that option from the array
-        if (add) { //append new option
-            self.options.append(option)
-        } else { //remove option from array
-            if let index = self.options.indexOf(option) {
-                self.options.removeAtIndex(index)
-            }
-        }
     }
     
     internal func getPromptForVariable() -> String? { //returns the 'Options' array
         return self.prompt
     }
     
-    internal func setPromptForVariable(prompt: String) { //returns the 'Options' array
-        self.prompt = prompt
-    }
 }
 
 enum CustomModuleBehaviors: String {
@@ -148,7 +169,7 @@ enum CustomModuleBehaviors: String {
     
     func getAlertMessageForBehavior() -> String { //provides an informative pop-up about the behavior
         var message = ""
-        switch self {
+        switch self { //**Adjust the raw values so that they are more specific!!!
         case .CustomOptions:
             message = "Create custom selection options."
         case .Binary:
@@ -169,7 +190,7 @@ enum CustomModuleComputations: String {
         var message = ""
         switch self {
         case .TimeDifference:
-            message = "Calculates a time difference between 2 variables or a variable and the project's action."
+            message = "Calculates a time difference between 2 variables or between a variable and the project's action."
         }
         return message
     }

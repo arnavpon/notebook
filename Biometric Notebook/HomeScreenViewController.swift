@@ -56,14 +56,14 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
                 let count = project.beforeActionVars.count + project.afterActionVars.count
                 print("[\(project.title)] Number of variables: \(count)")
                 for (variable, dict) in project.beforeActionVars {
-                    let options = dict[BMNCustomModuleOptionsKey] as? [String] //not all vars have 'options'
+                    let options = dict[BMN_CustomModule_OptionsKey] as? [String] //not all vars have 'options'
                     let prompt = dict["prompt"] as? String
                     print("Before Action Variable Name: \(variable)")
                     print("Options: \(options)")
                     print("Prompt: \(prompt)")
                 }
                 for (variable, dict) in project.afterActionVars {
-                    let options = dict[BMNCustomModuleOptionsKey] as? [String]
+                    let options = dict[BMN_CustomModule_OptionsKey] as? [String]
                     print("After Action Variable Name: \(variable)")
                     print("Options: \(options)")
                 }

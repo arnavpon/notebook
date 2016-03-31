@@ -8,7 +8,9 @@
 import UIKit
 
 class CustomWithOptionsTableViewCell: BaseTableViewCell {
-
+    
+    // MARK: - Initializers
+    
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
     }
@@ -16,5 +18,7 @@ class CustomWithOptionsTableViewCell: BaseTableViewCell {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: - Visual Layout
 
 }

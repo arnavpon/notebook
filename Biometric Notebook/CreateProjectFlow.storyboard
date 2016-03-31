@@ -501,7 +501,7 @@
                             </view>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="none" allowsSelection="NO" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="VLc-ao-clr">
                                 <rect key="frame" x="0.0" y="114" width="600" height="486"/>
-                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
                             </tableView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -516,7 +516,7 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="eqz-gl-fGl">
-                        <barButtonItem key="rightBarButtonItem" style="done" systemItem="done" id="FXz-hS-UfX">
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" style="done" systemItem="done" id="FXz-hS-UfX">
                             <connections>
                                 <action selector="doneButtonClick:" destination="vEx-zx-IJg" id="Hqy-xZ-8vy"/>
                             </connections>

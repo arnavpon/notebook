@@ -105,6 +105,33 @@ func getPointForCorner(layer: CALayer, corner: Corners) -> CGPoint { //returns p
     return pointForCorner
 }
 
+func drawLine(imageView: UIImageView, fromPoint: [CGPoint], toPoint: [CGPoint]) { //accept an array of points so that multiple lines can be drawn. Make sure # fromPoints = # toPoints!
+    //First, set up a context holding the image currently in the mainImageView.
+    UIGraphicsBeginImageContext(imageView.frame.size)
+    let context = UIGraphicsGetCurrentContext()
+    imageView.image?.drawInRect(CGRect(x: 0, y: 0, width: imageView.frame.width, height: imageView.frame.height))
+    
+    //For each item in the array, get the current touch point & draw a line between points:
+    for i in 0...(fromPoint.count - 1) {
+        CGContextMoveToPoint(context, fromPoint[i].x, fromPoint[i].y)
+        CGContextAddLineToPoint(context, toPoint[i].x, toPoint[i].y)
+    }
+    
+    //Set the drawing parameters for line size & color:
+    CGContextSetLineCap(context, .Square)
+    CGContextSetLineWidth(context, 1.25)
+    CGContextSetStrokeColorWithColor(context, UIColor.blackColor().CGColor)
+    CGContextSetBlendMode(context, .Normal)
+    
+    //Draw the path:
+    CGContextStrokePath(context)
+    
+    //Wrap up the drawing context to render the new line:
+    imageView.image = UIGraphicsGetImageFromCurrentImageContext()
+    imageView.alpha = 1.0
+    UIGraphicsEndImageContext()
+}
+
 //*****
 
 //Code for two interdependent checkboxes (when one is clicked, the other is unclicked):

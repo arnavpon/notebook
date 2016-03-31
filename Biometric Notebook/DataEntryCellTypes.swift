@@ -8,5 +8,8 @@
 import Foundation
 
 enum DataEntryCellTypes: String {
-    case Base
+    
+    case CustomWithCounter //Custom Module cell w/ counter
+    case CustomWithOptions //Custom Module cell w/ options
+    
 }

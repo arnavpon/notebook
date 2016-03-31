@@ -410,8 +410,8 @@
 			children = (
 				B1AA96C91CAB1CCC0009E716 /* DataEntryCellTypes.swift */,
 				B1B681CC1CA9CAE100D9CA71 /* BaseTableViewCell.swift */,
-				B1B681D21CA9E23300D9CA71 /* CustomWithCounterTableViewCell.swift */,
 				B1B681D01CA9DF9E00D9CA71 /* CustomWithOptionsTableViewCell.swift */,
+				B1B681D21CA9E23300D9CA71 /* CustomWithCounterTableViewCell.swift */,
 			);
 			name = "Data Entry TV Cells";
 			sourceTree = "<group>";

@@ -41,7 +41,7 @@ class ExerciseModule: Module {
     }
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        let persistentDictionary: [String: AnyObject] = [BMNModuleTitleKey: self.moduleTitle]
+        let persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle]
         return persistentDictionary
     }
     
