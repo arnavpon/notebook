@@ -106,6 +106,8 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
                 self.performSegueWithIdentifier("unwindToVariablesVC", sender: nil)
             }
         }
+        
+        //**Send selection -> the created variable's switch function, where it picks a subclass based on the user selection & creates a new variable. Assign this new variable to currentVar!
     }
 
     // MARK: - Navigation

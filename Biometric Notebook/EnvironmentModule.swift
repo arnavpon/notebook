@@ -9,8 +9,8 @@ import Foundation
 
 class EnvironmentModule: Module {
     
-    private let environmentModuleBehaviors: [EnvironmentModuleBehaviors] = [EnvironmentModuleBehaviors.TemperatureAndHumidity, EnvironmentModuleBehaviors.Weather]
-    override var behaviors: [String] {
+    private let environmentModuleBehaviors: [EnvironmentModuleVariableTypes] = [EnvironmentModuleVariableTypes.Behavior_TemperatureAndHumidity, EnvironmentModuleVariableTypes.Behavior_Weather]
+    override var behaviors: [String] { //object containing titles for TV cells
         var behaviorTitles: [String] = []
         for behavior in environmentModuleBehaviors {
             behaviorTitles.append(behavior.rawValue)
@@ -18,8 +18,8 @@ class EnvironmentModule: Module {
         return behaviorTitles
     }
     
-    private let environmentModuleComputations: [EnvironmentModuleComputations] = []
-    override var computations: [String] {
+    private let environmentModuleComputations: [EnvironmentModuleVariableTypes] = []
+    override var computations: [String] { //object containing titles for TV cells
         var computationTitles: [String] = []
         for computation in environmentModuleComputations {
             computationTitles.append(computation.rawValue)
@@ -27,15 +27,30 @@ class EnvironmentModule: Module {
         return computationTitles
     }
     
+    private var variableType: EnvironmentModuleVariableTypes? { //converts 'selectedFunctionality' (a String) to an enum object
+        get {
+            if let selection = selectedFunctionality {
+                return EnvironmentModuleVariableTypes(rawValue: selection)
+            }
+            return nil
+        }
+    }
+    
     // MARK: - Initializers
     
-    override init(name: String) {
+    override init(name: String) { //set-up init
         super.init(name: name)
         self.moduleTitle = Modules.EnvironmentModule.rawValue
     }
     
-    internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        let persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle]
+    override init(name: String, dict: [String: AnyObject]) { //CoreData init
+        super.init(name: name, dict: dict)
+    }
+    
+    // MARK: - Core Data
+    
+    internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { 
+        let persistentDictionary: [String: AnyObject] = super.createDictionaryForCoreDataStore()
         return persistentDictionary
     }
     
@@ -45,31 +60,22 @@ class EnvironmentModule: Module {
     
 }
 
-enum EnvironmentModuleBehaviors: String {
-    case TemperatureAndHumidity = "Temperature & Humidity"
-    case Weather = "Weather"
+enum EnvironmentModuleVariableTypes: String {
+    //Available Behaviors:
+    case Behavior_TemperatureAndHumidity = "EnM_behavior_TempHumidity"
+    case Behavior_Weather = "EnM_behavior_Weather"
     
-    func getAlertMessageForBehavior() -> String {
+    //Available Computations:
+    
+    func getAlertMessageForVariable() -> String {
         var message = ""
         switch self {
-        case .TemperatureAndHumidity:
+        case .Behavior_TemperatureAndHumidity:
             message = ""
-        case .Weather:
+        case .Behavior_Weather:
             message = ""
         }
         return message
     }
-}
-
-enum EnvironmentModuleComputations: String {
-    case Dummy = ""
     
-    func getAlertMessageForComputation() -> String {
-        var message = ""
-        switch self {
-        default:
-            message = ""
-        }
-        return message
-    }
 }

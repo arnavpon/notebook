@@ -11,14 +11,26 @@ class BaseConfigurationCell: UITableViewCell {
     
     var cellDescriptor: String = "" //dictionary key used to indicate UNIQUE ID of each cell
     var cellHeight: Int = 70 //height used for the row (queried from the TV delegate method)
+    var flagged: Bool = false { //if flagged, indicates that there is an error w/ the cell (change visual)
+        didSet {
+            configureFlagForCell()
+        }
+    }
     private var isOptional: Bool = false //checks if cell is optional, default is FALSE (i.e. required)
-
-    internal let insetBackground = UIView(frame: CGRectZero)
+    
+    internal let insetBackground = UIView(frame: CGRectZero) //background for custom cell
+    private let separatorView = UIView(frame: CGRectZero) //creates space between cells
     private let instructionsLabel = UILabel(frame: CGRectZero)
     private let completionSideView = UIImageView(frame: CGRectZero)
     private let completionIndicator = UIImageView(image: UIImage(named: "x_mark")) //default = incomplete
+    internal var configurationIsComplete: Bool = false { //indicates if cell config is complete
+        didSet { //adjust image accordingly
+            configureCompletionIndicator()
+        }
+    }
     
     private var fireCounter: Int = 0 //ensures that 'accessDataSource' runs only 1x
+    private let insetBackgroundColor: UIColor = UIColor.whiteColor() //cell bckgrd color
     var dataSource: Dictionary<String, AnyObject>? { //contains configuration info
         didSet {
             if (fireCounter == 0) { //make sure this is only running ONCE
@@ -43,10 +55,10 @@ class BaseConfigurationCell: UITableViewCell {
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        backgroundColor = UIColor.blackColor()
-        insetBackground.backgroundColor = UIColor.whiteColor()
-        completionSideView.backgroundColor = UIColor.clearColor()
+        insetBackground.backgroundColor = insetBackgroundColor
+        separatorView.backgroundColor = UIColor.blackColor() //adds some space between cells
         contentView.addSubview(insetBackground)
+        contentView.addSubview(separatorView)
         insetBackground.addSubview(instructionsLabel)
         insetBackground.addSubview(completionSideView)
         completionSideView.addSubview(completionIndicator)
@@ -77,15 +89,16 @@ class BaseConfigurationCell: UITableViewCell {
         }
     }
     
-    internal func configureCompletionIndicator(complete: Bool) { //adjusts visuals on completionIndicator
+    internal func configureCompletionIndicator() { //adjusts visuals on completionIndicator
+        insetBackground.backgroundColor = insetBackgroundColor //*reset bckgrd -> white*
         if (isOptional) { //if the cell is OPTIONAL, there is modified functionality - (1) When config is incomplete, the completionView shows nothing instead of an 'X'; (2) NO notification is posted.
-            if (complete) { //config COMPLETE
+            if (configurationIsComplete) { //config COMPLETE
                 completionIndicator.image = UIImage(named: "check")
             } else { //config INCOMPLETE
                 completionIndicator.image = nil //clear image, but don't show the X mark
             }
         } else { //REQUIRED configuration cell
-            if (complete) { //config COMPLETE
+            if (configurationIsComplete) { //config COMPLETE
                 if (completionIndicator.image != UIImage(named: "check")) { //ONLY switch images if the current image is NOT alrdy set -> 'check'
                     completionIndicator.image = UIImage(named: "check")
                     let notification = NSNotification(name: "BMNCompletionIndicatorDidChange", object: nil, userInfo: [BMN_Configuration_CompletionIndicatorStatusKey: true])
@@ -101,6 +114,15 @@ class BaseConfigurationCell: UITableViewCell {
         }
     }
     
+    private func configureFlagForCell() { //adds or removes the visual flag from the cell
+        if (self.flagged) { //highlights the incorrect cells in red
+            configurationIsComplete = false //*first, set completion indicator -> false!
+            insetBackground.backgroundColor = UIColor(red: 255/255, green: 0, blue: 0, alpha: 0.3)
+        } else { //restore image to its last known state
+            configureCompletionIndicator()
+        }
+    }
+    
     override func prepareForReuse() { //do we have to reset anything on prepareForReuse?
         super.prepareForReuse()
     }
@@ -109,6 +131,7 @@ class BaseConfigurationCell: UITableViewCell {
         super.layoutSubviews()
         let separatorHeight = CGFloat(2) //distance between cells
         insetBackground.frame = CGRect(x: 0, y: 0, width: frame.width, height: (frame.height - separatorHeight))
+        separatorView.frame = CGRect(x: 0, y: (frame.height - separatorHeight), width: frame.width, height: separatorHeight)
         
         //(2) Configure the instructionsLabel:
         let labelWidth = frame.width - completionViewWidth - 2 * instructionsLabelLeftPadding
@@ -130,6 +153,7 @@ class BaseConfigurationCell: UITableViewCell {
     // MARK: - Data Reporting
     
     internal func reportData() -> AnyObject? { //reports all pertinent data entered by the user
+        print("[BaseConfigCell] Error! reportData() being called from super class!")
         return nil
     }
 

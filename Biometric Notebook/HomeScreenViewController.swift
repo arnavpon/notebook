@@ -25,6 +25,9 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
         
         if (userDefaults.valueForKey("ISLOGGEDIN") as? Bool == true) { //user is logged in
             loggedIn = true //tell system that user is logged in
+            
+            //**Is it possible to only create the project before going in to view it, & only obtain the project's name @ this point in time? This will stall the intensive process of configuring the project w/ all its variables, & prevent all projects from being configured at once!
+            
             obtainDataFromStore("Project")
             
             //clearCoreDataStoreForEntity(entity: "PROJECT")

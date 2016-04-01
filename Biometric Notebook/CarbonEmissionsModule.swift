@@ -9,8 +9,8 @@ import Foundation
 
 class CarbonEmissionsModule: Module {
     
-    private let carbonEmissionsModuleBehaviors: [CarbonEmissionsModuleBehaviors] = []
-    override var behaviors: [String] {
+    private let carbonEmissionsModuleBehaviors: [CarbonEmissionsModuleVariableTypes] = []
+    override var behaviors: [String] { //object containing titles for TV cells
         var behaviorTitles: [String] = []
         for behavior in carbonEmissionsModuleBehaviors {
             behaviorTitles.append(behavior.rawValue)
@@ -18,8 +18,8 @@ class CarbonEmissionsModule: Module {
         return behaviorTitles
     }
     
-    private let carbonEmissionsModuleComputations: [CarbonEmissionsModuleComputations] = []
-    override var computations: [String] {
+    private let carbonEmissionsModuleComputations: [CarbonEmissionsModuleVariableTypes] = []
+    override var computations: [String] { //object containing titles for TV cells
         var computationTitles: [String] = []
         for computation in carbonEmissionsModuleComputations {
             computationTitles.append(computation.rawValue)
@@ -27,21 +27,30 @@ class CarbonEmissionsModule: Module {
         return computationTitles
     }
     
-    override var selectedFunctionality: String? { //handle selection of a behavior/computation
-        didSet {
-            
+    private var variableType: CarbonEmissionsModuleVariableTypes? { //converts 'selectedFunctionality' (a String) to an enum object
+        get {
+            if let selection = selectedFunctionality {
+                return CarbonEmissionsModuleVariableTypes(rawValue: selection)
+            }
+            return nil
         }
     }
     
     // MARK: - Initializers
     
-    override init(name: String) {
+    override init(name: String) { //set-up init
         super.init(name: name)
         self.moduleTitle = Modules.CarbonEmissionsModule.rawValue
     }
     
-    internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        let persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle]
+    override init(name: String, dict: [String: AnyObject]) { //CoreData init
+        super.init(name: name, dict: dict)
+    }
+    
+    // MARK: - Core Data
+    
+    internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> {
+        let persistentDictionary: [String: AnyObject] = super.createDictionaryForCoreDataStore()
         return persistentDictionary
     }
     
@@ -51,28 +60,19 @@ class CarbonEmissionsModule: Module {
 
 }
 
-enum CarbonEmissionsModuleBehaviors: String {
+enum CarbonEmissionsModuleVariableTypes: String {
+    //Available Behaviors:
     case Dummy
     
-    func getAlertMessageForBehavior() -> String {
-        let message = ""
-//        switch self {
-//        case .Height:
-//            message = ""
-//        }
-        return message
-    }
-}
-
-enum CarbonEmissionsModuleComputations: String {
-    case Dummy
+    //Available Computations:
     
-    func getAlertMessageForComputation() -> String {
-        let message = ""
-//        switch self {
-//        case .Age:
-//            message = ""
-//        }
+    func getAlertMessageForVariable() -> String {
+        var message = ""
+        switch self {
+        case .Dummy:
+            message = ""
+        }
         return message
     }
+    
 }

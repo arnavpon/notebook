@@ -42,10 +42,10 @@ class SimpleTextConfigurationCell: BaseConfigurationCell, UITextFieldDelegate {
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
         if let input = textField.text?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) {
             let count = input.characters.count + string.characters.count - range.length
-            if (count > 0) { //set as complete
-                self.configureCompletionIndicator(true) //set as complete if default exists
+            if (count > 0) { //set as complete if textField is not empty
+                self.configurationIsComplete = true
             } else { //set as incomplete
-                self.configureCompletionIndicator(false)
+                self.configurationIsComplete = false
             }
         }
         return true

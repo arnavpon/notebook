@@ -27,12 +27,17 @@ let BMN_Configuration_CellDescriptorKey = "configuration_cell_descriptor_key" //
 
 // MARK: - Module Core Data Keys
 
-let BMN_ModuleTitleKey = "module_title_key" //key to obtain
+let BMN_ModuleTitleKey = "module_title_key" //key to obtain var's Module type
+let BMN_VariableTypeKey = "variable_type_key" //key to obtain var's behavior/computation
 
-// MARK: - Custom Module Keys
+// MARK: - Custom Module Keys, Config Cell IDs, Behavior/Computation Enum IDs (KEY = dictionary key)
 
 let BMN_CustomModule_OptionsKey = "custom_module_options_key"
 let BMN_CustomModule_PromptKey = "custom_module_prompt_key"
+let BMN_CustomModule_RangeScaleMinimumKey = "custom_module_range_scale_min_key"
+let BMN_CustomModule_RangeScaleMaximumKey = "custom_module_range_scale_max_key"
+let BMN_CustomModule_RangeScaleIncrementKey = "custom_module_range_scale_increment_key"
+
 let BMN_CustomModule_CustomOptions_PromptID = "custom_module_custom_options_prompt_id" //identifier: CustomModule > CustomOptions [behavior] > 'prompt' configuration cell
 let BMN_CustomModule_CustomOptions_OptionsID = "custom_module_custom_options_options_id" //identifier: CustomModule > CustomOptions [behavior] > 'options' array
 let BMN_CustomModule_RangeScale_MinimumID = "custom_module_range_scale_min_id" //identifier: CustomModule > RangeScale [behavior] > 'minimum value' configuration cell

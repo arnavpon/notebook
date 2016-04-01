@@ -94,20 +94,20 @@ class DataEntryTableViewController: UITableViewController {
                 let variableWithType = variable as! CustomModule
 //                let options: [String] = variableWithType.getOptionsForVariable()
                 if (indexPath.row == 0) { //first row
-                    if (variableWithType.getPromptForVariable() != nil) { //user has created a prompt
-                        //Prompt should be 1st row under Custom Variable (& non-selectable):
-                        cell.textLabel?.text = variableWithType.getPromptForVariable()
-                        cell.backgroundColor = UIColor.greenColor() //format cell differently
-                        cell.textLabel?.textColor = UIColor.blueColor()
-                    } else { //no prompt, 1st row is just a normal cell
+//                    if (variableWithType.getPromptForVariable() != nil) { //user has created a prompt
+//                        //Prompt should be 1st row under Custom Variable (& non-selectable):
+//                        cell.textLabel?.text = variableWithType.getPromptForVariable()
+//                        cell.backgroundColor = UIColor.greenColor() //format cell differently
+//                        cell.textLabel?.textColor = UIColor.blueColor()
+//                    } else { //no prompt, 1st row is just a normal cell
 //                        cell.textLabel?.text = options[indexPath.row]
-                    }
+//                    }
                 } else { //not first row, lay out options
-                    if (variableWithType.getPromptForVariable() != nil) { //there was a prompt, shift index back by 1
+//                    if (variableWithType.getPromptForVariable() != nil) { //there was a prompt, shift index back by 1
 //                        cell.textLabel?.text = options[indexPath.row - 1]
-                    } else { //no prompt, don't change index
+//                    } else { //no prompt, don't change index
 //                        cell.textLabel?.text = options[indexPath.row]
-                    }
+//                    }
                 }
             } else {
                 //custom behavior for each type of module
@@ -121,12 +121,12 @@ class DataEntryTableViewController: UITableViewController {
         if let variables = variablesArray {
             let variableForCell = variables[indexPath.section] //get variable for selection
             if (variableForCell is CustomModule) {
-                let variableWithType = variableForCell as! CustomModule
-                if (variableWithType.getPromptForVariable() != nil) { //check if there is a prompt
-                    if (indexPath.row == 0) {
-                        return false //prevent 1st row from being selected if there is a prompt
-                    }
-                }
+//                let variableWithType = variableForCell as! CustomModule
+//                if (variableWithType.getPromptForVariable() != nil) { //check if there is a prompt
+//                    if (indexPath.row == 0) {
+//                        return false //prevent 1st row from being selected if there is a prompt
+//                    }
+//                }
             }
         
             //Option selection/highlighting logic:

@@ -92,11 +92,11 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
         selectedModule = moduleArray[indexPath.row] //set selectedModule based on data source
         switch selectedModule! { //check which module was selected
         case .CustomModule:
-            alert = UIAlertController(title: "Module Description", message: "A custom module allows you to add a variable and a set of options pertaining to that variable.", preferredStyle: .Alert)
+            alert = UIAlertController(title: "Module Description", message: "A custom module has several unique behaviors - you can add custom options, a counter, or even a scale (e.g. from 1 - 10).", preferredStyle: .Alert)
         case .EnvironmentModule:
             alert = UIAlertController(title: "Module Description", message: "A module that allows you to capture aspects of the ambient environment, such as temperature and humidity.", preferredStyle: .Alert)
         case .ExerciseModule:
-            alert = UIAlertController(title: "Module Description", message: "A module that allows you to track exercise-related statistics.", preferredStyle: .Alert)
+            alert = UIAlertController(title: "Module Description", message: "A module that allows you to track exercise-related statistics or create a workout schedule.", preferredStyle: .Alert)
         case .FoodIntakeModule:
             alert = UIAlertController(title: "Module Description", message: "A module that allows you to track food intake.", preferredStyle: .Alert)
         case .BiometricModule:

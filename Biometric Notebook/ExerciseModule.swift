@@ -9,8 +9,8 @@ import Foundation
 
 class ExerciseModule: Module {
     
-    private let exerciseModuleBehaviors: [ExerciseModuleBehaviors] = [ExerciseModuleBehaviors.Exercise, ExerciseModuleBehaviors.BeforeAndAfter]
-    override var behaviors: [String] {
+    private let exerciseModuleBehaviors: [ExerciseModuleVariableTypes] = [ExerciseModuleVariableTypes.Behavior_Exercise, ExerciseModuleVariableTypes.Behavior_BeforeAndAfter]
+    override var behaviors: [String] { //object containing titles for TV cells
         var behaviorTitles: [String] = []
         for behavior in exerciseModuleBehaviors {
             behaviorTitles.append(behavior.rawValue)
@@ -18,8 +18,8 @@ class ExerciseModule: Module {
         return behaviorTitles
     }
     
-    private let exerciseModuleComputations: [ExerciseModuleComputations] = []
-    override var computations: [String] {
+    private let exerciseModuleComputations: [ExerciseModuleVariableTypes] = []
+    override var computations: [String] { //object containing titles for TV cells
         var computationTitles: [String] = []
         for computation in exerciseModuleComputations {
             computationTitles.append(computation.rawValue)
@@ -27,21 +27,30 @@ class ExerciseModule: Module {
         return computationTitles
     }
     
-    override var selectedFunctionality: String? { //handle selection of a behavior/computation
-        didSet {
-            
+    private var variableType: ExerciseModuleVariableTypes? { //converts 'selectedFunctionality' (a String) to an enum object
+        get {
+            if let selection = selectedFunctionality {
+                return ExerciseModuleVariableTypes(rawValue: selection)
+            }
+            return nil
         }
     }
     
     // MARK: - Initializers
     
-    override init(name: String) {
+    override init(name: String) { //set-up init
         super.init(name: name)
         self.moduleTitle = Modules.ExerciseModule.rawValue
     }
     
-    internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        let persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle]
+    override init(name: String, dict: [String: AnyObject]) { //CoreData init
+        super.init(name: name, dict: dict)
+    }
+    
+    // MARK: - Core Data
+    
+    internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> {
+        let persistentDictionary: [String: AnyObject] = super.createDictionaryForCoreDataStore()
         return persistentDictionary
     }
     
@@ -51,31 +60,22 @@ class ExerciseModule: Module {
     
 }
 
-enum ExerciseModuleBehaviors: String {
-    case Exercise = "<Single Workout>" //'Workout' allows the user to add a single exercise to the list for tracking the # of reps, weight, & # of sets.
-    case BeforeAndAfter = "Before & After Picture" //'Before & After' allows user to take picture & save.
+enum ExerciseModuleVariableTypes: String {
+    //Available Behaviors:
+    case Behavior_Exercise = "ExM_behavior_<SingleWorkout>" //'Workout' allows the user to add a single exercise to the list for tracking the # of reps, weight, & # of sets.
+    case Behavior_BeforeAndAfter = "ExM_behavior_BeforeAfterPicture" //'Before & After' allows user to take picture & save.
     
-    func getAlertMessageForBehavior() -> String {
+    //Available Computations:
+    
+    func getAlertMessageForVariable() -> String {
         var message = ""
         switch self {
-        case .Exercise:
+        case .Behavior_Exercise:
             message = ""
-        case .BeforeAndAfter:
+        case .Behavior_BeforeAndAfter:
             message = ""
         }
         return message
     }
-}
-
-enum ExerciseModuleComputations: String {
-    case Dummy = ""
     
-    func getAlertMessageForComputation() -> String {
-        var message = ""
-        switch self {
-        default:
-            message = ""
-        }
-        return message
-    }
 }

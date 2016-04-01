@@ -62,7 +62,7 @@ class Module { //defines the behaviors that are common to all modules
     
     // MARK: - Initializers
     
-    init(name: String) {
+    init(name: String) { //initializer for variable during SET-UP
         self.variableName = name
         
         //Add items to 'sectionsToDisplay' array for ConfigureModuleVC:
@@ -74,24 +74,36 @@ class Module { //defines the behaviors that are common to all modules
         }
     }
     
+    init(name: String, dict: [String: AnyObject]) { //initializer for variable during RECONSTRUCTION from CoreData dict
+        self.variableName = name
+    }
+    
+    internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
+        let persistentDictionary = [BMN_ModuleTitleKey: self.moduleTitle] //'moduleTitle' matches switch case in 'Project' > 'createModuleObjectFromModuleName' func
+        return persistentDictionary
+    }
+    
     //MARK: - Variable Configuration
     
     internal var topBarPrompt: String? //text for instructionLabel in topBar
-    internal var selectedFunctionality: String? { //the behavior OR computation (picked from the enums defined in each module object) that the user selected for this variable
+    internal var selectedFunctionality: String? { //the behavior OR computation (picked from the enum defined in each module object) that the user selected for this variable
         didSet { //set configurationOptions based on selection
             print("User selected behavior: '\(selectedFunctionality!)'.")
             setConfigurationOptionsForSelection()
         }
     }
+    
     internal var configurationOptionsLayoutObject: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)]? //object that handles layout of ConfigurationOptionsVC TV cells
     
     internal func setConfigurationOptionsForSelection() { //override in subclasses
         //Assigns configurationOptions based on the user's selection of a behavior/computation
+        print("setConfigOptions - Superclass Module")
         configurationOptionsLayoutObject = nil
     }
     
-    internal func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) {
-        //Matches reportedData from configurationCells -> properties in the Module object
+    internal func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [Int]?) {
+        //Matches reportedData from configurationCells -> properties in the Module object & returns TRUE if operation was successful, (FALSE + an error message) if the operation failed; the 3rd part of the return object is an optional FLAG (that tells the VC to visually mark the corresponding cell # in the data source, b/c that is where the problem has occurred).
+        return (false, "Superclass matchConfiguration fx call!", nil)
     }
     
     // MARK: - Basic Behaviors

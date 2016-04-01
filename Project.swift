@@ -50,6 +50,9 @@ class Project: NSManagedObject {
     private func createModuleObjectFromModuleName(moduleName: String, variableName: String, variableDict: [String: AnyObject]) -> Module {
         var object: Module
         switch moduleName { //the Modules enum's raw string is the moduleName for unpacking
+            
+        //**After determining the module name, pass the dictionary -> that module's reconstruction function, which will then handle the creation of the specific module subclass that will be put in the dictionary!
+            
         case Modules.CustomModule.rawValue:
 //            let options = variableDict[BMN_CustomModule_OptionsKey] as! [String]
             object = CustomModule(name: variableName)

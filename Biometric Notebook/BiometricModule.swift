@@ -9,8 +9,8 @@ import Foundation
 
 class BiometricModule: Module {
     
-    private let biometricModuleBehaviors: [BiometricModuleBehaviors] = [BiometricModuleBehaviors.Height, BiometricModuleBehaviors.Weight]
-    override var behaviors: [String] {
+    private let biometricModuleBehaviors: [BiometricModuleVariableTypes] = [BiometricModuleVariableTypes.Behavior_Height, BiometricModuleVariableTypes.Behavior_Weight]
+    override var behaviors: [String] { //object containing titles for TV cells
         var behaviorTitles: [String] = []
         for behavior in biometricModuleBehaviors {
             behaviorTitles.append(behavior.rawValue)
@@ -18,8 +18,8 @@ class BiometricModule: Module {
         return behaviorTitles
     }
     
-    private let biometricModuleComputations: [BiometricModuleComputations] = [BiometricModuleComputations.Age, BiometricModuleComputations.BMI]
-    override var computations: [String] {
+    private let biometricModuleComputations: [BiometricModuleVariableTypes] = [BiometricModuleVariableTypes.Computation_Age, BiometricModuleVariableTypes.Computation_BMI]
+    override var computations: [String] { //object containing titles for TV cells
         var computationTitles: [String] = []
         for computation in biometricModuleComputations {
             computationTitles.append(computation.rawValue)
@@ -27,21 +27,30 @@ class BiometricModule: Module {
         return computationTitles
     }
     
-    override var selectedFunctionality: String? { //handle selection of a behavior/computation
-        didSet {
-            
+    private var variableType: BiometricModuleVariableTypes? { //converts 'selectedFunctionality' (a String) to an enum object
+        get {
+            if let selection = selectedFunctionality {
+                return BiometricModuleVariableTypes(rawValue: selection)
+            }
+            return nil
         }
     }
     
     // MARK: - Initializers
     
-    override init(name: String) {
+    override init(name: String) { //set-up init
         super.init(name: name)
         self.moduleTitle = Modules.BiometricModule.rawValue
     }
     
-    internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        let persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle]
+    override init(name: String, dict: [String: AnyObject]) { //CoreData init
+        super.init(name: name, dict: dict)
+    }
+    
+    // MARK: - Core Data
+    
+    internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { 
+        let persistentDictionary: [String: AnyObject] = super.createDictionaryForCoreDataStore()
         return persistentDictionary
     }
     
@@ -51,35 +60,29 @@ class BiometricModule: Module {
     
 }
 
-enum BiometricModuleBehaviors: String {
+enum BiometricModuleVariableTypes: String {
     //how do we deal w/ static pieces of data like DOB? We could pull it from HK; the difference is these variables WON'T be measured on each run of dataEntry mode.
-    case Height = "Height"
-    case Weight = "Weight"
+    //Available Behaviors:
+    case Behavior_Height = "BM_behavior_Height"
+    case Behavior_Weight = "BM_behavior_Weight"
     
-    func getAlertMessageForBehavior() -> String {
+    //Available Computations:
+    case Computation_Age = "BM_computation_Age" //calculate from DOB -> current time
+    case Computation_BMI = "BM_computation_BMI"
+    
+    func getAlertMessageForVariable() -> String {
         var message = ""
         switch self {
-        case .Height:
+        case .Behavior_Height:
             message = ""
-        case .Weight:
+        case .Behavior_Weight:
+            message = ""
+        case .Computation_Age:
+            message = ""
+        case .Computation_BMI:
             message = ""
         }
         return message
     }
-}
-
-enum BiometricModuleComputations: String {
-    case Age = "Age"
-    case BMI = "BMI"
     
-    func getAlertMessageForComputation() -> String {
-        var message = ""
-        switch self {
-        case .Age:
-            message = ""
-        case .BMI:
-            message = ""
-        }
-        return message
-    }
 }

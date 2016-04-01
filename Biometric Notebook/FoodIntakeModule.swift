@@ -9,8 +9,8 @@ import Foundation
 
 class FoodIntakeModule: Module {
     
-    private let foodIntakeModuleBehaviors: [FoodIntakeModuleBehaviors] = []
-    override var behaviors: [String] {
+    private let foodIntakeModuleBehaviors: [FoodIntakeModuleVariableTypes] = []
+    override var behaviors: [String] { //object containing titles for TV cells
         var behaviorTitles: [String] = []
         for behavior in foodIntakeModuleBehaviors {
             behaviorTitles.append(behavior.rawValue)
@@ -18,8 +18,8 @@ class FoodIntakeModule: Module {
         return behaviorTitles
     }
     
-    private let foodIntakeModuleComputations: [FoodIntakeModuleComputations] = []
-    override var computations: [String] {
+    private let foodIntakeModuleComputations: [FoodIntakeModuleVariableTypes] = []
+    override var computations: [String] { //object containing titles for TV cells
         var computationTitles: [String] = []
         for computation in foodIntakeModuleComputations {
             computationTitles.append(computation.rawValue)
@@ -27,21 +27,30 @@ class FoodIntakeModule: Module {
         return computationTitles
     }
     
-    override var selectedFunctionality: String? { //handle selection of a behavior/computation
-        didSet {
-            
+    private var variableType: FoodIntakeModuleVariableTypes? { //converts 'selectedFunctionality' (a String) to an enum object
+        get {
+            if let selection = selectedFunctionality {
+                return FoodIntakeModuleVariableTypes(rawValue: selection)
+            }
+            return nil
         }
     }
     
     // MARK: - Initializers
     
-    override init(name: String) {
+    override init(name: String) { //set-up init
         super.init(name: name)
         self.moduleTitle = Modules.FoodIntakeModule.rawValue
     }
     
-    internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        let persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle]
+    override init(name: String, dict: [String: AnyObject]) { //CoreData init
+        super.init(name: name, dict: dict)
+    }
+    
+    // MARK: - Core Data
+    
+    internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> {
+        let persistentDictionary: [String: AnyObject] = super.createDictionaryForCoreDataStore()
         return persistentDictionary
     }
     
@@ -51,10 +60,10 @@ class FoodIntakeModule: Module {
     
 }
 
-enum FoodIntakeModuleBehaviors: String {
+enum FoodIntakeModuleVariableTypes: String {
     case Dummy = ""
     
-    func getAlertMessageForBehavior() -> String {
+    func getAlertMessageForVariable() -> String {
         var message = ""
         switch self {
         default:
@@ -62,17 +71,5 @@ enum FoodIntakeModuleBehaviors: String {
         }
         return message
     }
-}
 
-enum FoodIntakeModuleComputations: String {
-    case Dummy = ""
-
-    func getAlertMessageForComputation() -> String {
-        var message = ""
-        switch self {
-        default:
-            message = ""
-        }
-        return message
-    }
 }
