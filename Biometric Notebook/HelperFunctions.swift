@@ -19,6 +19,22 @@ func saveManagedObjectContext() {
     }
 }
 
+func fetchAllProjectsFromStore() -> [Project] { //fetches all projects from data store
+    let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
+    var projects: [Project] = []
+    let request = NSFetchRequest(entityName: "Project")
+    do {
+        let results = try context.executeFetchRequest(request)
+        for result in results {
+            projects.append(result as! Project)
+        }
+        print("[fetchAllProjects] Fetched \(projects.count) projects.")
+    } catch let error as NSError {
+        print("Error fetching stored projects: \(error)")
+    }
+    return projects
+}
+
 func clearCoreDataStoreForEntity(entity entity: String) {
     print("Clearing data store...")
     let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext

@@ -45,6 +45,7 @@ class FoodIntakeModule: Module {
     
     override init(name: String, dict: [String: AnyObject]) { //CoreData init
         super.init(name: name, dict: dict)
+        self.moduleTitle = Modules.FoodIntakeModule.rawValue
     }
     
     // MARK: - Core Data
@@ -56,6 +57,18 @@ class FoodIntakeModule: Module {
     
     internal override func setConfigurationOptionsForSelection() {
         //
+    }
+    
+    // MARK: - Data Entry
+    
+    override func getDataEntryCellForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
+        if let type = self.variableType {
+            switch type {
+            default:
+                return nil
+            }
+        }
+        return nil
     }
     
 }

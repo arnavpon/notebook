@@ -11,10 +11,10 @@ import CoreData
 
 class HomeScreenViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, LoginViewControllerDelegate {
     
-    @IBOutlet weak var categoriesTableView: UITableView!
+    @IBOutlet weak var projectsTableView: UITableView!
     
     let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
-    var projects: [Project] = [] //list of project objects
+    var projects: [Project] = [] //list of project objects, TV dataSource
     let cellColors: [UIColor] = [UIColor.blueColor(), UIColor.greenColor(), UIColor.redColor(), UIColor.blackColor()] //adjust the colors so that they have some meaning
     var selectedProject: Project? //object to pass on segue
     
@@ -22,18 +22,13 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        if (userDefaults.valueForKey("ISLOGGEDIN") as? Bool == true) { //user is logged in
+//        clearCoreDataStoreForEntity(entity: "Project") //*
+        if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //user is logged in
             loggedIn = true //tell system that user is logged in
-            
-            //**Is it possible to only create the project before going in to view it, & only obtain the project's name @ this point in time? This will stall the intensive process of configuring the project w/ all its variables, & prevent all projects from being configured at once!
-            
-            obtainDataFromStore("Project")
-            
-            //clearCoreDataStoreForEntity(entity: "PROJECT")
-            categoriesTableView.dataSource = self
-            categoriesTableView.delegate = self
-            categoriesTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
+            self.projects = fetchAllProjectsFromStore() //obtain list of all projects from data store
+            projectsTableView.dataSource = self
+            projectsTableView.delegate = self
+            projectsTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
         } else {
             loggedIn = false //transition -> LoginVC
         }
@@ -41,39 +36,9 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     
     override func viewWillAppear(animated: Bool) {
         if (userJustLoggedIn) { //check if user just logged in & set the projects accordingly
-            obtainDataFromStore("Project")
-            categoriesTableView.dataSource = self
-            categoriesTableView.delegate = self
-            categoriesTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
+            self.projects = fetchAllProjectsFromStore() //**obtain projects SPECIFIC to new user?!? - we will need to store local projects against username for this to work; better to pull all projects from the cloud & store to the device (overwriting existing entity) rather than creating a store for each user
+            projectsTableView.reloadData() //reload UI w/ new project list
             userJustLoggedIn = false //reset the variable
-        }
-    }
-    
-    func obtainDataFromStore(entity: String) {
-        let request = NSFetchRequest(entityName: entity)
-        do { //obtain user's projects from data store
-            let results = try context.executeFetchRequest(request)
-            for result in results {
-                let project = result as! Project
-                projects.append(project)
-                let count = project.beforeActionVars.count + project.afterActionVars.count
-                print("[\(project.title)] Number of variables: \(count)")
-                for (variable, dict) in project.beforeActionVars {
-                    let options = dict[BMN_CustomModule_OptionsKey] as? [String] //not all vars have 'options'
-                    let prompt = dict["prompt"] as? String
-                    print("Before Action Variable Name: \(variable)")
-                    print("Options: \(options)")
-                    print("Prompt: \(prompt)")
-                }
-                for (variable, dict) in project.afterActionVars {
-                    let options = dict[BMN_CustomModule_OptionsKey] as? [String]
-                    print("After Action Variable Name: \(variable)")
-                    print("Options: \(options)")
-                }
-                print("\n")
-            }
-        } catch let error as NSError {
-            print("Error fetching stored projects: \(error)")
         }
     }
     
@@ -98,15 +63,24 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-//        let height = tableView.frame.height/CGFloat(categories.count) //split TV height evenly
-//        return height
         return 75
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //Tapping a cell brings up the data visualization flow for that project:
+        //Tapping a cell brings up the data visualization flow for that project?:
         selectedProject = projects[indexPath.row]
-        performSegueWithIdentifier("showDataVisuals", sender: nil) //transition to ProjectOverviewVC
+        performSegueWithIdentifier("showDataVisuals", sender: nil) //segue -> ProjectOverviewVC
+    }
+    
+    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle { //allow deletion of projects from here
+        return UITableViewCellEditingStyle.None
+    }
+    
+    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        if (editingStyle == UITableViewCellEditingStyle.Delete) { //*
+            //Project must be removed from TV dataSource, core data, DB must be removed from web, etc.!
+            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Fade)
+        }
     }
     
     // MARK: - Button Actions
@@ -127,25 +101,25 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     var userJustLoggedIn: Bool = false
     var loggedIn: Bool = false {
         didSet {
-            if !(loggedIn) { //not logged in
+            if !(loggedIn) { //user logged out
+                userDefaults.setBool(false, forKey: IS_LOGGED_IN_KEY) //adjust defaults
                 performSegueWithIdentifier("showLogin", sender: nil)
             }
         }
     }
     
-    func didLoginSuccessfully(username: String, email: String?) { //store username & pwd & dismiss LoginVC
-        userDefaults.setObject(username, forKey: "USERNAME") //save username -> preferences
-        if (email != nil) { //consider creating an email formatting class!
-            userDefaults.setObject(email!, forKey: "EMAIL") //save email -> preferences
+    func didLoginSuccessfully(username: String, email: String?) { //store username/email & dismiss LoginVC
+        userDefaults.setObject(username, forKey: USERNAME_KEY) //save username -> preferences
+        if (email != nil) { //**consider creating an email regex formatting class!
+            userDefaults.setObject(email!, forKey: EMAIL_KEY) //save email -> preferences
         }
-        userDefaults.setBool(true, forKey: "ISLOGGEDIN")
+        userDefaults.setBool(true, forKey: IS_LOGGED_IN_KEY)
         let success = userDefaults.synchronize() //update the store
         print("Sync successful?: \(success)")
         dismissViewControllerAnimated(true, completion: nil)
     }
     
     func logout() {
-        userDefaults.setBool(false, forKey: "ISLOGGEDIN")
         loggedIn = false
     }
     

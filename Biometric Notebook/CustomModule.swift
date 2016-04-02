@@ -31,7 +31,7 @@ class CustomModule: Module {
         }
     }
     
-    private let customModuleBehaviors: [CustomModuleVariableTypes] = [CustomModuleVariableTypes.Behavior_CustomOptions, CustomModuleVariableTypes.Behavior_Binary, CustomModuleVariableTypes.Behavior_Counter, CustomModuleVariableTypes.Behavior_RangeScale]
+    private let customModuleBehaviors: [CustomModuleVariableTypes] = [CustomModuleVariableTypes.Behavior_CustomOptions, CustomModuleVariableTypes.Behavior_BinaryOptions, CustomModuleVariableTypes.Behavior_Counter, CustomModuleVariableTypes.Behavior_RangeScale]
     override var behaviors: [String] { //object containing titles for TV cells
         var behaviorTitles: [String] = []
         for behavior in customModuleBehaviors {
@@ -60,6 +60,7 @@ class CustomModule: Module {
     
     private var prompt: String? //the (optional) prompt attached to the variable (replaces the variable's name as the section header in Data Entry mode)
     private var options: [String]? //array of user-created options associated w/ the variable/prompt
+    private var multipleSelectionEnabled: Bool? //for a variable w/ options, checks if user is allowed to select MULTIPLE OPTIONS (if nil => FALSE)
     private var rangeScaleParameters: (Int, Int, Int)? //(minimum, maximum, increment)
     
     // MARK: - Initializers
@@ -71,29 +72,43 @@ class CustomModule: Module {
     
     override init(name: String, dict: [String: AnyObject]) { //CoreData initializer
         super.init(name: name, dict: dict)
+        self.moduleTitle = Modules.CustomModule.rawValue //title specific to this class
+        
         //Break down the dictionary depending on the variable's type key & reconstruct object:
-        if let typeName = dict[BMN_VariableTypeKey] as? String, type = CustomModuleVariableTypes(rawValue: typeName) { //DO NOT set the selectedFunctionality! Break down manually.
-//            self.variableType = type //*need to set the type, can't set directly to variableType, need a way to distinguish whether we are doing setup or creating a variable for reporting
-            switch type {
+        if let typeName = dict[BMN_VariableTypeKey] as? String, type = CustomModuleVariableTypes(rawValue: typeName) {
+            self.selectedFunctionality = typeName //reset the variable's selection
+            switch type { //configure according to 'variableType'
             case .Behavior_CustomOptions:
                 if let opts = dict[BMN_CustomModule_OptionsKey] as? [String] {
                     self.options = opts
+                    for opt in opts {
+                        print("[CustomOptions] Option: '\(opt)'.")
+                    }
                 }
-                if let optionalPrompt = dict[BMN_CustomModule_PromptKey] as? String {
+                if let optionalPrompt = dict[BMN_CustomModule_CustomOptionsPromptKey] as? String {
                     self.prompt = optionalPrompt
+                    print("[CustomOptions] Prompt: '\(optionalPrompt)'.")
                 }
-            case .Behavior_Binary:
+                if let multipleSelection = dict[BMN_CustomModule_CustomOptionsMultipleSelectionAllowedKey] as? Bool {
+                    self.multipleSelectionEnabled = multipleSelection
+                    print("[CustomOptions] Multiple Selection Enabled: \(multipleSelection).")
+                }
+            case .Behavior_BinaryOptions:
                 if let opts = dict[BMN_CustomModule_OptionsKey] as? [String] {
                     self.options = opts
+                    for opt in opts {
+                        print("[BinaryVariable] Option: '\(opt)'.")
+                    }
                 }
-            case .Behavior_Counter:
-                print("")
+            case .Behavior_Counter: //no set-up needed?
+                print("Counter variable.")
             case .Behavior_RangeScale:
                 if let min = dict[BMN_CustomModule_RangeScaleMinimumKey] as? Int, max = dict[BMN_CustomModule_RangeScaleMaximumKey] as? Int, increment = dict[BMN_CustomModule_RangeScaleIncrementKey] as? Int {
                     self.rangeScaleParameters = (min, max, increment)
+                    print("[RangeScale] Minimum: \(min). Maximum: \(max). Increment: \(increment).")
                 }
             case .Computation_TimeDifference:
-                print("")
+                print("Time Difference variable.")
             }
         } else {
             print("[CustomModule > CoreData initializer] Error! Could not find a type for the object.")
@@ -103,18 +118,20 @@ class CustomModule: Module {
     // MARK: - Variable Configuration
     
     internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the topBar visibility; (2) Sets the 'options' value as needed; (3) Constructs the configuration TV cells.
-        if let type = variableType { //make sure behavior/computation was selected & only set the configOptionsObject if further configuration is required
+        if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
             var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = []
             switch type {
             case CustomModuleVariableTypes.Behavior_CustomOptions:
                 
                 topBarPrompt = "Add Custom Options"
-                //Only 1 config cell is needed (to set the PROMPT if the user desires):
-                array.append((ConfigurationOptionCellTypes.SimpleText, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_PromptID, BMN_Configuration_CellIsOptionalKey: true, BMN_Configuration_InstructionsLabelKey: "If you want, set a prompt:"]))
+                //2 config cells are needed (prompt + multiple selection):
+                array.append((ConfigurationOptionCellTypes.SimpleText, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_PromptID, BMN_Configuration_CellIsOptionalKey: true, BMN_Configuration_InstructionsLabelKey: "If you want, set a prompt:"])) //cell to accept an optional prompt
+                array.append((ConfigurationOptionCellTypes.Boolean, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID, BMN_Configuration_InstructionsLabelKey: "Allow multiple options to be selected (default NO):"])) //cell to check whether multiple selections are allowed or not
                 configurationOptionsLayoutObject = array
                 
-            case CustomModuleVariableTypes.Behavior_Binary:
+            case CustomModuleVariableTypes.Behavior_BinaryOptions:
                 
+                //**Should we allow user to set a prompt for binary? And if so, do they set it immediately, or only if they click on the ProjectVarsTV cell?
                 options = ["Yes", "No"] //set binary options
                 configurationOptionsLayoutObject = nil //no further config needed
                 
@@ -143,27 +160,28 @@ class CustomModule: Module {
         }
     }
     
-    internal override func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [Int]?) {
-        //(1) Takes as INPUT the data that was entered into each configuration cell. (2) Given the var's 'selectedFunctionality', matches the configuration data -> properties in the Module object by accessing specific configuration cell identifiers (in 'HelperFx' > 'Dictionary Keys').
+    internal override func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [String]?) {
+        //(1) Takes as INPUT the data that was entered into each config TV cell. (2) Given the variableType, matches configuration data -> properties in the Module object by accessing specific configuration cell identifiers (defined in 'HelperFx' > 'Dictionary Keys').
         if let type = variableType {
             switch type { //only needed for sections that require configuration
             case .Behavior_CustomOptions:
                 
                 self.prompt = configurationData[BMN_CustomModule_CustomOptions_PromptID] as? String
                 self.options = configurationData[BMN_CustomModule_CustomOptions_OptionsID] as? [String]
-                if (self.prompt != nil) && (self.options != nil) {
+                self.multipleSelectionEnabled = configurationData[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] as? Bool
+                if (self.prompt != nil) && (self.options != nil) && (self.multipleSelectionEnabled != nil) {
                     return (true, nil, nil)
                 } else { //error
-                    return (false, "Either the prompt or options have not been set.", nil)
+                    return (false, "Either the prompt, options, or multiple selection indicator have not been set.", nil)
                 }
                 
             case .Behavior_RangeScale: //inc data is INT
                 
                 if let min = (configurationData[BMN_CustomModule_RangeScale_MinimumID] as? Int), max = (configurationData[BMN_CustomModule_RangeScale_MaximumID] as? Int), increment = (configurationData[BMN_CustomModule_RangeScale_IncrementID] as? Int) {
                     if (min >= max) { //Check #1
-                        return (false, "The minimum value must be LESS than the maximum value.", [0, 1])
+                        return (false, "The minimum value must be LESS than the maximum value.", [BMN_CustomModule_RangeScale_MinimumID, BMN_CustomModule_RangeScale_MaximumID]) //flag min & max cells
                     } else if ((max - min)%increment != 0) { //Check #2 - increment must be perfectly divisible by the difference between min & max
-                        return (false, "The increment must be divisible by the difference between the minimum and maximum.", [2])
+                        return (false, "The increment must be divisible by the difference between the minimum and maximum.", [BMN_CustomModule_RangeScale_IncrementID]) //flag incrm
                     } else { //setup is OK
                         rangeScaleParameters = (min, max, increment)
                         return (true, nil, nil)
@@ -183,7 +201,7 @@ class CustomModule: Module {
         return (false, "No selected functionality was found!", nil)
     }
     
-    // MARK: - Data Persistence
+    // MARK: - Core Data
     
     internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict allows FULL reconstruction of the object into a Module subclass). Each variable will occupy 1 spot in the overall dictionary, so we need to merge these individual dictionaries for each variable into 1 master dictionary. Each variable's dictionary will be indicated by the variable name, so MAKE SURE THERE ARE NO REPEAT NAMES!
         
@@ -195,12 +213,15 @@ class CustomModule: Module {
             switch type {
             case CustomModuleVariableTypes.Behavior_CustomOptions:
                 if let headerTitle = self.prompt { //check if user entered a prompt
-                    persistentDictionary[BMN_CustomModule_PromptKey] = headerTitle
+                    persistentDictionary[BMN_CustomModule_CustomOptionsPromptKey] = headerTitle
                 }
                 if let opts = self.options { //make sure there are options
                     persistentDictionary[BMN_CustomModule_OptionsKey] = opts
                 }
-            case CustomModuleVariableTypes.Behavior_Binary:
+                if let multipleSelect = multipleSelectionEnabled { //check if multiple selection allowed
+                    persistentDictionary[BMN_CustomModule_CustomOptionsMultipleSelectionAllowedKey] = multipleSelect
+                }
+            case CustomModuleVariableTypes.Behavior_BinaryOptions:
                 if let opts = self.options { //make sure there are options
                     persistentDictionary[BMN_CustomModule_OptionsKey] = opts
                 }
@@ -219,12 +240,34 @@ class CustomModule: Module {
         return persistentDictionary
     }
     
+    // MARK: - Data Entry
+    
+    func getTypeForVariable() -> CustomModuleVariableTypes? { //used by DataEntry TV cells as safety check
+        return self.variableType
+    }
+    
+    override func getDataEntryCellForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
+        if let type = self.variableType {
+            switch type {
+            case .Behavior_CustomOptions, .Behavior_BinaryOptions:
+                return DataEntryCellTypes.CustomWithOptions
+            case .Behavior_Counter:
+                return DataEntryCellTypes.CustomWithCounter
+            case .Behavior_RangeScale:
+                return DataEntryCellTypes.CustomWithRangeScale
+            default:
+                return nil
+            }
+        }
+        return nil
+    }
+    
 }
 
 enum CustomModuleVariableTypes: String {
     //*BEHAVIORS* - make sure the rawValues are UNIQUE:
     case Behavior_CustomOptions = "Custom Options" //allows user to enter custom options
-    case Behavior_Binary = "Binary" //automatically creates 2 options, 'Yes' & 'No'.
+    case Behavior_BinaryOptions = "Binary Options" //automatically creates 2 options, 'Yes' & 'No'.
     case Behavior_Counter = "Counter" //creates an incrementable counter
     case Behavior_RangeScale = "Range Scale" //gives users the option to select a value on a scale from A - B, where the user selects what the lower & upper limits are when they adopt this behavior; in data entry mode, the user will then select a value from this range using a slider/picker (TBD).
     
@@ -236,7 +279,7 @@ enum CustomModuleVariableTypes: String {
         switch self {
         case .Behavior_CustomOptions:
             message = "Create custom selection options."
-        case .Behavior_Binary:
+        case .Behavior_BinaryOptions:
             message = "A binary configuration offers two options - 'Yes' and 'No'. Useful for variables with only two possibilities."
         case .Behavior_Counter:
             message = "A counter that allows you to keep track of how many times something has occurred."

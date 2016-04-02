@@ -3,7 +3,7 @@
 //  Created by Arnav Pondicherry  on 3/29/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Prompts the user to enter text into a txtLabel.
+// Custom Config Cell - prompts the user to enter text into a txtLabel.
 
 import UIKit
 
@@ -43,9 +43,9 @@ class SimpleTextConfigurationCell: BaseConfigurationCell, UITextFieldDelegate {
         if let input = textField.text?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) {
             let count = input.characters.count + string.characters.count - range.length
             if (count > 0) { //set as complete if textField is not empty
-                self.configurationIsComplete = true
+                configureCompletionIndicator(true)
             } else { //set as incomplete
-                self.configurationIsComplete = false
+                configureCompletionIndicator(false)
             }
         }
         return true

@@ -42,12 +42,11 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: "BMNCompletionIndicatorDidChange", object: nil) //add observer for Configuration Cell notification BEFORE configuring TV!
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil) //add observer for Configuration Cell notification BEFORE configuring TV!
         
         optionsTableView.delegate = self
         optionsTableView.dataSource = self //set the # of prototype cells to 0 in IB!
-        optionsTableView.registerClass(SimpleTextConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleTextConfigurationCell))
-        optionsTableView.registerClass(SimpleNumberConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleNumberConfigurationCell))
+        registerConfigurationCellTypes() //register TV for all config cell types
         
         if let variable = createdVariable { //configure the topBar
             if let topBarText = variable.topBarPrompt {
@@ -61,11 +60,18 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         }
     }
     
+    func registerConfigurationCellTypes() { //register ALL possible custom configuration cell types
+        optionsTableView.registerClass(SimpleTextConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleTextConfigurationCell)) //simple txt
+        optionsTableView.registerClass(SimpleNumberConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleNumberConfigurationCell)) //simple #
+        optionsTableView.registerClass(BooleanConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(BooleanConfigurationCell)) //boolean
+        optionsTableView.registerClass(ExampleConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(ExampleConfigurationCell)) //example
+    }
+    
     override func viewWillDisappear(animated: Bool) { //remove observer befor exiting this VC
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
-    override func didReceiveMemoryWarning() { //save current config sate?
+    override func didReceiveMemoryWarning() { //save current config state?
         super.didReceiveMemoryWarning()
     }
     
@@ -82,6 +88,9 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         let total = dataSource.count
         if (numberOfConfiguredCells != total) { //some cells haven't been configured yet
             doneButton.enabled = false
+            if (numberOfConfiguredCells > total) { //error check
+                print("[configureDoneButton] Error - # of configured cells exceeds total # of cells!")
+            }
         } else { //all cells have been configured
             if let variable = createdVariable as? CustomModule { //check if this is a CustomModule object
                 if (variable.selectedFunctionality == CustomModuleVariableTypes.Behavior_CustomOptions.rawValue) {
@@ -149,16 +158,23 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(SimpleNumberConfigurationCell)) as! SimpleNumberConfigurationCell
         case .SimpleText:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(SimpleTextConfigurationCell)) as! SimpleTextConfigurationCell
+        case .Boolean:
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(BooleanConfigurationCell)) as! BooleanConfigurationCell
+        case .Example:
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExampleConfigurationCell)) as! ExampleConfigurationCell
         }
         cell.dataSource = dataSource[indexPath.row].1 //set cell's dataSource
         return cell
     }
     
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        if (indexPath.section == 1) {
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat { //this function is called BEFORE the cell obj is set (so we cannot query cell for height here)!
+        if (indexPath.section == 0) { //obtain cell height from enum function
+            let cellHeight = dataSource[indexPath.row].0.getHeightForConfigurationCellType()
+            return cellHeight
+        } else if (indexPath.section == 1) {
             return 40 //user added cells
         }
-        return 70
+        return 70 //default
     }
     
     func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
@@ -213,7 +229,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             }
         }
         
-        //If the variable is CustomModule > CustomOptions, grab the user-entered options:
+        //If the variable is CustomModule > CustomOptions, add user-entered options -> reportedData:
         if (createdVariable?.selectedFunctionality == CustomModuleVariableTypes.Behavior_CustomOptions.rawValue) {
             reportedData[BMN_CustomModule_CustomOptions_OptionsID] = self.userAddedOptions
         }
@@ -228,7 +244,8 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
                     if let flaggedCells = flags {
                         for i in 0..<self.dataSource.count {
                             let cell = self.optionsTableView.cellForRowAtIndexPath(NSIndexPath(forRow: i, inSection: 0)) as! BaseConfigurationCell //get reference to each cell
-                            if (flaggedCells.contains(i)) { //if cell is flagged, set the flag variable
+                            let descriptor = cell.cellDescriptor //check descriptor for match w/ flag
+                            if (flaggedCells.contains(descriptor)) { //if cell is flagged, set flag var
                                 cell.flagged = true
                             }
                         }

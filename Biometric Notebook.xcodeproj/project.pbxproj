@@ -35,6 +35,11 @@
 		B189589D1C39FC0A00378E47 /* Checkbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589C1C39FC0A00378E47 /* Checkbox.swift */; };
 		B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */; };
 		B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */; };
+		B1A8C7C71CAF640300380E99 /* CustomWithRangeScaleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */; };
+		B1A8C7C91CAF656500380E99 /* CustomWithOptionsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7C81CAF656500380E99 /* CustomWithOptionsCell.swift */; };
+		B1A8C7CB1CAF657300380E99 /* CustomWithCounterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7CA1CAF657300380E99 /* CustomWithCounterCell.swift */; };
+		B1A8C7CD1CAF663300380E99 /* BaseDataEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7CC1CAF663300380E99 /* BaseDataEntryCell.swift */; };
+		B1A8C7D01CAF7E8C00380E99 /* BooleanConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7CF1CAF7E8C00380E99 /* BooleanConfigurationCell.swift */; };
 		B1AA96C81CAB1C870009E716 /* ConfigurationOptionCellTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AA96C71CAB1C870009E716 /* ConfigurationOptionCellTypes.swift */; };
 		B1AA96CA1CAB1CCC0009E716 /* DataEntryCellTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AA96C91CAB1CCC0009E716 /* DataEntryCellTypes.swift */; };
 		B1AA96CC1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AA96CB1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift */; };
@@ -43,9 +48,6 @@
 		B1B106931C59097800463612 /* EnvironmentModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B106921C59097800463612 /* EnvironmentModule.swift */; };
 		B1B20A6B1C5E8576003B791B /* LabelWithPadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */; };
 		B1B20A6D1C5E9CD0003B791B /* TutorialLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B20A6C1C5E9CD0003B791B /* TutorialLayer.swift */; };
-		B1B681CD1CA9CAE100D9CA71 /* BaseTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B681CC1CA9CAE100D9CA71 /* BaseTableViewCell.swift */; };
-		B1B681D11CA9DF9E00D9CA71 /* CustomWithOptionsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B681D01CA9DF9E00D9CA71 /* CustomWithOptionsTableViewCell.swift */; };
-		B1B681D31CA9E23300D9CA71 /* CustomWithCounterTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B681D21CA9E23300D9CA71 /* CustomWithCounterTableViewCell.swift */; };
 		B1B681D81CA9E99C00D9CA71 /* DictionaryKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B681D71CA9E99C00D9CA71 /* DictionaryKeys.swift */; };
 		B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */; };
 		B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */; };
@@ -55,6 +57,7 @@
 		B1C403351C3974A100AF4BB9 /* CreateProjectFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */; };
 		B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */; };
 		B1C623FC1C619C72006DDD13 /* AttachModuleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */; };
+		B1CCF1BF1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */; };
 		B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */; };
 		B1CF34661C4F0179001C0F27 /* DataEntryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CF34651C4F0179001C0F27 /* DataEntryTableViewController.swift */; };
 		B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */; };
@@ -166,6 +169,11 @@
 		B189589C1C39FC0A00378E47 /* Checkbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkbox.swift; sourceTree = "<group>"; };
 		B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureModuleViewController.swift; sourceTree = "<group>"; };
 		B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSliderBackgroundView.swift; sourceTree = "<group>"; };
+		B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithRangeScaleCell.swift; sourceTree = "<group>"; };
+		B1A8C7C81CAF656500380E99 /* CustomWithOptionsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithOptionsCell.swift; sourceTree = "<group>"; };
+		B1A8C7CA1CAF657300380E99 /* CustomWithCounterCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithCounterCell.swift; sourceTree = "<group>"; };
+		B1A8C7CC1CAF663300380E99 /* BaseDataEntryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseDataEntryCell.swift; sourceTree = "<group>"; };
+		B1A8C7CF1CAF7E8C00380E99 /* BooleanConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BooleanConfigurationCell.swift; sourceTree = "<group>"; };
 		B1AA96C71CAB1C870009E716 /* ConfigurationOptionCellTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigurationOptionCellTypes.swift; sourceTree = "<group>"; };
 		B1AA96C91CAB1CCC0009E716 /* DataEntryCellTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataEntryCellTypes.swift; sourceTree = "<group>"; };
 		B1AA96CB1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleTextConfigurationCell.swift; sourceTree = "<group>"; };
@@ -174,9 +182,6 @@
 		B1B106921C59097800463612 /* EnvironmentModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnvironmentModule.swift; sourceTree = "<group>"; };
 		B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LabelWithPadding.swift; sourceTree = "<group>"; };
 		B1B20A6C1C5E9CD0003B791B /* TutorialLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TutorialLayer.swift; sourceTree = "<group>"; };
-		B1B681CC1CA9CAE100D9CA71 /* BaseTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseTableViewCell.swift; sourceTree = "<group>"; };
-		B1B681D01CA9DF9E00D9CA71 /* CustomWithOptionsTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithOptionsTableViewCell.swift; sourceTree = "<group>"; };
-		B1B681D21CA9E23300D9CA71 /* CustomWithCounterTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithCounterTableViewCell.swift; sourceTree = "<group>"; };
 		B1B681D71CA9E99C00D9CA71 /* DictionaryKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DictionaryKeys.swift; sourceTree = "<group>"; };
 		B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateProjectViewController.swift; sourceTree = "<group>"; };
 		B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectOverviewViewController.swift; sourceTree = "<group>"; };
@@ -186,6 +191,7 @@
 		B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = CreateProjectFlow.storyboard; sourceTree = "<group>"; };
 		B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectSummaryViewController.swift; sourceTree = "<group>"; };
 		B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleTableViewCell.swift; sourceTree = "<group>"; };
+		B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ExampleConfigurationCell.swift; path = ../../ExampleConfigurationCell.swift; sourceTree = "<group>"; };
 		B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricModule.swift; sourceTree = "<group>"; };
 		B1CF34651C4F0179001C0F27 /* DataEntryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataEntryTableViewController.swift; sourceTree = "<group>"; };
 		B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomModule.swift; sourceTree = "<group>"; };
@@ -360,8 +366,8 @@
 			children = (
 				B1D868DB1C3F5A960026334B /* Supplements */,
 				B1CF34671C4F018D001C0F27 /* View Project(s) Flow */,
-				B1B98BD41C39915D00DDACEE /* Create Project Flow */,
 				B1EDACB61CA4A5DE0087E3B1 /* Data Entry Flow */,
+				B1B98BD41C39915D00DDACEE /* Create Project Flow */,
 			);
 			name = "View Controllers";
 			sourceTree = "<group>";
@@ -401,17 +407,28 @@
 				B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */,
 				B1AA96CB1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift */,
 				B1AA96CD1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift */,
+				B1A8C7CF1CAF7E8C00380E99 /* BooleanConfigurationCell.swift */,
+				B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */,
 			);
 			name = "Config Options TV Cells";
+			sourceTree = "<group>";
+		};
+		B1A8C7CE1CAF685100380E99 /* Custom Module Cells */ = {
+			isa = PBXGroup;
+			children = (
+				B1A8C7C81CAF656500380E99 /* CustomWithOptionsCell.swift */,
+				B1A8C7CA1CAF657300380E99 /* CustomWithCounterCell.swift */,
+				B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */,
+			);
+			name = "Custom Module Cells";
 			sourceTree = "<group>";
 		};
 		B1AA96C61CAB1B480009E716 /* Data Entry TV Cells */ = {
 			isa = PBXGroup;
 			children = (
 				B1AA96C91CAB1CCC0009E716 /* DataEntryCellTypes.swift */,
-				B1B681CC1CA9CAE100D9CA71 /* BaseTableViewCell.swift */,
-				B1B681D01CA9DF9E00D9CA71 /* CustomWithOptionsTableViewCell.swift */,
-				B1B681D21CA9E23300D9CA71 /* CustomWithCounterTableViewCell.swift */,
+				B1A8C7CC1CAF663300380E99 /* BaseDataEntryCell.swift */,
+				B1A8C7CE1CAF685100380E99 /* Custom Module Cells */,
 			);
 			name = "Data Entry TV Cells";
 			sourceTree = "<group>";
@@ -713,13 +730,13 @@
 				B1BC886F1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld in Sources */,
 				B1B681D81CA9E99C00D9CA71 /* DictionaryKeys.swift in Sources */,
 				B1D868D61C3F58810026334B /* Modules.swift in Sources */,
-				B1B681CD1CA9CAE100D9CA71 /* BaseTableViewCell.swift in Sources */,
-				B1B681D31CA9E23300D9CA71 /* CustomWithCounterTableViewCell.swift in Sources */,
 				B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */,
 				B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */,
 				B17C21101C31D96800B59FB0 /* FoodItem.swift in Sources */,
 				B1AA96CE1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift in Sources */,
 				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
+				B1A8C7D01CAF7E8C00380E99 /* BooleanConfigurationCell.swift in Sources */,
+				B1A8C7C91CAF656500380E99 /* CustomWithOptionsCell.swift in Sources */,
 				B1D0B2B81C3F25BC00C9438F /* ExerciseModule.swift in Sources */,
 				B10838FE1C4D40210023C060 /* Action.swift in Sources */,
 				B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */,
@@ -732,7 +749,6 @@
 				B1AA96CA1CAB1CCC0009E716 /* DataEntryCellTypes.swift in Sources */,
 				B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */,
 				B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */,
-				B1B681D11CA9DF9E00D9CA71 /* CustomWithOptionsTableViewCell.swift in Sources */,
 				B189589D1C39FC0A00378E47 /* Checkbox.swift in Sources */,
 				B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */,
 				B1D555871C30739C00C20742 /* DateTime.swift in Sources */,
@@ -740,17 +756,21 @@
 				B1B9D99A1C528B50000D501E /* CustomSlider.swift in Sources */,
 				B1B106931C59097800463612 /* EnvironmentModule.swift in Sources */,
 				B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */,
+				B1A8C7CD1CAF663300380E99 /* BaseDataEntryCell.swift in Sources */,
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
 				B17019561CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift in Sources */,
 				B1C623FC1C619C72006DDD13 /* AttachModuleTableViewCell.swift in Sources */,
 				B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */,
+				B1CCF1BF1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift in Sources */,
 				B1B20A6B1C5E8576003B791B /* LabelWithPadding.swift in Sources */,
 				B1AA96C81CAB1C870009E716 /* ConfigurationOptionCellTypes.swift in Sources */,
 				B17019591CAA2C73004CAEB8 /* BaseConfigurationCell.swift in Sources */,
 				B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */,
 				B1D0B2BA1C3F25F200C9438F /* Module.swift in Sources */,
+				B1A8C7C71CAF640300380E99 /* CustomWithRangeScaleCell.swift in Sources */,
 				B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */,
 				B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */,
+				B1A8C7CB1CAF657300380E99 /* CustomWithCounterCell.swift in Sources */,
 				B1D0B2C21C3F29B400C9438F /* Project.swift in Sources */,
 				B1B20A6D1C5E9CD0003B791B /* TutorialLayer.swift in Sources */,
 			);

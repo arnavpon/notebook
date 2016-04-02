@@ -11,7 +11,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     
     @IBOutlet weak var summaryTableView: UITableView!
     
-    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     
     var projectTitle: String? //title (obtained from ProjectVariablesVC)
     var projectQuestion: String? //question for investigation (obtained from ProjectVariablesVC)
@@ -42,17 +42,17 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch section {
         case 0:
-            return "Project Title"
+            return "Project Title".uppercaseString
         case 1:
-            return "Research Question"
+            return "Research Question".uppercaseString
         case 2:
-            return "Endpoint"
+            return "Endpoint".uppercaseString
         case 3:
-            return "Input Variables"
+            return "Input Variables".uppercaseString
         case 4:
-            return "Action"
+            return "Action".uppercaseString
         case 5:
-            return "Outcome Variables"
+            return "Outcome Variables".uppercaseString
         default:
             return "Error! Switch Case Default"
         }
@@ -67,14 +67,19 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         case 2:
             return 1
         case 3:
-            return (inputVariables?.count)!
+            if let variables = inputVariables {
+                return variables.count
+            }
         case 4:
             return 1
         case 5:
-            return (outcomeVariables?.count)!
+            if let variables = outcomeVariables {
+                return variables.count
+            }
         default:
             return 0
         }
+        return 0
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
@@ -96,8 +101,10 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                 cell.textLabel?.text = ""
             }
         case 3: //input variables
-            cell.textLabel?.text = inputVariables![indexPath.row].variableName
-            cell.detailTextLabel?.text = inputVariables![indexPath.row].moduleTitle
+            if let variables = inputVariables {
+                cell.textLabel?.text = variables[indexPath.row].variableName
+                cell.detailTextLabel?.text = variables[indexPath.row].moduleTitle
+            }
         case 4: //project action
             if let action = projectAction {
                 if let customAction = action.customAction { //custom action
@@ -109,10 +116,13 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                 print("Error - projectAction is nil")
                 cell.textLabel?.text = ""
             }
-        case 5: //outcome variables
-            cell.textLabel?.text = outcomeVariables![indexPath.row].variableName
-            cell.detailTextLabel?.text = outcomeVariables![indexPath.row].moduleTitle
+        case 5: //outcome variables, 
+            if let variables = outcomeVariables {
+                cell.textLabel?.text = variables[indexPath.row].variableName
+                cell.detailTextLabel?.text = variables[indexPath.row].moduleTitle
+            }
         default: //should NOT trigger
+            print("[cellForRow] Error - default in switch.")
             cell.textLabel?.text = ""
         }
         return cell
@@ -120,6 +130,22 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         //Allow user to go to correct location to edit.
+        switch indexPath.section { //control navigation based on the selected SECTION
+        case 0:
+            print("")
+        case 1:
+            print("")
+        case 2:
+            print("")
+        case 3:
+            print("")
+        case 4:
+            print("")
+        case 5:
+            print("")
+        default:
+            print("[didSelectRow] Error - default in switch")
+        }
     }
     
     func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
@@ -143,43 +169,21 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     
     @IBAction func doneButtonClick(sender: AnyObject) {
         //Add before & after variable arrays to the current object & then save it -> persistent store before returning to homescreen:
-        let beforeActionVariablesDict = createDictionaryForCoreData(inputVariables!)
-        let afterActionVariablesDict = createDictionaryForCoreData(outcomeVariables!)
-        let context = appDelegate.managedObjectContext
+        //**In the future, this project will be sent -> the web for DB configuration, cloud backup, etc.
+        let beforeActionVariablesDict = self.createDictionaryForCoreData(inputVariables)
+        let afterActionVariablesDict = self.createDictionaryForCoreData(outcomeVariables)
         let _ = Project(title: projectTitle!, question: projectQuestion!, endPoint: projectEndpoint?.endpointInDays, action: (projectAction?.action.rawValue)!, beforeVariables: beforeActionVariablesDict, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context)
-        do {
-            try context.save()
-            print("Context saved")
-        } catch let error as NSError {
-            print("Error saving context: \(error)")
-        }
+        saveManagedObjectContext() //save new project -> CoreData
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let controller = storyboard.instantiateInitialViewController()!
         presentViewController(controller, animated: true, completion: nil)
     }
     
-    func createDictionaryForCoreData(variableArray: [Module]) -> Dictionary<String, [String: AnyObject]> {
-        //Construct the master dictionary for CoreData given a variableArray (array containing user-created variables):
+    func createDictionaryForCoreData(variableArray: [Module]?) -> Dictionary<String, [String: AnyObject]> { //construct the master dictionary for CoreData given the array of user-created variables
         var dictionary = Dictionary<String, [String: AnyObject]>()
-        for variable in variableArray { //construct dict
-            switch variable { //check which module was attached
-            case is CustomModule:
-                let variableWithType = variable as! CustomModule
-                dictionary[variable.variableName] = variableWithType.createDictionaryForCoreDataStore()
-            case is EnvironmentModule:
-                let variableWithType = variable as! EnvironmentModule
-                dictionary[variable.variableName] = variableWithType.createDictionaryForCoreDataStore()
-            case is ExerciseModule:
-                let variableWithType = variable as! ExerciseModule
-                dictionary[variable.variableName] = variableWithType.createDictionaryForCoreDataStore()
-            case is FoodIntakeModule:
-                let variableWithType = variable as! FoodIntakeModule
-                dictionary[variable.variableName] = variableWithType.createDictionaryForCoreDataStore()
-            case is CarbonEmissionsModule:
-                let variableWithType = variable as! CarbonEmissionsModule
-                dictionary[variable.variableName] = variableWithType.createDictionaryForCoreDataStore()
-            default:
-                print("Error - default triggered in beforeAction switch")
+        if let variables = variableArray {
+            for variable in variables { //construct dict for each variable, KEY is variable's unique name
+                dictionary[variable.variableName] = variable.createDictionaryForCoreDataStore()
             }
         }
         return dictionary
@@ -188,7 +192,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     // MARK: - Navigation
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-    
+        //pass related data when going back to an old view to edit something?
     }
 
 }

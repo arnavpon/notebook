@@ -1,20 +1,18 @@
-//  BaseTableViewCell.swift
+//  BaseDataEntryCell.swift
 //  Biometric Notebook
-//  Created by Arnav Pondicherry  on 3/28/16.
+//  Created by Arnav Pondicherry  on 4/1/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Base TV cell design upon which all custom data reporting cells are built. Custom cells define in entirety how TV cells will be laid out for the purpose of reporting data.
+// Base data entry TV cell design upon which all custom data reporting cells are built. Custom cells define IN ENTIRETY how TV cells will be laid out for the purpose of reporting data.
 
 import UIKit
 
-class BaseTableViewCell: UITableViewCell {
+class BaseDataEntryCell: UITableViewCell {
     
     weak var module: Module? { //all data to be displayed will be determined through the module property! For subviews of the base cell, the module property will be more specific module types!
         didSet {
-            if let mod = module { //update cell labels accordingly
-                titleLabel.text = "\(mod.variableName): \(mod.moduleTitle)"
-                setNeedsLayout()
-            }
+            accessModuleProperties() //layout cell according to module type/properties
+            setNeedsLayout() //keep OUTSIDE of the accessModule function!
         }
     }
     let titleLabel = UILabel(frame: CGRectZero)
@@ -38,6 +36,12 @@ class BaseTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    internal func accessModuleProperties() { //use Module type/selection to format cell's visuals
+        if let mod = module, selection = mod.selectedFunctionality { //update cell labels accordingly
+            titleLabel.text = "\(mod.variableName): \(selection)"
+        }
+    }
+    
     // MARK: - Visual Layout
     
     override func prepareForReuse() {
@@ -46,12 +50,12 @@ class BaseTableViewCell: UITableViewCell {
     }
     
     override func layoutSubviews() {
-        print("[BaseTVCell] Laying out subviews. Frame - Width: \(frame.width), Height: \(frame.height).")
+        print("[BaseCell] Laying out subviews...")
         super.layoutSubviews()
         let leftPadding = CGFloat(10)
         let separatorHeight = CGFloat(5) //distance between cells
         insetBackground.frame = CGRect(x: 0, y: 0, width: frame.width, height: (frame.height - separatorHeight))
         titleLabel.frame = CGRect(x: leftPadding, y: 5, width: (frame.width - leftPadding), height: 35)
     }
-
+    
 }

@@ -3,7 +3,7 @@
 //  Created by Arnav Pondicherry  on 3/29/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Prompts the user to enter an integer value into a text field. 
+// Custom Config Cell - prompts the user to enter an integer value into a text field. 
 
 import UIKit
 
@@ -32,7 +32,7 @@ class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate 
         if let source = dataSource {
             if let defaultValue = source[BMN_Configuration_DefaultNumberKey] as? Int { //check for default
                 textEntryField.text = "\(defaultValue)"
-                self.configurationIsComplete = true //set as complete if default exists
+                configureCompletionIndicator(true) //set as complete if default exists
             }
         }
     }
@@ -58,9 +58,9 @@ class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate 
         if let input = textField.text?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) {
             let count = input.characters.count + string.characters.count - range.length
             if (count > 0) { //set as complete
-                self.configurationIsComplete = true //set as complete if textField is not empty
+                configureCompletionIndicator(true) //set as complete if textField is not empty
             } else { //set as incomplete
-                self.configurationIsComplete = false
+                configureCompletionIndicator(false)
             }
         }
         return true

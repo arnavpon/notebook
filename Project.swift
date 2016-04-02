@@ -14,63 +14,50 @@ class Project: NSManagedObject {
     private var afterActionVariablesArray: [Module]? //reconstructed variablesArray
     
     internal func getBeforeActionVariablesArray() -> [Module]? {
-        if (beforeActionVariablesArray != nil) {
-            return beforeActionVariablesArray
-        } else {
-            print("beforeActionVarsArray is nil!")
-            return nil
-        }
+        return beforeActionVariablesArray
     }
     
     internal func getAfterActionVariablesArray() -> [Module]? {
-        if (afterActionVariablesArray != nil) {
-            return afterActionVariablesArray
-        } else {
-            print("afterActionVarsArray is nil!")
-            return nil
-        }
+        return afterActionVariablesArray
     }
+    
+    // MARK: - Reconstruction Logic
     
     internal func reconstructProjectFromPersistentRepresentation() {
         //Use the project's CoreData representation to reconstruct its variables as Module objects:
         beforeActionVariablesArray = [] //initialize variableArray
         afterActionVariablesArray = [] //initialize variableArray
         for (variable, dict) in self.beforeActionVars {
-            let module = dict["module"] as! String
-            let reconstructedVariable: Module = createModuleObjectFromModuleName(module, variableName: variable, variableDict: dict)
-            beforeActionVariablesArray!.append(reconstructedVariable)
+            if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
+                let reconstructedVariable: Module = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
+                beforeActionVariablesArray!.append(reconstructedVariable)
+            }
         }
         for (variable, dict) in self.afterActionVars {
-            let module = dict["module"] as! String
-            let reconstructedVariable: Module = createModuleObjectFromModuleName(module, variableName: variable, variableDict: dict)
-            afterActionVariablesArray!.append(reconstructedVariable)
+            if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
+                let reconstructedVariable: Module = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
+                afterActionVariablesArray!.append(reconstructedVariable)
+            }
         }
     }
     
-    private func createModuleObjectFromModuleName(moduleName: String, variableName: String, variableDict: [String: AnyObject]) -> Module {
-        var object: Module
-        switch moduleName { //the Modules enum's raw string is the moduleName for unpacking
-            
-        //**After determining the module name, pass the dictionary -> that module's reconstruction function, which will then handle the creation of the specific module subclass that will be put in the dictionary!
-            
-        case Modules.CustomModule.rawValue:
-//            let options = variableDict[BMN_CustomModule_OptionsKey] as! [String]
-            object = CustomModule(name: variableName)
-////            (object as! CustomModule).options = options
-//            if let prompt = variableDict[BMN_CustomModule_PromptKey] as? String { //check for prompt
-//                
-//            }
-        case Modules.EnvironmentModule.rawValue:
-            object = EnvironmentModule(name: variableName)
-        case Modules.FoodIntakeModule.rawValue:
-            object = FoodIntakeModule(name: variableName)
-        case Modules.ExerciseModule.rawValue:
-            object = ExerciseModule(name: variableName)
-        case Modules.BiometricModule.rawValue:
-            object = BiometricModule(name: variableName)
-        default:
-            object = Module(name: variableName) //should never be called
-            print("Error: default switch in [Project > 'createModuleObjectFromModuleName()']")
+    private func createModuleObjectFromModuleName(moduleType module: Modules, variableName: String, configurationDict: [String: AnyObject]) -> Module {
+        var object: Module = Module(name: variableName)
+        
+        //Determine the var's Module type, then pass the var's name & dictionary -> that module's CoreData initializer, which will create the variable (complete w/ configuration):
+        switch module {
+        case .CustomModule:
+            object = CustomModule(name: variableName, dict: configurationDict)
+        case .EnvironmentModule:
+            object = EnvironmentModule(name: variableName, dict: configurationDict)
+        case .FoodIntakeModule:
+            object = FoodIntakeModule(name: variableName, dict: configurationDict)
+        case .ExerciseModule:
+            object = ExerciseModule(name: variableName, dict: configurationDict)
+        case .BiometricModule:
+            object = BiometricModule(name: variableName, dict: configurationDict)
+        case .CarbonEmissionsModule:
+            object = CarbonEmissionsModule(name: variableName, dict: configurationDict)
         }
         return object
     }

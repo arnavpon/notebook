@@ -134,7 +134,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //if user taps a cell, allow them to edit a variable's config (segue -> ConfigModuleVC)
+        //if user taps a cell, allow them to edit a variable's config (segue -> ConfigModuleVC):
         if (!tutorialDescriptionViewMode) && !(tutorialIsOn) { //normal behavior
             if (tableView == inputVariablesTV) { //inputs TV
                 //
@@ -755,10 +755,9 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 }
                 if !(error) { //make sure the variable is not a duplicate
                     self.variableName = input?.capitalizedString
-                    if let show = self.userDefaults.valueForKey("SHOW_ATTACH_DESCRIPTION") as? Bool { //check for description show key
-                        if (show) { //key is set to true, show description
-                            self.showDescription = true
-                        }
+                    let show = self.userDefaults.boolForKey(SHOW_ATTACH_DESCRIPTION) //check for description show key
+                    if (show) { //**key is set to true, show description
+                        self.showDescription = true
                     } else { //key is not set (1st time going to view), show description
                         self.showDescription = true
                     }

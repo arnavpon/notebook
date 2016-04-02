@@ -12,9 +12,19 @@ import UIKit
 class Module { //defines the behaviors that are common to all modules
     static let modules: [Modules] = [Modules.CustomModule, Modules.EnvironmentModule, Modules.FoodIntakeModule, Modules.ExerciseModule, Modules.BiometricModule, Modules.CarbonEmissionsModule] //list of available modules, update whenever a new one is added
     
-    internal var moduleTitle: String = "" //overwrite w/ <> Module enum raw value in each class
+    private let variableState: ModuleVariableStates //state of THIS instance (configuration or reporting)
     internal let variableName: String //the name given to the variable attached to this module
-    internal var sectionsToDisplay: [String] = [] //sections to display in ConfigureModuleVC
+    internal var moduleTitle: String = "" //overwrite w/ <> Module enum raw value in each class
+    internal var sectionsToDisplay: [String] { //sections to display in ConfigureModuleVC
+        if !(behaviors.isEmpty) && !(computations.isEmpty) { //BOTH behaviors & comps are available
+            return [BMN_BehaviorsKey, BMN_ComputationsKey]
+        } else if !(behaviors.isEmpty) { //ONLY behaviors
+            return [BMN_BehaviorsKey]
+        } else if !(computations.isEmpty) { //ONLY computations
+            return [BMN_ComputationsKey]
+        }
+        return []
+    }
     
     internal var configureModuleLayoutObject: Dictionary<String, AnyObject> { //dataObject for laying out the available behaviors & computations in the ConfigureModuleVC
         var tempObject = Dictionary<String, AnyObject>()
@@ -64,32 +74,32 @@ class Module { //defines the behaviors that are common to all modules
     
     init(name: String) { //initializer for variable during SET-UP
         self.variableName = name
-        
-        //Add items to 'sectionsToDisplay' array for ConfigureModuleVC:
-        if !(behaviors.isEmpty) { //check if there are behaviors to display
-            self.sectionsToDisplay.append(BMN_BehaviorsKey)
-        }
-        if !(computations.isEmpty) { //check if there are computations to display
-            self.sectionsToDisplay.append(BMN_ComputationsKey)
-        }
+        self.variableState = ModuleVariableStates.VariableConfiguration
     }
     
     init(name: String, dict: [String: AnyObject]) { //initializer for variable during RECONSTRUCTION from CoreData dict
         self.variableName = name
+        self.variableState = ModuleVariableStates.DataReporting
     }
+    
+    // MARK: - Core Data
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
         let persistentDictionary = [BMN_ModuleTitleKey: self.moduleTitle] //'moduleTitle' matches switch case in 'Project' > 'createModuleObjectFromModuleName' func
         return persistentDictionary
     }
     
-    //MARK: - Variable Configuration
+    // MARK: - Variable Configuration
     
     internal var topBarPrompt: String? //text for instructionLabel in topBar
     internal var selectedFunctionality: String? { //the behavior OR computation (picked from the enum defined in each module object) that the user selected for this variable
         didSet { //set configurationOptions based on selection
-            print("User selected behavior: '\(selectedFunctionality!)'.")
-            setConfigurationOptionsForSelection()
+            if (self.variableState == ModuleVariableStates.VariableConfiguration) { //ONLY set-up the configurationOptionsLayoutObject if the variable is being set-up
+                print("User selected behavior: '\(selectedFunctionality!)'.")
+                setConfigurationOptionsForSelection()
+            } else { //**remove this
+                print("[selectedFunctionality] Set during reconstruction!")
+            }
         }
     }
     
@@ -101,10 +111,20 @@ class Module { //defines the behaviors that are common to all modules
         configurationOptionsLayoutObject = nil
     }
     
-    internal func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [Int]?) {
-        //Matches reportedData from configurationCells -> properties in the Module object & returns TRUE if operation was successful, (FALSE + an error message) if the operation failed; the 3rd part of the return object is an optional FLAG (that tells the VC to visually mark the corresponding cell # in the data source, b/c that is where the problem has occurred).
+    internal func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [String]?) {
+        //Matches reportedData from configurationCells -> properties in the Module object & returns TRUE if operation was successful, (FALSE + an error message) if the operation failed; the 3rd part of the return object is an optional FLAG (that tells the VC to visually mark the cell w/ the corresponding DESCRIPTOR in the data source, b/c that is where the problem has occurred).
         return (false, "Superclass matchConfiguration fx call!", nil)
     }
+    
+    // MARK: - Data Entry
+    
+    func getDataEntryCellForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable (override in subclasses)
+        return nil
+    }
+    
+    var cellHeightUserInfo: [String: AnyObject]? //dictionary containing information needed to calculate cell height for the variable** (set this when a selection is chosen ONLY if the variable's state is DataEntry!)
+    
+    //For cells that have VARIABLE HEIGHTS (e.g. Custom Module options cell), we will need to include in the data source a custom cell height (which we can calculate beforehand b/c we know everything about how the cell needs to be configured, e.g. if the CustomOptions cell has 3 answer choices, we can calculate the height w/ a function, add that height to the data source; the VC TV delegate method should check for custom height & set to default if one is not found.)
     
     // MARK: - Basic Behaviors
     

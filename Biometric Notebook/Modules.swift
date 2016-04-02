@@ -15,3 +15,8 @@ enum Modules: String {
     case BiometricModule = "Biometric"
     case CarbonEmissionsModule = "Carbon Emissions"
 }
+
+enum ModuleVariableStates { //represents the state of the variable object
+    case VariableConfiguration //variable that was constructed during SET-UP for configuration
+    case DataReporting //variable that was reconstructed from CORE DATA for data reporting
+}
