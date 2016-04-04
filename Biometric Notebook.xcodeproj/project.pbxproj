@@ -11,7 +11,6 @@
 		B10838FE1C4D40210023C060 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10838FD1C4D40210023C060 /* Action.swift */; };
 		B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B921E1C52D8E70079A535 /* HelperFunctions.swift */; };
 		B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B92201C52D9BE0079A535 /* CustomTextView.swift */; };
-		B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1246CBB1C2F60B8004BFA5C /* HomeScreenViewController.swift */; };
 		B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6791C2D93BA0019D315 /* AppDelegate.swift */; };
 		B13CF67F1C2D93BA0019D315 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B13CF67D1C2D93BA0019D315 /* Main.storyboard */; };
 		B13CF6811C2D93BA0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6801C2D93BA0019D315 /* Assets.xcassets */; };
@@ -32,7 +31,6 @@
 		B17019561CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019551CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift */; };
 		B17019591CAA2C73004CAEB8 /* BaseConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */; };
 		B17C21101C31D96800B59FB0 /* FoodItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17C210F1C31D96800B59FB0 /* FoodItem.swift */; };
-		B189589D1C39FC0A00378E47 /* Checkbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589C1C39FC0A00378E47 /* Checkbox.swift */; };
 		B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */; };
 		B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */; };
 		B1A8C7C71CAF640300380E99 /* CustomWithRangeScaleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */; };
@@ -59,13 +57,19 @@
 		B1C623FC1C619C72006DDD13 /* AttachModuleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */; };
 		B1CCF1BF1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */; };
 		B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */; };
-		B1CF34661C4F0179001C0F27 /* DataEntryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CF34651C4F0179001C0F27 /* DataEntryTableViewController.swift */; };
 		B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */; };
 		B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B51C3F255A00C9438F /* FoodIntakeModule.swift */; };
 		B1D0B2B81C3F25BC00C9438F /* ExerciseModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */; };
 		B1D0B2BA1C3F25F200C9438F /* Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B91C3F25F200C9438F /* Module.swift */; };
 		B1D0B2C21C3F29B400C9438F /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2C01C3F29B400C9438F /* Project.swift */; };
 		B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D4EA821C4D962100054A5F /* Project+CoreDataProperties.swift */; };
+		B1D51C581CB29CB500DED6B2 /* ActiveProjectsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C571CB29CB500DED6B2 /* ActiveProjectsViewController.swift */; };
+		B1D51C5A1CB29CC200DED6B2 /* ArchivedProjectsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C591CB29CC200DED6B2 /* ArchivedProjectsViewController.swift */; };
+		B1D51C5C1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C5B1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift */; };
+		B1D51C5E1CB2A19C00DED6B2 /* LevelsFrameworkCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C5D1CB2A19C00DED6B2 /* LevelsFrameworkCell.swift */; };
+		B1D51C601CB2A25C00DED6B2 /* SwipeInMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C5F1CB2A25C00DED6B2 /* SwipeInMenu.swift */; };
+		B1D51C631CB2A34300DED6B2 /* CellWithGradientFill.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C621CB2A34300DED6B2 /* CellWithGradientFill.swift */; };
+		B1D51C661CB2A91A00DED6B2 /* DataEntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C651CB2A91A00DED6B2 /* DataEntryViewController.swift */; };
 		B1D555871C30739C00C20742 /* DateTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555861C30739C00C20742 /* DateTime.swift */; };
 		B1D868D61C3F58810026334B /* Modules.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D868D51C3F58810026334B /* Modules.swift */; };
 		B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1EDACB41CA4A2560087E3B1 /* CarbonEmissionsModule.swift */; };
@@ -134,7 +138,6 @@
 		B10838FD1C4D40210023C060 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		B11B921E1C52D8E70079A535 /* HelperFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		B11B92201C52D9BE0079A535 /* CustomTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
-		B1246CBB1C2F60B8004BFA5C /* HomeScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeScreenViewController.swift; sourceTree = "<group>"; };
 		B13CF6761C2D93BA0019D315 /* Biometric Notebook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Biometric Notebook.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B13CF6791C2D93BA0019D315 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B13CF67E1C2D93BA0019D315 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -166,7 +169,6 @@
 		B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseConfigurationCell.swift; sourceTree = "<group>"; };
 		B17C210D1C31B5F400B59FB0 /* HealthKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitConnection.swift; sourceTree = "<group>"; };
 		B17C210F1C31D96800B59FB0 /* FoodItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodItem.swift; sourceTree = "<group>"; };
-		B189589C1C39FC0A00378E47 /* Checkbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Checkbox.swift; sourceTree = "<group>"; };
 		B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureModuleViewController.swift; sourceTree = "<group>"; };
 		B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSliderBackgroundView.swift; sourceTree = "<group>"; };
 		B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithRangeScaleCell.swift; sourceTree = "<group>"; };
@@ -193,13 +195,19 @@
 		B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleTableViewCell.swift; sourceTree = "<group>"; };
 		B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ExampleConfigurationCell.swift; path = ../../ExampleConfigurationCell.swift; sourceTree = "<group>"; };
 		B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricModule.swift; sourceTree = "<group>"; };
-		B1CF34651C4F0179001C0F27 /* DataEntryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataEntryTableViewController.swift; sourceTree = "<group>"; };
 		B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomModule.swift; sourceTree = "<group>"; };
 		B1D0B2B51C3F255A00C9438F /* FoodIntakeModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodIntakeModule.swift; sourceTree = "<group>"; };
 		B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExerciseModule.swift; sourceTree = "<group>"; };
 		B1D0B2B91C3F25F200C9438F /* Module.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Module.swift; sourceTree = "<group>"; };
 		B1D0B2C01C3F29B400C9438F /* Project.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Project.swift; path = ../Project.swift; sourceTree = "<group>"; };
 		B1D4EA821C4D962100054A5F /* Project+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Project+CoreDataProperties.swift"; path = "../Project+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		B1D51C571CB29CB500DED6B2 /* ActiveProjectsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveProjectsViewController.swift; sourceTree = "<group>"; };
+		B1D51C591CB29CC200DED6B2 /* ArchivedProjectsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArchivedProjectsViewController.swift; sourceTree = "<group>"; };
+		B1D51C5B1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeaturedProjectsViewController.swift; sourceTree = "<group>"; };
+		B1D51C5D1CB2A19C00DED6B2 /* LevelsFrameworkCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LevelsFrameworkCell.swift; sourceTree = "<group>"; };
+		B1D51C5F1CB2A25C00DED6B2 /* SwipeInMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipeInMenu.swift; sourceTree = "<group>"; };
+		B1D51C621CB2A34300DED6B2 /* CellWithGradientFill.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellWithGradientFill.swift; sourceTree = "<group>"; };
+		B1D51C651CB2A91A00DED6B2 /* DataEntryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataEntryViewController.swift; sourceTree = "<group>"; };
 		B1D555801C3068FD00C20742 /* NetworkConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkConnection.swift; sourceTree = "<group>"; };
 		B1D555821C30692A00C20742 /* DataParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataParser.swift; sourceTree = "<group>"; };
 		B1D555841C30694A00C20742 /* ReturnedDataObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReturnedDataObject.swift; sourceTree = "<group>"; };
@@ -364,9 +372,9 @@
 		B13CF6D71C2D94C30019D315 /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				B1D868DB1C3F5A960026334B /* Supplements */,
+				B1D51C681CB2B0D100DED6B2 /* General Supplements */,
+				B1D51C671CB2B05C00DED6B2 /* Home Screen Flow */,
 				B1CF34671C4F018D001C0F27 /* View Project(s) Flow */,
-				B1EDACB61CA4A5DE0087E3B1 /* Data Entry Flow */,
 				B1B98BD41C39915D00DDACEE /* Create Project Flow */,
 			);
 			name = "View Controllers";
@@ -436,6 +444,7 @@
 		B1B98BD41C39915D00DDACEE /* Create Project Flow */ = {
 			isa = PBXGroup;
 			children = (
+				B1D51C691CB2B10100DED6B2 /* Supplements */,
 				B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */,
 				B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */,
 				B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */,
@@ -462,9 +471,9 @@
 		B1CF34671C4F018D001C0F27 /* View Project(s) Flow */ = {
 			isa = PBXGroup;
 			children = (
-				B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */,
-				B1246CBB1C2F60B8004BFA5C /* HomeScreenViewController.swift */,
 				B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */,
+				B1AA96C61CAB1B480009E716 /* Data Entry TV Cells */,
+				B1D51C651CB2A91A00DED6B2 /* DataEntryViewController.swift */,
 			);
 			name = "View Project(s) Flow";
 			sourceTree = "<group>";
@@ -484,21 +493,39 @@
 			name = Modules;
 			sourceTree = "<group>";
 		};
-		B1D5557F1C3068B100C20742 /* Networking */ = {
+		B1D51C641CB2A3AD00DED6B2 /* Supplements */ = {
 			isa = PBXGroup;
 			children = (
-				B1D555801C3068FD00C20742 /* NetworkConnection.swift */,
-				B1D555821C30692A00C20742 /* DataParser.swift */,
-				B1D555841C30694A00C20742 /* ReturnedDataObject.swift */,
+				B1D51C5F1CB2A25C00DED6B2 /* SwipeInMenu.swift */,
+				B1D51C621CB2A34300DED6B2 /* CellWithGradientFill.swift */,
 			);
-			name = Networking;
+			name = Supplements;
 			sourceTree = "<group>";
 		};
-		B1D868DB1C3F5A960026334B /* Supplements */ = {
+		B1D51C671CB2B05C00DED6B2 /* Home Screen Flow */ = {
 			isa = PBXGroup;
 			children = (
+				B1D51C641CB2A3AD00DED6B2 /* Supplements */,
+				B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */,
+				B1D51C571CB29CB500DED6B2 /* ActiveProjectsViewController.swift */,
+				B1D51C591CB29CC200DED6B2 /* ArchivedProjectsViewController.swift */,
+				B1D51C5B1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift */,
+			);
+			name = "Home Screen Flow";
+			sourceTree = "<group>";
+		};
+		B1D51C681CB2B0D100DED6B2 /* General Supplements */ = {
+			isa = PBXGroup;
+			children = (
+				B1D51C5D1CB2A19C00DED6B2 /* LevelsFrameworkCell.swift */,
 				B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */,
-				B189589C1C39FC0A00378E47 /* Checkbox.swift */,
+			);
+			name = "General Supplements";
+			sourceTree = "<group>";
+		};
+		B1D51C691CB2B10100DED6B2 /* Supplements */ = {
+			isa = PBXGroup;
+			children = (
 				B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */,
 				B11B92201C52D9BE0079A535 /* CustomTextView.swift */,
 				B1B9D9991C528B50000D501E /* CustomSlider.swift */,
@@ -509,6 +536,16 @@
 			name = Supplements;
 			sourceTree = "<group>";
 		};
+		B1D5557F1C3068B100C20742 /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				B1D555801C3068FD00C20742 /* NetworkConnection.swift */,
+				B1D555821C30692A00C20742 /* DataParser.swift */,
+				B1D555841C30694A00C20742 /* ReturnedDataObject.swift */,
+			);
+			name = Networking;
+			sourceTree = "<group>";
+		};
 		B1D868DC1C3F5AB50026334B /* Supplements */ = {
 			isa = PBXGroup;
 			children = (
@@ -516,15 +553,6 @@
 				B1D868D51C3F58810026334B /* Modules.swift */,
 			);
 			name = Supplements;
-			sourceTree = "<group>";
-		};
-		B1EDACB61CA4A5DE0087E3B1 /* Data Entry Flow */ = {
-			isa = PBXGroup;
-			children = (
-				B1AA96C61CAB1B480009E716 /* Data Entry TV Cells */,
-				B1CF34651C4F0179001C0F27 /* DataEntryTableViewController.swift */,
-			);
-			name = "Data Entry Flow";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -732,16 +760,20 @@
 				B1D868D61C3F58810026334B /* Modules.swift in Sources */,
 				B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */,
 				B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */,
+				B1D51C631CB2A34300DED6B2 /* CellWithGradientFill.swift in Sources */,
 				B17C21101C31D96800B59FB0 /* FoodItem.swift in Sources */,
 				B1AA96CE1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift in Sources */,
+				B1D51C5C1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift in Sources */,
 				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
 				B1A8C7D01CAF7E8C00380E99 /* BooleanConfigurationCell.swift in Sources */,
+				B1D51C581CB29CB500DED6B2 /* ActiveProjectsViewController.swift in Sources */,
 				B1A8C7C91CAF656500380E99 /* CustomWithOptionsCell.swift in Sources */,
 				B1D0B2B81C3F25BC00C9438F /* ExerciseModule.swift in Sources */,
 				B10838FE1C4D40210023C060 /* Action.swift in Sources */,
+				B1D51C5E1CB2A19C00DED6B2 /* LevelsFrameworkCell.swift in Sources */,
 				B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */,
+				B1D51C5A1CB29CC200DED6B2 /* ArchivedProjectsViewController.swift in Sources */,
 				B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */,
-				B1CF34661C4F0179001C0F27 /* DataEntryTableViewController.swift in Sources */,
 				B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */,
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,
 				B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */,
@@ -749,8 +781,8 @@
 				B1AA96CA1CAB1CCC0009E716 /* DataEntryCellTypes.swift in Sources */,
 				B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */,
 				B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */,
-				B189589D1C39FC0A00378E47 /* Checkbox.swift in Sources */,
 				B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */,
+				B1D51C661CB2A91A00DED6B2 /* DataEntryViewController.swift in Sources */,
 				B1D555871C30739C00C20742 /* DateTime.swift in Sources */,
 				B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */,
 				B1B9D99A1C528B50000D501E /* CustomSlider.swift in Sources */,
@@ -760,7 +792,6 @@
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
 				B17019561CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift in Sources */,
 				B1C623FC1C619C72006DDD13 /* AttachModuleTableViewCell.swift in Sources */,
-				B1246CBC1C2F60B8004BFA5C /* HomeScreenViewController.swift in Sources */,
 				B1CCF1BF1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift in Sources */,
 				B1B20A6B1C5E8576003B791B /* LabelWithPadding.swift in Sources */,
 				B1AA96C81CAB1C870009E716 /* ConfigurationOptionCellTypes.swift in Sources */,
@@ -772,6 +803,7 @@
 				B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */,
 				B1A8C7CB1CAF657300380E99 /* CustomWithCounterCell.swift in Sources */,
 				B1D0B2C21C3F29B400C9438F /* Project.swift in Sources */,
+				B1D51C601CB2A25C00DED6B2 /* SwipeInMenu.swift in Sources */,
 				B1B20A6D1C5E9CD0003B791B /* TutorialLayer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

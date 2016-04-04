@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="FKX-qE-GcO">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="CvA-5f-6YB">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -9,17 +9,17 @@
         <!--Current Projects-->
         <scene sceneID="XlT-Fp-KjK">
             <objects>
-                <viewController automaticallyAdjustsScrollViewInsets="NO" id="bA5-pz-GfD" customClass="HomeScreenViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="bA5-pz-GfD" customClass="ActiveProjectsViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="SCN-RX-NCM"/>
                         <viewControllerLayoutGuide type="bottom" id="qNu-9W-amZ"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="f7o-7r-rRA">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="551"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="OoM-vZ-jYA">
-                                <rect key="frame" x="0.0" y="64" width="600" height="492"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="OoM-vZ-jYA">
+                                <rect key="frame" x="0.0" y="68" width="600" height="483"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="project_cell" id="0rf-9J-gFb">
@@ -32,39 +32,67 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <view alpha="0.69999999999999996" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="i2e-pd-7VK">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="68"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cfR-Z2-Ywy">
+                                        <rect key="frame" x="555" y="28" width="30" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="30" id="iNV-Kl-WtZ"/>
+                                            <constraint firstAttribute="height" constant="30" id="yGM-Mf-C0X"/>
+                                        </constraints>
+                                        <state key="normal" image="plus_square"/>
+                                        <connections>
+                                            <action selector="addProjectButtonClick:" destination="bA5-pz-GfD" eventType="touchUpInside" id="qs6-vn-4sp"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Duc-LP-OK3">
+                                        <rect key="frame" x="15" y="28" width="39" height="30"/>
+                                        <state key="normal" title="Menu"/>
+                                        <connections>
+                                            <action selector="menuButtonClick:" destination="bA5-pz-GfD" eventType="touchUpInside" id="Mzm-9W-UAS"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="cfR-Z2-Ywy" secondAttribute="trailing" constant="15" id="Bmg-qQ-Gby"/>
+                                    <constraint firstItem="Duc-LP-OK3" firstAttribute="leading" secondItem="i2e-pd-7VK" secondAttribute="leading" constant="15" id="HBI-k1-FYY"/>
+                                    <constraint firstAttribute="height" constant="68" id="JCa-jB-rKr"/>
+                                    <constraint firstAttribute="bottom" secondItem="Duc-LP-OK3" secondAttribute="bottom" constant="10" id="QQo-0m-7Hw"/>
+                                    <constraint firstAttribute="bottom" secondItem="cfR-Z2-Ywy" secondAttribute="bottom" constant="10" id="a69-c4-lOo"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="OoM-vZ-jYA" firstAttribute="top" secondItem="SCN-RX-NCM" secondAttribute="bottom" id="6aT-LJ-73P"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="OoM-vZ-jYA" secondAttribute="trailing" constant="-20" id="XPE-Ie-9ZS"/>
-                            <constraint firstItem="OoM-vZ-jYA" firstAttribute="leading" secondItem="f7o-7r-rRA" secondAttribute="leadingMargin" constant="-20" id="b7Y-pM-HBp"/>
-                            <constraint firstItem="qNu-9W-amZ" firstAttribute="top" secondItem="OoM-vZ-jYA" secondAttribute="bottom" id="cy2-OZ-2sV"/>
+                            <constraint firstItem="i2e-pd-7VK" firstAttribute="leading" secondItem="f7o-7r-rRA" secondAttribute="leadingMargin" constant="-20" id="2ZV-NZ-bbj"/>
+                            <constraint firstItem="qNu-9W-amZ" firstAttribute="top" secondItem="OoM-vZ-jYA" secondAttribute="bottom" id="KuA-QD-54Q"/>
+                            <constraint firstItem="i2e-pd-7VK" firstAttribute="top" secondItem="f7o-7r-rRA" secondAttribute="topMargin" id="Rwc-e8-VzL"/>
+                            <constraint firstItem="OoM-vZ-jYA" firstAttribute="leading" secondItem="f7o-7r-rRA" secondAttribute="leadingMargin" constant="-20" id="gCX-Ts-NFW"/>
+                            <constraint firstItem="OoM-vZ-jYA" firstAttribute="top" secondItem="i2e-pd-7VK" secondAttribute="bottom" id="kMj-HA-ttm"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="i2e-pd-7VK" secondAttribute="trailing" constant="-20" id="vrP-3H-c48"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="OoM-vZ-jYA" secondAttribute="trailing" constant="-20" id="yDY-3J-2ga"/>
                         </constraints>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout" top="YES"/>
+                    <tabBarItem key="tabBarItem" title="Projects" id="WpF-vR-dbM"/>
                     <navigationItem key="navigationItem" title="Current Projects" id="alo-aC-cDa">
-                        <barButtonItem key="leftBarButtonItem" title="Menu" id="EJK-5i-0To">
-                            <connections>
-                                <action selector="menuButtonClick:" destination="bA5-pz-GfD" id="xfC-m0-R4r"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="Ahv-iK-dgC">
-                            <connections>
-                                <action selector="addProjectButtonClick:" destination="bA5-pz-GfD" id="fit-Zy-wSa"/>
-                            </connections>
-                        </barButtonItem>
+                        <barButtonItem key="leftBarButtonItem" title="Menu" id="EJK-5i-0To"/>
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="Ahv-iK-dgC"/>
                     </navigationItem>
-                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
-                        <outlet property="projectsTableView" destination="OoM-vZ-jYA" id="eMl-41-Qtn"/>
+                        <outlet property="activeProjectsTableView" destination="OoM-vZ-jYA" id="EsW-MS-jn1"/>
                         <segue destination="KUW-fG-PHb" kind="show" identifier="showDataVisuals" id="oMq-qS-n7d"/>
                         <segue destination="80s-Av-aib" kind="presentation" identifier="showLogin" id="8af-fA-d80"/>
+                        <segue destination="ygE-bo-Iiv" kind="show" identifier="showDataEntry" id="GaI-Ih-rC1"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="H10-UA-HOe" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1653" y="204"/>
+            <point key="canvasLocation" x="2465" y="204"/>
         </scene>
-        <!--Overview-->
+        <!--Project Overview View Controller-->
         <scene sceneID="rKd-5A-5xX">
             <objects>
                 <viewController id="KUW-fG-PHb" customClass="ProjectOverviewViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
@@ -73,21 +101,44 @@
                         <viewControllerLayoutGuide type="bottom" id="dyb-DH-2hq"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="sna-X6-aik">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="551"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FEG-D0-0YT">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="68"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="waC-8j-yLW">
+                                        <rect key="frame" x="15" y="27" width="50" height="32"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                        <state key="normal" title="&lt; Back"/>
+                                        <connections>
+                                            <action selector="backButtonClick:" destination="KUW-fG-PHb" eventType="touchUpInside" id="6aZ-vM-ZeH"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="waC-8j-yLW" secondAttribute="bottom" constant="9" id="Fai-4v-PPC"/>
+                                    <constraint firstAttribute="height" constant="68" id="NOT-77-3Jd"/>
+                                    <constraint firstItem="waC-8j-yLW" firstAttribute="leading" secondItem="FEG-D0-0YT" secondAttribute="leading" constant="15" id="bIf-Qe-Fmd"/>
+                                </constraints>
+                            </view>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="FEG-D0-0YT" firstAttribute="top" secondItem="sna-X6-aik" secondAttribute="topMargin" id="XKR-5q-nqk"/>
+                            <constraint firstItem="FEG-D0-0YT" firstAttribute="leading" secondItem="sna-X6-aik" secondAttribute="leadingMargin" constant="-20" id="ivu-xc-oDx"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="FEG-D0-0YT" secondAttribute="trailing" constant="-20" id="kA8-e7-914"/>
+                        </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Overview" id="CIL-rP-NO0">
-                        <barButtonItem key="rightBarButtonItem" title="Report Data" id="j0I-6h-qxz">
-                            <connections>
-                                <segue destination="Wm2-lf-4rl" kind="show" identifier="showDataEntry" id="UcK-KL-gXp"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <connections>
+                        <segue destination="cJU-5j-O7e" kind="unwind" identifier="unwindToActiveProjects" unwindAction="unwindToActiveProjectsVC:" id="eYW-1L-Sr5"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fYf-mg-gx6" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="cJU-5j-O7e" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="2372" y="204"/>
+            <point key="canvasLocation" x="3184" y="204"/>
         </scene>
         <!--Login View Controller-->
         <scene sceneID="Kgf-aO-vZO">
@@ -229,71 +280,156 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Dcr-QW-jdm" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2372" y="-448"/>
+            <point key="canvasLocation" x="3179" y="-464"/>
         </scene>
-        <!--Enter Data-->
-        <scene sceneID="ieG-7g-vhc">
+        <!--Data Entry View Controller-->
+        <scene sceneID="JIl-xn-Kxv">
             <objects>
-                <tableViewController automaticallyAdjustsScrollViewInsets="NO" id="Wm2-lf-4rl" customClass="DataEntryTableViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="none" allowsSelection="NO" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="TUN-YK-avs">
-                        <rect key="frame" x="0.0" y="64" width="600" height="536"/>
+                <viewController id="ygE-bo-Iiv" customClass="DataEntryViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="esP-03-g9f"/>
+                        <viewControllerLayoutGuide type="bottom" id="Fu8-aT-Df6"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="oAv-BB-6Pi">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
-                        <connections>
-                            <outlet property="dataSource" destination="Wm2-lf-4rl" id="rJ0-FD-6yP"/>
-                            <outlet property="delegate" destination="Wm2-lf-4rl" id="e6T-rV-SMw"/>
-                        </connections>
-                    </tableView>
-                    <extendedEdge key="edgesForExtendedLayout" bottom="YES"/>
-                    <toolbarItems>
-                        <barButtonItem style="plain" systemItem="flexibleSpace" id="fCg-Gj-Wzm"/>
-                        <barButtonItem enabled="NO" title="Reset Entry Mode" id="Fr3-ra-4hI">
-                            <connections>
-                                <action selector="resetEntryModeButtonClick:" destination="Wm2-lf-4rl" id="hq1-y2-miF"/>
-                            </connections>
-                        </barButtonItem>
-                    </toolbarItems>
-                    <navigationItem key="navigationItem" title="Enter Data" id="fCW-Jz-cK7">
-                        <barButtonItem key="rightBarButtonItem" enabled="NO" systemItem="done" id="wB7-nA-P3D">
-                            <connections>
-                                <action selector="doneButtonClick:" destination="Wm2-lf-4rl" id="lCZ-3T-Qxc"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
-                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QX5-EK-fDN">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="68"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="art-Kl-41b">
+                                        <rect key="frame" x="15" y="27" width="50" height="32"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                        <state key="normal" title="&lt; Back"/>
+                                        <connections>
+                                            <action selector="backButtonClick:" destination="ygE-bo-Iiv" eventType="touchUpInside" id="OnQ-OA-N0P"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PbP-11-YPQ">
+                                        <rect key="frame" x="548" y="28" width="37" height="30"/>
+                                        <state key="normal" title="Done"/>
+                                        <connections>
+                                            <action selector="doneButtonClick:" destination="ygE-bo-Iiv" eventType="touchUpInside" id="Ocb-LQ-PhM"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="68" id="BJE-yq-Pan"/>
+                                    <constraint firstAttribute="bottom" secondItem="art-Kl-41b" secondAttribute="bottom" constant="9" id="QmA-qC-hRP"/>
+                                    <constraint firstItem="art-Kl-41b" firstAttribute="leading" secondItem="QX5-EK-fDN" secondAttribute="leading" constant="15" id="fC2-cr-8gW"/>
+                                    <constraint firstAttribute="trailing" secondItem="PbP-11-YPQ" secondAttribute="trailing" constant="15" id="fHv-8V-bfb"/>
+                                    <constraint firstAttribute="bottom" secondItem="PbP-11-YPQ" secondAttribute="bottom" constant="10" id="lXP-fr-Zpj"/>
+                                </constraints>
+                            </view>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="grouped" separatorStyle="none" allowsSelection="NO" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="hiL-Rp-z2t">
+                                <rect key="frame" x="0.0" y="68" width="600" height="532"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailingMargin" secondItem="hiL-Rp-z2t" secondAttribute="trailing" constant="-20" id="0qQ-pf-ox1"/>
+                            <constraint firstItem="QX5-EK-fDN" firstAttribute="leading" secondItem="oAv-BB-6Pi" secondAttribute="leadingMargin" constant="-20" id="HAA-Ty-TyO"/>
+                            <constraint firstItem="hiL-Rp-z2t" firstAttribute="leading" secondItem="oAv-BB-6Pi" secondAttribute="leadingMargin" constant="-20" id="HdW-zr-FpX"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="QX5-EK-fDN" secondAttribute="trailing" constant="-20" id="RvQ-wY-0Wg"/>
+                            <constraint firstItem="Fu8-aT-Df6" firstAttribute="top" secondItem="hiL-Rp-z2t" secondAttribute="bottom" id="rai-24-o27"/>
+                            <constraint firstItem="hiL-Rp-z2t" firstAttribute="top" secondItem="QX5-EK-fDN" secondAttribute="bottom" id="sMZ-wr-c16"/>
+                            <constraint firstItem="QX5-EK-fDN" firstAttribute="top" secondItem="oAv-BB-6Pi" secondAttribute="topMargin" id="yN6-k6-szN"/>
+                        </constraints>
+                    </view>
+                    <nil key="simulatedBottomBarMetrics"/>
                     <connections>
-                        <outlet property="doneButton" destination="wB7-nA-P3D" id="wwB-4w-kPY"/>
-                        <outlet property="resetEntryModeButton" destination="Fr3-ra-4hI" id="jSa-jM-gBt"/>
-                        <outlet property="toolbarSpacer" destination="fCg-Gj-Wzm" id="Zi3-1R-8wx"/>
-                        <segue destination="qg6-3M-AoO" kind="unwind" identifier="returnToOverview" unwindAction="unwindToOverviewVC:" id="wXu-lP-nm9"/>
+                        <outlet property="dataEntryTV" destination="hiL-Rp-z2t" id="1Xv-l7-O48"/>
+                        <outlet property="doneButton" destination="PbP-11-YPQ" id="V3p-5L-x2d"/>
+                        <segue destination="20V-BI-22c" kind="unwind" identifier="unwindToActiveProjects" unwindAction="unwindToActiveProjectsVC:" id="m2W-SK-8n5"/>
                     </connections>
-                </tableViewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="lJM-PL-nfb" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <exit id="qg6-3M-AoO" userLabel="Exit" sceneMemberID="exit"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="RTL-4s-CUk" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="20V-BI-22c" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3071" y="204"/>
+            <point key="canvasLocation" x="3184" y="979"/>
         </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="xUI-Dj-27L">
+        <!--Tab Bar Controller-->
+        <scene sceneID="Wyh-F2-XMe">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" toolbarHidden="NO" id="FKX-qE-GcO" sceneMemberID="viewController">
+                <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="CvA-5f-6YB" sceneMemberID="viewController">
                     <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="Bkp-iZ-BP7">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                    <simulatedTabBarMetrics key="simulatedBottomBarMetrics" translucent="NO"/>
+                    <tabBar key="tabBar" contentMode="scaleToFill" translucent="NO" id="OZC-Ya-sk9">
+                        <rect key="frame" x="0.0" y="0.0" width="0.0" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="6Ef-B9-Zes">
-                        <rect key="frame" x="0.0" y="556" width="600" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </toolbar>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </tabBar>
                     <connections>
-                        <segue destination="bA5-pz-GfD" kind="relationship" relationship="rootViewController" id="ZHG-k6-n5e"/>
+                        <segue destination="bA5-pz-GfD" kind="relationship" relationship="viewControllers" id="GBZ-0v-eHM"/>
+                        <segue destination="GVA-37-dm5" kind="relationship" relationship="viewControllers" id="WP9-UU-u5Z"/>
+                        <segue destination="mSr-kN-ZC2" kind="relationship" relationship="viewControllers" id="sdA-B4-YXt"/>
                     </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="b67-Ls-qaw" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="DjS-sW-eGL" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="841" y="204"/>
+            <point key="canvasLocation" x="1653" y="204"/>
+        </scene>
+        <!--Archive-->
+        <scene sceneID="c29-EM-DMI">
+            <objects>
+                <viewController id="GVA-37-dm5" customClass="ArchivedProjectsViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="TJc-Iq-4r2"/>
+                        <viewControllerLayoutGuide type="bottom" id="aUV-Me-74W"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="tmJ-MK-8Gq">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="551"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="aQu-7z-953">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="551"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="aQu-7z-953" firstAttribute="top" secondItem="tmJ-MK-8Gq" secondAttribute="topMargin" id="H5L-re-okC"/>
+                            <constraint firstItem="aUV-Me-74W" firstAttribute="top" secondItem="aQu-7z-953" secondAttribute="bottom" id="faQ-Ks-Uxa"/>
+                            <constraint firstItem="aQu-7z-953" firstAttribute="leading" secondItem="tmJ-MK-8Gq" secondAttribute="leadingMargin" constant="-20" id="hnr-dn-vsW"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="aQu-7z-953" secondAttribute="trailing" constant="-20" id="uIr-Ms-WzF"/>
+                        </constraints>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Archive" id="zDB-bG-m2W"/>
+                    <connections>
+                        <outlet property="archivedProjectsTV" destination="aQu-7z-953" id="NXC-gg-aQW"/>
+                        <segue destination="KUW-fG-PHb" kind="show" identifier="showProjectOverview" id="Fth-MT-kEH"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="VtH-Ly-yAN" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1653" y="979"/>
+        </scene>
+        <!--Featured-->
+        <scene sceneID="MjZ-7L-obK">
+            <objects>
+                <viewController id="mSr-kN-ZC2" customClass="FeaturedProjectsViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="keA-LQ-BNN"/>
+                        <viewControllerLayoutGuide type="bottom" id="2Dg-pu-sxE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="fbK-cs-xja">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="551"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Featured" id="vzq-nf-olE"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ncQ-C9-j2h" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2465" y="979"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="plus_square" width="417" height="417"/>
+    </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="oMq-qS-n7d"/>
+    </inferredMetricsTieBreakers>
 </document>

@@ -124,9 +124,10 @@ class CustomModule: Module {
             case CustomModuleVariableTypes.Behavior_CustomOptions:
                 
                 topBarPrompt = "Add Custom Options"
+                
                 //2 config cells are needed (prompt + multiple selection):
                 array.append((ConfigurationOptionCellTypes.SimpleText, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_PromptID, BMN_Configuration_CellIsOptionalKey: true, BMN_Configuration_InstructionsLabelKey: "If you want, set a prompt:"])) //cell to accept an optional prompt
-                array.append((ConfigurationOptionCellTypes.Boolean, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID, BMN_Configuration_InstructionsLabelKey: "Allow multiple options to be selected (default NO):"])) //cell to check whether multiple selections are allowed or not
+                array.append((ConfigurationOptionCellTypes.Boolean, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID, BMN_Configuration_InstructionsLabelKey: "Allow multiple options to be selected (default NO):"])) //cell to check whether multiple selection is allowed or not
                 configurationOptionsLayoutObject = array
                 
             case CustomModuleVariableTypes.Behavior_BinaryOptions:

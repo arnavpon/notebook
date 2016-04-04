@@ -1,17 +1,17 @@
-//  HomeScreenViewController.swift
+//  ActiveProjectsViewController.swift
 //  Biometric Notebook
-//  Created by Arnav Pondicherry  on 12/26/15.
-//  Copyright © 2015 Confluent Ideals. All rights reserved.
+//  Created by Arnav Pondicherry  on 4/4/16.
+//  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Displays a list of all open projects & indicates their remaining duration. 
+// Displays a TV listing all of the active Counters (if any) & Projects (i.e. those projects for which data is still actively being reported). The user can navigate to the DataEntryVC or the ProjectOverviewVC from here. 
 
 import UIKit
 import HealthKit
 import CoreData
 
-class HomeScreenViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, LoginViewControllerDelegate {
-    
-    @IBOutlet weak var projectsTableView: UITableView!
+class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, LoginViewControllerDelegate {
+
+    @IBOutlet weak var activeProjectsTableView: UITableView!
     
     let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     var projects: [Project] = [] //list of project objects, TV dataSource
@@ -22,13 +22,18 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        clearCoreDataStoreForEntity(entity: "Project") //*
+        //        clearCoreDataStoreForEntity(entity: "Project") //*
         if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //user is logged in
             loggedIn = true //tell system that user is logged in
             self.projects = fetchAllProjectsFromStore() //obtain list of all projects from data store
-            projectsTableView.dataSource = self
-            projectsTableView.delegate = self
-            projectsTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
+            if (self.projects.isEmpty) { //empty state, handle appropriately
+                
+            } else {
+                
+            }
+            activeProjectsTableView.dataSource = self
+            activeProjectsTableView.delegate = self
+            activeProjectsTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
         } else {
             loggedIn = false //transition -> LoginVC
         }
@@ -37,7 +42,12 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     override func viewWillAppear(animated: Bool) {
         if (userJustLoggedIn) { //check if user just logged in & set the projects accordingly
             self.projects = fetchAllProjectsFromStore() //**obtain projects SPECIFIC to new user?!? - we will need to store local projects against username for this to work; better to pull all projects from the cloud & store to the device (overwriting existing entity) rather than creating a store for each user
-            projectsTableView.reloadData() //reload UI w/ new project list
+            if (self.projects.isEmpty) { //empty state, handle appropriately
+                
+            } else {
+                
+            }
+            activeProjectsTableView.reloadData() //reload UI w/ new project list
             userJustLoggedIn = false //reset the variable
         }
     }
@@ -125,6 +135,10 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
     
     // MARK: - Navigation
     
+    @IBAction func unwindToActiveProjectsVC(sender: UIStoryboardSegue) { //unwind segue
+        //
+    }
+    
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if (segue.identifier == "showDataVisuals") { //pass the selected project
             let destination = segue.destinationViewController as! ProjectOverviewViewController
@@ -134,4 +148,5 @@ class HomeScreenViewController: UIViewController, UITableViewDataSource, UITable
             destination.delegate = self
         }
     }
+    
 }

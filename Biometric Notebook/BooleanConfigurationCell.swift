@@ -26,22 +26,23 @@ class BooleanConfigurationCell: BaseConfigurationCell {
         
         let defaultFont = UIFont.systemFontOfSize(18)
         let boldFont = UIFont.boldSystemFontOfSize(18)
-        let fontColor = UIColor.blackColor()
-        let defaultAttributes = [NSFontAttributeName: defaultFont, NSForegroundColorAttributeName: fontColor]
-        let boldAttributes = [NSFontAttributeName: boldFont, NSForegroundColorAttributeName: fontColor]
+        let defaultAttributes = [NSFontAttributeName: defaultFont, NSForegroundColorAttributeName: UIColor.grayColor()]
+        let selectedAttributes = [NSFontAttributeName: boldFont, NSForegroundColorAttributeName: UIColor.blackColor()]
         
         let yesDefault = NSAttributedString(string: "YES", attributes: defaultAttributes)
-        let yesHighlighted = NSAttributedString(string: "YES", attributes: boldAttributes)
-        yesButton.backgroundColor = UIColor.greenColor()
+        let yesSelected = NSAttributedString(string: "YES", attributes: selectedAttributes)
         yesButton.setAttributedTitle(yesDefault, forState: UIControlState.Normal)
-        yesButton.setAttributedTitle(yesHighlighted, forState: UIControlState.Highlighted)
+        yesButton.setAttributedTitle(yesSelected, forState: UIControlState.Selected)
+        yesButton.backgroundColor = UIColor.greenColor()
+        yesButton.layer.cornerRadius = 5
         yesButton.addTarget(self, action: #selector(self.yesButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
         
         let noDefault = NSAttributedString(string: "NO", attributes: defaultAttributes)
-        let noHighlighted = NSAttributedString(string: "NO", attributes: boldAttributes)
-        noButton.backgroundColor = UIColor.redColor()
+        let noSelected = NSAttributedString(string: "NO", attributes: selectedAttributes)
         noButton.setAttributedTitle(noDefault, forState: UIControlState.Normal)
-        noButton.setAttributedTitle(noHighlighted, forState: UIControlState.Highlighted)
+        noButton.setAttributedTitle(noSelected, forState: UIControlState.Selected)
+        noButton.backgroundColor = UIColor.redColor()
+        noButton.layer.cornerRadius = 5
         noButton.addTarget(self, action: #selector(self.noButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
         
         insetBackground.addSubview(yesButton)
@@ -57,16 +58,16 @@ class BooleanConfigurationCell: BaseConfigurationCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        //Configure buttons side by side, w/ some space in between:
-        let buttonWidth: CGFloat = 55
+        //Configure buttons side by side around center of view, w/ some space in between:
+        let buttonWidth: CGFloat = 60
         let buttonHeight: CGFloat = 30
         let viewCenter = (insetBackground.frame.width - completionViewWidth)/2
-        let offSet: CGFloat = 10
+        let centerOffSet: CGFloat = 20
         
-        //Center both buttons around the middle of the frame w/ some spacing in between:
-        let yesOriginX = viewCenter - offSet - buttonWidth
+        //Center both buttons around the middle of the frame w/ an offset in between:
+        let yesOriginX = viewCenter - centerOffSet - buttonWidth
         yesButton.frame = CGRectMake(yesOriginX, startingY, buttonWidth, buttonHeight)
-        let noOriginX = viewCenter + offSet
+        let noOriginX = viewCenter + centerOffSet
         noButton.frame = CGRectMake(noOriginX, startingY, buttonWidth, buttonHeight)
     }
     
@@ -84,21 +85,21 @@ class BooleanConfigurationCell: BaseConfigurationCell {
         let reducedAlpha: CGFloat = 0.3
         if (currentSelection == true) { //selection is TRUE/YES
             yesButton.alpha = 1
-            yesButton.highlighted = true //triggers attributedText
+            yesButton.selected = true //triggers txt for selection
             noButton.alpha = reducedAlpha
-            noButton.highlighted = false //remove highlight from de-selected btn
+            noButton.selected = false //remove selected state from de-selected btn
         } else { //selection is FALSE/NO
             yesButton.alpha = reducedAlpha
-            yesButton.highlighted = false //remove highlight from de-selected btn
+            yesButton.selected = false //remove selected state from de-selected btn
             noButton.alpha = 1
-            noButton.highlighted = true //triggers attributedText
+            noButton.selected = true //triggers txt for selection
         }
-        configureCompletionIndicator(true) //completion indicator is always checked
+        configureCompletionIndicator(true) //completion indicator is ALWAYS checked
     }
     
     // MARK: - Data Reporting
     
-    internal override func reportData() -> AnyObject? { //checks the currently highlighted button & reports TRUE for yes, FALSE for no
+    internal override func reportData() -> AnyObject? { //checks the currently highlighted button & reports TRUE for 'yes', FALSE for 'no'
         //*REPORT TYPE: Bool*
         return currentSelection
     }

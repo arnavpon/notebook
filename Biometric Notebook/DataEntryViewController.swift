@@ -1,6 +1,6 @@
-//  DataEntryTableViewController.swift
+//  DataEntryViewController.swift
 //  Biometric Notebook
-//  Created by Arnav Pondicherry  on 1/19/16.
+//  Created by Arnav Pondicherry  on 4/4/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
 // Offers an interface within which to input information for a specific project & its variables.
@@ -8,24 +8,22 @@
 import UIKit
 import CoreData
 
-class DataEntryTableViewController: UITableViewController {
+class DataEntryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
-    @IBOutlet weak var doneButton: UIBarButtonItem!
-    @IBOutlet weak var resetEntryModeButton: UIBarButtonItem! //*
-    @IBOutlet weak var toolbarSpacer: UIBarButtonItem! //*
+    @IBOutlet weak var doneButton: UIButton!
+    @IBOutlet weak var dataEntryTV: UITableView!
     
     var selectedProject: Project?
     var variablesArray: [Module]? //TV data source
-    
     var currentSectionToDisplay: Bool = false //**set by project overview, false = inputs, true = outputs
+    
+    // MARK: - View Configuration
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        toolbarSpacer.width = view.frame.width - resetEntryModeButton.width //space to R edge
-        if (currentSectionToDisplay) { //OM being displayed
-            resetEntryModeButton.enabled = true //enable button
-        }
+        doneButton.enabled = false
+        dataEntryTV.dataSource = self
+        dataEntryTV.delegate = self
         
         //Reconstruct variables & set them as TV data source:
         selectedProject!.reconstructProjectFromPersistentRepresentation() //reconstruct variables
@@ -37,34 +35,44 @@ class DataEntryTableViewController: UITableViewController {
         
         registerCustomTVCells() //register ALL possible custom cell types
     }
-
+    
     override func didReceiveMemoryWarning() { //save current entries?
         super.didReceiveMemoryWarning()
     }
     
     func registerCustomTVCells() { //registers all possible custom cell types
-        tableView.registerClass(CustomWithOptionsCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithOptionsCell))
-        tableView.registerClass(CustomWithCounterCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithCounterCell))
-        tableView.registerClass(CustomWithRangeScaleCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithRangeScaleCell))
+        dataEntryTV.registerClass(CustomWithOptionsCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithOptionsCell))
+        dataEntryTV.registerClass(CustomWithCounterCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithCounterCell))
+        dataEntryTV.registerClass(CustomWithRangeScaleCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithRangeScaleCell))
     }
-
+    
+    func refreshMeasurementCycle() {
+        //Resets project's tracker variable -> 'False' so that IV entry will be displayed (in case user missed the 2nd part of the entry) & dumps the associated data for the first measurement:
+        //Send the user a warning that data will be deleted! Only works when we are in OM reporting mode!
+        currentSectionToDisplay = false //reset to IV (needed for doneButtonClick)
+        selectedProject!.inputVariableDataHasBeenEntered = false
+        saveManagedObjectContext()
+        variablesArray = selectedProject!.getBeforeActionVariablesArray() //reset TV data source
+        dataEntryTV.reloadData()
+    }
+    
     // MARK: - Table View
-
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if let variables = variablesArray {
             return variables.count
         }
         return 0
     }
     
-    override func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         if let variables = variablesArray { //check if a custom row height has been defined
             let module = variables[indexPath.row]
         }
         return 70 //default
     }
     
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell { //**all cells coming up empty!
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell { //**all cells coming up empty!
         var cell = BaseDataEntryCell()
         if let variables = variablesArray {
             let moduleForCell = variables[indexPath.row] //module obj is dataSource for TV cell
@@ -85,6 +93,10 @@ class DataEntryTableViewController: UITableViewController {
     
     // MARK: - Button Actions
     
+    @IBAction func backButtonClick(sender: AnyObject) { //unwind -> ActiveProjectsVC
+        performSegueWithIdentifier("unwindToActiveProjects", sender: nil)
+    }
+    
     @IBAction func doneButtonClick(sender: AnyObject) { //**
         //Construct data object containing values stored for the variable & send information -> the DB:
         //dataObject should contain the variable & values entered against it. First check to see that it is a CustomModule object before proceeding. Other modules have different capture behaviors.
@@ -94,7 +106,7 @@ class DataEntryTableViewController: UITableViewController {
         if let variables = variablesArray {
             for (entryInArray, index) in arrayOfCellsForSection {
                 let variable = variables[entryInArray]
-                let selectedOption = (tableView.cellForRowAtIndexPath(index)?.textLabel?.text)!
+                let selectedOption = (dataEntryTV.cellForRowAtIndexPath(index)?.textLabel?.text)!
                 dataObjectToDatabase[variable.variableName] = Dictionary<String, String>()
                 dataObjectToDatabase[variable.variableName]!["timeStamp"] = timeStamp
                 dataObjectToDatabase[variable.variableName]!["selectedOption"] = selectedOption
@@ -114,16 +126,6 @@ class DataEntryTableViewController: UITableViewController {
         }
         saveManagedObjectContext()
         performSegueWithIdentifier("returnToOverview", sender: self) //return to project overview or home screen?
-    }
-    
-    @IBAction func resetEntryModeButtonClick(sender: AnyObject) { //*
-        //Resets project's tracker variable -> 'False' so that IV entry will be displayed (in case user missed the 2nd part of the entry). Do we need to dump the associated data for the first measurement (or still send it -> DB)?
-        currentSectionToDisplay = false //reset to IV (needed for doneButtonClick)
-        selectedProject!.inputVariableDataHasBeenEntered = false
-        saveManagedObjectContext()
-        variablesArray = selectedProject!.getBeforeActionVariablesArray() //reset TV data source
-        tableView.reloadData()
-        resetEntryModeButton.enabled = false
     }
 
 }
