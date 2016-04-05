@@ -3,8 +3,6 @@
 //  Created by Arnav Pondicherry  on 1/3/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Use this page to name the project, define the question to be answered, and add a time-frame (endpoint) for the project.
-
 import UIKit
 
 class CreateProjectViewController: UIViewController, UITextViewDelegate {
@@ -197,49 +195,6 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
             }
         }
         return true
-    }
-    
-    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) { //if touch is outside textView, resign 1st responder; doesn't drop 1stR when I touch slider for some reason
-        let touch = touches.first
-        if let location = touch?.locationInView(self.view) {
-            if !(projectQuestionTextView.frame.contains(location)) {
-                projectQuestionTextView.resignFirstResponder()
-            }
-            if !(projectTitleTextView.frame.contains(location)) {
-                projectTitleTextView.resignFirstResponder()
-            }
-        }
-    }
-    
-    // MARK: - Button Actions
-    var showTutorial: Bool = true //sets tutorial to active in ProjectVarsVC
-    
-    @IBAction func createProjectButtonClick(sender: AnyObject) { //show tutorial (check userDefaults)
-        let userDefaults = NSUserDefaults.standardUserDefaults()
-        if let shouldShowTutorial = userDefaults.valueForKey("SHOW_VARS_TUTORIAL") as? Bool {
-            showTutorial = shouldShowTutorial
-        }
-        performSegueWithIdentifier("showVariables", sender: nil)
-    }
-    
-    @IBAction func cancelButtonClick(sender: AnyObject) { //return to home screen
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let controller = storyboard.instantiateInitialViewController()!
-        presentViewController(controller, animated: true, completion: nil)
-    }
-
-    // MARK: - Navigation
-
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        //Pass the title, question, & endpoint through -> the remaining flows:
-        if (segue.identifier == "showVariables") {
-            let destination = segue.destinationViewController as! ProjectVariablesViewController
-            destination.tutorialDescriptionViewMode = false //**enable/disable tutorial
-            //destination.tutorialDescriptionViewMode = self.showTutorial //true => show tutorial
-            destination.projectTitle = self.projectTitle
-            destination.projectQuestion = self.projectQuestion
-            destination.projectEndpoint = self.selectedEndpoint
-        }
     }
 
 }

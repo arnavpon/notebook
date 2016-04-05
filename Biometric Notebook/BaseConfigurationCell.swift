@@ -26,7 +26,7 @@ class BaseConfigurationCell: UITableViewCell {
     private let completionIndicator = UIImageView(image: UIImage(named: "x_mark")) //default => incomplete
     
     //Layout Coordinates:
-    private let insetBackgroundColor: UIColor = UIColor.whiteColor() //cell background color
+    private var insetBackgroundColor: UIColor = UIColor.whiteColor() //cell background color
     internal let completionViewWidth: CGFloat = 50
     internal let instructionsLabelHeight: CGFloat = 30
     internal let instructionsLabelTopPadding: CGFloat = 5
@@ -36,7 +36,7 @@ class BaseConfigurationCell: UITableViewCell {
     }
     internal var startingY: CGFloat {
         return instructionsLabelHeight + instructionsLabelTopPadding + 1
-    }//**the superclass' layoutSubviews should provide helpful indicators to all subclasses about where to layout their special views (in relation to the superclass' label & completionIndicator views). These indicators indicate the start x & y values for any & all subviews. All subclasses should override & redescribe the starting point so that any subclasses of their own will start @ a different location!
+    }
     
     private var fireCounter: Int = 0 //ensures that 'accessDataSource' runs only 1x
     var dataSource: Dictionary<String, AnyObject>? { //contains all necessary configuration info
@@ -92,7 +92,7 @@ class BaseConfigurationCell: UITableViewCell {
         completionIndicator.frame = indicatorFrame
         let startPoint = CGPoint(x: 1, y: 0)
         let endPoint = CGPoint(x: 1, y: insetBackground.frame.height)
-        drawLine(completionSideView, fromPoint: [startPoint], toPoint: [endPoint])
+        drawLine(completionSideView, fromPoint: [startPoint], toPoint: [endPoint], lineColor: UIColor.blackColor(), lineWidth: 1.0)
     }
     
     internal func accessDataSource() {
@@ -105,7 +105,7 @@ class BaseConfigurationCell: UITableViewCell {
                 if (self.isOptional) { //set image -> nil & send lone completion notification to VC
                     print("OPTIONAL config cell - sending single completion notification...")
                     self.completionIndicator.image = nil //set default -> empty img, not 'X'
-                    let notification = NSNotification(name: "BMNCompletionIndicatorDidChange", object: nil, userInfo: [BMN_Configuration_CompletionIndicatorStatusKey: true])
+                    let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_Configuration_CompletionIndicatorStatusKey: true])
                     NSNotificationCenter.defaultCenter().postNotification(notification) //send notification -> VC that the completion status is COMPLETE
                 }
             }

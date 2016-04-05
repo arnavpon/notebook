@@ -11,6 +11,8 @@
 		B10838FE1C4D40210023C060 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10838FD1C4D40210023C060 /* Action.swift */; };
 		B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B921E1C52D8E70079A535 /* HelperFunctions.swift */; };
 		B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B92201C52D9BE0079A535 /* CustomTextView.swift */; };
+		B123FA0D1CB2E077007E9AFA /* NewProjectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B123FA0C1CB2E077007E9AFA /* NewProjectViewController.swift */; };
+		B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */; };
 		B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6791C2D93BA0019D315 /* AppDelegate.swift */; };
 		B13CF67F1C2D93BA0019D315 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B13CF67D1C2D93BA0019D315 /* Main.storyboard */; };
 		B13CF6811C2D93BA0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6801C2D93BA0019D315 /* Assets.xcassets */; };
@@ -138,6 +140,8 @@
 		B10838FD1C4D40210023C060 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		B11B921E1C52D8E70079A535 /* HelperFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		B11B92201C52D9BE0079A535 /* CustomTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
+		B123FA0C1CB2E077007E9AFA /* NewProjectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewProjectViewController.swift; sourceTree = "<group>"; };
+		B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExperimentTypes.swift; sourceTree = "<group>"; };
 		B13CF6761C2D93BA0019D315 /* Biometric Notebook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Biometric Notebook.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B13CF6791C2D93BA0019D315 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B13CF67E1C2D93BA0019D315 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -446,6 +450,7 @@
 			children = (
 				B1D51C691CB2B10100DED6B2 /* Supplements */,
 				B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */,
+				B123FA0C1CB2E077007E9AFA /* NewProjectViewController.swift */,
 				B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */,
 				B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */,
 				B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */,
@@ -526,6 +531,7 @@
 		B1D51C691CB2B10100DED6B2 /* Supplements */ = {
 			isa = PBXGroup;
 			children = (
+				B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */,
 				B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */,
 				B11B92201C52D9BE0079A535 /* CustomTextView.swift */,
 				B1B9D9991C528B50000D501E /* CustomSlider.swift */,
@@ -763,6 +769,7 @@
 				B1D51C631CB2A34300DED6B2 /* CellWithGradientFill.swift in Sources */,
 				B17C21101C31D96800B59FB0 /* FoodItem.swift in Sources */,
 				B1AA96CE1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift in Sources */,
+				B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */,
 				B1D51C5C1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift in Sources */,
 				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
 				B1A8C7D01CAF7E8C00380E99 /* BooleanConfigurationCell.swift in Sources */,
@@ -803,6 +810,7 @@
 				B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */,
 				B1A8C7CB1CAF657300380E99 /* CustomWithCounterCell.swift in Sources */,
 				B1D0B2C21C3F29B400C9438F /* Project.swift in Sources */,
+				B123FA0D1CB2E077007E9AFA /* NewProjectViewController.swift in Sources */,
 				B1D51C601CB2A25C00DED6B2 /* SwipeInMenu.swift in Sources */,
 				B1B20A6D1C5E9CD0003B791B /* TutorialLayer.swift in Sources */,
 			);

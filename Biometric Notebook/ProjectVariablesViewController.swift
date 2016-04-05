@@ -9,6 +9,7 @@ import UIKit
 
 class ProjectVariablesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIPickerViewDataSource, UIPickerViewDelegate {
     
+    @IBOutlet weak var navBarItem: UINavigationItem! //change title item as needed
     @IBOutlet weak var tutorialDescriptionView: UIView!
     @IBOutlet weak var tutorialViewHeight: NSLayoutConstraint!
     @IBOutlet weak var tutorialDescriptionLabel: UILabel!
@@ -38,9 +39,10 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     var inputsTableDummyData: [String] = ["Input Variable 1", "Input Variable 2", "Input Variable 3"]
     var outcomesTableDummyData: [String] = ["Outcome Variable 1", "Outcome Variable 2"]
     
-    var projectTitle: String? //title (obtained from CreateProject VC)
-    var projectQuestion: String? //question for investigation (obtained from CreateProject VC)
-    var projectEndpoint: Endpoint? //endpoint (obtained from CreateProjectVC)
+    var projectTitle: String? //title (obtained from NewProjectVC)
+    var projectQuestion: String? //question for investigation (obtained from NewProjectVC)
+    var projectHypothesis: String? //hypothesis for project (obtained from NewProjectVC)
+    var projectEndpoint: Endpoint? //endpoint (obtained from NewProjectVC)
     var variableName: String? //the name of the variable entered by the user
     var createdVariable: Module? //the completed variable created by the user
     var tableViewForVariableAddition: UITableView? //notes which TV a new variable is going to
@@ -806,10 +808,11 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     }
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if (segue.identifier == "showSummary") {
+        if (segue.identifier == "showSummary") { //send all config data
             let destination = segue.destinationViewController as! ProjectSummaryViewController
             destination.projectTitle = self.projectTitle
             destination.projectQuestion = self.projectQuestion
+            destination.projectHypothesis = self.projectHypothesis
             destination.projectEndpoint = self.projectEndpoint
             destination.projectAction = self.selectedAction
             destination.inputVariables = self.inputVariableRows

@@ -33,7 +33,10 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             }
             activeProjectsTableView.dataSource = self
             activeProjectsTableView.delegate = self
-            activeProjectsTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "project_cell")
+            //**we need to stop the TV from highlighting the cell that was selected (blocks the visuals)
+            activeProjectsTableView.registerClass(CellWithGradientFill.self, forCellReuseIdentifier: NSStringFromClass(CellWithGradientFill))
+            
+            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
         } else {
             loggedIn = false //transition -> LoginVC
         }
@@ -50,6 +53,21 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             activeProjectsTableView.reloadData() //reload UI w/ new project list
             userJustLoggedIn = false //reset the variable
         }
+        
+        NSNotificationCenter.defaultCenter().removeObserver(self) //clear old indicators to be safe
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
+    }
+    
+    override func viewWillDisappear(animated: Bool) { //clear notification observer
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    func dataEntryButtonWasClicked(notification: NSNotification) {
+        if let dict = notification.userInfo, index = dict[BMN_CellIndexKey] as? Int {
+            print("Data entry button clicked by cell #\(index).")
+            selectedProject = projects[index] //set selectedProject before segue
+            performSegueWithIdentifier("showDataEntry", sender: nil)
+        }
     }
     
     // MARK: - TV Data Source
@@ -64,9 +82,9 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("project_cell", forIndexPath: indexPath)
+        let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithGradientFill)) as! CellWithGradientFill
+        cell.cellIndex = indexPath.row
         cell.textLabel?.text = projects[indexPath.row].title
-        cell.textLabel?.textAlignment = .Center
         cell.textLabel?.textColor = UIColor.whiteColor()
         cell.backgroundColor = cellColors[indexPath.row]
         return cell
@@ -142,6 +160,9 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if (segue.identifier == "showDataVisuals") { //pass the selected project
             let destination = segue.destinationViewController as! ProjectOverviewViewController
+            destination.selectedProject = self.selectedProject
+        } else if (segue.identifier == "showDataEntry") { //pass the selected project
+            let destination = segue.destinationViewController as! DataEntryViewController
             destination.selectedProject = self.selectedProject
         } else if (segue.identifier == "showLogin") { //set delegate for LoginVC
             let destination = segue.destinationViewController as! LoginViewController

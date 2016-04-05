@@ -15,6 +15,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     
     var projectTitle: String? //title (obtained from ProjectVariablesVC)
     var projectQuestion: String? //question for investigation (obtained from ProjectVariablesVC)
+    var projectHypothesis: String? //hypothesis for project (obtained from ProjectVariablesVC)
     var projectAction: Action? //action (obtained from ProjectVariablesVC)
     var projectEndpoint: Endpoint? //endpoint (obtained from ProjectVariablesVC)
     var inputVariables: [Module]? //obtained from ProjectVariablesVC

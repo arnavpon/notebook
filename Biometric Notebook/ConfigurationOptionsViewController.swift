@@ -108,7 +108,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         }
     }
     
-    @IBAction func cellCompletionStatusDidChange(notification: NSNotification) {
+    @IBAction func cellCompletionStatusDidChange(notification: NSNotification) { //* KEY has changed!!!
         if let info = notification.userInfo, status = info[BMN_Configuration_CompletionIndicatorStatusKey] as? Bool { //obtain current status & update the counter variable accordingly
             if (status) { //status was set -> COMPLETE (add 1 to the counter)
                 self.numberOfConfiguredCells += 1

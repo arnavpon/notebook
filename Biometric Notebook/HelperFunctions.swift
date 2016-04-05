@@ -59,6 +59,13 @@ func clearCoreDataStoreForEntity(entity entity: String) {
 
 // MARK: - Centered Rectangle
 
+func centerFrameInRect(subviewSize: CGSize, superviewFrame: CGRect) -> CGRect { //centers a SUBVIEW's frame in its superview's frame (ONLY works if view is subview, otherwise coordinates will be off!)
+    let superviewCenter = CGPoint(x: superviewFrame.width/2, y: superviewFrame.height/2)
+    let originX = superviewCenter.x - subviewSize.width/2
+    let originY = superviewCenter.y - subviewSize.height/2
+    return CGRectMake(originX, originY, subviewSize.width, subviewSize.height)
+}
+
 func createRectAroundCenter(centerPoint: CGPoint, size: CGSize) -> CGRect { //creates a rectangle of the given size situated evenly around the given center point
     let width = size.width
     let height = size.height
@@ -121,8 +128,8 @@ func getPointForCorner(layer: CALayer, corner: Corners) -> CGPoint { //returns p
     return pointForCorner
 }
 
-func drawLine(imageView: UIImageView, fromPoint: [CGPoint], toPoint: [CGPoint]) { //accept an array of points so that multiple lines can be drawn. Make sure # fromPoints = # toPoints!
-    //First, set up a context holding the image currently in the mainImageView.
+func drawLine(imageView: UIImageView, fromPoint: [CGPoint], toPoint: [CGPoint], lineColor: UIColor, lineWidth: CGFloat) { //accept an array of points so that multiple lines can be drawn. Make sure # fromPoints = # toPoints!
+    //First, set up a context holding the image currently in the mainImageView:
     UIGraphicsBeginImageContext(imageView.frame.size)
     let context = UIGraphicsGetCurrentContext()
     imageView.image?.drawInRect(CGRect(x: 0, y: 0, width: imageView.frame.width, height: imageView.frame.height))
@@ -135,8 +142,8 @@ func drawLine(imageView: UIImageView, fromPoint: [CGPoint], toPoint: [CGPoint]) 
     
     //Set the drawing parameters for line size & color:
     CGContextSetLineCap(context, .Square)
-    CGContextSetLineWidth(context, 1.25)
-    CGContextSetStrokeColorWithColor(context, UIColor.blackColor().CGColor)
+    CGContextSetLineWidth(context, lineWidth)
+    CGContextSetStrokeColorWithColor(context, lineColor.CGColor)
     CGContextSetBlendMode(context, .Normal)
     
     //Draw the path:
@@ -147,29 +154,3 @@ func drawLine(imageView: UIImageView, fromPoint: [CGPoint], toPoint: [CGPoint]) 
     imageView.alpha = 1.0
     UIGraphicsEndImageContext()
 }
-
-//*****
-
-//Code for two interdependent checkboxes (when one is clicked, the other is unclicked):
-//@IBAction func inputVariableCheckboxClicked(sender: AnyObject) {
-//    if !(inputVariableCheckbox.isChecked) { //box is NOT currently checked
-//        beforeOrAfterAction = false //set value for variable
-//    } else { //box is currently checked & is being unchecked (so NO boxes will be selected)
-//        beforeOrAfterAction = nil
-//    }
-//    if (outcomeVariableCheckbox.isChecked) { //uncheck other box if checked
-//        outcomeVariableCheckbox.isChecked = false
-//    }
-//}
-//
-//@IBAction func outcomeVariableCheckboxClicked(sender: AnyObject) {
-//    if !(outcomeVariableCheckbox.isChecked) { //box is NOT currently checked
-//        beforeOrAfterAction = true //set value for variable
-//    } else { //box is currently checked & is being unchecked (so NO boxes will be selected)
-//        beforeOrAfterAction = nil
-//    }
-//    if (inputVariableCheckbox.isChecked) { //uncheck other box if checked
-//        inputVariableCheckbox.isChecked = false
-//    }
-//}
-

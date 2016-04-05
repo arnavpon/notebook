@@ -26,6 +26,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         dataEntryTV.delegate = self
         
         //Reconstruct variables & set them as TV data source:
+        print("Selected Project: '\(selectedProject?.title)'.")
         selectedProject!.reconstructProjectFromPersistentRepresentation() //reconstruct variables
         if (currentSectionToDisplay == false) { //construct inputVars array
             variablesArray = selectedProject!.getBeforeActionVariablesArray()

@@ -244,20 +244,11 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Create Project" id="Ti7-9C-sqC">
-                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="bV9-Hj-3eJ">
-                            <connections>
-                                <action selector="cancelButtonClick:" destination="qTS-l6-Ram" id="vuU-nx-ie5"/>
-                            </connections>
-                        </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Create" id="eO5-gt-PNQ">
-                            <connections>
-                                <action selector="createProjectButtonClick:" destination="qTS-l6-Ram" id="yK1-uB-eRe"/>
-                            </connections>
-                        </barButtonItem>
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="bV9-Hj-3eJ"/>
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Create" id="eO5-gt-PNQ"/>
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
-                        <outlet property="createProjectButton" destination="eO5-gt-PNQ" id="Dcp-59-J7D"/>
                         <outlet property="endpointInstructionLabel" destination="fUD-ns-kgX" id="dAI-B0-URS"/>
                         <outlet property="endpointView" destination="yZu-ew-aYk" id="9e6-ts-Msf"/>
                         <outlet property="endpointViewNumberImage" destination="B6i-aR-M7y" id="JCA-ZP-ICJ"/>
@@ -271,12 +262,59 @@
                         <outlet property="secondSuccessIndicator" destination="37E-oz-oqc" id="EQn-k6-1I4"/>
                         <outlet property="thirdSuccessIndicator" destination="dMF-h6-VJ9" id="nl5-nv-OgJ"/>
                         <outlet property="titleInstructionLabel" destination="ybP-0s-pTh" id="9ad-jp-td9"/>
-                        <segue destination="DdO-PX-bxy" kind="show" identifier="showVariables" id="lH2-eu-mzg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WBN-rY-e2x" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1316" y="291"/>
+        </scene>
+        <!--New Project-->
+        <scene sceneID="UoP-yO-lzP">
+            <objects>
+                <viewController automaticallyAdjustsScrollViewInsets="NO" id="d04-5L-Cl8" customClass="NewProjectViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="9Ya-uE-Yxv"/>
+                        <viewControllerLayoutGuide type="bottom" id="I6J-wi-5ox"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="WWd-Sk-q7F">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" dataMode="prototypes" style="grouped" separatorStyle="none" allowsSelection="NO" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="5o5-2b-U7R">
+                                <rect key="frame" x="0.0" y="64" width="600" height="536"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                            </tableView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="5o5-2b-U7R" firstAttribute="top" secondItem="9Ya-uE-Yxv" secondAttribute="bottom" id="OJX-Xy-ieu"/>
+                            <constraint firstItem="I6J-wi-5ox" firstAttribute="top" secondItem="5o5-2b-U7R" secondAttribute="bottom" id="ObM-6X-Spk"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="5o5-2b-U7R" secondAttribute="trailing" constant="-20" id="Zd7-SG-QbW"/>
+                            <constraint firstItem="5o5-2b-U7R" firstAttribute="leading" secondItem="WWd-Sk-q7F" secondAttribute="leadingMargin" constant="-20" id="dFZ-uc-FnS"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="New Project" id="cLw-GG-Ip5">
+                        <barButtonItem key="backBarButtonItem" title="Back" id="Svn-xo-QyU"/>
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="iBD-cO-9T5">
+                            <connections>
+                                <action selector="cancelButtonClick:" destination="d04-5L-Cl8" id="kOw-pH-Rau"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Setup" id="sga-JC-OAg">
+                            <connections>
+                                <action selector="setupButtonClick:" destination="d04-5L-Cl8" id="qne-bT-a80"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="newProjectTV" destination="5o5-2b-U7R" id="sib-CJ-RrK"/>
+                        <outlet property="setupButton" destination="sga-JC-OAg" id="IcF-he-oy6"/>
+                        <segue destination="DdO-PX-bxy" kind="show" identifier="showVariables" id="njR-p0-7Z1"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Spo-CJ-Mi1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1316" y="1066"/>
         </scene>
         <!--Attach Module-->
         <scene sceneID="p6y-2o-ZtJ">
@@ -935,6 +973,7 @@
                         <outlet property="inputVariablesTitleView" destination="2Cb-EZ-OlH" id="e4r-Ox-gd1"/>
                         <outlet property="inputVariablesView" destination="Th1-Ne-tWh" id="Neg-bf-hXU"/>
                         <outlet property="inputViewArrow" destination="9Se-YK-kCv" id="zQZ-4T-PYc"/>
+                        <outlet property="navBarItem" destination="nxb-PO-fbx" id="Yvk-sg-UoF"/>
                         <outlet property="outcomeVariablesTV" destination="ixJ-hs-CZg" id="Xha-dH-Yj9"/>
                         <outlet property="outcomeVariablesTVButton" destination="YRn-ke-Igm" id="itP-bS-aM9"/>
                         <outlet property="outcomeVariablesTitleLabel" destination="e3k-kT-a7t" id="TXi-vy-KFl"/>
@@ -1039,7 +1078,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </toolbar>
                     <connections>
-                        <segue destination="qTS-l6-Ram" kind="relationship" relationship="rootViewController" id="p62-9m-YwL"/>
+                        <segue destination="d04-5L-Cl8" kind="relationship" relationship="rootViewController" id="EeY-1N-CDd"/>
                     </connections>
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="nWV-qN-SEZ" userLabel="First Responder" sceneMemberID="firstResponder"/>
