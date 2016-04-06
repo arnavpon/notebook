@@ -9,40 +9,47 @@ import UIKit
 
 class CustomSliderBackgroundView: UIView {
 
-    let leftView = UIView()
-    let leftLabel = UILabel() //fix label to top middle
-    let rightView = UIView()
-    let rightLabel = UILabel() //fix label to top middle
+    private let leftView = UIView()
+    private let leftLabel = UILabel() //fix label to top middle
+    private let rightView = UIView()
+    private let rightLabel = UILabel() //fix label to top middle
     
-    var customSlider: CustomSlider?
-    var offsetLength: CGFloat? //distance from slider to left side of view
-    var leftLabelHeight: CGFloat {
+    weak var customSlider: CustomSlider?
+    private var leftLabelHeight: CGFloat {
         return 50
     }
     private var leftViewWidth: CGFloat {
         if let slider = customSlider {
             let numberOfNodes = slider.fixedSelectionPointNumbers.count
             let width = slider.bounds.width
-            let distance = width / CGFloat(numberOfNodes - 1)
+            let distance = width / CGFloat(numberOfNodes - 1) + 0.1 * self.frame.width //need to add (1 - % of view that slider is taking up) * width!
             return distance
         }
         return 20
     }
+    internal var labelBottomY: CGFloat { //reports bottom Y of lbl for slider positioning
+        return leftLabelHeight
+    }
     
     override var frame: CGRect {
-        didSet {
-            self.hidden = false
+        didSet { //any time frame changes, update visuals
             updateFrames()
         }
     }
     
+    // MARK: - Initializers
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
+        configureBackgroundView()
     }
     
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
-        self.hidden = true //hide to start (so that we can get full screen size before rendering)
+        configureBackgroundView()
+    }
+    
+    private func configureBackgroundView() {
         self.backgroundColor = UIColor.clearColor()
         
         //Left Subview:
@@ -68,19 +75,15 @@ class CustomSliderBackgroundView: UIView {
         updateFrames()
     }
     
-    func updateFrames() {
-        if let offset = offsetLength {
-            //Left Subview:
-            leftView.frame = CGRect(x: 0, y: 0, width: (leftViewWidth + offset), height: frame.height)
-            let leftLabelSize = CGSize(width: (leftViewWidth + offset), height: leftLabelHeight)
-            let leftLabelCenter = CGPoint(x: (leftViewWidth + offset)/2, y: leftLabelSize.height/2)
-            leftLabel.frame = createRectAroundCenter(leftLabelCenter, size: leftLabelSize)
+    private func updateFrames() {
+        //Left Subview:
+        leftView.frame = CGRect(x: 0, y: 0, width: leftViewWidth, height: frame.height)
+        leftLabel.frame = CGRectMake(0, 0, leftViewWidth, leftLabelHeight)
             
-            //Right Subview:
-            rightView.frame = CGRect(x: (leftView.frame.origin.x + leftView.frame.width), y: 0, width: (frame.width - leftView.frame.width), height: frame.height)
-            let rightLabelSize = CGSize(width: rightView.frame.width * 0.8, height: 25)
-            let rightLabelCenter = CGPoint(x: rightView.frame.width/2, y: leftLabelSize.height/2)
-            rightLabel.frame = createRectAroundCenter(rightLabelCenter, size: rightLabelSize)
-        }
+        //Right Subview:
+        rightView.frame = CGRect(x: leftViewWidth, y: 0, width: (frame.width - leftViewWidth), height: frame.height)
+        let rightLabelSize = CGSize(width: rightView.frame.width * 0.8, height: 25)
+        let rightLabelCenter = CGPoint(x: rightView.frame.width/2, y: leftLabelHeight/2)
+        rightLabel.frame = createRectAroundCenter(rightLabelCenter, size: rightLabelSize)
     }
 }

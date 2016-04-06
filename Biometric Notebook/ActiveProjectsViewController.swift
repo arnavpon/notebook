@@ -33,16 +33,16 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             }
             activeProjectsTableView.dataSource = self
             activeProjectsTableView.delegate = self
-            //**we need to stop the TV from highlighting the cell that was selected (blocks the visuals)
             activeProjectsTableView.registerClass(CellWithGradientFill.self, forCellReuseIdentifier: NSStringFromClass(CellWithGradientFill))
-            
-            NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
         } else {
             loggedIn = false //transition -> LoginVC
         }
     }
     
     override func viewWillAppear(animated: Bool) {
+        //**we need to stop the TV from highlighting the cell that was selected (blocks the visuals)
+        activeProjectsTableView.reloadData()
+        
         if (userJustLoggedIn) { //check if user just logged in & set the projects accordingly
             self.projects = fetchAllProjectsFromStore() //**obtain projects SPECIFIC to new user?!? - we will need to store local projects against username for this to work; better to pull all projects from the cloud & store to the device (overwriting existing entity) rather than creating a store for each user
             if (self.projects.isEmpty) { //empty state, handle appropriately
@@ -83,6 +83,8 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithGradientFill)) as! CellWithGradientFill
+        cell.highlighted = false //*
+        cell.selected = false //*
         cell.cellIndex = indexPath.row
         cell.textLabel?.text = projects[indexPath.row].title
         cell.textLabel?.textColor = UIColor.whiteColor()

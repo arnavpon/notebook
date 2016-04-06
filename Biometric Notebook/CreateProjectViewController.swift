@@ -3,56 +3,22 @@
 //  Created by Arnav Pondicherry  on 1/3/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
+// Use this VC to name the project, define the question to be answered and (optionally) a hypothesis, & add a time-frame (endpoint) for the project.
+
 import UIKit
 
-class CreateProjectViewController: UIViewController, UITextViewDelegate {
+class CreateProjectViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
-    @IBOutlet weak var createProjectButton: UIBarButtonItem!
-    @IBOutlet weak var projectTitleView: UIView!
-    @IBOutlet weak var titleInstructionLabel: UILabel!
-    @IBOutlet weak var projectTitleTextView: CustomTextView!
-    @IBOutlet weak var firstSuccessIndicator: UIImageView!
-    
-    @IBOutlet weak var projectQuestionView: UIView!
-    @IBOutlet weak var questionInstructionLabel: UILabel!
-    @IBOutlet weak var projectQuestionTextView: CustomTextView!
-    @IBOutlet weak var secondSuccessIndicator: UIImageView!
-    
-    @IBOutlet weak var projectEndpointView: UIView! //larger view
-    @IBOutlet weak var endpointInstructionLabel: UILabel! //main lbl
-    @IBOutlet weak var endpointView: CustomSliderBackgroundView! //smaller view
-    @IBOutlet weak var endpointViewNumberImage: UIImageView! //(3) image
-    @IBOutlet weak var thirdSuccessIndicator: UIImageView!
-    
+    @IBOutlet weak var setupButton: UIBarButtonItem!
+    @IBOutlet weak var createProjectTV: UITableView!
+        
     var projectTitle: String? //set value to indicate that a name has been entered
     var projectQuestion: String? //set value to indicate that a question has been entered
-    var selectedEndpoint: Endpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil) //captures endpoint for segue
-    let endpoints = [Endpoints.Continuous.rawValue, Endpoints.Day.rawValue, Endpoints.Week.rawValue, Endpoints.Month.rawValue, Endpoints.Year.rawValue] //endpoints for slider
-    
-    var firstSuccessIndicatorIsSet: Bool = false { //handles display of 1st checkmark
-        didSet {
-            if (firstSuccessIndicatorIsSet) {
-                firstSuccessIndicator.hidden = false
-                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) { //if all 3 checkmarks are set, enable 'Done' button (3rd success is always on unless user is interating w/ the slider)
-                    createProjectButton.enabled = true
-                }
-            } else {
-                firstSuccessIndicator.hidden = true
-                createProjectButton.enabled = false
-            }
-        }
-    }
-    var secondSuccessIndicatorIsSet: Bool = false { //handles display of 2nd checkmark
-        didSet {
-            if (secondSuccessIndicatorIsSet) {
-                secondSuccessIndicator.hidden = false
-                if (firstSuccessIndicatorIsSet) && (secondSuccessIndicatorIsSet) {
-                    createProjectButton.enabled = true
-                }
-            } else {
-                secondSuccessIndicator.hidden = true
-                createProjectButton.enabled = false
-            }
+    var projectHypothesis: String? //optional configuration item
+    var projectEndpoint: Endpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil) //captures endpoint for segue
+    var numberOfConfiguredCells: Int = 0 { //keeps track of the current # of configured cells
+        didSet { //adjust 'doneButton' status appropriately
+            configureDoneButton()
         }
     }
     
@@ -60,141 +26,202 @@ class CreateProjectViewController: UIViewController, UITextViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        firstSuccessIndicator.hidden = true
-        secondSuccessIndicator.hidden = true
-        thirdSuccessIndicator.hidden = true //normally on, except when slider is moving
-        projectTitleTextView.delegate = self
-        projectQuestionTextView.delegate = self
+        createProjectTV.dataSource = self
+        createProjectTV.delegate = self
         
-        let widthPercentage: CGFloat = 0.8 //% of remaining view that slider width takes
-        let viewWidth: CGFloat = (view.frame.width - endpointViewNumberImage.frame.width - thirdSuccessIndicator.frame.width - 16) //endpointView width is total width - width of #3 label - 16 (fixed offset) - width of 3rdsuccessindicator.
-        let heightPercentage: CGFloat = 0.65 //% of remaining view that slider height takes
-        
-        let viewHeight = CGFloat(endpointView.frame.height - 48) //fixed height
-        //let viewHeight: CGFloat = (view.frame.height - 36 - projectTitleView.frame.height - projectQuestionView.frame.height - endpointInstructionLabel.frame.height - endpointViewNumberImage.frame.height - leftViewHeight - 10) //remainder of view after subtracting view heights, navBar height (36), label height & offset of 10 (from bottom); still not the proper height b/c Lviewheight is not set til viewDidAppear
-        let sliderWidth = widthPercentage * viewWidth
-        let sliderHeight = heightPercentage * viewHeight
-        let centerX: CGFloat = sliderWidth/2 + (1 - widthPercentage)/2 * viewWidth
-        
-        let leftLabelHeight = endpointView.leftLabelHeight
-        let centerY: CGFloat = leftLabelHeight + sliderHeight/2 + 10 //offset by 10 from bottom of lbl
-        let center = CGPoint(x: centerX, y: centerY)
-        let size = CGSize(width: sliderWidth, height: sliderHeight)
-        let frame = createRectAroundCenter(center, size: size)
-        let color2 = UIColor(red: 50/255, green: 163/255, blue: 216/255, alpha: 1)
-        let colorScheme = (UIColor.whiteColor(), color2)
-        let customSlider = CustomSlider(frame: frame, selectionPoints: endpoints, scheme: colorScheme)
-        customSlider.backgroundColor = UIColor.clearColor()
-        customSlider.thirdSuccessIndicator = self.thirdSuccessIndicator
-        endpointView.addSubview(customSlider)
-        endpointView.bringSubviewToFront(customSlider)
-        customSlider.addTarget(self, action: #selector(CreateProjectViewController.customSliderValueHasChanged(_:)), forControlEvents: .ValueChanged)
-        
-        endpointView.customSlider = customSlider
-        endpointView.offsetLength = (1 - widthPercentage)/2 * viewWidth
+        //Register (3) custom TV cells:
+        createProjectTV.registerClass(CellWithTextView.self, forCellReuseIdentifier: NSStringFromClass(CellWithTextView))
+        createProjectTV.registerClass(ProjectQuestionCustomCell.self, forCellReuseIdentifier: NSStringFromClass(ProjectQuestionCustomCell))
+        createProjectTV.registerClass(CellWithCustomSlider.self, forCellReuseIdentifier: NSStringFromClass(CellWithCustomSlider))
     }
     
-    override func viewDidAppear(animated: Bool) { //add placeholders (view is properly set @ this time)
-        thirdSuccessIndicator.hidden = false //normally on, except when slider is moving
-        projectTitleTextView.placeholder = "Enter a title for your new project"
-        projectQuestionTextView.placeholder = "What is the question that your project is trying to answer?"
-        
-        //Reset frame for endpointView after view frames have been set:
-        let frame = endpointView.frame
-        endpointView.frame = frame
+    override func viewWillAppear(animated: Bool) { //add notification observers
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.revealHiddenArea(_:)), name: BMN_Notification_RevealHiddenArea, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.customSliderSelectedNodeHasChanged(_:)), name: BMN_Notification_SliderSelectedNodeHasChanged, object: nil)
     }
     
-    func customSliderValueHasChanged(customSlider: CustomSlider) { //if slider lands on a fixedPoint that is NOT 'none', create an alert for adding the amount
-        if (customSlider.suppressAlert) { //check if alert should be allowed to appear
-            customSlider.suppressAlert = false //reset suppression alert
-            return //break function early
-        }
-        
-        let selectedValue = customSlider.currentValue
-        //Match the selected value -> a node:
-        if let index = customSlider.fixedSelectionPointNumbers.indexOf(selectedValue) {
-            let selection = endpoints[index]
-            if (selection != endpoints.first) { //make sure the 1st item wasn't selected
-                let alert = UIAlertController(title: "Add a Value", message: "Enter a number to complete your endpoint setup.", preferredStyle: UIAlertControllerStyle.Alert)
-                let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: { (let cancel) -> Void in
-                    customSlider.currentValue = 0.0 //set slider back -> 'None'
-                    customSlider.setNodeAsSelected() //change highlighting to reflect currentNode
-                    self.selectedEndpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil)
-                })
-                let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: { (let ok) -> Void in
-                    //add typed value -> crown for the slider; type check to make sure it is an int:
-                    if let input = Int((alert.textFields?.first?.text)!) {
-                        customSlider.crownLayerValue = input
-                        
-                        //Set the selectedEndpoint:
-                        var counter = 0
-                        var selection: String = ""
-                        for selectionPoint in customSlider.fixedSelectionPointNumbers {
-                            if (customSlider.currentValue == selectionPoint) { //get node #
-                                selection = self.endpoints[counter] //get node name
-                                break
-                            }
-                            counter += 1
-                        }
-                        if let select: Endpoints = Endpoints(rawValue: selection) { //match -> endpoint
-                            self.selectedEndpoint = Endpoint(endpoint: select, number: input)
-                        } else {
-                            print("Error: selectedEndpoint does not match known endpoint!")
-                        }
-                    } else { //if input is not an integer value
-                        customSlider.currentValue = 0.0
-                        customSlider.setNodeAsSelected() //change highlighting to reflect currentNode
-                        self.selectedEndpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil)
-                    }
-                })
-                alert.addAction(cancel)
-                alert.addAction(ok)
-                alert.addTextFieldWithConfigurationHandler({ (let textField) -> Void in
-                    //configure TF so that numbers so up on keyboard
-                    textField.keyboardType = UIKeyboardType.NumberPad
-                })
-                presentViewController(alert, animated: true, completion: nil)
-            } else { //user selected 'None' -> continuous endpoint
-                selectedEndpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil)
+    override func viewWillDisappear(animated: Bool) { //clear notification observer
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    func cellCompletionStatusDidChange(notification: NSNotification) {
+        if let info = notification.userInfo, status = info[BMN_Configuration_CompletionIndicatorStatusKey] as? Bool { //obtain current status & update the counter variable accordingly
+            if (status) { //status was set -> COMPLETE (add 1 to the counter)
+                self.numberOfConfiguredCells += 1
+            } else { //status was set -> INCOMPLETE (subtract 1 from the counter)
+                self.numberOfConfiguredCells -= 1
             }
         }
+    }
+    
+    func configureDoneButton() { //controls whether the 'setupButton' is enabled or not
+        let total = 4 //4 total cells that need to be filled
+        if (numberOfConfiguredCells != total) { //some cells haven't been configured yet
+            setupButton.enabled = false
+            if (numberOfConfiguredCells > total) { //error check
+                print("[configureDoneButton] Error - # of configured cells exceeds total # of cells!")
+            }
+        } else { //all cells have been configured
+            setupButton.enabled = true
+        }
+    }
+    
+    func customSliderSelectedNodeHasChanged(notification: NSNotification) { //if slider's node changes, create an alert for user to enter a crown value
+        let alert = UIAlertController(title: "Add a Value", message: "Enter a number to complete your endpoint setup.", preferredStyle: UIAlertControllerStyle.Alert)
+        let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Default, handler: { (let cancel) -> Void in
+            let notification = NSNotification(name: BMN_Notification_SliderCrownValueWasSet, object: nil, userInfo: [BMN_CellWithCustomSlider_CrownValueKey: -1])
+            NSNotificationCenter.defaultCenter().postNotification(notification)
+        })
+        let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: { (let ok) -> Void in
+            //add typed value -> crown for the slider; type check to make sure it is an int:
+            if let input = Int((alert.textFields?.first?.text)!) {
+                if (input > 0) { //make sure value is > 0
+                    let notification = NSNotification(name: BMN_Notification_SliderCrownValueWasSet, object: nil, userInfo: [BMN_CellWithCustomSlider_CrownValueKey: input])
+                    NSNotificationCenter.defaultCenter().postNotification(notification)
+                } else { //set slider back -> start
+                    let notification = NSNotification(name: BMN_Notification_SliderCrownValueWasSet, object: nil, userInfo: [BMN_CellWithCustomSlider_CrownValueKey: -1])
+                    NSNotificationCenter.defaultCenter().postNotification(notification)
+                }
+            } else { //if input is NOT an integer value
+                let notification = NSNotification(name: BMN_Notification_SliderCrownValueWasSet, object: nil, userInfo: [BMN_CellWithCustomSlider_CrownValueKey: -1])
+                NSNotificationCenter.defaultCenter().postNotification(notification)
+            }
+        })
+        alert.addAction(cancel)
+        alert.addAction(ok)
+        alert.addTextFieldWithConfigurationHandler({ (let textField) -> Void in
+            //configure TF so that numbers show up on keyboard
+            textField.keyboardType = UIKeyboardType.NumberPad
+        })
+        presentViewController(alert, animated: true, completion: nil)
     }
 
-    // MARK: - TextView Behavior
+    // MARK: - Table View
     
-    func textViewDidChange(textView: UITextView) { //enable 'Create' button when name & question are entered & an endpoint is selected
-        if (textView == projectTitleTextView) {
-            if (textView.text != "") {
-                projectTitle = textView.text.capitalizedString
-                firstSuccessIndicatorIsSet = true
-            } else {
-                projectTitle = nil
-                firstSuccessIndicatorIsSet = false
-            }
-        } else if (textView == projectQuestionTextView) {
-            if (textView.text != "") {
-                projectQuestion = textView.text
-                secondSuccessIndicatorIsSet = true
-            } else {
-                projectQuestion = nil
-                 secondSuccessIndicatorIsSet = false
-            }
+    var hypothesisCellVisibleLevels: Int = 0 //default # of hidden cells is 0
+    
+    func revealHiddenArea(notification: NSNotification) { //reveals hidden area in TV cell when + button (on the cell) is clicked
+        if let dict = notification.userInfo, levels = dict[BMN_PlusBtnCell_NumberOfHiddenLevelsKey] as? Int {
+            hypothesisCellVisibleLevels = levels
+            createProjectTV.reloadData() //reload TV cells to update UI
         }
     }
     
-    func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
-        if (textView == projectTitleTextView) { //cap the project title @ 40 characters
-            if ((textView.text.characters.count + text.characters.count - range.length) > 25) {
-                print("String too long")
-                return false
-            }
-        } else if (textView == projectQuestionTextView) { //cap question length @ 100 characters
-            if ((textView.text.characters.count + text.characters.count - range.length) > 100) {
-                print("String too long")
-                return false
-            }
-        }
-        return true
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 4 //Project Title, Project Question, Project Hypothesis, Project Endpoint
     }
-
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        switch (indexPath.row) { //add 2 for separator height + 3 for space from bottom
+        case 0: //project title
+            return 160 + 2 + 3
+        case 1: //project question
+            return 160 + 2 + 3
+        case 2: //hypothesis (size is dynamic)
+            return (40 + CGFloat(hypothesisCellVisibleLevels) * 40) + 2 + 3
+        case 3: //project endpoint
+            return 200 + 3 //no separator for last cell
+        default:
+            return 0
+        }
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        var cell = CreateProjectTableViewCell()
+        switch (indexPath.row) {
+        case 0: //Title
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithTextView)) as! CellWithTextView
+            cell.mainLabelFont = UIFont.systemFontOfSize(17, weight: 2)
+            cell.mainLabelTextColor = UIColor.whiteColor()
+            cell.insetBackgroundColor = UIColor(red: 82/255, green: 33/255, blue: 1, alpha: 1)
+            cell.firstLevelLeftButton?.setImage(UIImage(named: "1"), forState: UIControlState.Normal)
+            (cell as! CellWithTextView).customTextView.placeholder = "Enter a title for your project"
+            (cell as! CellWithTextView).customTextView.backgroundColor = UIColor(red: 191/255, green: 170/255, blue: 1, alpha: 1)
+            cell.dataSource = [BMN_LEVELS_MainLabelKey: "PROJECT TITLE"]
+            
+        case 1: //Question
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ProjectQuestionCustomCell)) as! ProjectQuestionCustomCell
+            cell.mainLabelFont = UIFont.systemFontOfSize(17, weight: 2)
+            cell.mainLabelTextColor = UIColor.whiteColor()
+            cell.insetBackgroundColor = UIColor(red: 26/255, green: 216/255, blue: 83/255, alpha: 1)
+            cell.firstLevelLeftButton?.setImage(UIImage(named: "2"), forState: UIControlState.Normal)
+            cell.dataSource = [BMN_LEVELS_MainLabelKey: "QUESTION TO ANSWER"]
+            
+        case 2: //Hypothesis
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithTextView)) as! CellWithTextView
+            cell.mainLabelFont = UIFont.systemFontOfSize(15, weight: 2)
+            cell.mainLabelTextColor = UIColor.whiteColor()
+            cell.insetBackgroundColor = UIColor(red: 50/255, green: 163/255, blue: 216/255, alpha: 1)
+            cell.firstLevelLeftButton?.setImage(UIImage(named: "3"), forState: UIControlState.Normal)
+            (cell as! CellWithTextView).customTextView.backgroundColor = UIColor(red: 144/255, green: 186/255, blue: 207/255, alpha: 1)
+            (cell as! CellWithTextView).customTextView.placeholder = "Enter a hypothesis (what you think the results will show in response to your question)."
+            cell.dataSource = [BMN_LEVELS_MainLabelKey: "HYPOTHESIS (OPTIONAL)", BMN_LEVELS_CellIsOptionalKey: true, BMN_LEVELS_RevealRightButtonKey: true]
+            
+        case 3: //Endpoint
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithCustomSlider)) as! CellWithCustomSlider
+            cell.mainLabelFont = UIFont.systemFontOfSize(17, weight: 2)
+            cell.mainLabelTextColor = UIColor.whiteColor()
+            cell.insetBackgroundColor = UIColor(red: 1, green: 109/255, blue: 21/255, alpha: 1)
+            cell.firstLevelLeftButton?.setImage(UIImage(named: "4"), forState: UIControlState.Normal)
+            cell.dataSource = [BMN_LEVELS_MainLabelKey: "PROJECT TIMEFRAME"]
+            
+        default:
+            break
+        }
+        return cell
+    }
+    
+    func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        //We have only enabled selection of cells so that we can register touches on the TV; if a touch is registered, drop 1st-R from txtViews before blocking selection!
+        if let firstCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0)) as? CellWithTextView, secondCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: 2, inSection: 0)) as? CellWithTextView {
+            firstCell.customTextView.resignFirstResponder()
+            secondCell.customTextView.resignFirstResponder()
+        }
+        return false //prevent selection of cell
+    }
+    
+    // MARK: - Button Actions
+    
+    var showTutorial: Bool = true //sets tutorial to ACTIVE in ProjectVarsVC
+    
+    @IBAction func setupButtonClick(sender: AnyObject) { //segue -> ProjectVarsVC
+        let userDefaults = NSUserDefaults.standardUserDefaults()
+        if let shouldShowTutorial = userDefaults.valueForKey("SHOW_VARS_TUTORIAL") as? Bool {
+            showTutorial = shouldShowTutorial
+            
+            //Grab the values reported by the user in the TV cells (use custom function for endpoint):
+            let cell1 = createProjectTV.cellForRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0)) as! CellWithTextView
+            projectTitle = cell1.reportData() as? String
+            let cell2 = createProjectTV.cellForRowAtIndexPath(NSIndexPath(forRow: 1, inSection: 0)) as! ProjectQuestionCustomCell
+            projectQuestion = cell2.reportData() as? String
+            let cell3 = createProjectTV.cellForRowAtIndexPath(NSIndexPath(forRow: 2, inSection: 0)) as! CellWithTextView
+            projectHypothesis = cell3.reportData() as? String
+            let cell4 = createProjectTV.cellForRowAtIndexPath(NSIndexPath(forRow: 3, inSection: 0)) as! CellWithCustomSlider
+            projectEndpoint = cell4.reportEndpoint()
+        }
+        performSegueWithIdentifier("showVariables", sender: nil)
+    }
+    
+    @IBAction func cancelButtonClick(sender: AnyObject) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let controller = storyboard.instantiateInitialViewController()!
+        presentViewController(controller, animated: true, completion: nil)
+    }
+    
+    // MARK: - Navigation
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        //Pass the title, question, hypothesis, & endpoint through -> the remaining flows:
+        if (segue.identifier == "showVariables") {
+            let destination = segue.destinationViewController as! ProjectVariablesViewController
+            destination.tutorialDescriptionViewMode = false //**enable/disable tutorial
+            //destination.tutorialDescriptionViewMode = self.showTutorial //true => show tutorial
+            destination.projectTitle = self.projectTitle
+            destination.projectQuestion = self.projectQuestion
+            destination.projectEndpoint = self.projectEndpoint
+            destination.projectHypothesis = self.projectHypothesis
+        }
+    }
+    
 }

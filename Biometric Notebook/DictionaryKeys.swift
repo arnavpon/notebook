@@ -16,19 +16,37 @@ let SHOW_ATTACH_DESCRIPTION = "show_attach_description_key"
 
 // MARK: - Custom NSNotification IDs
 
-let BMN_Notification_CompletionIndicatorDidChange = "BMNCompletionIndicatorDidChange"
-let BMN_Notification_DataEntryButtonClick = "BMNDataEntryButtonClick"
+let BMN_Notification_CompletionIndicatorDidChange = "BMN_CompletionIndicatorDidChange"
+let BMN_Notification_DataEntryButtonClick = "BMN_DataEntryButtonClick"
+let BMN_Notification_RevealHiddenArea = "BMN_RevealHiddenArea"
+
+//CustomSlider Notifications:
+let BMN_Notification_SliderSelectedNodeHasChanged = "BMN_SliderSelectedNodeHasChanged"
+let BMN_Notification_SliderCrownValueWasSet = "BMN_SliderCrownValueWasSet"
+let BMN_Notification_SliderControlIsMoving = "BMN_SliderControlIsMoving"
+
 let BMN_CellIndexKey = "cell_index_key" //**rename, CellWithGradient notification userInfo key
 
 // MARK: - LEVELS Framework General Keys
 
 let BMN_LEVELS_MainLabelKey = "LEVELS_main_label_key" //txt for cell's main label
+let BMN_LEVELS_RevealLeftButtonKey = "LEVELS_reveal_left_button_key" //button on R of mainLabel
+let BMN_LEVELS_RevealRightButtonKey = "LEVELS_reveal_right_button_key" //button on L of mainLabel
 let BMN_LEVELS_CellIsOptionalKey = "LEVELS_is_cell_optional_key" //TRUE => cell is optional
 let BMN_LEVELS_HideRightViewKey = "LEVELS_hide_right_view_key" //TRUE => hide R side view
 let BMN_LEVELS_CompletionIndicatorStatusKey = "LEVELS_completion_indicator_status_key" //key used in the notification that reports whether the cell is complete or incomplete
 let BMN_LEVELS_TabLevelKey = "LEVELS_tab_level_key" //indicates the tab hierarchy of the cell
 
-// MARK: - ConfigurationOptions Data Source Keys //*
+// MARK: - CellWithPlusButton Keys
+
+let BMN_PlusBtnCell_NumberOfHiddenLevelsKey = "PlusBtn_number_of_hidden_levels_key" //indicates to VC the # of levels to reveal when btn is pressed
+
+// MARK: - CellWithCustomSlider Keys
+
+let BMN_CellWithCustomSlider_CrownValueKey = "CellWithCustomSlider_entered_value_key"
+let BMN_CellWithCustomSlider_IsSliderMovingKey = "CellWithCustomSlider_is_slider_moving_key"
+
+// MARK: - ConfigurationOptions Data Source Keys
 
 let BMN_Configuration_CompletionIndicatorStatusKey = "configuration_completion_indicator_status_key" //key used in the notification that reports whether a current cell is complete or incomplete***
 let BMN_Configuration_CellIsOptionalKey = "configuration_is_cell_optional_key" //key indicating whether the cell is optional or required***

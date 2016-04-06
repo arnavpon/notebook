@@ -42,7 +42,10 @@ class CustomSlider: UIControl {
         didSet {
             if (currentValue == fixedSelectionPointNumbers[0]) { //clear crownLayerValue if currentVal = 0
                 crownLayerValue = nil
-                thirdSuccessIndicator?.hidden = false //reveal checkmark once it locks to node
+                
+                //Send notification that slider has stopped moving (reset completionIndicator):
+                let notification = NSNotification(name: BMN_Notification_SliderControlIsMoving, object: nil, userInfo: [BMN_CellWithCustomSlider_IsSliderMovingKey: false])
+                NSNotificationCenter.defaultCenter().postNotification(notification)
             }
             updateLayerFrames() //update control's frame when 'currentValue' is changed (updateFrames() is invoked for properties that affect the control's layout)
         }
@@ -67,10 +70,12 @@ class CustomSlider: UIControl {
     private var lockedToNode: Bool = true { //indicate whether control is locked -> node, default = locked
         didSet {
             if !(lockedToNode) { //hide checkmark when ctrlLayer is NOT on a node
-                thirdSuccessIndicator?.hidden = true
+                let notification = NSNotification(name: BMN_Notification_SliderControlIsMoving, object: nil, userInfo: [BMN_CellWithCustomSlider_IsSliderMovingKey: true])
+                NSNotificationCenter.defaultCenter().postNotification(notification)
             } else {
                 if (currentValue == fixedSelectionPointNumbers[0]) { //reveal on locking node -> 'none'
-                    thirdSuccessIndicator?.hidden = false
+                    let notification = NSNotification(name: BMN_Notification_SliderControlIsMoving, object: nil, userInfo: [BMN_CellWithCustomSlider_IsSliderMovingKey: false])
+                    NSNotificationCenter.defaultCenter().postNotification(notification)
                 }
             }
         }
@@ -93,16 +98,17 @@ class CustomSlider: UIControl {
     var controlLayerOriginX: CGFloat { //left-most x value for control
         return controlLayerCenter - controlLayerSize.width/2
     }
-    var controlLayerSize: CGSize { //width & height of control object (matched to asset)
-        return CGSize(width: 20, height: 24)
+    var controlLayerSize: CGSize { //width & height of control object (ctrl width = 2.5 * sliderWidth)
+        return CGSize(width: 25, height: 24)
     }
     
     // MARK: - NodeLayer Properties
     
-    var nodeSize: CGSize { //width & height for each node (match to asset)
-        return CGSize(width: 8, height: 16)
+    internal var nodeSize: CGSize { //width & height for each node (match to asset)
+        return CGSize(width: controlLayerSize.width, height: 16)
     }
-    private var nodeLabelFontSize: CGFloat = 11.5
+    internal var nodeLabelFontSize: CGFloat = 12 //font size used by NodeLayer
+    internal var nodeLabelFontWeight: CGFloat = 2 //font weight used by NodeLayer
     private var nodes: [CustomSliderNodeLayer] = [] //so we can refer back to nodes
     private var nodeLabels: [UILabel] = [] //so we can refer back to labels
     private var currentlySelectedNode: CustomSliderNodeLayer?
@@ -120,7 +126,10 @@ class CustomSlider: UIControl {
                 crownLabel.text = "\(value)"
                 crownLabel.hidden = false
                 controlLayer.valueIsSet = true
-                thirdSuccessIndicator?.hidden = false
+                
+                //Send notification to reveal completionIndicator:
+                let notification = NSNotification(name: BMN_Notification_SliderControlIsMoving, object: nil, userInfo: [BMN_CellWithCustomSlider_IsSliderMovingKey: false])
+                NSNotificationCenter.defaultCenter().postNotification(notification)
             } else { //hide crown & label if value is removed
                 crownLayer.value = nil
                 crownLabel.text = nil
@@ -130,14 +139,7 @@ class CustomSlider: UIControl {
         }
     }
     
-    // MARK: - External (VC-dependent) Properties
-    weak var thirdSuccessIndicator: UIView? //checkmark indicator
-    
     // MARK: - Init
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("Custom Slider fatal error")
-    }
     
     init(frame: CGRect, selectionPoints: [String], scheme: (UIColor, UIColor)) {
         self.fixedSelectionPointNames = selectionPoints
@@ -166,13 +168,28 @@ class CustomSlider: UIControl {
         self.addSubview(crownLabel)
         
         createNodesAndLabelsForOptions() //create nodes & labels
-        setNodeAsSelected() //highlights first nodeLabel @ start
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("Custom Slider fatal error")
     }
     
     // MARK: - Visual Configuration
     
-    private func createNodesAndLabelsForOptions() { //for each option, creates pnt on track/matching label
+    private func createNodesAndLabelsForOptions() { //for each option, creates point on track/matching lbl
         var counter = 0
+        
+        //(1) Clear old nodes & labels from screen before adding new ones:
+        for node in nodes {
+            node.removeFromSuperview()
+        }
+        nodes = []
+        for label in nodeLabels {
+            label.removeFromSuperview()
+        }
+        nodeLabels = []
+        
+        //(2) Create new nodes & labels:
         for point in self.fixedSelectionPointNames {
             //Determine center position of each node (used to align the nodeLabel) - the CENTER of the node should be @ each numerical interval value (in this case 0, 0.25, 0.5, 0.75, 1).
             let nodeWidth: CGFloat = nodeSize.width
@@ -194,17 +211,21 @@ class CustomSlider: UIControl {
             let labelSize = CGSize(width: 55, height: labelHeight)
             let labelFrame = createRectAroundCenter(centerPoint, size: labelSize)
             let label = UILabel(frame: labelFrame)
-            label.font = UIFont.systemFontOfSize(nodeLabelFontSize)
             label.text = point
+            label.font = UIFont.systemFontOfSize(nodeLabelFontSize, weight: nodeLabelFontWeight)
+            label.textColor = UIColor.darkGrayColor()
             label.textAlignment = .Center
             nodeLabels.append(label) //add label -> array
             self.addSubview(label)
             
             counter += 1 //increment counter
         }
+        
+        //(3) Set selectedNode appropriately:
+        setNodeAsSelected()
     }
     
-    private func updateLayerFrames() { //updates track, control, & crown layer visuals
+    private func updateLayerFrames() { //updates track, control, & crown layer visuals + nodes/labels
         CATransaction.begin()
         CATransaction.setDisableActions(true) //suppresses animations until transaction is committed
         
@@ -224,6 +245,8 @@ class CustomSlider: UIControl {
         crownLabel.frame = CGRect(x: crownLayer.frame.origin.x, y: yValue, width: crownLayer.frame.width, height: crownLabelHeight)
         
         CATransaction.commit() //CATransaction code wraps the entire frame update into 1 transaction so the transitions are smooth & disables animations on the layer
+        
+        createNodesAndLabelsForOptions() //updates nodes & labels
     }
     
     private func positionForValue(value: Double) -> Double { //converts a decimal value between 0 & 1 into an absolute position along the slider track for the control (used to position the controlLayer)
@@ -396,7 +419,7 @@ class CustomSliderTrackLayer: CALayer { //class for slider's Track object
             CGContextAddPath(ctx, startPath.CGPath)
             CGContextFillPath(ctx) //fill
             
-            //Second path (from node#2 -> end):
+            //Second path (from node #2 -> end):
             let endRect = CGRect(x: (x + firstPathWidth), y: y, width: (bounds.width - firstPathWidth), height: height)
             let endPath = UIBezierPath(rect: endRect)
             CGContextSetStrokeColorWithColor(ctx, UIColor.blackColor().CGColor)
@@ -416,8 +439,10 @@ class CustomSliderTrackLayer: CALayer { //class for slider's Track object
 // MARK: - Node Layer
 
 class CustomSliderNodeLayer: UIImageView { //class for slider's fixed selection points
+    
     weak var customSlider: CustomSlider?
     private let positionInNodeArray: Int //number of this node in the nodeArray
+    
     var selected: Bool = false { //checks if the controlLayer is currently locked on this node
         didSet {
             if (selected) {
@@ -447,14 +472,14 @@ class CustomSliderNodeLayer: UIImageView { //class for slider's fixed selection 
     func formatSelectedLabel() { //if the current node is selected, highlight its label
         if let label = nodeLabel, slider = customSlider {
             label.textColor = UIColor.greenColor()
-            label.font = UIFont.systemFontOfSize(slider.nodeLabelFontSize, weight: 1.9)
+            label.font = UIFont.systemFontOfSize(slider.nodeLabelFontSize, weight: slider.nodeLabelFontWeight)
         }
     }
     
-    func removeSelectionFormatFromLabel() { //if the node becomes unselected, remove lbl formatting
+    func removeSelectionFormatFromLabel() { //if the node becomes unselected, remove label formatting
         if let label = nodeLabel, slider = customSlider {
             label.textColor = UIColor.darkGrayColor()
-            label.font = UIFont.systemFontOfSize(slider.nodeLabelFontSize, weight: 1.4)
+            label.font = UIFont.systemFontOfSize(slider.nodeLabelFontSize, weight: slider.nodeLabelFontWeight)
         }
     }
 }

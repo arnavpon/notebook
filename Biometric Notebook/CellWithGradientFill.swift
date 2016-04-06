@@ -27,7 +27,7 @@ class CellWithGradientFill: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         contentView.addSubview(backgroundImageView)
-        contentView.addSubview(reportDataButton) //*
+        contentView.addSubview(reportDataButton) //need to add btn directly to contentView for touches to register!
 //        contentView.sendSubviewToBack(backgroundImageView) //move behind the default txtLabel
 //        backgroundImageView.addSubview(reportDataButton)
         

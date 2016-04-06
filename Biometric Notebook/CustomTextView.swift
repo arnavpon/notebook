@@ -9,53 +9,66 @@ import UIKit
 
 class CustomTextView: UITextView {
     
-    let notificationCenter = NSNotificationCenter.defaultCenter()
-    private var placeholderLabel: LabelWithPadding? //label showing placeholder (we do this instead of modifying the existing text b/c it avoids changing the defined config)
+    private var placeholderLabel = UILabel(frame: CGRectZero) //label showing placeholder (do this instead of modifying existing text!!!)
     var placeholder: String? {
         didSet {
-            if (placeholder != nil) { //add the placeholder (default setting)
-                let insets = UIEdgeInsets(top: 0, left: 3, bottom: 0, right: 0)
-                let labelFrame = CGRect(x: 0, y: 0, width: self.frame.width, height: self.frame.height)
-                placeholderLabel = LabelWithPadding(frame: labelFrame, inset: insets)
-                placeholderLabel?.text = placeholder
-                placeholderLabel?.lineBreakMode = .ByWordWrapping
-                placeholderLabel?.numberOfLines = 2
-                placeholderLabel?.sizeToFit() //resizes bounds to fit around text
-                placeholderLabel?.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.50)
-                if let fontSize = self.font?.pointSize {
-                    let placeholderFontSize = fontSize - 2
-                    placeholderLabel?.font = UIFont.systemFontOfSize(placeholderFontSize)
-                }
-                self.addSubview(placeholderLabel!)
-                if (self.text == "") { //check if there is any text currently
-                    placeholderLabel?.hidden = false
-                } else {
-                    placeholderLabel?.hidden = true
-                }
+            placeholderLabel.text = placeholder
+            
+            let inset = CGFloat(3)
+            let labelFrame = CGRect(x: inset, y: 0, width: (frame.width - inset), height: frame.height)
+            placeholderLabel.frame = labelFrame
+            placeholderLabel.numberOfLines = 0 //unlimited # of lines, required for sizeToFit() to work
+            placeholderLabel.sizeToFit() //resizes bounds to fit around text (prevents vertical centering)
+            
+            if let fontSize = self.font?.pointSize { //fontSize for placeholder = 2 less than txtView
+                let placeholderFontSize = fontSize - 2
+                placeholderLabel.font = UIFont.systemFontOfSize(placeholderFontSize)
+            }
+            if (self.text == "") { //check if there is any text currently
+                placeholderLabel.hidden = false
+            } else { //hide if there is txt in view
+                placeholderLabel.hidden = true
             }
         }
     }
     
+    override init(frame: CGRect, textContainer: NSTextContainer?) {
+        super.init(frame: frame, textContainer: textContainer)
+        configurePlaceholderLabel()
+    }
+    
     required init?(coder aDecoder: NSCoder) { //super.init() must be set if you are creating view from IB
         super.init(coder: aDecoder)
-        notificationCenter.addObserver(self, selector: #selector(CustomTextView.textViewStartedEditing(_:)), name: UITextViewTextDidBeginEditingNotification, object: self)
-        notificationCenter.addObserver(self, selector: #selector(CustomTextView.textViewStoppedEditing(_:)), name: UITextViewTextDidEndEditingNotification, object: self)
+        configurePlaceholderLabel()
+    }
+    
+    private func configurePlaceholderLabel() {
+        //(1) Configure placeholder:
+        placeholderLabel.lineBreakMode = .ByWordWrapping
+        placeholderLabel.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.50)
+        self.addSubview(placeholderLabel)
+        
+        //(2) Add textView notifications to indicate editing is occurring:
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(CustomTextView.textViewStartedEditing(_:)), name: UITextViewTextDidBeginEditingNotification, object: self)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(CustomTextView.textViewStoppedEditing(_:)), name: UITextViewTextDidEndEditingNotification, object: self)
     }
     
     deinit { //unregister the notifications to this class
-        notificationCenter.removeObserver(self)
+        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
+    
+    // MARK: - Delegate Methods
     
     func textViewStartedEditing(notification: NSNotification) {
         if (placeholder != nil) { //check if there is a placeholder
-            placeholderLabel?.hidden = true
+            placeholderLabel.hidden = true
         }
     }
     
     func textViewStoppedEditing(notification: NSNotification) {
         if (placeholder != nil) { //check if there is a placeholder set
             if (self.text == "") { //textView is empty, show placeholder
-                placeholderLabel?.hidden = false
+                placeholderLabel.hidden = false
             }
         }
     }

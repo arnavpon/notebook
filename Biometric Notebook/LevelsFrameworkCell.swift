@@ -9,6 +9,8 @@ import UIKit
 
 class LevelsFrameworkCell: UITableViewCell {
     
+    class var numberOfLevels: Int { return 1 } //total height of cell = (numLevels * 40) + separatorHeight
+    
     //(REQUIRED) Default Views:
     internal let insetBackgroundView = UIView(frame: CGRectZero) //background for LEVELS cell
     private let separatorView = UIView(frame: CGRectZero) //adds space between cells
@@ -20,31 +22,58 @@ class LevelsFrameworkCell: UITableViewCell {
     private var completionIndicator = UIImageView(image: UIImage(named: "x_mark")) //default => INCOMPLETE
     internal var firstLevelLeftButton: UIButton? { //btn is ALWAYS 35x35 if visible
         didSet { //layout views accordingly
-            setNeedsLayout()
+            setNeedsLayout() //need this b/c btn is only revealed through dataSource, AFTER init
         }
     }
     internal var firstLevelRightButton: UIButton? { //btn is ALWAYS 35x35 if visible
         didSet { //layout views accordingly
-            setNeedsLayout()
+            setNeedsLayout() //need this b/c btn is only revealed through dataSource, AFTER init
         }
     }
     
     //ADJUSTABLE Properties:
-    internal var isOptional: Bool = false //checks if entry of data -> cell is optional (default = FALSE)
-    internal var insetBackgroundColor: UIColor = UIColor.whiteColor() //default cell background color
-    internal var separatorBackgroundColor: UIColor = UIColor.blackColor() //default separator color
+    internal var isOptional: Bool = false { //checks if entry of data -> cell is optional
+        didSet { //if cell is set -> optional, send a SINGLE notification (status is ALWAYS complete)
+            if (self.isOptional) { //set image -> nil & send LONE completion notification to VC
+                print("OPTIONAL config cell - sending lone completion notification...")
+                self.completionIndicator.image = nil //set default -> empty img, not 'X'
+                let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_LEVELS_CompletionIndicatorStatusKey: true])
+                NSNotificationCenter.defaultCenter().postNotification(notification) //send notification -> VC that the completion status is COMPLETE for this cell
+            }
+        }
+    }
+    internal var insetBackgroundColor: UIColor = UIColor.whiteColor() { //default cell background color
+        didSet {
+            insetBackgroundView.backgroundColor = insetBackgroundColor //adjust color
+        }
+    }
+    internal var separatorBackgroundColor: UIColor = UIColor.blackColor() { //default separator color
+        didSet {
+            separatorView.backgroundColor = insetBackgroundColor //adjust color
+        }
+    }
     internal var separatorHeight: CGFloat = 2 //amount of space between cells
     internal var tabLevel: Int = 0 //indicates what drop-down level the cell is (0 = NO tab)
-    internal var mainLabelFont: UIFont? //custom font for mainLabel
-    internal var mainLabelTextColor: UIColor? //custom txtColor for mainLabel
-    
-    internal var numberOfLevels: Int = 1 //**indicates total height of cell (ht = # of levels * 40 + separatorHeight)
+    internal var mainLabelFont: UIFont? { //custom font for mainLabel
+        didSet {
+            mainLabel.font = mainLabelFont //adjust font
+        }
+    }
+    internal var mainLabelTextColor: UIColor? { //custom txtColor for mainLabel
+        didSet {
+            mainLabel.textColor = mainLabelTextColor //adjust color
+        }
+    }
     
     //CONSTANT Properties:
+    private let levelHeight: CGFloat = 40 //height of each level is constant
     private let leftPadding: CGFloat = 10 //spacing from L boundary of the TV cell
     private let rightSideViewWidth: CGFloat = 50 //width of R side view is constant
     private let completionIndicatorSize = CGSize(width: 35, height: 35)
-    private let levelHeight: CGFloat = 40 //height of each level is constant
+    private let mainLabelHeight: CGFloat = 35
+    private let leftButtonWidth: CGFloat = 20 //button is square so width == height
+    private let rightButtonWidth: CGFloat = 30 //button is square so width == height
+    private let buttonSpacer: CGFloat = 5 //horizontal space between mainLabel & button
     
     private var fireCounter: Int = 0 //ensures that 'accessDataSource' runs only 1x
     var dataSource: Dictionary<String, AnyObject>? { //contains all necessary configuration info
@@ -61,6 +90,7 @@ class LevelsFrameworkCell: UITableViewCell {
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        self.clipsToBounds = true //makes sure subviews outside bounds are NOT visible
         
         contentView.backgroundColor = UIColor.clearColor() //*
         contentView.addSubview(insetBackgroundView)
@@ -94,12 +124,6 @@ class LevelsFrameworkCell: UITableViewCell {
             self.mainLabel.text = source[BMN_LEVELS_MainLabelKey] as? String
             if let optional = source[BMN_LEVELS_CellIsOptionalKey] as? Bool { //check if cell is optional (if NO value exists, cell is REQUIRED)
                 self.isOptional = optional
-                if (self.isOptional) { //set image -> nil & send LONE completion notification to VC
-                    print("OPTIONAL config cell - sending lone completion notification...")
-                    self.completionIndicator.image = nil //set default -> empty img, not 'X'
-                    let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_LEVELS_CompletionIndicatorStatusKey: true])
-                    NSNotificationCenter.defaultCenter().postNotification(notification) //send notification -> VC that the completion status is COMPLETE for this cell
-                }
             }
             if let hideRightView = source[BMN_LEVELS_HideRightViewKey] as? Bool { //check if R side view should be hidden (default is VISIBLE)
                 hideRightSideView = hideRightView
@@ -118,13 +142,11 @@ class LevelsFrameworkCell: UITableViewCell {
     
     override func setNeedsLayout() {
         super.setNeedsLayout()
-        //**Cell height must be correctly set EXTERNALLY for this to work!!!
-        print("[setNeedsLayout] Cell Height: \(self.frame.height).")
         
         //(1) Layout backgroundView & separatorView:
         let tabOffset = CGFloat(tabLevel) * 15 //adds a tab to the cell
         insetBackgroundView.frame = CGRectMake(tabOffset, 0, (frame.width - tabOffset), (frame.height - separatorHeight)) //offset by tabLevel
-        separatorView.frame = CGRectMake(0, 0, frame.width, separatorHeight) //covers ENTIRE width!
+        separatorView.frame = CGRectMake(0, (frame.height - separatorHeight), frame.width, separatorHeight) //covers ENTIRE width!
         
         //(2) Layout rightSideView:
         var rightOffset: CGFloat = rightSideViewWidth //default offset from R (to account for sideView)
@@ -143,21 +165,19 @@ class LevelsFrameworkCell: UITableViewCell {
             drawLine(rightSideView, fromPoint: [startPoint], toPoint: [endPoint], lineColor: UIColor.blackColor(), lineWidth: lineWidth) //draw dividing line between R view & rest of view
         }
         
-        //(3) Layout mainLabel & firstLevel buttons (ONLY 1 of the 2 can be present @ any time):
-        let spacer: CGFloat = 5 //horizontal space between mainLabel & button
+        //(3) Layout mainLabel & firstLevel buttons (either 1 or both can be present in a cell):
+        var leftButtonOffset: CGFloat = 0 //offset IFF leftButton exists
+        var rightButtonOffset: CGFloat = 0 //offset IFF rightButton exists
         if let leftButton = firstLevelLeftButton {
-            leftButton.frame = CGRectMake(leftPadding, 2.5, 35, 35)
-            let offsetX = leftButton.frame.maxX + spacer
-            let labelWidth = insetBackgroundView.frame.width - rightOffset - leftPadding - offsetX
-            mainLabel.frame = CGRectMake(offsetX, 2.5, labelWidth, 35)
-        } else if let rightButton = firstLevelRightButton {
-            rightButton.frame = CGRectMake((frame.width - rightOffset - leftPadding - 35), 2.5, 35, 35)
-            let labelWidth = insetBackgroundView.frame.width - rightOffset - leftPadding * 2 - spacer - 35
-            mainLabel.frame = CGRectMake(leftPadding, 2.5, labelWidth, 35)
-        } else { //neither button exists, default layout
-            let labelWidth = insetBackgroundView.frame.width - rightOffset - leftPadding * 2
-            mainLabel.frame = CGRectMake(leftPadding, 2.5, labelWidth, 35)
+            leftButton.frame = CGRectMake(leftPadding, (levelHeight - leftButtonWidth)/2, leftButtonWidth, leftButtonWidth)
+            leftButtonOffset = leftButtonWidth + buttonSpacer //does NOT account for labelPadding!
         }
+        if let rightButton = firstLevelRightButton {
+            rightButton.frame = CGRectMake((frame.width - rightOffset - leftPadding - rightButtonWidth), (levelHeight - rightButtonWidth)/2, rightButtonWidth, rightButtonWidth)
+            rightButtonOffset = rightButtonWidth + buttonSpacer //does NOT account for labelPadding!
+        }
+        let labelWidth = insetBackgroundView.frame.width - rightOffset - leftPadding * 2 - leftButtonOffset - rightButtonOffset
+        mainLabel.frame = CGRectMake((leftPadding + leftButtonOffset), (levelHeight - mainLabelHeight)/2, labelWidth, mainLabelHeight)
     }
     
     internal func getViewFrameForLevel(viewLevel level: (Int, HorizontalLevels, Int?)) -> CGRect { //input tuple: (StartLevel, HorizontalLevel, NumberOfLevels)
@@ -174,8 +194,12 @@ class LevelsFrameworkCell: UITableViewCell {
         if !(hideRightSideView) { //R side view is NOT hidden, apply offset to base width
             baseWidth = insetBackgroundView.frame.width - rightSideViewWidth
         }
-        var width: CGFloat = baseWidth - 2 * leftPadding //default width is for view taking up FULL level
-        var originX = leftPadding //default X origin is @ leftPadding
+        var leftButtonOffset: CGFloat = 0 //set IFF leftButton exists
+        if let _ = firstLevelLeftButton {
+            leftButtonOffset = leftButtonWidth + buttonSpacer
+        }
+        var width: CGFloat = baseWidth - 2 * leftPadding - leftButtonOffset //default width is for view taking up FULL level
+        var originX = leftPadding + leftButtonOffset //default X origin is @ leftPadding
         let originY = CGFloat(level.0 - 1) * 40 + verticalOffset //starting Y is based ONLY on vert level
         
         //(2) Overwrite defaults as needed:

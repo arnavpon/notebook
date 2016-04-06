@@ -9,7 +9,11 @@ import UIKit
 
 class LabelWithPadding: UILabel { //label w/ padded text
     
-    let paddingInset: UIEdgeInsets //how much padding you want
+    var paddingInset: UIEdgeInsets { //how much padding you want
+        didSet {
+            drawTextInRect(self.frame) //*
+        }
+    }
     
     init(frame: CGRect, inset: UIEdgeInsets) {
         self.paddingInset = inset
