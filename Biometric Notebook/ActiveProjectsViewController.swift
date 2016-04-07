@@ -63,7 +63,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     func dataEntryButtonWasClicked(notification: NSNotification) {
-        if let dict = notification.userInfo, index = dict[BMN_CellIndexKey] as? Int {
+        if let dict = notification.userInfo, index = dict[BMN_CellWithGradient_CellIndexKey] as? Int {
             print("Data entry button clicked by cell #\(index).")
             selectedProject = projects[index] //set selectedProject before segue
             performSegueWithIdentifier("showDataEntry", sender: nil)

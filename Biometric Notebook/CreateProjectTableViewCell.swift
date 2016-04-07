@@ -17,7 +17,7 @@ class CreateProjectTableViewCell: CellWithPlusButton {
         //Configure L side button:
         firstLevelLeftButton = UIButton()
         firstLevelLeftButton?.userInteractionEnabled = false //prevent btn click
-        self.insetBackgroundView.addSubview(firstLevelLeftButton!)
+        insetBackgroundView.addSubview(firstLevelLeftButton!)
     }
     
     required init?(coder aDecoder: NSCoder) {

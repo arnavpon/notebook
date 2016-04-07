@@ -66,7 +66,7 @@ class CellWithGradientFill: UITableViewCell {
     @IBAction func reportDataButtonClick(sender: UIButton) { //send notification -> VC w/ sender's index
         print("Button was clicked.")
         if let index = cellIndex {
-            let notification = NSNotification(name: BMN_Notification_DataEntryButtonClick, object: nil, userInfo: [BMN_CellIndexKey: index])
+            let notification = NSNotification(name: BMN_Notification_DataEntryButtonClick, object: nil, userInfo: [BMN_CellWithGradient_CellIndexKey: index])
             NSNotificationCenter.defaultCenter().postNotification(notification)
         }
     }

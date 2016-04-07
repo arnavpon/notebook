@@ -190,16 +190,16 @@ class LevelsFrameworkCell: UITableViewCell {
         if let numberOfLevels = level.2 { //explicitly defined # of levels
             height = CGFloat(numberOfLevels) * 40 - 2 * verticalOffset
         }
-        var baseWidth: CGFloat = insetBackgroundView.frame.width
-        if !(hideRightSideView) { //R side view is NOT hidden, apply offset to base width
-            baseWidth = insetBackgroundView.frame.width - rightSideViewWidth
-        }
         var leftButtonOffset: CGFloat = 0 //set IFF leftButton exists
         if let _ = firstLevelLeftButton {
             leftButtonOffset = leftButtonWidth + buttonSpacer
         }
-        var width: CGFloat = baseWidth - 2 * leftPadding - leftButtonOffset //default width is for view taking up FULL level
-        var originX = leftPadding + leftButtonOffset //default X origin is @ leftPadding
+        var baseWidth: CGFloat = insetBackgroundView.frame.width
+        if !(hideRightSideView) { //R side view is NOT hidden, apply offset to base width
+            baseWidth = insetBackgroundView.frame.width - rightSideViewWidth - leftButtonOffset
+        }
+        var width: CGFloat = baseWidth - 2 * leftPadding //default width is for view taking up FULL level
+        var originX = leftPadding + leftButtonOffset //default X origin
         let originY = CGFloat(level.0 - 1) * 40 + verticalOffset //starting Y is based ONLY on vert level
         
         //(2) Overwrite defaults as needed:
@@ -209,20 +209,20 @@ class LevelsFrameworkCell: UITableViewCell {
             width = baseWidth * 2/3 - leftPadding - horizontalSpacer
         case .RightTwoThirdsLevel:
             width = baseWidth * 2/3 - leftPadding - horizontalSpacer
-            originX = baseWidth/3 + horizontalSpacer
+            originX = baseWidth/3 + horizontalSpacer + leftButtonOffset
         case .LeftHalfLevel:
             width = baseWidth/2 - leftPadding - horizontalSpacer
         case .RightHalfLevel:
             width = baseWidth/2 - leftPadding - horizontalSpacer
-            originX = baseWidth/2 + horizontalSpacer
+            originX = baseWidth/2 + horizontalSpacer + leftButtonOffset
         case .LeftThirdLevel:
             width = baseWidth/3 - leftPadding - horizontalSpacer
         case .MidThirdLevel:
             width = baseWidth/3 - 2 * horizontalSpacer
-            originX = baseWidth/3 + horizontalSpacer
+            originX = baseWidth/3 + horizontalSpacer + leftButtonOffset
         case .RightThirdLevel:
             width = baseWidth/3 - leftPadding - horizontalSpacer
-            originX = baseWidth * 2/3 + horizontalSpacer
+            originX = baseWidth * 2/3 + horizontalSpacer + leftButtonOffset
         }
         return CGRectMake(originX, originY, width, height)
     }

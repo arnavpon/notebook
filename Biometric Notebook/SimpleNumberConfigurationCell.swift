@@ -25,8 +25,6 @@ class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate 
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - Visual Layout
-    
     internal override func accessDataSource() { //obtain SUBCLASS-SPECIFIC info from data source
         super.accessDataSource()
         if let source = dataSource {
@@ -36,6 +34,8 @@ class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate 
             }
         }
     }
+    
+    // MARK: - Visual Layout
     
     override func layoutSubviews() {
         super.layoutSubviews()

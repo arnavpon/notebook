@@ -3,7 +3,7 @@
 //  Created by Arnav Pondicherry  on 1/3/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Use this VC to name the project, define the question to be answered and (optionally) a hypothesis, & add a time-frame (endpoint) for the project.
+// In this VC, users name their project, define the question to be answered, create a hypothesis (optionally), & add a time-frame (endpoint) for the project.
 
 import UIKit
 
@@ -16,6 +16,7 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     var projectQuestion: String? //set value to indicate that a question has been entered
     var projectHypothesis: String? //optional configuration item
     var projectEndpoint: Endpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil) //captures endpoint for segue
+    var projectType: ExperimentTypes?
     var numberOfConfiguredCells: Int = 0 { //keeps track of the current # of configured cells
         didSet { //adjust 'doneButton' status appropriately
             configureDoneButton()
@@ -46,7 +47,7 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func cellCompletionStatusDidChange(notification: NSNotification) {
-        if let info = notification.userInfo, status = info[BMN_Configuration_CompletionIndicatorStatusKey] as? Bool { //obtain current status & update the counter variable accordingly
+        if let info = notification.userInfo, status = info[BMN_LEVELS_CompletionIndicatorStatusKey] as? Bool { //obtain current status & update the counter variable accordingly
             if (status) { //status was set -> COMPLETE (add 1 to the counter)
                 self.numberOfConfiguredCells += 1
             } else { //status was set -> INCOMPLETE (subtract 1 from the counter)
@@ -173,10 +174,12 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        //We have only enabled selection of cells so that we can register touches on the TV; if a touch is registered, drop 1st-R from txtViews before blocking selection!
-        if let firstCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0)) as? CellWithTextView, secondCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: 2, inSection: 0)) as? CellWithTextView {
+        //We have only enabled selection of cells so that we can register touches on the TV; if a touch is registered, drop 1st-R from txtViews/Lbls before blocking selection!
+        if let firstCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0)) as? CellWithTextView, secondCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: 1, inSection: 0)) as? ProjectQuestionCustomCell, thirdCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: 2, inSection: 0)) as? CellWithTextView {
             firstCell.customTextView.resignFirstResponder()
-            secondCell.customTextView.resignFirstResponder()
+            secondCell.topTextField.resignFirstResponder()
+            secondCell.bottomTextField.resignFirstResponder()
+            thirdCell.customTextView.resignFirstResponder()
         }
         return false //prevent selection of cell
     }
@@ -193,10 +196,14 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
             //Grab the values reported by the user in the TV cells (use custom function for endpoint):
             let cell1 = createProjectTV.cellForRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0)) as! CellWithTextView
             projectTitle = cell1.reportData() as? String
+            
             let cell2 = createProjectTV.cellForRowAtIndexPath(NSIndexPath(forRow: 1, inSection: 0)) as! ProjectQuestionCustomCell
             projectQuestion = cell2.reportData() as? String
+            projectType = cell2.reportProjectType()
+            
             let cell3 = createProjectTV.cellForRowAtIndexPath(NSIndexPath(forRow: 2, inSection: 0)) as! CellWithTextView
             projectHypothesis = cell3.reportData() as? String
+            
             let cell4 = createProjectTV.cellForRowAtIndexPath(NSIndexPath(forRow: 3, inSection: 0)) as! CellWithCustomSlider
             projectEndpoint = cell4.reportEndpoint()
         }
@@ -221,6 +228,7 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
             destination.projectQuestion = self.projectQuestion
             destination.projectEndpoint = self.projectEndpoint
             destination.projectHypothesis = self.projectHypothesis
+            destination.projectType = self.projectType
         }
     }
     

@@ -168,7 +168,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     
     // MARK: - Button Actions
     
-    @IBAction func doneButtonClick(sender: AnyObject) {
+    @IBAction func createProjectButtonClick(sender: AnyObject) {
         //Add before & after variable arrays to the current object & then save it -> persistent store before returning to homescreen:
         //**In the future, this project will be sent -> the web for DB configuration, cloud backup, etc.
         let beforeActionVariablesDict = self.createDictionaryForCoreData(inputVariables)

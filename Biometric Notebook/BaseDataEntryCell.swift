@@ -7,7 +7,7 @@
 
 import UIKit
 
-class BaseDataEntryCell: UITableViewCell {
+class BaseDataEntryCell: LevelsFrameworkCell {
     
     weak var module: Module? { //all data to be displayed will be determined through the module property! For subviews of the base cell, the module property will be more specific module types!
         didSet {

@@ -40,7 +40,7 @@ class CellWithPlusButton: LevelsFrameworkCell {
     
     @IBAction func plusButtonClick(sender: UIButton) {
         print("Plus button was clicked. Sending notification...")
-        if (isLowerLevelHidden) { //reveal hidden levels**
+        if (isLowerLevelHidden) { //reveal hidden levels
             isLowerLevelHidden = false //set indicator
             let notification = NSNotification(name: BMN_Notification_RevealHiddenArea, object: nil, userInfo: [BMN_PlusBtnCell_NumberOfHiddenLevelsKey: numberOfHiddenLevels])
             NSNotificationCenter.defaultCenter().postNotification(notification)

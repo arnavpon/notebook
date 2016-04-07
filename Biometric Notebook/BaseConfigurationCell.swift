@@ -7,7 +7,7 @@
 
 import UIKit
 
-class BaseConfigurationCell: UITableViewCell {
+class BaseConfigurationCell: LevelsFrameworkCell {
     
     //Cell-Specific Variables:
     var cellDescriptor: String = "" //dictionary key used to indicate UNIQUE ID of each cell
@@ -16,7 +16,6 @@ class BaseConfigurationCell: UITableViewCell {
             configureFlagForCell()
         }
     }
-    internal var isOptional: Bool = false //checks if cell is optional; default is FALSE (i.e. required)
     
     //Base Views:
     internal let insetBackground = UIView(frame: CGRectZero) //background for custom cell
@@ -26,7 +25,6 @@ class BaseConfigurationCell: UITableViewCell {
     private let completionIndicator = UIImageView(image: UIImage(named: "x_mark")) //default => incomplete
     
     //Layout Coordinates:
-    private var insetBackgroundColor: UIColor = UIColor.whiteColor() //cell background color
     internal let completionViewWidth: CGFloat = 50
     internal let instructionsLabelHeight: CGFloat = 30
     internal let instructionsLabelTopPadding: CGFloat = 5
@@ -39,15 +37,6 @@ class BaseConfigurationCell: UITableViewCell {
     }
     
     private var fireCounter: Int = 0 //ensures that 'accessDataSource' runs only 1x
-    var dataSource: Dictionary<String, AnyObject>? { //contains all necessary configuration info
-        didSet {
-            if (fireCounter == 0) { //make sure this is only running ONCE
-                accessDataSource() //obtain basic setup data from dataSource
-                setNeedsLayout() //redraw the cell (must go OUTSIDE 'accessDataSource()'!)
-                fireCounter = 1 //block further firing for this cell
-            }
-        }
-    }
     
     // MARK - Initializers
     
@@ -95,7 +84,7 @@ class BaseConfigurationCell: UITableViewCell {
         drawLine(completionSideView, fromPoint: [startPoint], toPoint: [endPoint], lineColor: UIColor.blackColor(), lineWidth: 1.0)
     }
     
-    internal func accessDataSource() {
+    internal override func accessDataSource() {
         if let source = dataSource, descriptor = source[BMN_Configuration_CellDescriptorKey] as? String {
             self.instructionsLabel.text = source[BMN_Configuration_InstructionsLabelKey] as? String
             self.cellDescriptor = descriptor //set cell descriptor
@@ -116,29 +105,30 @@ class BaseConfigurationCell: UITableViewCell {
     
     // MARK: - Dynamic Visual Configuration
     
-    internal func configureCompletionIndicator(complete: Bool) { //adjusts visuals on completionIndicator
+    internal override func configureCompletionIndicator(complete: Bool) {
+        super.configureCompletionIndicator(complete)
         self.flagged = false
-        if (isOptional) { //if cell is OPTIONAL, modify functionality - (1) When config is incomplete, the completionView shows NOTHING instead of an 'X'; (2) NO notifications are posted.
-            if (complete) { //config COMPLETE
-                completionIndicator.image = UIImage(named: "check")
-            } else { //config INCOMPLETE
-                completionIndicator.image = nil //clear image, but don't show the X mark
-            }
-        } else { //REQUIRED configuration cell
-            if (complete) { //config COMPLETE
-                if (completionIndicator.image != UIImage(named: "check")) { //ONLY switch images if the current image is NOT alrdy set -> 'check'
-                    completionIndicator.image = UIImage(named: "check")
-                    let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_Configuration_CompletionIndicatorStatusKey: true])
-                    NSNotificationCenter.defaultCenter().postNotification(notification) //send notification -> VC that the completion status has changed to COMPLETE
-                }
-            } else { //config INCOMPLETE
-                if (completionIndicator.image != UIImage(named: "x_mark")) { //ONLY switch images if the current image is NOT alrdy set -> 'x_mark'
-                    completionIndicator.image = UIImage(named: "x_mark")
-                    let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_Configuration_CompletionIndicatorStatusKey: false])
-                    NSNotificationCenter.defaultCenter().postNotification(notification) //send notification -> VC that the completion status has changed to INCOMPLETE
-                }
-            }
-        }
+//        if (isOptional) { //if cell is OPTIONAL, modify functionality - (1) When config is incomplete, the completionView shows NOTHING instead of an 'X'; (2) NO notifications are posted.
+//            if (complete) { //config COMPLETE
+//                completionIndicator.image = UIImage(named: "check")
+//            } else { //config INCOMPLETE
+//                completionIndicator.image = nil //clear image, but don't show the X mark
+//            }
+//        } else { //REQUIRED configuration cell
+//            if (complete) { //config COMPLETE
+//                if (completionIndicator.image != UIImage(named: "check")) { //ONLY switch images if the current image is NOT alrdy set -> 'check'
+//                    completionIndicator.image = UIImage(named: "check")
+//                    let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_Configuration_CompletionIndicatorStatusKey: true])
+//                    NSNotificationCenter.defaultCenter().postNotification(notification) //send notification -> VC that the completion status has changed to COMPLETE
+//                }
+//            } else { //config INCOMPLETE
+//                if (completionIndicator.image != UIImage(named: "x_mark")) { //ONLY switch images if the current image is NOT alrdy set -> 'x_mark'
+//                    completionIndicator.image = UIImage(named: "x_mark")
+//                    let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_Configuration_CompletionIndicatorStatusKey: false])
+//                    NSNotificationCenter.defaultCenter().postNotification(notification) //send notification -> VC that the completion status has changed to INCOMPLETE
+//                }
+//            }
+//        }
     }
     
     private func configureFlagForCell() { //adds or removes the visual flag from the cell
@@ -148,13 +138,6 @@ class BaseConfigurationCell: UITableViewCell {
         } else { //restore visual -> unflagged state
             insetBackground.backgroundColor = insetBackgroundColor //reset background -> default
         }
-    }
-    
-    // MARK: - Data Reporting
-    
-    internal func reportData() -> AnyObject? { //reports all pertinent data entered by the user
-        print("[BaseConfigCell > reportData()] Being called from super class...(make sure there is an EXAMPLE cell in the setup, or else this is an error)!")
-        return nil
     }
 
 }

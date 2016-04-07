@@ -786,9 +786,9 @@
                         </variation>
                     </view>
                     <navigationItem key="navigationItem" title="Summary" id="HJQ-Tu-D4U">
-                        <barButtonItem key="rightBarButtonItem" title="Done" id="VCd-Ya-GJv">
+                        <barButtonItem key="rightBarButtonItem" title="Create" id="VCd-Ya-GJv">
                             <connections>
-                                <action selector="doneButtonClick:" destination="vc3-NH-BZ7" id="GML-Mu-tbe"/>
+                                <action selector="createProjectButtonClick:" destination="vc3-NH-BZ7" id="Tze-Fo-kzg"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

@@ -135,7 +135,7 @@ class CellWithCustomSlider: CreateProjectTableViewCell {
     
     // MARK: - Report Data
     
-    func reportEndpoint() -> Endpoint {
+    func reportEndpoint() -> Endpoint { //reports selectedEndpoint -> VC
         return selectedEndpoint
     }
     

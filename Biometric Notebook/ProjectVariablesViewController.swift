@@ -43,6 +43,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     var projectQuestion: String? //question for investigation (obtained from NewProjectVC)
     var projectHypothesis: String? //hypothesis for project (obtained from NewProjectVC)
     var projectEndpoint: Endpoint? //endpoint (obtained from NewProjectVC)
+    var projectType: ExperimentTypes? //type of project (IO vs. comparison/control)
     var variableName: String? //the name of the variable entered by the user
     var createdVariable: Module? //the completed variable created by the user
     var tableViewForVariableAddition: UITableView? //notes which TV a new variable is going to

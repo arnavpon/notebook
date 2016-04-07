@@ -529,6 +529,7 @@
 		B1D51C681CB2B0D100DED6B2 /* General Supplements */ = {
 			isa = PBXGroup;
 			children = (
+				B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */,
 				B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */,
 				B1D51C5D1CB2A19C00DED6B2 /* LevelsFrameworkCell.swift */,
 				B1D560AB1CB458D700F6A7AC /* CellWithPlusButton.swift */,
@@ -539,17 +540,16 @@
 		B1D51C691CB2B10100DED6B2 /* Supplements */ = {
 			isa = PBXGroup;
 			children = (
-				B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */,
 				B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */,
 				B11B92201C52D9BE0079A535 /* CustomTextView.swift */,
 				B1B9D9991C528B50000D501E /* CustomSlider.swift */,
 				B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */,
 				B1B20A6C1C5E9CD0003B791B /* TutorialLayer.swift */,
-				B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */,
 				B1D560AD1CB47E4E00F6A7AC /* CreateProjectTableViewCell.swift */,
 				B1D560A51CB4572600F6A7AC /* CellWithTextView.swift */,
 				B1D560A91CB4585900F6A7AC /* ProjectQuestionCustomCell.swift */,
 				B1D560A71CB4573600F6A7AC /* CellWithCustomSlider.swift */,
+				B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */,
 			);
 			name = Supplements;
 			sourceTree = "<group>";
