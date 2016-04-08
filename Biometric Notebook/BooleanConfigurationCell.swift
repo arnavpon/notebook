@@ -7,7 +7,7 @@
 
 import UIKit
 
-class BooleanConfigurationCell: BaseConfigurationCell {
+class BooleanConfigurationCell: BaseConfigurationCell { //add new class -> enum!
     
     let yesButton = UIButton(frame: CGRectZero) //YES option
     let noButton = UIButton(frame: CGRectZero) //NO option
@@ -22,13 +22,14 @@ class BooleanConfigurationCell: BaseConfigurationCell {
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        configureVisualsForSelection() //manually fire this fx on initialization!
         
+        //(1) Define general attributes:
         let defaultFont = UIFont.systemFontOfSize(18)
         let boldFont = UIFont.boldSystemFontOfSize(18)
         let defaultAttributes = [NSFontAttributeName: defaultFont, NSForegroundColorAttributeName: UIColor.grayColor()]
         let selectedAttributes = [NSFontAttributeName: boldFont, NSForegroundColorAttributeName: UIColor.blackColor()]
         
+        //(2) Configure 'YES' button:
         let yesDefault = NSAttributedString(string: "YES", attributes: defaultAttributes)
         let yesSelected = NSAttributedString(string: "YES", attributes: selectedAttributes)
         yesButton.setAttributedTitle(yesDefault, forState: UIControlState.Normal)
@@ -36,7 +37,9 @@ class BooleanConfigurationCell: BaseConfigurationCell {
         yesButton.backgroundColor = UIColor.greenColor()
         yesButton.layer.cornerRadius = 5
         yesButton.addTarget(self, action: #selector(self.yesButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        insetBackgroundView.addSubview(yesButton)
         
+        //(3) Configure 'NO' button:
         let noDefault = NSAttributedString(string: "NO", attributes: defaultAttributes)
         let noSelected = NSAttributedString(string: "NO", attributes: selectedAttributes)
         noButton.setAttributedTitle(noDefault, forState: UIControlState.Normal)
@@ -44,13 +47,18 @@ class BooleanConfigurationCell: BaseConfigurationCell {
         noButton.backgroundColor = UIColor.redColor()
         noButton.layer.cornerRadius = 5
         noButton.addTarget(self, action: #selector(self.noButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
-        
-        insetBackground.addSubview(yesButton)
-        insetBackground.addSubview(noButton)
+        insetBackgroundView.addSubview(noButton)
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func accessDataSource() {
+        super.accessDataSource()
+        
+        //Update visuals & external (VC) report object w/ the DEFAULT value selection of FALSE in accessDataSource() b/c the cellDescriptor is now set:
+        configureVisualsForSelection()
     }
     
     // MARK: - Visual Layout
@@ -58,17 +66,9 @@ class BooleanConfigurationCell: BaseConfigurationCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        //Configure buttons side by side around center of view, w/ some space in between:
-        let buttonWidth: CGFloat = 60
-        let buttonHeight: CGFloat = 30
-        let viewCenter = (insetBackground.frame.width - completionViewWidth)/2
-        let centerOffSet: CGFloat = 20
-        
-        //Center both buttons around the middle of the frame w/ an offset in between:
-        let yesOriginX = viewCenter - centerOffSet - buttonWidth
-        yesButton.frame = CGRectMake(yesOriginX, startingY, buttonWidth, buttonHeight)
-        let noOriginX = viewCenter + centerOffSet
-        noButton.frame = CGRectMake(noOriginX, startingY, buttonWidth, buttonHeight)
+        //Configure buttons side by side around center of view:
+        yesButton.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.LeftThirdLevel, nil))
+        noButton.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.RightThirdLevel, nil))
     }
     
     // MARK: - Button Actions
@@ -99,8 +99,9 @@ class BooleanConfigurationCell: BaseConfigurationCell {
     
     // MARK: - Data Reporting
     
-    internal override func reportData() -> AnyObject? { //checks the currently highlighted button & reports TRUE for 'yes', FALSE for 'no'
+    override var configurationReportObject: AnyObject? { //checks the currently highlighted button & reports TRUE for 'yes', FALSE for 'no'
         //*REPORT TYPE: Bool*
+        print("Reporting current selection: \(currentSelection).")
         return currentSelection
     }
     

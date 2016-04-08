@@ -7,13 +7,13 @@
 
 import UIKit
 
-class CustomWithCounterCell: BaseDataEntryCell {
+class CustomWithCounterCell: BaseDataEntryCell { //add new class -> enum!
     
-    let incrementButton = UIButton(frame: CGRectZero)
-    let currentCountLabel = UILabel(frame: CGRectZero)
-    var currentCount: Int = 0 {
+    private let incrementButton = UIButton(frame: CGRectZero)
+    private let currentCountLabel = UILabel(frame: CGRectZero)
+    private var currentCount: Int = 0 {
         didSet {
-            currentCountLabel.text = "\(currentCount)"
+            currentCountLabel.text = "Count: \(currentCount)"
         }
     }
     
@@ -25,13 +25,13 @@ class CustomWithCounterCell: BaseDataEntryCell {
         incrementButton.addTarget(self, action: #selector(self.incrementButtonClick(_:)), forControlEvents: .TouchUpInside)
         incrementButton.setTitle("Plus 1", forState: UIControlState.Normal)
         incrementButton.backgroundColor = UIColor.redColor()
-        contentView.addSubview(incrementButton)
+        insetBackgroundView.addSubview(incrementButton)
         
         currentCountLabel.textAlignment = .Center
         currentCountLabel.layer.borderWidth = 1
         currentCountLabel.layer.borderColor = UIColor.blackColor().CGColor
-        currentCountLabel.text = "\(currentCount)"
-        contentView.addSubview(currentCountLabel)
+        currentCountLabel.text = "Count: \(currentCount)"
+        insetBackgroundView.addSubview(currentCountLabel)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -52,14 +52,21 @@ class CustomWithCounterCell: BaseDataEntryCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        incrementButton.frame = CGRectMake(10, 36, 80, 30)
-        currentCountLabel.frame = CGRectMake(100, 36, 40, 30)
+        incrementButton.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.LeftThirdLevel, nil))
+        currentCountLabel.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.RightThirdLevel, nil))
     }
     
     // MARK: - Button Actions
     
     @IBAction func incrementButtonClick(sender: UIButton) {
         currentCount += 1
+    }
+    
+    // MARK: - Data Reporting
+    
+    override func reportData() {
+        //*REPORT TYPE: Int*
+        let count = currentCount
     }
     
 }

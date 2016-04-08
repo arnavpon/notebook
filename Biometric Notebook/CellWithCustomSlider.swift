@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CellWithCustomSlider: CreateProjectTableViewCell {
+class CellWithCustomSlider: BaseCreateProjectCell {
     
     private let endpoints = [Endpoints.Continuous.rawValue, Endpoints.Day.rawValue, Endpoints.Week.rawValue, Endpoints.Month.rawValue, Endpoints.Year.rawValue] //endpoints for slider, match -> endpoints in init()!!!
     private var selectedEndpoint: Endpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil) //current endpoint selection (default is 'Continuous' project)
@@ -135,8 +135,17 @@ class CellWithCustomSlider: CreateProjectTableViewCell {
     
     // MARK: - Report Data
     
-    func reportEndpoint() -> Endpoint { //reports selectedEndpoint -> VC
-        return selectedEndpoint
+    override func reportData() { //reports selectedEndpoint -> VC
+        //**Not firing when the rported endpoint is Continuous Project!!! Slider is glitching out!!!
+        //We cannot directly report the endpoint, so we will send the # of days if it exists OR 0 if it does not; the 2nd Endpoint initializer can recreate the endpoint based on the # of days:
+        let numberOfDays: Int
+        if let endpoint = selectedEndpoint.endpointInDays {
+            numberOfDays = endpoint
+        } else {
+            numberOfDays = 0
+        }
+        let notification = NSNotification(name: BMN_Notification_CellDidReportData, object: nil, userInfo: [BMN_ProjectEndpointID: numberOfDays]) //report # of days
+        NSNotificationCenter.defaultCenter().postNotification(notification)
     }
     
 }

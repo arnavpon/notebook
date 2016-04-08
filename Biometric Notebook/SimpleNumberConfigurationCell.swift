@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate {
+class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate { //add new class -> enum!
     
     let textEntryField = UITextField(frame: CGRectZero) //make textField type safe (only allow Int)
     
@@ -18,7 +18,8 @@ class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate 
         textEntryField.borderStyle = .RoundedRect
         textEntryField.delegate = self
         textEntryField.textAlignment = .Center
-        insetBackground.addSubview(textEntryField)
+        textEntryField.keyboardType = .NumberPad
+        insetBackgroundView.addSubview(textEntryField)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -30,6 +31,7 @@ class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate 
         if let source = dataSource {
             if let defaultValue = source[BMN_Configuration_DefaultNumberKey] as? Int { //check for default
                 textEntryField.text = "\(defaultValue)"
+                fullString = "\(defaultValue)" //initialize report object
                 configureCompletionIndicator(true) //set as complete if default exists
             }
         }
@@ -40,14 +42,13 @@ class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate 
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        //Configure textField (centered beneath the instructionsLabel):
-        let width = CGFloat(80)
-        let originX = instructionsLabelCenterX - width/2
-        let textFieldFrame = CGRectMake(originX, (instructionsLabelTopPadding + instructionsLabelHeight + 1), width, 30)
-        textEntryField.frame = textFieldFrame
+        //Layout textField (centered beneath the instructionsLabel):
+        textEntryField.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.MidThirdLevel, nil))
     }
     
     // MARK: - Text Field
+    
+    var fullString: String? //string that is reported -> VC
     
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
         if (string.characters.count > 0) { //block entry of non-numerical text
@@ -55,10 +56,12 @@ class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate 
                 return false
             }
         }
-        if let input = textField.text?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) {
-            let count = input.characters.count + string.characters.count - range.length
+        if let text = textField.text {
+            let trimmedText = text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+            fullString = (text as NSString).stringByReplacingCharactersInRange(range, withString: string)
+            let count = trimmedText.characters.count + string.characters.count - range.length
             if (count > 0) { //set as complete
-                configureCompletionIndicator(true) //set as complete if textField is not empty
+                configureCompletionIndicator(true) //set as complete if textField is NOT empty
             } else { //set as incomplete
                 configureCompletionIndicator(false)
             }
@@ -68,9 +71,9 @@ class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate 
     
     // MARK: - Data Reporting
     
-    internal override func reportData() -> AnyObject? {
+    override var configurationReportObject: AnyObject? { //*still reporting 1 back!
         //*REPORT TYPE: Int*
-        if let inputText = textEntryField.text, let inputAsInt = Int(inputText) {
+        if let inputText = fullString, let inputAsInt = Int(inputText) {
             return inputAsInt
         }
         return nil

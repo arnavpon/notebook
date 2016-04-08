@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ProjectQuestionCustomCell: CreateProjectTableViewCell, UITextFieldDelegate {
+class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
     
     private let templateButtonIO = UIButton(frame: CGRectZero) //input/output project template
     private let templateButtonCC = UIButton(frame: CGRectZero) //control/comparison project template
@@ -39,7 +39,7 @@ class ProjectQuestionCustomCell: CreateProjectTableViewCell, UITextFieldDelegate
         //Configure IO template button:
         templateButtonIO.backgroundColor = UIColor.whiteColor()
         templateButtonIO.layer.cornerRadius = 10
-        templateButtonIO.setTitle("I'm studying how input factors correlate", forState: UIControlState.Normal)
+        templateButtonIO.setTitle("1) I'm studying how input factors correlate", forState: UIControlState.Normal)
         templateButtonIO.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
         templateButtonIO.addTarget(self, action: #selector(self.ioTemplateButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
         insetBackgroundView.addSubview(templateButtonIO)
@@ -47,7 +47,7 @@ class ProjectQuestionCustomCell: CreateProjectTableViewCell, UITextFieldDelegate
         //Configure CC template button:
         templateButtonCC.backgroundColor = UIColor.whiteColor()
         templateButtonCC.layer.cornerRadius = 10
-        templateButtonCC.setTitle("I'm comparing two or more options", forState: UIControlState.Normal)
+        templateButtonCC.setTitle("2) I'm comparing two or more options", forState: UIControlState.Normal)
         templateButtonCC.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
         templateButtonCC.addTarget(self, action: #selector(self.ccTemplateButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
         insetBackgroundView.addSubview(templateButtonCC)
@@ -106,16 +106,23 @@ class ProjectQuestionCustomCell: CreateProjectTableViewCell, UITextFieldDelegate
     
     // MARK: - Text Field
     
+    var topFullText: String? //string reported -> VC
+    var bottomFullText: String? //string reported -> VC
+    
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool { //adjust completion indicator when both fields are filled
-        if let text = textField.text?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) {
-            if (textField == topTextField) {
-                if (text.characters.count + string.characters.count - range.length) > 0 {
+        if let text = textField.text {
+            let trimmedText = text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+            let trimmedString = string.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+            if (textField == topTextField) { //TOP textField
+                topFullText = (text as NSString).stringByReplacingCharactersInRange(range, withString: string) //report obj contains FULL text (w/ replaced characters)!
+                if (trimmedText.characters.count + trimmedString.characters.count - range.length) > 0 {
                     topFieldComplete = true
                 } else { //INCOMPLETE field
                     topFieldComplete = false
                 }
-            } else if (textField == bottomTextField) {
-                if (text.characters.count + string.characters.count - range.length) > 0 {
+            } else if (textField == bottomTextField) { //BOTTOM textField
+                bottomFullText = (text as NSString).stringByReplacingCharactersInRange(range, withString: string) //report obj contains FULL text (w/ replaced characters)!
+                if (trimmedText.characters.count + trimmedString.characters.count - range.length) > 0 {
                     bottomFieldComplete = true
                 } else { //INCOMPLETE field
                     bottomFieldComplete = false
@@ -171,17 +178,12 @@ class ProjectQuestionCustomCell: CreateProjectTableViewCell, UITextFieldDelegate
     
     // MARK: - Report Data
     
-    override func reportData() -> AnyObject? {
-        if let first = topTemplateLabel.text, second = topTextField.text, third = bottomTemplateLabel.text, fourth = bottomTextField.text {
+    override func reportData() { //send notification -> VC w/ question & experiment type
+        if let first = topTemplateLabel.text, second = topFullText, third = bottomTemplateLabel.text, fourth = bottomFullText, type = projectType {
             let combinedText = "\(first) \(second) \(third) \(fourth)" //get combined question
-            print("[reportData] Combined Text: '\(combinedText)'.")
-            return combinedText
+            let notification = NSNotification(name: BMN_Notification_CellDidReportData, object: nil, userInfo: [BMN_ProjectQuestionID: combinedText, BMN_ProjectTypeID: type.rawValue]) //report question & project type
+            NSNotificationCenter.defaultCenter().postNotification(notification)
         }
-        return nil
-    }
-    
-    func reportProjectType() -> ExperimentTypes? {
-        return self.projectType
     }
     
 }

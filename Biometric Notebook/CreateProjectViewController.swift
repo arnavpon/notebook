@@ -11,6 +11,7 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     
     @IBOutlet weak var setupButton: UIBarButtonItem!
     @IBOutlet weak var createProjectTV: UITableView!
+    @IBOutlet weak var bottomConstraint: NSLayoutConstraint!
         
     var projectTitle: String? //set value to indicate that a name has been entered
     var projectQuestion: String? //set value to indicate that a question has been entered
@@ -27,26 +28,62 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.tableViewWasTapped))
+        createProjectTV.addGestureRecognizer(tapGesture)
         createProjectTV.dataSource = self
         createProjectTV.delegate = self
         
-        //Register (3) custom TV cells:
-        createProjectTV.registerClass(CellWithTextView.self, forCellReuseIdentifier: NSStringFromClass(CellWithTextView))
+        //Register (4) custom TV cells:
+        createProjectTV.registerClass(ProjectTitleCustomCell.self, forCellReuseIdentifier: NSStringFromClass(ProjectTitleCustomCell))
         createProjectTV.registerClass(ProjectQuestionCustomCell.self, forCellReuseIdentifier: NSStringFromClass(ProjectQuestionCustomCell))
+        createProjectTV.registerClass(ProjectHypothesisCustomCell.self, forCellReuseIdentifier: NSStringFromClass(ProjectHypothesisCustomCell))
         createProjectTV.registerClass(CellWithCustomSlider.self, forCellReuseIdentifier: NSStringFromClass(CellWithCustomSlider))
     }
     
     override func viewWillAppear(animated: Bool) { //add notification observers
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.revealHiddenArea(_:)), name: BMN_Notification_RevealHiddenArea, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellDidReportData(_:)), name: BMN_Notification_CellDidReportData, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.customSliderSelectedNodeHasChanged(_:)), name: BMN_Notification_SliderSelectedNodeHasChanged, object: nil)
+        
+        //Keyboard notifications:
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardDidAppearWithFrame(_:)), name: UIKeyboardDidChangeFrameNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIKeyboardWillHideNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardDidHide(_:)), name: UIKeyboardDidHideNotification, object: nil)
     }
     
     override func viewWillDisappear(animated: Bool) { //clear notification observer
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
+    func tableViewWasTapped() { //dismisses 1st responder when TV is tapped
+        self.view.endEditing(true)
+    }
+    
+    func cellDidReportData(notification: NSNotification) { //update project config variables
+//        print("Cell reported data notification...")
+        if let dict = notification.userInfo {
+            if let title = dict[BMN_ProjectTitleID] as? String {
+                projectTitle = title
+            } else if let question = dict[BMN_ProjectQuestionID] as? String, type = dict[BMN_ProjectTypeID] as? String {
+                projectQuestion = question
+                projectType = ExperimentTypes(rawValue: type) //re-init w/ rawValue
+            } else if let hypothesis = dict[BMN_ProjectHypothesisID] as? String {
+                projectHypothesis = hypothesis
+            } else if let endpoint = dict[BMN_ProjectEndpointID] as? Int { //gets # of days from cell
+//                print("Reported Endpoint: '\(endpoint)'.")
+                if (endpoint == 0) { //continuous project
+                    projectEndpoint = Endpoint(endpointInDays: nil) //use appropriate init
+                } else { //definite length project
+                    projectEndpoint = Endpoint(endpointInDays: endpoint)
+                }
+            }
+        }
+    }
+    
     func cellCompletionStatusDidChange(notification: NSNotification) {
+        print("Cell completion status changed...")
         if let info = notification.userInfo, status = info[BMN_LEVELS_CompletionIndicatorStatusKey] as? Bool { //obtain current status & update the counter variable accordingly
             if (status) { //status was set -> COMPLETE (add 1 to the counter)
                 self.numberOfConfiguredCells += 1
@@ -97,7 +134,29 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
         })
         presentViewController(alert, animated: true, completion: nil)
     }
-
+    
+    // MARK: - Keyboard Logic
+    
+    var blockKeyboardDidAppear: Bool = false //blocker
+    
+    func keyboardDidAppearWithFrame(notification: NSNotification) {
+        if !(blockKeyboardDidAppear) { //suppress if blocker is TRUE
+            if let dict = notification.userInfo, keyboardFrame = dict[UIKeyboardFrameEndUserInfoKey] as? NSValue {
+                let height = keyboardFrame.CGRectValue().height
+                bottomConstraint.constant = height //shift up TV to allow scrolling
+            }
+        }
+    }
+    
+    func keyboardWillHide(notification: NSNotification) { //reset bottom constraint
+        bottomConstraint.constant = 0
+        blockKeyboardDidAppear = true //block fx from firing
+    }
+    
+    func keyboardDidHide(notification: NSNotification) { //clear blocker for next cycle
+        blockKeyboardDidAppear = false //reset
+    }
+    
     // MARK: - Table View
     
     var hypothesisCellVisibleLevels: Int = 0 //default # of hidden cells is 0
@@ -114,31 +173,32 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        switch (indexPath.row) { //add 2 for separator height + 3 for space from bottom
+        let separatorHeight: CGFloat = 2
+        switch (indexPath.row) { //add 2 for separator height + default space from bottom
         case 0: //project title
-            return 160 + 2 + 3
+            return 160 + BMN_DefaultBottomSpacer + separatorHeight
         case 1: //project question
-            return 160 + 2 + 3
+            return 120 + BMN_DefaultBottomSpacer + separatorHeight
         case 2: //hypothesis (size is dynamic)
-            return (40 + CGFloat(hypothesisCellVisibleLevels) * 40) + 2 + 3
+            return (40 + CGFloat(hypothesisCellVisibleLevels) * 40) + BMN_DefaultBottomSpacer + separatorHeight
         case 3: //project endpoint
-            return 200 + 3 //no separator for last cell
+            return 200 + BMN_DefaultBottomSpacer //NO separator for last cell
         default:
             return 0
         }
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        var cell = CreateProjectTableViewCell()
+        var cell = BaseCreateProjectCell()
         switch (indexPath.row) {
         case 0: //Title
-            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithTextView)) as! CellWithTextView
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ProjectTitleCustomCell)) as! ProjectTitleCustomCell
             cell.mainLabelFont = UIFont.systemFontOfSize(17, weight: 2)
             cell.mainLabelTextColor = UIColor.whiteColor()
             cell.insetBackgroundColor = UIColor(red: 82/255, green: 33/255, blue: 1, alpha: 1)
             cell.firstLevelLeftButton?.setImage(UIImage(named: "1"), forState: UIControlState.Normal)
-            (cell as! CellWithTextView).customTextView.placeholder = "Enter a title for your project"
-            (cell as! CellWithTextView).customTextView.backgroundColor = UIColor(red: 191/255, green: 170/255, blue: 1, alpha: 1)
+            (cell as! ProjectTitleCustomCell).customTextView.placeholder = "Enter a title for your project"
+            (cell as! ProjectTitleCustomCell).customTextView.backgroundColor = UIColor(red: 191/255, green: 170/255, blue: 1, alpha: 1)
             cell.dataSource = [BMN_LEVELS_MainLabelKey: "PROJECT TITLE"]
             
         case 1: //Question
@@ -150,13 +210,13 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
             cell.dataSource = [BMN_LEVELS_MainLabelKey: "QUESTION TO ANSWER"]
             
         case 2: //Hypothesis
-            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithTextView)) as! CellWithTextView
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ProjectHypothesisCustomCell)) as! ProjectHypothesisCustomCell
             cell.mainLabelFont = UIFont.systemFontOfSize(15, weight: 2)
             cell.mainLabelTextColor = UIColor.whiteColor()
             cell.insetBackgroundColor = UIColor(red: 50/255, green: 163/255, blue: 216/255, alpha: 1)
             cell.firstLevelLeftButton?.setImage(UIImage(named: "3"), forState: UIControlState.Normal)
-            (cell as! CellWithTextView).customTextView.backgroundColor = UIColor(red: 144/255, green: 186/255, blue: 207/255, alpha: 1)
-            (cell as! CellWithTextView).customTextView.placeholder = "Enter a hypothesis (what you think the results will show in response to your question)."
+            (cell as! ProjectHypothesisCustomCell).customTextView.backgroundColor = UIColor(red: 144/255, green: 186/255, blue: 207/255, alpha: 1)
+            (cell as! ProjectHypothesisCustomCell).customTextView.placeholder = "Enter a hypothesis (what you think the results will show in response to your question)."
             cell.dataSource = [BMN_LEVELS_MainLabelKey: "HYPOTHESIS (OPTIONAL)", BMN_LEVELS_CellIsOptionalKey: true, BMN_LEVELS_RevealRightButtonKey: true]
             
         case 3: //Endpoint
@@ -173,17 +233,6 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
         return cell
     }
     
-    func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        //We have only enabled selection of cells so that we can register touches on the TV; if a touch is registered, drop 1st-R from txtViews/Lbls before blocking selection!
-        if let firstCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0)) as? CellWithTextView, secondCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: 1, inSection: 0)) as? ProjectQuestionCustomCell, thirdCell = tableView.cellForRowAtIndexPath(NSIndexPath(forRow: 2, inSection: 0)) as? CellWithTextView {
-            firstCell.customTextView.resignFirstResponder()
-            secondCell.topTextField.resignFirstResponder()
-            secondCell.bottomTextField.resignFirstResponder()
-            thirdCell.customTextView.resignFirstResponder()
-        }
-        return false //prevent selection of cell
-    }
-    
     // MARK: - Button Actions
     
     var showTutorial: Bool = true //sets tutorial to ACTIVE in ProjectVarsVC
@@ -192,20 +241,6 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
         let userDefaults = NSUserDefaults.standardUserDefaults()
         if let shouldShowTutorial = userDefaults.valueForKey("SHOW_VARS_TUTORIAL") as? Bool {
             showTutorial = shouldShowTutorial
-            
-            //Grab the values reported by the user in the TV cells (use custom function for endpoint):
-            let cell1 = createProjectTV.cellForRowAtIndexPath(NSIndexPath(forRow: 0, inSection: 0)) as! CellWithTextView
-            projectTitle = cell1.reportData() as? String
-            
-            let cell2 = createProjectTV.cellForRowAtIndexPath(NSIndexPath(forRow: 1, inSection: 0)) as! ProjectQuestionCustomCell
-            projectQuestion = cell2.reportData() as? String
-            projectType = cell2.reportProjectType()
-            
-            let cell3 = createProjectTV.cellForRowAtIndexPath(NSIndexPath(forRow: 2, inSection: 0)) as! CellWithTextView
-            projectHypothesis = cell3.reportData() as? String
-            
-            let cell4 = createProjectTV.cellForRowAtIndexPath(NSIndexPath(forRow: 3, inSection: 0)) as! CellWithCustomSlider
-            projectEndpoint = cell4.reportEndpoint()
         }
         performSegueWithIdentifier("showVariables", sender: nil)
     }
@@ -226,8 +261,9 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
             //destination.tutorialDescriptionViewMode = self.showTutorial //true => show tutorial
             destination.projectTitle = self.projectTitle
             destination.projectQuestion = self.projectQuestion
-            destination.projectEndpoint = self.projectEndpoint
             destination.projectHypothesis = self.projectHypothesis
+            destination.projectEndpoint = self.projectEndpoint
+            print("Project Endpoint: \(projectEndpoint.endpointInDays)")
             destination.projectType = self.projectType
         }
     }

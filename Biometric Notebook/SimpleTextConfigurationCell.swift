@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SimpleTextConfigurationCell: BaseConfigurationCell, UITextFieldDelegate {
+class SimpleTextConfigurationCell: BaseConfigurationCell, UITextFieldDelegate { //add new class -> enum!
 
     let textEntryField = UITextField(frame: CGRectZero)
     
@@ -18,7 +18,7 @@ class SimpleTextConfigurationCell: BaseConfigurationCell, UITextFieldDelegate {
         textEntryField.delegate = self
         textEntryField.textAlignment = .Center
         textEntryField.borderStyle = .RoundedRect
-        insetBackground.addSubview(textEntryField)
+        insetBackgroundView.addSubview(textEntryField)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -29,19 +29,19 @@ class SimpleTextConfigurationCell: BaseConfigurationCell, UITextFieldDelegate {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
-        //Configure textField:
-        let textFieldPadding = instructionsLabelLeftPadding + 2 //inset slightly from instructionLabel
-        let textFieldWidth = frame.width - completionViewWidth - 2 * textFieldPadding
-        let textFieldFrame = CGRectMake(textFieldPadding, (instructionsLabelTopPadding + instructionsLabelHeight + 1), textFieldWidth, 30)
-        textEntryField.frame = textFieldFrame
+        textEntryField.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.RightTwoThirdsLevel, nil)) //layout textField
     }
     
     // MARK: - Text Field
     
+    var fullString: String? //string that is reported -> VC
+    
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-        if let input = textField.text?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) {
-            let count = input.characters.count + string.characters.count - range.length
+        if let text = textField.text {
+            let trimmedText = text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+            let trimmedString = string.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+            fullString = (text as NSString).stringByReplacingCharactersInRange(range, withString: string)
+            let count = trimmedText.characters.count + trimmedString.characters.count - range.length
             if (count > 0) { //set as complete if textField is not empty
                 configureCompletionIndicator(true)
             } else { //set as incomplete
@@ -53,9 +53,9 @@ class SimpleTextConfigurationCell: BaseConfigurationCell, UITextFieldDelegate {
     
     // MARK: - Data Reporting
     
-    internal override func reportData() -> AnyObject? {
+    override var configurationReportObject: AnyObject? {
         //*REPORT TYPE: String*
-        if let inputText = textEntryField.text {
+        if let inputText = fullString {
             return inputText
         }
         return nil

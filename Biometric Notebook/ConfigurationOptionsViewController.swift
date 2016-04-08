@@ -10,13 +10,11 @@ import UIKit
 class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet weak var doneButton: UIBarButtonItem! //disable until ALL options are set
-    @IBOutlet weak var topBarHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var topBarInstructionLabel: UILabel!
-    @IBOutlet weak var topBarAddButton: UIButton!
     @IBOutlet weak var optionsTableView: UITableView!
+    @IBOutlet weak var bottomConstraint: NSLayoutConstraint! //TV bottom -> bottom layout guide
     
     var createdVariable: Module? //variable w/ completed configuration (sent from ConfigModuleVC)
-    var numberOfSections: Int = 1
+    var reportedDataObject = Dictionary<String, AnyObject>() //contains all config data
     var dataSource: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] {
         get {
             if let variable = createdVariable, object = variable.configurationOptionsLayoutObject {
@@ -28,42 +26,40 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
     }
     var numberOfConfiguredCells: Int = 0 { //keeps track of the current # of configured cells
         didSet { //adjust 'doneButton' status appropriately
-            print("[ConfigOptionsVC] Current # of completed cells: \(numberOfConfiguredCells). Total #: \(dataSource.count).")
             configureDoneButton()
         }
     }
-    var userAddedOptions: [String] = [] { //user added options for CustomModule > Custom Options behavior
-        didSet { //adjust 'doneButton' status appropriately
-            configureDoneButton()
-        }
-    }
+    var customOptionsCellLevels: Int? //indicator for heightForRow() for CustomOptions config cells
     
     // MARK: - View Configuration
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil) //add observer for Configuration Cell notification BEFORE configuring TV!
+        
+        //Add gesture recognizer for tap (to dismiss open textFields):
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(self.tableViewWasTapped))
+        optionsTableView.addGestureRecognizer(gesture)
+        
+        //Add notification observers:
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil) //add observer for LEVELS Cell notification BEFORE configuring TV!
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellDidReportData(_:)), name: BMN_Notification_CellDidReportData, object: nil) //update report obj w/ data
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.addOptionButtonWasClicked(_:)), name: BMN_Notification_AddOptionButtonWasClicked, object: nil)
+        
+        //Keyboard notifications:
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardDidAppearWithFrame(_:)), name: UIKeyboardDidChangeFrameNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIKeyboardWillHideNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardDidHide(_:)), name: UIKeyboardDidHideNotification, object: nil)
         
         optionsTableView.delegate = self
         optionsTableView.dataSource = self //set the # of prototype cells to 0 in IB!
         registerConfigurationCellTypes() //register TV for all config cell types
-        
-        if let variable = createdVariable { //configure the topBar
-            if let topBarText = variable.topBarPrompt {
-                numberOfSections = 2 //add extra section for items added via topBar
-                optionsTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: NSStringFromClass(UITableViewCell))
-                topBarInstructionLabel.text = topBarText
-                configureVisualsForTopBar(true)
-            } else {
-                configureVisualsForTopBar(false)
-            }
-        }
     }
     
     func registerConfigurationCellTypes() { //register ALL possible custom configuration cell types
         optionsTableView.registerClass(SimpleTextConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleTextConfigurationCell)) //simple txt
         optionsTableView.registerClass(SimpleNumberConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleNumberConfigurationCell)) //simple #
         optionsTableView.registerClass(BooleanConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(BooleanConfigurationCell)) //boolean
+        optionsTableView.registerClass(CustomOptionsConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(CustomOptionsConfigurationCell)) //custom options
         optionsTableView.registerClass(ExampleConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(ExampleConfigurationCell)) //example
     }
     
@@ -75,13 +71,8 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         super.didReceiveMemoryWarning()
     }
     
-    func configureVisualsForTopBar(visible: Bool) {
-        if (visible) { //display top bar (default option, no need to set constant)
-            topBarAddButton.enabled = true //enable just in case
-        } else { //hide top bar
-            topBarHeightConstraint.constant = 0
-            topBarAddButton.enabled = false //disable just in case
-        }
+    func tableViewWasTapped() { //dismisses keyboard when TV is tapped
+        self.view.endEditing(true)
     }
     
     func configureDoneButton() { //controls whether the 'doneButton' is enabled or not
@@ -92,24 +83,40 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
                 print("[configureDoneButton] Error - # of configured cells exceeds total # of cells!")
             }
         } else { //all cells have been configured
-            if let variable = createdVariable as? CustomModule { //check if this is a CustomModule object
-                if (variable.selectedFunctionality == CustomModuleVariableTypes.Behavior_CustomOptions.rawValue) {
-                    if (userAddedOptions.isEmpty) { //no options, disable doneButton
-                        self.doneButton.enabled = false
-                    } else { //options have been entered, enable doneButton
-                        self.doneButton.enabled = true
-                    }
-                } else { //NOT a CustomOptions behavior, enable button
-                    doneButton.enabled = true
+            doneButton.enabled = true
+        }
+    }
+    
+    func cellDidReportData(notification: NSNotification) { //each time a cell reports data, update the report object against its descriptor
+        print("Cell did report data...") 
+        if let dict = notification.userInfo { //search through each type of cellDescriptor to get data
+            if let data = dict[BMN_CustomModule_CustomOptions_PromptID] { //PROMPT
+                reportedDataObject[BMN_CustomModule_CustomOptions_PromptID] = data
+                print("Prompt: '\(data as? String)'.")
+            } else if let data = dict[BMN_CustomModule_CustomOptions_OptionsID] { //CUSTOM OPTS
+                reportedDataObject[BMN_CustomModule_CustomOptions_OptionsID] = data
+                let dat = data as! [String]
+                for opt in dat { //*
+                    print("Option: '\(opt)'.")
                 }
-            } else { //NOT a CustomModule object, enable button
-                doneButton.enabled = true
+            } else if let data = dict[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] { //check if multiple selection is allowed
+                print("Mult Select Allowed?: \(data as? Bool).")
+                reportedDataObject[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] = data
+            } else if let data = dict[BMN_CustomModule_RangeScale_MinimumID] { //RangeScale - Min
+                reportedDataObject[BMN_CustomModule_RangeScale_MinimumID] = data
+                print("RS Minimum: \(data as? Int).")
+            } else if let data = dict[BMN_CustomModule_RangeScale_MaximumID] { //RangeScale - Max
+                reportedDataObject[BMN_CustomModule_RangeScale_MaximumID] = data
+                print("RS Maximum: \(data as? Int).")
+            } else if let data = dict[BMN_CustomModule_RangeScale_IncrementID] { //RangeScale - Inc
+                reportedDataObject[BMN_CustomModule_RangeScale_IncrementID] = data
+                print("RS Increment: \(data as? Int).")
             }
         }
     }
     
-    @IBAction func cellCompletionStatusDidChange(notification: NSNotification) { //* KEY has changed!!!
-        if let info = notification.userInfo, status = info[BMN_Configuration_CompletionIndicatorStatusKey] as? Bool { //obtain current status & update the counter variable accordingly
+    func cellCompletionStatusDidChange(notification: NSNotification) {
+        if let info = notification.userInfo, status = info[BMN_LEVELS_CompletionIndicatorStatusKey] as? Bool { //obtain current status & update the counter variable accordingly
             if (status) { //status was set -> COMPLETE (add 1 to the counter)
                 self.numberOfConfiguredCells += 1
             } else { //status was set -> INCOMPLETE (subtract 1 from the counter)
@@ -118,39 +125,61 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         }
     }
     
-    // MARK: - Table View 
-    
-    func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return numberOfSections
+    func addOptionButtonWasClicked(notification: NSNotification) { //adjusts height for TV cell
+        if let info = notification.userInfo, numberOfLevels = info[BMN_CustomOptionsConfigCell_NumberOfLevelsKey] as? Int {
+            customOptionsCellLevels = numberOfLevels //set indicator w/ new # of levels
+            optionsTableView.reloadData() //redraw w/ new height
+        }
     }
     
-    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if (numberOfSections > 1) { //only set titles when there are multiple sections
-            if (section == 0) {
-                return "Configuration"
-            } else if (section == 1) {
-                return "Custom Options"
+    // MARK: - Keyboard Logic
+    
+    var blockKeyboardDidAppear: Bool = false //blocker
+    
+    func keyboardDidAppearWithFrame(notification: NSNotification) {
+        if !(blockKeyboardDidAppear) { //suppress if blocker is TRUE
+            if let dict = notification.userInfo, keyboardFrame = dict[UIKeyboardFrameEndUserInfoKey] as? NSValue {
+                let height = keyboardFrame.CGRectValue().height
+                bottomConstraint.constant = height //shift up TV to allow scrolling
             }
         }
-        return nil
+    }
+    
+    func keyboardWillHide(notification: NSNotification) { //reset bottom constraint
+        bottomConstraint.constant = 0
+        blockKeyboardDidAppear = true //block fx from firing
+    }
+    
+    func keyboardDidHide(notification: NSNotification) { //clear blocker for next cycle
+        blockKeyboardDidAppear = false //reset
+    }
+    
+    // MARK: - Table View 
+    
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return "Configuration"
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if (section == 1) { //user added cells
-            if (userAddedOptions.count > 0) { //make sure options have been entered before enabling 'Done'
-                doneButton.enabled = true
-            }
-            return userAddedOptions.count
-        }
         return dataSource.count
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        if (indexPath.section == 1) { //user added cells
-            let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(UITableViewCell))!
-            cell.textLabel?.text = userAddedOptions[indexPath.row]
-            return cell
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat { //this function is called BEFORE the cell obj is set (so we cannot query cell for height here)!
+        //Obtain cell height from ConfigurationCellTypes (enum) function:
+        let cellType = dataSource[indexPath.row].0
+        switch cellType {
+        case .CustomOptions: //modified height determination based on notification obj
+            if let levels = customOptionsCellLevels { //check if height was defined
+                return CGFloat(levels) * 40 + BMN_DefaultBottomSpacer
+            } else { //default height
+                return cellType.getHeightForConfigurationCellType()
+            }
+        default:
+            return cellType.getHeightForConfigurationCellType()
         }
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cellType = dataSource[indexPath.row].0 //get cell type from data source
         var cell = BaseConfigurationCell()
         switch cellType { //obtain cell based on type
@@ -160,6 +189,8 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(SimpleTextConfigurationCell)) as! SimpleTextConfigurationCell
         case .Boolean:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(BooleanConfigurationCell)) as! BooleanConfigurationCell
+        case .CustomOptions:
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomOptionsConfigurationCell)) as! CustomOptionsConfigurationCell
         case .Example:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExampleConfigurationCell)) as! ExampleConfigurationCell
         }
@@ -167,75 +198,12 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         return cell
     }
     
-    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat { //this function is called BEFORE the cell obj is set (so we cannot query cell for height here)!
-        if (indexPath.section == 0) { //obtain cell height from enum function
-            let cellHeight = dataSource[indexPath.row].0.getHeightForConfigurationCellType()
-            return cellHeight
-        } else if (indexPath.section == 1) {
-            return 40 //user added cells
-        }
-        return 70 //default
-    }
-    
-    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
-        if (indexPath.section == 1) { //only enable deletion for section #2 (user added options)
-            return UITableViewCellEditingStyle.Delete
-        }
-        return UITableViewCellEditingStyle.None
-    }
-    
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete { //if deletion is allowed, remove from data source
-            let row = indexPath.row
-            userAddedOptions.removeAtIndex(row)
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        }
-    }
-    
     // MARK: - Button Actions
     
-    @IBAction func addButtonClick(sender: AnyObject) { //only available for specific behaviors/comps
-        //When the user adds an option, it is sent -> the variable's 'options' dictionary:
-        let alert = UIAlertController(title: "Add Custom Option", message: "Enter a unique option name.", preferredStyle: UIAlertControllerStyle.Alert)
-        let add = UIAlertAction(title: "Add", style: UIAlertActionStyle.Default) { (let add) in
-            if let text = alert.textFields?.first?.text {
-                if (text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet()) != "") {
-                    var lowerCaseOptions: [String] = []
-                    for option in self.userAddedOptions { //create array w/ lowercase options
-                        lowerCaseOptions.append(option.lowercaseString)
-                    }
-                    if !(lowerCaseOptions.contains(text.lowercaseString)) { //make sure option is unique
-                        self.userAddedOptions.append(text.capitalizedString) //add option -> data source
-                        self.optionsTableView.reloadData()
-                    }
-                }
-            }
-        }
-        let cancel = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel, handler: nil)
-        alert.addAction(cancel)
-        alert.addAction(add)
-        alert.addTextFieldWithConfigurationHandler { (let textField) in }
-        presentViewController(alert, animated: true, completion: nil)
-    }
-    
     @IBAction func doneButtonClick(sender: AnyObject) { //save configuration options & return to Vars
-        //Gather up the information in the configurationCells & construct a master dictionary that is reported -> the Module object (where it will be used to set Module properties).
-        var reportedData: [String: AnyObject] = Dictionary<String, AnyObject>() //captured config items
-        for i in 0..<dataSource.count {
-            let cell = optionsTableView.cellForRowAtIndexPath(NSIndexPath(forRow: i, inSection: 0)) as! BaseConfigurationCell //get reference to each cell
-            let descriptor = cell.cellDescriptor
-            if let data = cell.reportData() {
-                reportedData[descriptor] = data
-            }
-        }
-        
-        //If the variable is CustomModule > CustomOptions, add user-entered options -> reportedData:
-        if (createdVariable?.selectedFunctionality == CustomModuleVariableTypes.Behavior_CustomOptions.rawValue) {
-            reportedData[BMN_CustomModule_CustomOptions_OptionsID] = self.userAddedOptions
-        }
-        
+        //Report config data -> the Module object (where it will be used to set Module properties):
         if let variable = createdVariable {
-            let (success, msg, flags) = variable.matchConfigurationItemsToProperties(reportedData)
+            let (success, msg, flags) = variable.matchConfigurationItemsToProperties(reportedDataObject)
             if (success) { //operation was successful
                 performSegueWithIdentifier("unwindToVariablesVC", sender: nil)
             } else { //unsuccessful operation, display alert

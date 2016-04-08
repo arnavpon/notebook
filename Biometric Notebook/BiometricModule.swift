@@ -61,7 +61,7 @@ class BiometricModule: Module {
     
     // MARK: - Data Entry
     
-    override func getDataEntryCellForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
+    override func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
         if let type = self.variableType {
             switch type {
             default:
@@ -73,8 +73,9 @@ class BiometricModule: Module {
     
 }
 
-enum BiometricModuleVariableTypes: String {
-    //how do we deal w/ static pieces of data like DOB? We could pull it from HK; the difference is these variables WON'T be measured on each run of dataEntry mode.
+enum BiometricModuleVariableTypes: String { //*match each behavior/computation -> Configuration + DataEntry custom TV cells; for each new behavior/comp added, you must also add (1) Configuration logic, (2) Core Data storage logic (so the variable config can be preserved), (3) Unpacking logic (in the DataEntry initializer), & (4) DataEntry logic (enabling the user to report info).*
+    
+    //**how do we deal w/ static pieces of data like DOB? We could pull it from HK; the difference is these variables WON'T be measured on each run of dataEntry mode.
     //Available Behaviors:
     case Behavior_Height = "BM_behavior_Height"
     case Behavior_Weight = "BM_behavior_Weight"

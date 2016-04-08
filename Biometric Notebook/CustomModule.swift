@@ -123,11 +123,10 @@ class CustomModule: Module {
             switch type {
             case CustomModuleVariableTypes.Behavior_CustomOptions:
                 
-                topBarPrompt = "Add Custom Options"
-                
-                //2 config cells are needed (prompt + multiple selection):
-                array.append((ConfigurationOptionCellTypes.SimpleText, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_PromptID, BMN_Configuration_CellIsOptionalKey: true, BMN_Configuration_InstructionsLabelKey: "If you want, set a prompt:"])) //cell to accept an optional prompt
-                array.append((ConfigurationOptionCellTypes.Boolean, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID, BMN_Configuration_InstructionsLabelKey: "Allow multiple options to be selected (default NO):"])) //cell to check whether multiple selection is allowed or not
+                //3 config cells are needed (prompt + multiple selection + custom options):
+                array.append((ConfigurationOptionCellTypes.SimpleText, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_PromptID, BMN_LEVELS_CellIsOptionalKey: true, BMN_LEVELS_MainLabelKey: "Set a prompt (optional). Replaces the variable's name during data reporting:"])) //cell to accept prompt
+                array.append((ConfigurationOptionCellTypes.Boolean, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID, BMN_LEVELS_MainLabelKey: "Allow multiple options to be selected (default NO):"])) //cell to check whether multiple selection is allowed or not
+                array.append((ConfigurationOptionCellTypes.CustomOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_OptionsID, BMN_LEVELS_MainLabelKey: "Enter 1 or more custom options for selection:"])) //cell to enter custom options
                 configurationOptionsLayoutObject = array
                 
             case CustomModuleVariableTypes.Behavior_BinaryOptions:
@@ -142,12 +141,10 @@ class CustomModule: Module {
                 
             case CustomModuleVariableTypes.Behavior_RangeScale:
                 
-                topBarPrompt = nil //no topBar needed
-                
                 //3 config cells are needed (asking for minimum, maximum, & increment):
-                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_MinimumID, BMN_Configuration_InstructionsLabelKey: "Minimum for scale (default 0):", BMN_Configuration_DefaultNumberKey: 0])) //minimum value
-                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_MaximumID, BMN_Configuration_InstructionsLabelKey: "Maximum for scale (default 10):", BMN_Configuration_DefaultNumberKey: 10])) //maximum value
-                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_IncrementID, BMN_Configuration_InstructionsLabelKey: "Increment for scale (default 1):", BMN_Configuration_DefaultNumberKey: 1])) //increment value
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_MinimumID, BMN_LEVELS_MainLabelKey: "Minimum for scale (default 0):", BMN_Configuration_DefaultNumberKey: 0])) //minimum value
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_MaximumID, BMN_LEVELS_MainLabelKey: "Maximum for scale (default 10):", BMN_Configuration_DefaultNumberKey: 10])) //maximum value
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_IncrementID, BMN_LEVELS_MainLabelKey: "Increment for scale (default 1):", BMN_Configuration_DefaultNumberKey: 1])) //increment value
                 
                 configurationOptionsLayoutObject = array
                 
@@ -170,10 +167,11 @@ class CustomModule: Module {
                 self.prompt = configurationData[BMN_CustomModule_CustomOptions_PromptID] as? String
                 self.options = configurationData[BMN_CustomModule_CustomOptions_OptionsID] as? [String]
                 self.multipleSelectionEnabled = configurationData[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] as? Bool
-                if (self.prompt != nil) && (self.options != nil) && (self.multipleSelectionEnabled != nil) {
+                if (self.options != nil) && (self.multipleSelectionEnabled != nil) {
+                    print("Match Config: Prompt = '\(prompt)', Opts = \(options), Mult Selection = \(multipleSelectionEnabled).")
                     return (true, nil, nil)
                 } else { //error
-                    return (false, "Either the prompt, options, or multiple selection indicator have not been set.", nil)
+                    return (false, "Either the options or multiple selection indicator haven't been set.", nil)
                 }
                 
             case .Behavior_RangeScale: //inc data is INT
@@ -185,6 +183,7 @@ class CustomModule: Module {
                         return (false, "The increment must be divisible by the difference between the minimum and maximum.", [BMN_CustomModule_RangeScale_IncrementID]) //flag incrm
                     } else { //setup is OK
                         rangeScaleParameters = (min, max, increment)
+                        print("Match Config: Min = \(min), Max = \(max), Inc = \(increment).")
                         return (true, nil, nil)
                     }
                 } else {
@@ -247,7 +246,7 @@ class CustomModule: Module {
         return self.variableType
     }
     
-    override func getDataEntryCellForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
+    override func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
         if let type = self.variableType {
             switch type {
             case .Behavior_CustomOptions, .Behavior_BinaryOptions:
@@ -263,9 +262,16 @@ class CustomModule: Module {
         return nil
     }
     
+    override var cellHeightUserInfo: [String : AnyObject]? {
+        if let opts = options { //return the # of options cells that are present
+            return [BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey: opts.count]
+        }
+        return nil
+    }
+    
 }
 
-enum CustomModuleVariableTypes: String {
+enum CustomModuleVariableTypes: String { //*match each behavior/computation -> Configuration + DataEntry custom TV cells; for each new behavior/computation added, you must also add (1) Configuration logic, (2) Core Data storage logic (so the variable config can be preserved), (3) Unpacking logic (in the DataEntry initializer), & (4) DataEntry logic (enabling the user to report info).* 
     //*BEHAVIORS* - make sure the rawValues are UNIQUE:
     case Behavior_CustomOptions = "Custom Options" //allows user to enter custom options
     case Behavior_BinaryOptions = "Binary Options" //automatically creates 2 options, 'Yes' & 'No'.

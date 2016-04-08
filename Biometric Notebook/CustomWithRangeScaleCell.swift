@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CustomWithRangeScaleCell: BaseDataEntryCell {
+class CustomWithRangeScaleCell: BaseDataEntryCell { //add new class -> enum!
     
     // MARK: - Initializers
     

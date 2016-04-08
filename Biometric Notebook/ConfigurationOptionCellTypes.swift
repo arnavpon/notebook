@@ -8,22 +8,30 @@
 import Foundation
 import UIKit
 
-enum ConfigurationOptionCellTypes {
+enum ConfigurationOptionCellTypes { //REGISTER each new cell class w/ TV in ConfigurationOptionsVC & add class to cellForRowAtIndexPath()!
     
     case SimpleText //corresponds -> SimpleTextConfigurationCell type
     case SimpleNumber //corresponds -> SimpleNumberConfigurationCell type
     case Boolean //corresponds -> BooleanConfigurationCell type
+    case CustomOptions //corresponds -> CustomOptionsConfigurationCell type
     case Example //corresponds -> ExampleConfigurationCell type
     
-    func getHeightForConfigurationCellType() -> CGFloat {
-        let defaultHeight: CGFloat
+    func getHeightForConfigurationCellType() -> CGFloat { //called by VC to set cell height
+        let levelHeight: CGFloat = LevelsFrameworkCell.levelHeight
+        var numberOfLevels: Int
         switch self {
+        case .SimpleText:
+            numberOfLevels = SimpleTextConfigurationCell.numberOfLevels
+        case .SimpleNumber:
+            numberOfLevels = SimpleNumberConfigurationCell.numberOfLevels
+        case .Boolean:
+            numberOfLevels = BooleanConfigurationCell.numberOfLevels
+        case .CustomOptions:
+            numberOfLevels = CustomOptionsConfigurationCell.numberOfLevels
         case .Example:
-            defaultHeight = 100
-        default: //default height
-            defaultHeight = 70
+            numberOfLevels = ExampleConfigurationCell.numberOfLevels
         }
-        return defaultHeight
+        return levelHeight * CGFloat(numberOfLevels) + BMN_DefaultBottomSpacer 
     }
     
 }

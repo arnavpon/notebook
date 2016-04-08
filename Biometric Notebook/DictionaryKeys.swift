@@ -5,7 +5,7 @@
 
 // List of dictionary key aliases (so as to standardize the keys & prevent errors).
 
-import Foundation
+import UIKit
 
 // MARK: - User Defaults Keys
 
@@ -17,6 +17,7 @@ let SHOW_ATTACH_DESCRIPTION = "show_attach_description_key"
 // MARK: - Custom NSNotification IDs
 
 let BMN_Notification_CompletionIndicatorDidChange = "BMN_CompletionIndicatorDidChange"
+let BMN_Notification_CellDidReportData = "BMN_CellDidReportData"
 let BMN_Notification_DataEntryButtonClick = "BMN_DataEntryButtonClick"
 
 //CellWithPlusButton Notifications:
@@ -27,7 +28,13 @@ let BMN_Notification_SliderSelectedNodeHasChanged = "BMN_SliderSelectedNodeHasCh
 let BMN_Notification_SliderCrownValueWasSet = "BMN_SliderCrownValueWasSet"
 let BMN_Notification_SliderControlIsMoving = "BMN_SliderControlIsMoving"
 
+//CustomOptionsConfigCell Notifications:
+let BMN_Notification_AddOptionButtonWasClicked = "BMN_AddOptionButtonWasClicked"
+let BMN_CustomOptionsConfigCell_NumberOfLevelsKey = "BMN_CustomOptionsConfigCell_number_of_levels_key" //*
+
 // MARK: - LEVELS Framework General Keys
+
+let BMN_DefaultBottomSpacer: CGFloat = 3 //adds height to cells so there is space from bottom
 
 let BMN_LEVELS_MainLabelKey = "LEVELS_main_label_key" //txt for cell's main label
 let BMN_LEVELS_RevealLeftButtonKey = "LEVELS_reveal_left_button_key" //button on R of mainLabel
@@ -52,11 +59,8 @@ let BMN_CellWithCustomSlider_IsSliderMovingKey = "CellWithCustomSlider_is_slider
 
 // MARK: - ConfigurationOptions Data Source Keys
 
-let BMN_Configuration_CompletionIndicatorStatusKey = "configuration_completion_indicator_status_key" //key used in the notification that reports whether a current cell is complete or incomplete***
-let BMN_Configuration_CellIsOptionalKey = "configuration_is_cell_optional_key" //key indicating whether the cell is optional or required***
-let BMN_Configuration_InstructionsLabelKey = "configuration_instructions_key" //***
-let BMN_Configuration_DefaultNumberKey = "configuration_default_number_key" //key for a default number to assign to a SimpleNumberConfigurationCell
 let BMN_Configuration_CellDescriptorKey = "configuration_cell_descriptor_key" //key for the cell's descriptor (the dictionary key used to identify each unique cell for configuration reporting)
+let BMN_Configuration_DefaultNumberKey = "configuration_default_number_key" //key for a default number to assign to a SimpleNumberConfigurationCell
 
 // MARK: - [MODULE] General Configuration Keys
 
@@ -70,6 +74,14 @@ let BMN_ComputationsKey = "computations_key"
 
 let BMN_ModuleTitleKey = "module_title_key" //key to obtain var's Module type
 let BMN_VariableTypeKey = "variable_type_key" //key to obtain var's behavior/computation
+
+// MARK: - CreateProject VC Cell IDs
+
+let BMN_ProjectTitleID = "project_title_id"
+let BMN_ProjectQuestionID = "project_question_id"
+let BMN_ProjectTypeID = "project_type_id"
+let BMN_ProjectHypothesisID = "project_hypothesis_id"
+let BMN_ProjectEndpointID = "project_endpoint_id"
 
 // MARK: - [CustomModule (CM)] Keys, Config Cell IDs, Behavior/Computation Enum IDs (KEY = dictionary key)
 

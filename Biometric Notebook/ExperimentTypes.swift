@@ -7,7 +7,9 @@
 
 import Foundation
 
-enum ExperimentTypes {
-    case InputOutput
-    case ControlComparison
+enum ExperimentTypes: String {
+    
+    case InputOutput = "InputOutput"
+    case ControlComparison = "ControlComparison"
+    
 }

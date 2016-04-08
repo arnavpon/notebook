@@ -10,6 +10,7 @@ import UIKit
 class LevelsFrameworkCell: UITableViewCell {
     
     class var numberOfLevels: Int { return 1 } //total height of cell = (numLevels * 40) + separatorHeight
+    static let levelHeight: CGFloat = 40 //height of each level is constant
     
     //(REQUIRED) Default Views:
     internal let insetBackgroundView = UIView(frame: CGRectZero) //background for LEVELS cell
@@ -42,7 +43,7 @@ class LevelsFrameworkCell: UITableViewCell {
             }
         }
     }
-    internal var insetBackgroundColor: UIColor = UIColor.whiteColor() { //default cell background color
+    internal var insetBackgroundColor: UIColor = UIColor.whiteColor() { //DEFAULT background color, DO NOT CHANGE property in subclasses (provides reference to default so that state can be RESTORED)!
         didSet {
             insetBackgroundView.backgroundColor = insetBackgroundColor //adjust color
         }
@@ -66,7 +67,6 @@ class LevelsFrameworkCell: UITableViewCell {
     }
     
     //CONSTANT Properties:
-    private let levelHeight: CGFloat = 40 //height of each level is constant
     private let leftPadding: CGFloat = 10 //spacing from L boundary of the TV cell
     private let rightSideViewWidth: CGFloat = 50 //width of R side view is constant
     private let completionIndicatorSize = CGSize(width: 35, height: 35)
@@ -75,6 +75,7 @@ class LevelsFrameworkCell: UITableViewCell {
     private let rightButtonWidth: CGFloat = 30 //button is square so width == height
     private let buttonSpacer: CGFloat = 5 //horizontal space between mainLabel & button
     
+    //DATA SOURCE - (1) Configuration cell dataSource is the 'dataSource' property. (2) DataEntry cell dataSource is the 'module' property.
     private var fireCounter: Int = 0 //ensures that 'accessDataSource' runs only 1x
     var dataSource: Dictionary<String, AnyObject>? { //contains all necessary configuration info
         didSet {
@@ -82,6 +83,14 @@ class LevelsFrameworkCell: UITableViewCell {
                 accessDataSource() //obtain basic setup data from dataSource
                 setNeedsLayout() //redraw the cell (must go OUTSIDE 'accessDataSource()'!)
                 fireCounter = 1 //block further firing for this cell (cell can't change after 1st setup)
+            }
+        }
+    }
+    weak var module: Module? { //all data to be displayed will be determined through the module property; for subviews of the base DataEntry cell, module property will be more specific module types!
+        didSet {
+            if (fireCounter == 0) { //make sure this is only running ONCE
+                accessModuleProperties() //layout cell according to module type/properties
+                setNeedsLayout() //keep OUTSIDE of the accessModule function!
             }
         }
     }
@@ -119,7 +128,8 @@ class LevelsFrameworkCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    internal func accessDataSource() { //@ most basic level, gets mainLbl txt & checks if cell is optional
+    internal func accessDataSource() { //configures non-DataEntry cell's visuals
+        //@ most basic level, gets mainLbl txt & checks if cell is optional:
         if let source = dataSource {
             self.mainLabel.text = source[BMN_LEVELS_MainLabelKey] as? String
             if let optional = source[BMN_LEVELS_CellIsOptionalKey] as? Bool { //check if cell is optional (if NO value exists, cell is REQUIRED)
@@ -131,6 +141,12 @@ class LevelsFrameworkCell: UITableViewCell {
             if let tab = source[BMN_LEVELS_TabLevelKey] as? Int { //check if cell is tabbed
                 tabLevel = tab
             }
+        }
+    }
+    
+    internal func accessModuleProperties() { //configures DataEntry cell's visuals
+        if let mod = module, selection = mod.selectedFunctionality { //update mainLabel
+            mainLabel.text = "\(mod.variableName): \(selection)"
         }
     }
     
@@ -166,18 +182,19 @@ class LevelsFrameworkCell: UITableViewCell {
         }
         
         //(3) Layout mainLabel & firstLevel buttons (either 1 or both can be present in a cell):
+        let lvlHeight = LevelsFrameworkCell.levelHeight
         var leftButtonOffset: CGFloat = 0 //offset IFF leftButton exists
         var rightButtonOffset: CGFloat = 0 //offset IFF rightButton exists
         if let leftButton = firstLevelLeftButton {
-            leftButton.frame = CGRectMake(leftPadding, (levelHeight - leftButtonWidth)/2, leftButtonWidth, leftButtonWidth)
+            leftButton.frame = CGRectMake(leftPadding, (lvlHeight - leftButtonWidth)/2, leftButtonWidth, leftButtonWidth)
             leftButtonOffset = leftButtonWidth + buttonSpacer //does NOT account for labelPadding!
         }
         if let rightButton = firstLevelRightButton {
-            rightButton.frame = CGRectMake((frame.width - rightOffset - leftPadding - rightButtonWidth), (levelHeight - rightButtonWidth)/2, rightButtonWidth, rightButtonWidth)
+            rightButton.frame = CGRectMake((frame.width - rightOffset - leftPadding - rightButtonWidth), (lvlHeight - rightButtonWidth)/2, rightButtonWidth, rightButtonWidth)
             rightButtonOffset = rightButtonWidth + buttonSpacer //does NOT account for labelPadding!
         }
         let labelWidth = insetBackgroundView.frame.width - rightOffset - leftPadding * 2 - leftButtonOffset - rightButtonOffset
-        mainLabel.frame = CGRectMake((leftPadding + leftButtonOffset), (levelHeight - mainLabelHeight)/2, labelWidth, mainLabelHeight)
+        mainLabel.frame = CGRectMake((leftPadding + leftButtonOffset), (lvlHeight - mainLabelHeight)/2, labelWidth, mainLabelHeight)
     }
     
     internal func getViewFrameForLevel(viewLevel level: (Int, HorizontalLevels, Int?)) -> CGRect { //input tuple: (StartLevel, HorizontalLevel, NumberOfLevels)
@@ -186,7 +203,7 @@ class LevelsFrameworkCell: UITableViewCell {
         let horizontalSpacer: CGFloat = 2.5 //space between view & edge of its horizontal level frame (so 2 side-by-side views will never touch directly)
         
         //(1) Assign default height, width, & origin:
-        var height: CGFloat = levelHeight - 2 * verticalOffset //height is always the same UNLESS view is defined as taking up MULTIPLE levels
+        var height: CGFloat = LevelsFrameworkCell.levelHeight - 2 * verticalOffset //height is always the same UNLESS view is defined as taking up MULTIPLE levels
         if let numberOfLevels = level.2 { //explicitly defined # of levels
             height = CGFloat(numberOfLevels) * 40 - 2 * verticalOffset
         }
@@ -223,6 +240,11 @@ class LevelsFrameworkCell: UITableViewCell {
         case .RightThirdLevel:
             width = baseWidth/3 - leftPadding - horizontalSpacer
             originX = baseWidth * 2/3 + horizontalSpacer + leftButtonOffset
+        case .LeftSevenEighthsLevel:
+            width = baseWidth * 7/8 - leftPadding - horizontalSpacer
+        case .RightOneEighthLevel:
+            width = baseWidth/8 - leftPadding - horizontalSpacer
+            originX = baseWidth * 7/8 + horizontalSpacer + leftButtonOffset
         }
         return CGRectMake(originX, originY, width, height)
     }
@@ -233,11 +255,13 @@ class LevelsFrameworkCell: UITableViewCell {
         if (isOptional) { //if cell is OPTIONAL, modify functionality - (1) When config is incomplete, the completionView shows NOTHING instead of an 'X'; (2) NO notifications are posted.
             if (complete) { //config COMPLETE
                 completionIndicator.image = UIImage(named: "check")
+                reportData() //fire the reportData() fx to update the external (VC) report object
             } else { //config INCOMPLETE
                 completionIndicator.image = nil //clear image, but don't show the X mark
             }
         } else { //REQUIRED configuration cell
             if (complete) { //config COMPLETE
+                reportData() //fire reportData() to update the external (VC) report object
                 if (completionIndicator.image != UIImage(named: "check")) { //ONLY switch images if the current image is NOT alrdy set -> 'check'
                     completionIndicator.image = UIImage(named: "check")
                     let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_LEVELS_CompletionIndicatorStatusKey: true])
@@ -255,20 +279,23 @@ class LevelsFrameworkCell: UITableViewCell {
     
     // MARK: - Data Reporting
     
-    internal func reportData() -> AnyObject? { //reports all pertinent data entered by user, override
+    internal func reportData() { //reports all pertinent data entered by user, override ONLY in BASE cells for each type of custom TV cell (DataEntry & Configuration)
+        //when called, send a notification -> VC w/ the data to update the report object whenever the cell is marked as complete
         print("[CellW/Levels > reportData()] Being called from super class...")
-        return nil
     }
 
 }
 
-enum HorizontalLevels: Int { //horizontal level options
-    case FullLevel = 0
-    case LeftTwoThirdsLevel = 1
-    case RightTwoThirdsLevel = 2
-    case LeftHalfLevel = 3
-    case RightHalfLevel = 4
-    case LeftThirdLevel = 5
-    case MidThirdLevel = 6
-    case RightThirdLevel = 7
+enum HorizontalLevels { //horizontal level options
+    case FullLevel
+    case LeftTwoThirdsLevel
+    case RightTwoThirdsLevel
+    case LeftHalfLevel
+    case RightHalfLevel
+    case LeftThirdLevel
+    case MidThirdLevel
+    case RightThirdLevel
+    
+    case LeftSevenEighthsLevel //part of a level pair (view + small button on its right)
+    case RightOneEighthLevel //part of a level pair (view + small button on its right)
 }

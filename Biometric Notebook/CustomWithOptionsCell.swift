@@ -7,7 +7,11 @@
 
 import UIKit
 
-class CustomWithOptionsCell: BaseDataEntryCell {
+class CustomWithOptionsCell: BaseDataEntryCell { //add new class -> enum!
+    
+    override class var numberOfLevels: Int { //default # of levels is 1 (add # of options to get total #)
+        return 1
+    }
     
     // MARK: - Initializers
     

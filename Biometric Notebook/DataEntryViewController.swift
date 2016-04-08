@@ -67,17 +67,25 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        if let variables = variablesArray { //check if a custom row height has been defined
+        if let variables = variablesArray { //use DataEntryCellTypes to calculate height for cell
             let module = variables[indexPath.row]
+            if let cellType = module.getDataEntryCellTypeForVariable() {
+                var userInfo = Dictionary<String, AnyObject>()
+                if let heightInfo = module.cellHeightUserInfo { //check if there is additional ht info
+                    userInfo = heightInfo
+                }
+                let height = cellType.getHeightForDataEntryCell(userInfo) //calculate height
+                return height
+            }
         }
-        return 70 //default
+        return 80 + BMN_DefaultBottomSpacer //default
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell { //**all cells coming up empty!
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         var cell = BaseDataEntryCell()
         if let variables = variablesArray {
             let moduleForCell = variables[indexPath.row] //module obj is dataSource for TV cell
-            if let cellType = moduleForCell.getDataEntryCellForVariable() { //get cell type
+            if let cellType = moduleForCell.getDataEntryCellTypeForVariable() { //get cell type
                 switch cellType {
                 case .CustomWithOptions:
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithOptionsCell)) as! CustomWithOptionsCell

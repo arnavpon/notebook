@@ -36,33 +36,24 @@ enum Endpoints: String { //assign raw values (string representations) to each en
 
 struct Endpoint { //storage item for CoreData
     
-    let endpoint: Endpoints
-    var endpointInDays: Int?
+    var endpointInDays: Int? //total # of days between now & end of project
     
-    init(endpoint: Endpoints, number: Int?) { //initializer from user selection - sets enum object & obtains the endpoint as # of days
+    init(endpoint: Endpoints, number: Int?) { //initializer from user selection - obtains the endpoint as # of days from the enum object
         if (endpoint == .Continuous) {
-            self.endpoint = endpoint
-            endpointInDays = nil
+            self.endpointInDays = nil
         } else { //endpoints w/ numerical values
-            self.endpoint = endpoint
             if let value = number {
-                endpointInDays = (endpoint.generateEndpoint(value))!
-            } else { //not intialized w/ # for endpoint
-                print("Error. Endpoint does not have associated number!")
-                endpointInDays = nil
+                self.endpointInDays = (endpoint.generateEndpoint(value))!
+            } else { //not intialized w/ a # for a non-Continuous endpoint
+                print("Error: endpoint does not have associated number!")
+                self.endpointInDays = nil
             }
             
         }
     }
     
     init(endpointInDays: Int?) { //initializer from CoreData store
-        //If no endpointInDays is entered, it is assumed that this is a 'continuous' project
+        //If endpointInDays == nil, it is assumed that this is a 'continuous' project:
         self.endpointInDays = endpointInDays
-        if (self.endpointInDays == nil) {
-            self.endpoint = Endpoints.Continuous
-        } else {
-            //Reconstruct the endpoint based on the value:
-            self.endpoint = Endpoints.Day //*
-        }
     }
 }

@@ -91,7 +91,6 @@ class Module { //defines the behaviors that are common to all modules
     
     // MARK: - Variable Configuration
     
-    internal var topBarPrompt: String? //text for instructionLabel in topBar
     internal var selectedFunctionality: String? { //the behavior OR computation (picked from the enum defined in each module object) that the user selected for this variable
         didSet { //set configurationOptions based on selection
             if (self.variableState == ModuleVariableStates.VariableConfiguration) { //ONLY set-up the configurationOptionsLayoutObject if the variable is being set-up
@@ -118,11 +117,13 @@ class Module { //defines the behaviors that are common to all modules
     
     // MARK: - Data Entry
     
-    func getDataEntryCellForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable (override in subclasses)
+    func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable (override in subclasses)
         return nil
     }
     
-    var cellHeightUserInfo: [String: AnyObject]? //dictionary containing information needed to calculate cell height for the variable** (set this when a selection is chosen ONLY if the variable's state is DataEntry!)
+    var cellHeightUserInfo: [String: AnyObject]? { //dictionary containing information needed to calculate cell height for the variable, accessed externally by VC
+        return nil
+    }
     
     //For cells that have VARIABLE HEIGHTS (e.g. Custom Module options cell), we will need to include in the data source a custom cell height (which we can calculate beforehand b/c we know everything about how the cell needs to be configured, e.g. if the CustomOptions cell has 3 answer choices, we can calculate the height w/ a function, add that height to the data source; the VC TV delegate method should check for custom height & set to default if one is not found.)
     
