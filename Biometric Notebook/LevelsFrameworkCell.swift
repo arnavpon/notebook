@@ -101,7 +101,7 @@ class LevelsFrameworkCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         self.clipsToBounds = true //makes sure subviews outside bounds are NOT visible
         
-        contentView.backgroundColor = UIColor.clearColor() //*
+        contentView.backgroundColor = UIColor.clearColor() 
         contentView.addSubview(insetBackgroundView)
         contentView.addSubview(separatorView)
         

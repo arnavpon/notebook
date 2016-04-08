@@ -28,9 +28,6 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(self.tableViewWasTapped))
-        createProjectTV.addGestureRecognizer(tapGesture)
         createProjectTV.dataSource = self
         createProjectTV.delegate = self
         
@@ -57,12 +54,7 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
-    func tableViewWasTapped() { //dismisses 1st responder when TV is tapped
-        self.view.endEditing(true)
-    }
-    
     func cellDidReportData(notification: NSNotification) { //update project config variables
-        print("Cell reported data notification...")
         if let dict = notification.userInfo {
             if let title = dict[BMN_ProjectTitleID] as? String {
                 projectTitle = title
@@ -72,7 +64,6 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
             } else if let hypothesis = dict[BMN_ProjectHypothesisID] as? String {
                 projectHypothesis = hypothesis
             } else if let endpoint = dict[BMN_ProjectEndpointID] as? Int { //gets # of days from cell
-                print("Reported Endpoint: '\(endpoint)'.")
                 if (endpoint == 0) { //continuous project
                     projectEndpoint = Endpoint(endpointInDays: nil) //use appropriate init
                 } else { //definite length project
@@ -83,7 +74,6 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func cellCompletionStatusDidChange(notification: NSNotification) {
-        print("Cell completion status changed...")
         if let info = notification.userInfo, status = info[BMN_LEVELS_CompletionIndicatorStatusKey] as? Bool { //obtain current status & update the counter variable accordingly
             if (status) { //status was set -> COMPLETE (add 1 to the counter)
                 self.numberOfConfiguredCells += 1
@@ -231,6 +221,11 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
         return cell
     }
     
+    func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        self.view.endEditing(true) //force firstResponder to disappear
+        return false
+    }
+    
     // MARK: - Button Actions
     
     var showTutorial: Bool = true //sets tutorial to ACTIVE in ProjectVarsVC
@@ -261,7 +256,6 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
             destination.projectQuestion = self.projectQuestion
             destination.projectHypothesis = self.projectHypothesis
             destination.projectEndpoint = self.projectEndpoint
-            print("Project Endpoint: \(projectEndpoint.endpointInDays)")
             destination.projectType = self.projectType
         }
     }

@@ -93,6 +93,7 @@ class CellWithCustomSlider: BaseCreateProjectCell {
                 NSNotificationCenter.defaultCenter().postNotification(notification)
             } else { //user selected 'None', set endpoint -> Continuous
                 selectedEndpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil)
+                reportData() //manually fire notification -> VC
             }
         }
     }
@@ -136,7 +137,6 @@ class CellWithCustomSlider: BaseCreateProjectCell {
     // MARK: - Report Data
     
     override func reportData() { //reports selectedEndpoint -> VC
-        //**Not firing when the rported endpoint is Continuous Project!!! Slider is glitching out!!!
         //We cannot directly report the endpoint, so we will send the # of days if it exists OR 0 if it does not; the 2nd Endpoint initializer can recreate the endpoint based on the # of days:
         let numberOfDays: Int
         if let endpoint = selectedEndpoint.endpointInDays {

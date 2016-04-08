@@ -88,7 +88,7 @@ class CustomSlider: UIControl {
         if (lockedToNode) { //position is same as originY if the frame is locked
             return controlLayerOriginY
         } else { //unique position (shifted upwards) when frame is moving
-            return (controlLayerOriginY - controlFrameshift) //* might need to adjust for rotation
+            return (controlLayerOriginY - controlFrameshift)
         }
     }
     private let controlFrameshift: CGFloat = 3 //amount frame shifts up on click
@@ -98,7 +98,7 @@ class CustomSlider: UIControl {
     var controlLayerOriginX: CGFloat { //left-most x value for control
         return controlLayerCenter - controlLayerSize.width/2
     }
-    var controlLayerSize: CGSize { //width & height of control object (ctrl width = 2.5 * sliderWidth)
+    var controlLayerSize: CGSize { //width & height of control object
         return CGSize(width: 25, height: 24)
     }
     

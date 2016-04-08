@@ -3,7 +3,7 @@
 //  Created by Arnav Pondicherry  on 1/22/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// TextView with placeholder functionality
+// TextView with placeholder functionality.
 
 import UIKit
 
