@@ -59,7 +59,7 @@ class CellWithCustomSlider: BaseCreateProjectCell {
         //(1) Configure Slider Background:
         sliderBackground.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.FullLevel, 4))
         
-        //(2) Configure Slider: //**txt bold value & color fluctuates when slider is moving
+        //(2) Configure Slider: 
         let width = sliderBackground.frame.width
         let height = sliderBackground.frame.height
         let widthPercentage: CGFloat = 0.8

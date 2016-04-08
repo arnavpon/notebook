@@ -11,70 +11,126 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
     
     private let templateButtonIO = UIButton(frame: CGRectZero) //input/output project template
     private let templateButtonCC = UIButton(frame: CGRectZero) //control/comparison project template
-    private let topTemplateLabel = UILabel(frame: CGRectZero)
-    private let bottomTemplateLabel = UILabel(frame: CGRectZero)
-    let topTextField = UITextField(frame: CGRectZero) //need external access to drop 1st responder
-    let bottomTextField = UITextField(frame: CGRectZero) //need external access to drop 1st responder
     
-    private let viewBackgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 1) //*
-    private let viewFont = UIFont.systemFontOfSize(14)
+    //IO view & subviews:
+    private let ioView = UIImageView(frame: CGRectZero) //use img view so we can draw lines
+    private let ioFirstLabel = UILabel(frame: CGRectZero) //'what is the impact of'
+    private let ioVariablesTextField = UITextField(frame: CGRectZero)
+    private let ioSecondLabel = UILabel(frame: CGRectZero) //'on'
+    private let ioOutcomeTextField = UITextField(frame: CGRectZero)
+    private let ioQuestionMark = UILabel(frame: CGRectZero) //'?' @ end
     
-    private var topFieldComplete: Bool = false { //completion indicator
-        didSet {
-            setCompletionIndicatorForTextFields()
-        }
-    }
-    private var bottomFieldComplete: Bool = false { //completion indicator
-        didSet {
-            setCompletionIndicatorForTextFields()
-        }
-    }
+    //CC view & subviews:
+    private let ccView = UIImageView(frame: CGRectZero) //use img view so we can draw lines
+    private let ccFirstLabel = UILabel(frame: CGRectZero) //'Is'
+    private let ccComparisonGroupsTextField = UITextField(frame: CGRectZero)
+    private let ccSecondLabel = UILabel(frame: CGRectZero) //'or'
+    private let ccControlGroupTextField = UITextField(frame: CGRectZero)
+    private let ccThirdLabel = UILabel(frame: CGRectZero) //'better for'
+    private let ccOutcomeTextField = UITextField(frame: CGRectZero)
+    private let ccQuestionMark = UILabel(frame: CGRectZero) //'?' @ end
+    
+    //Constants:
+    private let viewBackgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.7) //blend w/ cell color
+    private let underlineWidth: CGFloat = 1
+    private let underlineColor = UIColor.blackColor()
+    
     var projectType: ExperimentTypes?
+    private var ioVariablesFieldComplete: Bool = false { //completion indicator
+        didSet {
+            setCompletionIndicatorForTextFields()
+        }
+    }
+    private var ioOutcomeFieldComplete: Bool = false { //completion indicator
+        didSet {
+            setCompletionIndicatorForTextFields()
+        }
+    }
+    private var ccComparisonsFieldComplete: Bool = false { //completion indicator
+        didSet {
+            setCompletionIndicatorForTextFields()
+        }
+    }
+    private var ccControlFieldComplete: Bool = false { //completion indicator
+        didSet {
+            setCompletionIndicatorForTextFields()
+        }
+    }
+    private var ccOutcomeFieldComplete: Bool = false { //completion indicator
+        didSet {
+            setCompletionIndicatorForTextFields()
+        }
+    }
     
     // MARK: - Initializers
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
+        let ioAttributes: [String: AnyObject] = [NSFontAttributeName: UIFont.boldSystemFontOfSize(13), NSForegroundColorAttributeName: UIColor.darkGrayColor()]
+        let ioString = NSAttributedString(string: "1) I'm looking for correlations between input & output variables", attributes: ioAttributes)
+        let ccAttributes: [String: AnyObject] = [NSFontAttributeName: UIFont.boldSystemFontOfSize(13), NSForegroundColorAttributeName: UIColor.darkTextColor()]
+        let ccString = NSAttributedString(string: "2) I'm comparing 1 or more experimental groups to a control", attributes: ccAttributes)
+        
         //Configure IO template button:
-        templateButtonIO.backgroundColor = UIColor.whiteColor()
-        templateButtonIO.layer.cornerRadius = 10
-        templateButtonIO.setTitle("1) I'm studying how input factors correlate", forState: UIControlState.Normal)
-        templateButtonIO.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+        templateButtonIO.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.75) //lighter
+        templateButtonIO.layer.cornerRadius = 5
+        templateButtonIO.setAttributedTitle(ioString, forState: .Normal)
+        templateButtonIO.titleLabel?.numberOfLines = 2
         templateButtonIO.addTarget(self, action: #selector(self.ioTemplateButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
         insetBackgroundView.addSubview(templateButtonIO)
         
         //Configure CC template button:
-        templateButtonCC.backgroundColor = UIColor.whiteColor()
-        templateButtonCC.layer.cornerRadius = 10
-        templateButtonCC.setTitle("2) I'm comparing two or more options", forState: UIControlState.Normal)
-        templateButtonCC.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+        templateButtonCC.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.50) //darker
+        templateButtonCC.layer.cornerRadius = 5
+        templateButtonCC.setAttributedTitle(ccString, forState: .Normal)
+        templateButtonCC.titleLabel?.numberOfLines = 2
         templateButtonCC.addTarget(self, action: #selector(self.ccTemplateButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
         insetBackgroundView.addSubview(templateButtonCC)
         
-        //Configure template labels/textField & hide:
-        topTemplateLabel.font = viewFont
-        topTemplateLabel.hidden = true
-        topTemplateLabel.backgroundColor = viewBackgroundColor
+        //Configure IO template labels/textFields & hide:
+        ioView.userInteractionEnabled = true //need this to interact w/ TF
+        ioView.backgroundColor = viewBackgroundColor
+        ioView.layer.borderColor = UIColor.blackColor().CGColor
+        ioView.layer.borderWidth = 1
         
-        topTextField.font = viewFont
-        topTextField.hidden = true
-        topTextField.backgroundColor = viewBackgroundColor
-        topTextField.delegate = self
+        ioFirstLabel.text = "What is the impact of"
+        ioView.addSubview(ioFirstLabel)
+        ioVariablesTextField.placeholder = "<variable(s)>"
+        ioView.addSubview(ioVariablesTextField)
+        ioSecondLabel.text = "on"
+        ioView.addSubview(ioSecondLabel)
+        ioOutcomeTextField.placeholder = "<outcome of interest>"
+        ioView.addSubview(ioOutcomeTextField)
+        ioQuestionMark.text = "?"
+        ioView.addSubview(ioQuestionMark)
+        configureSubviews(ioView)
+        ioView.hidden = true //hide
+        insetBackgroundView.addSubview(ioView)
         
-        bottomTemplateLabel.font = viewFont
-        bottomTemplateLabel.hidden = true
-        bottomTemplateLabel.backgroundColor = viewBackgroundColor
+        //Configure CC template labels/textFields & hide:
+        ccView.userInteractionEnabled = true //need this to interact w/ TF
+        ccView.backgroundColor = viewBackgroundColor
+        ccView.layer.borderColor = UIColor.blackColor().CGColor
+        ccView.layer.borderWidth = 1
         
-        bottomTextField.font = viewFont
-        bottomTextField.hidden = true
-        bottomTextField.backgroundColor = viewBackgroundColor
-        bottomTextField.delegate = self
-        
-        insetBackgroundView.addSubview(topTemplateLabel)
-        insetBackgroundView.addSubview(topTextField)
-        insetBackgroundView.addSubview(bottomTemplateLabel)
-        insetBackgroundView.addSubview(bottomTextField)
+        ccFirstLabel.text = "Is"
+        ccView.addSubview(ccFirstLabel)
+        ccComparisonGroupsTextField.placeholder = "<comparison group(s)>"
+        ccView.addSubview(ccComparisonGroupsTextField)
+        ccSecondLabel.text = "or"
+        ccView.addSubview(ccSecondLabel)
+        ccControlGroupTextField.placeholder = "<control>"
+        ccView.addSubview(ccControlGroupTextField)
+        ccThirdLabel.text = "better for"
+        ccView.addSubview(ccThirdLabel)
+        ccOutcomeTextField.placeholder = "<outcome of interest>"
+        ccView.addSubview(ccOutcomeTextField)
+        ccQuestionMark.text = "?"
+        ccView.addSubview(ccQuestionMark)
+        configureSubviews(ccView)
+        ccView.hidden = true //hide
+        insetBackgroundView.addSubview(ccView)
         
         //Configure firstLevelRightButton (reset btn) & hide:
         firstLevelRightButton = UIButton(frame: CGRectZero)
@@ -88,6 +144,24 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func configureSubviews(view: UIView) { //configure all subviews
+        let boldFont = UIFont.boldSystemFontOfSize(15)
+        let normalFont = UIFont.systemFontOfSize(15)
+        for subview in view.subviews {
+            if subview is UILabel {
+                (subview as! UILabel).textAlignment = .Center
+                (subview as! UILabel).font = boldFont
+                (subview as! UILabel).backgroundColor = UIColor.clearColor() //clear bckground
+            } else if subview is UITextField {
+                (subview as! UITextField).delegate = self
+                (subview as! UITextField).textAlignment = .Center
+                (subview as! UITextField).autocapitalizationType = .None
+                (subview as! UITextField).font = normalFont
+                (subview as! UITextField).backgroundColor = UIColor(red: 164/255, green: 190/255, blue: 211/255, alpha: 0.65) //light blue/gray
+            }
+        }
+    }
+    
     // MARK: - Visual Layout
     
     override func setNeedsLayout() {
@@ -97,90 +171,196 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
         templateButtonIO.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.FullLevel, nil))
         templateButtonCC.frame = getViewFrameForLevel(viewLevel: (3, HorizontalLevels.FullLevel, nil))
         
-        //Layout lbls & txtFields:
-        topTemplateLabel.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.LeftHalfLevel, nil))
-        topTextField.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.RightHalfLevel, nil))
-        bottomTemplateLabel.frame = getViewFrameForLevel(viewLevel: (3, HorizontalLevels.LeftHalfLevel, nil))
-        bottomTextField.frame = getViewFrameForLevel(viewLevel: (3, HorizontalLevels.RightHalfLevel, nil))
+        let verticalSpacer: CGFloat = 4
+        let horizontalSpacer: CGFloat = 6
+        
+        //Layout ioView w/ subviews:
+        ioView.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.FullLevel, 3))
+        let ioThirdHeight = ioView.frame.height/3
+        let ioSpacedHeight = ioThirdHeight - 2 * verticalSpacer
+        let ioViewWidth = ioView.frame.width
+        let ioSpacedWidth = ioViewWidth - 2 * horizontalSpacer
+        
+        ioFirstLabel.frame = CGRectMake(horizontalSpacer, verticalSpacer, ioSpacedWidth, ioSpacedHeight) //line 1
+        
+        ioVariablesTextField.frame = CGRectMake(horizontalSpacer, (ioThirdHeight + verticalSpacer), ioSpacedWidth, ioSpacedHeight) //line 2
+        
+        ioSecondLabel.frame = CGRectMake(horizontalSpacer, (ioThirdHeight * 2 + verticalSpacer), 20, ioSpacedHeight) //start line 3
+        let questionMarkWidth: CGFloat = 20 //width of ? mark lbl
+        ioOutcomeTextField.frame = CGRectMake((ioSecondLabel.frame.width + horizontalSpacer * 2), (ioThirdHeight * 2 + verticalSpacer), (ioSpacedWidth - ioSecondLabel.frame.width - questionMarkWidth - 2 * horizontalSpacer), ioSpacedHeight) //middle line 3
+        ioQuestionMark.frame = CGRectMake((ioSecondLabel.frame.width + ioOutcomeTextField.frame.width + 3 * horizontalSpacer), (ioThirdHeight * 2 + verticalSpacer), questionMarkWidth, ioSpacedHeight) //end line 3
+        
+        
+        //Draw 2 lines on ioView (1 under each textField):
+        let varsTFFromPoint = CGPoint(x: ioVariablesTextField.frame.minX, y: (ioVariablesTextField.frame.maxY + verticalSpacer/2)) //bottom L corner of frame
+        let varsTFToPoint = CGPoint(x: ioVariablesTextField.frame.maxX, y: (ioVariablesTextField.frame.maxY + verticalSpacer/2)) //bottom R corner of frame
+        let ioOutcomeTFFromPoint = CGPoint(x: ioOutcomeTextField.frame.minX, y: (ioOutcomeTextField.frame.maxY + verticalSpacer/2)) //bottom L corner
+        let ioOutcomeTFToPoint = CGPoint(x: ioOutcomeTextField.frame.maxX, y: (ioOutcomeTextField.frame.maxY + verticalSpacer/2)) //bottom R corner
+        drawLine(ioView, fromPoint: [varsTFFromPoint, ioOutcomeTFFromPoint], toPoint: [varsTFToPoint, ioOutcomeTFToPoint], lineColor: underlineColor, lineWidth: underlineWidth)
+        
+        //Layout ccView w/ subviews:
+        ccView.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.FullLevel, 3))
+        let ccThirdHeight = ccView.frame.height/3
+        let ccSpacedHeight = ccThirdHeight - 2 * verticalSpacer
+        let ccWidth = ccView.frame.width
+        let ccSpacedWidth = ccWidth - 2 * horizontalSpacer
+        
+        ccFirstLabel.frame = CGRectMake(horizontalSpacer, verticalSpacer, 20, ccSpacedHeight) //line 1
+        let secondLblWidth: CGFloat = 20
+        ccComparisonGroupsTextField.frame = CGRectMake((ccFirstLabel.frame.width + 2 * horizontalSpacer), verticalSpacer, (ccSpacedWidth - ccFirstLabel.frame.width - secondLblWidth - 2 * horizontalSpacer), ccSpacedHeight) //line 1 mid
+        ccSecondLabel.frame = CGRectMake((ccFirstLabel.frame.width + ccComparisonGroupsTextField.frame.width + 3 * horizontalSpacer), verticalSpacer, secondLblWidth, ccSpacedHeight) //line 1 end
+        
+        ccControlGroupTextField.frame = CGRectMake(horizontalSpacer, (ccThirdHeight + verticalSpacer), (ccSpacedWidth/2), ccSpacedHeight) //line 2 (first half)
+        ccThirdLabel.frame = CGRectMake((ccControlGroupTextField.frame.width + 2 * horizontalSpacer), (ccThirdHeight + verticalSpacer), (ccSpacedWidth/2 - horizontalSpacer), ccSpacedHeight) //line 2 (2nd half)
+        
+        let questionWidth: CGFloat = 20
+        ccOutcomeTextField.frame = CGRectMake(horizontalSpacer, (ccThirdHeight * 2 + verticalSpacer), (ccSpacedWidth - questionWidth - horizontalSpacer), ccSpacedHeight) //line 3 start
+        ccQuestionMark.frame = CGRectMake((ccOutcomeTextField.frame.width + 2 * horizontalSpacer), (ccThirdHeight * 2 + verticalSpacer), questionWidth, ccSpacedHeight) //line 3 end
+        
+        //Draw 3 lines on ccView (1 under each textField):
+        let comparisonsTFFromPoint = CGPoint(x: ccComparisonGroupsTextField.frame.minX, y: (ccComparisonGroupsTextField.frame.maxY + verticalSpacer/2)) //bottom L corner
+        let comparisonsTFToPoint = CGPoint(x: ccComparisonGroupsTextField.frame.maxX, y: (ccComparisonGroupsTextField.frame.maxY + verticalSpacer/2)) //bottom R corner
+        let controlTFFromPoint = CGPoint(x: ccControlGroupTextField.frame.minX, y: (ccControlGroupTextField.frame.maxY + verticalSpacer/2)) //bottom L corner
+        let controlTFToPoint = CGPoint(x: ccControlGroupTextField.frame.maxX, y: (ccControlGroupTextField.frame.maxY + verticalSpacer/2)) //bottom R corner
+        let ccOutcomeTFFromPoint = CGPoint(x: ccOutcomeTextField.frame.minX, y: (ccOutcomeTextField.frame.maxY + verticalSpacer/2)) //bottom L corner
+        let ccOutcomeTFToPoint = CGPoint(x: ccOutcomeTextField.frame.maxX, y: (ccOutcomeTextField.frame.maxY + verticalSpacer/2)) //bottom R corner
+        drawLine(ccView, fromPoint: [comparisonsTFFromPoint, controlTFFromPoint, ccOutcomeTFFromPoint], toPoint: [comparisonsTFToPoint, controlTFToPoint, ccOutcomeTFToPoint], lineColor: underlineColor, lineWidth: underlineWidth)
     }
     
     // MARK: - Text Field
     
-    var topFullText: String? //string reported -> VC
-    var bottomFullText: String? //string reported -> VC
+    var ioVariablesFullText: String? //IO string reported -> VC
+    var ioOutcomeFullText: String? //IO string reported -> VC
+    var ccComparisonsFullText: String? //CC string reported -> VC
+    var ccControlFullText: String? //CC string reported -> VC
+    var ccOutcomeFullText: String? //CC string reported -> VC
     
-    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool { //adjust completion indicator when both fields are filled
+    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool { //adjust completion indicator when all fields are filled
         if let text = textField.text {
             let trimmedText = text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
             let trimmedString = string.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-            if (textField == topTextField) { //TOP textField
-                topFullText = (text as NSString).stringByReplacingCharactersInRange(range, withString: string) //report obj contains FULL text (w/ replaced characters)!
+            let fullText = (text as NSString).stringByReplacingCharactersInRange(range, withString: string) //report obj contains FULL text (w/ replaced characters)
+            if (textField == ioVariablesTextField) { //IO view - variables
+                ioVariablesFullText = fullText
                 if (trimmedText.characters.count + trimmedString.characters.count - range.length) > 0 {
-                    topFieldComplete = true
+                    ioVariablesFieldComplete = true
                 } else { //INCOMPLETE field
-                    topFieldComplete = false
+                    ioVariablesFieldComplete = false
                 }
-            } else if (textField == bottomTextField) { //BOTTOM textField
-                bottomFullText = (text as NSString).stringByReplacingCharactersInRange(range, withString: string) //report obj contains FULL text (w/ replaced characters)!
+            } else if (textField == ioOutcomeTextField) { //IO view - outcome of interest
+                ioOutcomeFullText = fullText
                 if (trimmedText.characters.count + trimmedString.characters.count - range.length) > 0 {
-                    bottomFieldComplete = true
+                    ioOutcomeFieldComplete = true
                 } else { //INCOMPLETE field
-                    bottomFieldComplete = false
+                    ioOutcomeFieldComplete = false
+                }
+            } else if (textField == ccComparisonGroupsTextField) { //CC view - comparison groups
+                ccComparisonsFullText = fullText
+                if (trimmedText.characters.count + trimmedString.characters.count - range.length) > 0 {
+                    ccComparisonsFieldComplete = true
+                } else { //INCOMPLETE field
+                    ccComparisonsFieldComplete = false
+                }
+            } else if (textField == ccControlGroupTextField) { //CC view - control group
+                ccControlFullText = fullText
+                if (trimmedText.characters.count + trimmedString.characters.count - range.length) > 0 {
+                    ccControlFieldComplete = true
+                } else { //INCOMPLETE field
+                    ccControlFieldComplete = false
+                }
+            } else if (textField == ccOutcomeTextField) { //CC view - outcome of interest
+                ccOutcomeFullText = fullText
+                if (trimmedText.characters.count + trimmedString.characters.count - range.length) > 0 {
+                    ccOutcomeFieldComplete = true
+                } else { //INCOMPLETE field
+                    ccOutcomeFieldComplete = false
                 }
             }
         }
         return true
     }
     
-    private func setCompletionIndicatorForTextFields() {
-        if (topFieldComplete) && (bottomFieldComplete) { //COMPLETE
-            configureCompletionIndicator(true)
-        } else { //INCOMPLETE
-            configureCompletionIndicator(false)
+    private func setCompletionIndicatorForTextFields() { //checks completion status
+        if let type = projectType {
+            if (type == ExperimentTypes.InputOutput) {
+                if (ioVariablesFieldComplete) && (ioOutcomeFieldComplete) { //COMPLETE
+                    configureCompletionIndicator(true)
+                } else { //INCOMPLETE
+                    configureCompletionIndicator(false)
+                }
+            } else if (type == ExperimentTypes.ControlComparison) {
+                if (ccComparisonsFieldComplete) && (ccControlFieldComplete) && (ccOutcomeFieldComplete) {
+                    configureCompletionIndicator(true)
+                } else { //INCOMPLETE
+                    configureCompletionIndicator(false)
+                }
+            }
         }
     }
     
     // MARK: - Button Actions
     
     @IBAction func ioTemplateButtonClick(sender: UIButton) {
-        topTemplateLabel.text = "IO button"
-        bottomTemplateLabel.text = "IO button"
         self.projectType = ExperimentTypes.InputOutput
-        revealTextEntryMode(true)
+        revealTextEntryMode(true, sender: sender)
     }
     
     @IBAction func ccTemplateButtonClick(sender: UIButton) {
-        topTemplateLabel.text = "CC button"
-        bottomTemplateLabel.text = "CC button"
         self.projectType = ExperimentTypes.ControlComparison
-        revealTextEntryMode(true)
+        revealTextEntryMode(true, sender: sender)
     }
     
     @IBAction func resetButtonClick(sender: UIButton) { //resets interface (shows both template btn options again)
-        topFieldComplete = false //reset
-        bottomFieldComplete = false //reset
+        //Reset all completion indicators & CLEAR txt in fields:
+        if let type = projectType {
+            if (type == ExperimentTypes.InputOutput) {
+                ioVariablesFieldComplete = false
+                ioVariablesTextField.text = ""
+                ioOutcomeFieldComplete = false
+                ioOutcomeTextField.text = ""
+            } else if (type == ExperimentTypes.ControlComparison) {
+                ccComparisonsFieldComplete = false
+                ccComparisonGroupsTextField.text = ""
+                ccControlFieldComplete = false
+                ccControlGroupTextField.text = ""
+                ccOutcomeFieldComplete = false
+                ccOutcomeTextField.text = ""
+            }
+        }
+        
         self.projectType = nil //clear projectType
-        revealTextEntryMode(false)
+        revealTextEntryMode(false, sender: sender)
     }
     
-    func revealTextEntryMode(reveal: Bool) { //reveal or hide btns, labels, & textFields
+    func revealTextEntryMode(reveal: Bool, sender: UIButton) { //reveal or hide btns, labels, & textFields
         templateButtonCC.hidden = reveal
         templateButtonIO.hidden = reveal
         firstLevelRightButton?.hidden = !reveal
         
-        topTemplateLabel.hidden = !reveal
-        topTextField.hidden = !reveal
-        topTextField.text = "" //clear txt each time
-        bottomTemplateLabel.hidden = !reveal
-        bottomTextField.hidden = !reveal
-        bottomTextField.text = "" //clear txt each time
+        if (sender == templateButtonIO) {
+            ioView.hidden = false
+        } else if (sender == templateButtonCC) {
+            ccView.hidden = false
+        } else if (sender == firstLevelRightButton!) { //hide BOTH views on RESET click
+            ioView.hidden = true
+            ccView.hidden = true
+        }
     }
     
     // MARK: - Report Data
     
     override func reportData() { //send notification -> VC w/ question & experiment type
-        if let first = topTemplateLabel.text, second = topFullText, third = bottomTemplateLabel.text, fourth = bottomFullText, type = projectType {
-            let combinedText = "\(first) \(second) \(third) \(fourth)" //get combined question
+        if let type = projectType { //obtain combined question for appropriate view
+            var combinedText: String = ""
+            if (type == ExperimentTypes.InputOutput) {
+                if let first = ioFirstLabel.text, second = ioVariablesFullText, third = ioSecondLabel.text, fourth = ioOutcomeFullText {
+                    combinedText = "\(first) \(second) \(third) \(fourth)?"
+                }
+            } else if (type == ExperimentTypes.ControlComparison) {
+                if let first = ccFirstLabel.text, second = ccComparisonsFullText, third = ccSecondLabel.text, fourth = ccControlFullText, fifth = ccThirdLabel.text, sixth = ccOutcomeFullText {
+                    combinedText = "\(first) \(second) \(third) \(fourth) \(fifth) \(sixth)?"
+                }
+            }
             let notification = NSNotification(name: BMN_Notification_CellDidReportData, object: nil, userInfo: [BMN_ProjectQuestionID: combinedText, BMN_ProjectTypeID: type.rawValue]) //report question & project type
             NSNotificationCenter.defaultCenter().postNotification(notification)
         }

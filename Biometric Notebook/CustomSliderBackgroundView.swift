@@ -50,13 +50,13 @@ class CustomSliderBackgroundView: UIView {
     }
     
     private func configureBackgroundView() {
-        self.backgroundColor = UIColor.clearColor()
+        self.backgroundColor = UIColor.clearColor() //allows clear view of cell color
         
         //Left Subview:
         self.addSubview(leftView)
         self.sendSubviewToBack(leftView)
         leftView.addSubview(leftLabel)
-        leftView.backgroundColor = UIColor(red: 216/255, green: 139/255, blue: 154/255, alpha: 1)
+        leftView.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.70)
         leftLabel.text = "Continuous Project"
         leftLabel.numberOfLines = 2
         leftLabel.lineBreakMode = .ByWordWrapping
@@ -67,7 +67,7 @@ class CustomSliderBackgroundView: UIView {
         self.addSubview(rightView)
         self.sendSubviewToBack(rightView)
         rightView.addSubview(rightLabel)
-        rightView.backgroundColor = UIColor(red: 216/255, green: 86/255, blue: 95/255, alpha: 1)
+        rightView.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.40)
         rightLabel.text = "Fixed Length Project"
         rightLabel.textAlignment = .Center
         rightLabel.font = UIFont.systemFontOfSize(13, weight: 0.1)

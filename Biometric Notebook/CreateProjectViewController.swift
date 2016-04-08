@@ -62,7 +62,7 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func cellDidReportData(notification: NSNotification) { //update project config variables
-//        print("Cell reported data notification...")
+        print("Cell reported data notification...")
         if let dict = notification.userInfo {
             if let title = dict[BMN_ProjectTitleID] as? String {
                 projectTitle = title
@@ -72,7 +72,7 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
             } else if let hypothesis = dict[BMN_ProjectHypothesisID] as? String {
                 projectHypothesis = hypothesis
             } else if let endpoint = dict[BMN_ProjectEndpointID] as? Int { //gets # of days from cell
-//                print("Reported Endpoint: '\(endpoint)'.")
+                print("Reported Endpoint: '\(endpoint)'.")
                 if (endpoint == 0) { //continuous project
                     projectEndpoint = Endpoint(endpointInDays: nil) //use appropriate init
                 } else { //definite length project
@@ -178,7 +178,7 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
         case 0: //project title
             return 160 + BMN_DefaultBottomSpacer + separatorHeight
         case 1: //project question
-            return 120 + BMN_DefaultBottomSpacer + separatorHeight
+            return 160 + BMN_DefaultBottomSpacer + separatorHeight
         case 2: //hypothesis (size is dynamic)
             return (40 + CGFloat(hypothesisCellVisibleLevels) * 40) + BMN_DefaultBottomSpacer + separatorHeight
         case 3: //project endpoint
@@ -198,14 +198,13 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
             cell.insetBackgroundColor = UIColor(red: 82/255, green: 33/255, blue: 1, alpha: 1)
             cell.firstLevelLeftButton?.setImage(UIImage(named: "1"), forState: UIControlState.Normal)
             (cell as! ProjectTitleCustomCell).customTextView.placeholder = "Enter a title for your project"
-            (cell as! ProjectTitleCustomCell).customTextView.backgroundColor = UIColor(red: 191/255, green: 170/255, blue: 1, alpha: 1)
             cell.dataSource = [BMN_LEVELS_MainLabelKey: "PROJECT TITLE"]
             
         case 1: //Question
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ProjectQuestionCustomCell)) as! ProjectQuestionCustomCell
             cell.mainLabelFont = UIFont.systemFontOfSize(17, weight: 2)
             cell.mainLabelTextColor = UIColor.whiteColor()
-            cell.insetBackgroundColor = UIColor(red: 26/255, green: 216/255, blue: 83/255, alpha: 1)
+            cell.insetBackgroundColor = UIColor(red: 255/255, green: 120/255, blue: 111/255, alpha: 1)
             cell.firstLevelLeftButton?.setImage(UIImage(named: "2"), forState: UIControlState.Normal)
             cell.dataSource = [BMN_LEVELS_MainLabelKey: "QUESTION TO ANSWER"]
             
@@ -215,7 +214,6 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
             cell.mainLabelTextColor = UIColor.whiteColor()
             cell.insetBackgroundColor = UIColor(red: 50/255, green: 163/255, blue: 216/255, alpha: 1)
             cell.firstLevelLeftButton?.setImage(UIImage(named: "3"), forState: UIControlState.Normal)
-            (cell as! ProjectHypothesisCustomCell).customTextView.backgroundColor = UIColor(red: 144/255, green: 186/255, blue: 207/255, alpha: 1)
             (cell as! ProjectHypothesisCustomCell).customTextView.placeholder = "Enter a hypothesis (what you think the results will show in response to your question)."
             cell.dataSource = [BMN_LEVELS_MainLabelKey: "HYPOTHESIS (OPTIONAL)", BMN_LEVELS_CellIsOptionalKey: true, BMN_LEVELS_RevealRightButtonKey: true]
             
@@ -254,7 +252,7 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     // MARK: - Navigation
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        //Pass the title, question, hypothesis, & endpoint through -> the remaining flows:
+        //Pass the title, question, hypothesis, endpoint, & type through -> remaining flows:
         if (segue.identifier == "showVariables") {
             let destination = segue.destinationViewController as! ProjectVariablesViewController
             destination.tutorialDescriptionViewMode = false //**enable/disable tutorial
