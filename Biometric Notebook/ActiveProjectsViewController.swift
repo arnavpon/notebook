@@ -13,8 +13,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
 
     @IBOutlet weak var activeProjectsTableView: UITableView!
     
-    let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
-    var projects: [Project] = [] //list of project objects, TV dataSource
+    var projects: [Project] = [] //list of project objects (TV dataSource)
     let cellColors: [UIColor] = [UIColor.blueColor(), UIColor.greenColor(), UIColor.redColor(), UIColor.blackColor()] //adjust the colors so that they have some meaning
     var selectedProject: Project? //object to pass on segue
     
@@ -23,39 +22,59 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     override func viewDidLoad() {
         super.viewDidLoad()
         //        clearCoreDataStoreForEntity(entity: "Project") //*
+        
         if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //user is logged in
-            loggedIn = true //tell system that user is logged in
-            self.projects = fetchAllProjectsFromStore() //obtain list of all projects from data store
-            if (self.projects.isEmpty) { //empty state, handle appropriately
-                
-            } else {
-                
+            if let activeProjects = fetchAllObjectsFromStore("Project") as? [Project] { //obtain list of all projects from data store
+                self.projects = activeProjects
+                for project in projects {
+                    let date = DateTime(date: project.startDate)
+                    print("Project Title: '\(project.title)'. Start Date: [\(date.getFullTimeStamp())]. # of groups: \(project.groups.count).")
+                    for item in project.groups {
+                        if let group = item as? Group {
+                            print("[Group] Action: \(group.action). # of Inputs: \(group.beforeActionVariables.count). # of Outputs: \(group.afterActionVariables.count).")
+                        }
+                    }
+                }
+                if (self.projects.isEmpty) { //empty state, handle appropriately
+                    
+                } else {
+                    
+                }
             }
-            activeProjectsTableView.dataSource = self
-            activeProjectsTableView.delegate = self
-            activeProjectsTableView.registerClass(CellWithGradientFill.self, forCellReuseIdentifier: NSStringFromClass(CellWithGradientFill))
-        } else {
-            loggedIn = false //transition -> LoginVC
         }
+        
+        //Register TV dataSource & delegate:
+        activeProjectsTableView.dataSource = self
+        activeProjectsTableView.delegate = self
+        activeProjectsTableView.registerClass(CellWithGradientFill.self, forCellReuseIdentifier: NSStringFromClass(CellWithGradientFill))
     }
     
     override func viewWillAppear(animated: Bool) {
-        //**we need to stop the TV from highlighting the cell that was selected (blocks the visuals)
-        activeProjectsTableView.reloadData()
+        activeProjectsTableView.reloadData() //clears visuals on selected TV cell
         
         if (userJustLoggedIn) { //check if user just logged in & set the projects accordingly
-            self.projects = fetchAllProjectsFromStore() //**obtain projects SPECIFIC to new user?!? - we will need to store local projects against username for this to work; better to pull all projects from the cloud & store to the device (overwriting existing entity) rather than creating a store for each user
-            if (self.projects.isEmpty) { //empty state, handle appropriately
-                
-            } else {
-                
+            if let activeProjects = fetchAllObjectsFromStore("Project") as? [Project] {
+                self.projects = activeProjects //**obtain projects SPECIFIC to new user?!? - we will need to store local projects against username for this to work; better to pull all projects from the cloud & store to the device (overwriting existing entity) rather than creating a store for each user
+                    print("User was logged out & has now logged in.")
+                if (self.projects.isEmpty) { //empty state, handle appropriately
+                    
+                } else {
+                    
+                }
+                activeProjectsTableView.reloadData() //reload UI w/ new project list
+                userJustLoggedIn = false //reset the variable
             }
-            activeProjectsTableView.reloadData() //reload UI w/ new project list
-            userJustLoggedIn = false //reset the variable
         }
-        
         NSNotificationCenter.defaultCenter().removeObserver(self) //clear old indicators to be safe
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
+    }
+    
+    override func viewDidAppear(animated: Bool) { //if user is not logged in, transitions -> loginVC
+        if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //check if user is logged in
+            loggedIn = true //tell system that user is logged in
+        } else {
+            loggedIn = false //transition -> LoginVC
+        }
     }
     
     override func viewWillDisappear(animated: Bool) { //clear notification observer
@@ -74,7 +93,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
-        //eventually, we will want to organize projects using the same framework as for IA
+        //eventually, we will want to organize projects using the same framework as for IA???
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -83,10 +102,16 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithGradientFill)) as! CellWithGradientFill
-        cell.highlighted = false //*
-        cell.selected = false //*
+        cell.highlighted = false //clears highlighting on view reload
+        cell.selected = false //clears highlighting on view reload
         cell.cellIndex = indexPath.row
-        cell.textLabel?.text = projects[indexPath.row].title
+        let project = projects[indexPath.row]
+        let title = project.title
+        if let projectType = project.getProjectTypeForDisplay() {
+            cell.textLabel?.text = "\(title.uppercaseString): \(projectType)"
+        } else {
+            cell.textLabel?.text = title
+        }
         cell.textLabel?.textColor = UIColor.whiteColor()
         cell.backgroundColor = cellColors[indexPath.row]
         return cell

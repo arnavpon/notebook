@@ -15,6 +15,8 @@
 		B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */; };
 		B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */; };
 		B1395DAE1CB76A5800DEBC91 /* BaseCreateProjectCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAD1CB76A5800DEBC91 /* BaseCreateProjectCell.swift */; };
+		B13BB7381CBEDDFE0084E640 /* Group+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13BB7361CBEDDFE0084E640 /* Group+CoreDataProperties.swift */; };
+		B13BB7391CBEDDFE0084E640 /* Group.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13BB7371CBEDDFE0084E640 /* Group.swift */; };
 		B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6791C2D93BA0019D315 /* AppDelegate.swift */; };
 		B13CF67F1C2D93BA0019D315 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B13CF67D1C2D93BA0019D315 /* Main.storyboard */; };
 		B13CF6811C2D93BA0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6801C2D93BA0019D315 /* Assets.xcassets */; };
@@ -54,6 +56,8 @@
 		B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */; };
 		B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */; };
 		B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */; };
+		B1B996651CBF342700E977DF /* Counter+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B996631CBF342700E977DF /* Counter+CoreDataProperties.swift */; };
+		B1B996661CBF342700E977DF /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B996641CBF342700E977DF /* Counter.swift */; };
 		B1B9D99A1C528B50000D501E /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B9D9991C528B50000D501E /* CustomSlider.swift */; };
 		B1BC886F1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B1BC886D1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld */; };
 		B1C403351C3974A100AF4BB9 /* CreateProjectFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */; };
@@ -150,6 +154,8 @@
 		B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectTitleCustomCell.swift; path = ../../ProjectTitleCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectHypothesisCustomCell.swift; path = ../../ProjectHypothesisCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAD1CB76A5800DEBC91 /* BaseCreateProjectCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BaseCreateProjectCell.swift; path = ../../BaseCreateProjectCell.swift; sourceTree = "<group>"; };
+		B13BB7361CBEDDFE0084E640 /* Group+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Group+CoreDataProperties.swift"; path = "../Group+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		B13BB7371CBEDDFE0084E640 /* Group.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Group.swift; path = ../Group.swift; sourceTree = "<group>"; };
 		B13CF6761C2D93BA0019D315 /* Biometric Notebook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Biometric Notebook.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B13CF6791C2D93BA0019D315 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B13CF67E1C2D93BA0019D315 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -200,6 +206,8 @@
 		B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateProjectViewController.swift; sourceTree = "<group>"; };
 		B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectOverviewViewController.swift; sourceTree = "<group>"; };
 		B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleViewController.swift; sourceTree = "<group>"; };
+		B1B996631CBF342700E977DF /* Counter+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Counter+CoreDataProperties.swift"; path = "../Counter+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		B1B996641CBF342700E977DF /* Counter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Counter.swift; path = ../Counter.swift; sourceTree = "<group>"; };
 		B1B9D9991C528B50000D501E /* CustomSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		B1BC886E1C3205930085A4F4 /* BiometricNotebook.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = BiometricNotebook.xcdatamodel; sourceTree = "<group>"; };
 		B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = CreateProjectFlow.storyboard; sourceTree = "<group>"; };
@@ -491,8 +499,13 @@
 				B1BC886D1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld */,
 				B1D0B2C01C3F29B400C9438F /* Project.swift */,
 				B1D4EA821C4D962100054A5F /* Project+CoreDataProperties.swift */,
+				B13BB7371CBEDDFE0084E640 /* Group.swift */,
+				B13BB7361CBEDDFE0084E640 /* Group+CoreDataProperties.swift */,
+				B1B996641CBF342700E977DF /* Counter.swift */,
+				B1B996631CBF342700E977DF /* Counter+CoreDataProperties.swift */,
 				B10838FD1C4D40210023C060 /* Action.swift */,
 				B10838FB1C4D3FDD0023C060 /* Endpoint.swift */,
+				B1D555861C30739C00C20742 /* DateTime.swift */,
 			);
 			name = "Core Data";
 			sourceTree = "<group>";
@@ -510,7 +523,7 @@
 		B1D0B2AE1C3F246200C9438F /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				B1D868DC1C3F5AB50026334B /* Supplements */,
+				B1D868D51C3F58810026334B /* Modules.swift */,
 				B1D0B2B91C3F25F200C9438F /* Module.swift */,
 				B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */,
 				B1B106921C59097800463612 /* EnvironmentModule.swift */,
@@ -576,15 +589,6 @@
 				B1D555841C30694A00C20742 /* ReturnedDataObject.swift */,
 			);
 			name = Networking;
-			sourceTree = "<group>";
-		};
-		B1D868DC1C3F5AB50026334B /* Supplements */ = {
-			isa = PBXGroup;
-			children = (
-				B1D555861C30739C00C20742 /* DateTime.swift */,
-				B1D868D51C3F58810026334B /* Modules.swift */,
-			);
-			name = Supplements;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -823,8 +827,12 @@
 				B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */,
 				B1B9D99A1C528B50000D501E /* CustomSlider.swift in Sources */,
 				B1B106931C59097800463612 /* EnvironmentModule.swift in Sources */,
+				B13BB7381CBEDDFE0084E640 /* Group+CoreDataProperties.swift in Sources */,
 				B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */,
 				B1A8C7CD1CAF663300380E99 /* BaseDataEntryCell.swift in Sources */,
+				B1B996651CBF342700E977DF /* Counter+CoreDataProperties.swift in Sources */,
+				B1B996661CBF342700E977DF /* Counter.swift in Sources */,
+				B13BB7391CBEDDFE0084E640 /* Group.swift in Sources */,
 				B1395DAE1CB76A5800DEBC91 /* BaseCreateProjectCell.swift in Sources */,
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
 				B17019561CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift in Sources */,

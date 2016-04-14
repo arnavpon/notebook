@@ -40,11 +40,11 @@ class CustomSlider: UIControl {
     private let maxValue = 1.0 //maximum value along track
     var currentValue: Double = 0.0 { //current position of control on track (starts @ node0)
         didSet {
-            if (currentValue == fixedSelectionPointNumbers[0]) { //clear crownLayerValue if currentVal = 0
+            if (currentValue == fixedSelectionPointNumbers[0]) && (lockedToNode) { //clear crownLayerValue if currentVal = 0
                 crownLayerValue = nil
                 
                 //Send notification that slider has stopped moving (reset completionIndicator):
-                let notification = NSNotification(name: BMN_Notification_SliderControlIsMoving, object: nil, userInfo: [BMN_CellWithCustomSlider_IsSliderMovingKey: false])
+                let notification = NSNotification(name: BMN_Notification_SliderControlIsMoving, object: nil, userInfo: [BMN_CellWithCustomSlider_IsSliderMovingKey: false, BMN_CellWithCustomSlider_EndpointIsUndefinedKey: true])
                 NSNotificationCenter.defaultCenter().postNotification(notification)
             }
             updateLayerFrames() //update control's frame when 'currentValue' is changed (updateFrames() is invoked for properties that affect the control's layout)
@@ -74,7 +74,7 @@ class CustomSlider: UIControl {
                 NSNotificationCenter.defaultCenter().postNotification(notification)
             } else {
                 if (currentValue == fixedSelectionPointNumbers[0]) { //reveal on locking node -> 'none'
-                    let notification = NSNotification(name: BMN_Notification_SliderControlIsMoving, object: nil, userInfo: [BMN_CellWithCustomSlider_IsSliderMovingKey: false])
+                    let notification = NSNotification(name: BMN_Notification_SliderControlIsMoving, object: nil, userInfo: [BMN_CellWithCustomSlider_IsSliderMovingKey: false, BMN_CellWithCustomSlider_EndpointIsUndefinedKey: true])
                     NSNotificationCenter.defaultCenter().postNotification(notification)
                 }
             }

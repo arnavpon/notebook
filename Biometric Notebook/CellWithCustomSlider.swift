@@ -19,6 +19,15 @@ class CellWithCustomSlider: BaseCreateProjectCell {
     }
     let slider: CustomSlider
     let sliderBackground = CustomSliderBackgroundView(frame: CGRectZero)
+    private var projectTypeIsCC: Bool = false { //keeps track of current projectType
+        didSet { //whenever set, modify completion status accordingly
+            if (projectTypeIsCC) && (selectedEndpoint.endpointInSeconds == nil) {
+                configureCompletionIndicator(false)
+            } else {
+                configureCompletionIndicator(true)
+            }
+        }
+    }
     
     // MARK: - Initializers
     
@@ -41,6 +50,7 @@ class CellWithCustomSlider: BaseCreateProjectCell {
         //Register for notifications to communicate w/ VC & slider:
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.customSliderCrownValueWasSet(_:)), name: BMN_Notification_SliderCrownValueWasSet, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.customSliderControlIsMoving(_:)), name: BMN_Notification_SliderControlIsMoving, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.projectTypeDidChange(_:)), name: BMN_Notification_ProjectTypeDidChange, object: nil)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -71,8 +81,12 @@ class CellWithCustomSlider: BaseCreateProjectCell {
         let sliderFrame = CGRectMake(originX, originY, sliderWidth, sliderHeight)
         slider.frame = sliderFrame
         
-        //(3) Set completionIndicator -> completed (default for cell w/ slider):
-        configureCompletionIndicator(true)
+        //(3) Set completionIndicator depending on endpoint & projectType:
+        if (projectTypeIsCC) && (selectedEndpoint.endpointInSeconds == nil) {
+            configureCompletionIndicator(false) //if endpoint is undefined & type is CC, set -> false
+        } else { //otherwise, set -> true
+            configureCompletionIndicator(true)
+        }
     }
     
     // MARK: - Slider Logic
@@ -100,7 +114,7 @@ class CellWithCustomSlider: BaseCreateProjectCell {
     
     func customSliderCrownValueWasSet(notification: NSNotification) {
         if let dict = notification.userInfo, enteredVal = dict[BMN_CellWithCustomSlider_CrownValueKey] as? Int {
-            if (enteredVal == -1) { //user pressed Cancel
+            if (enteredVal == -1) { //slider was set -> Undefined endpoint
                 slider.currentValue = 0.0 //set slider back -> 'None'
                 slider.setNodeAsSelected() //change highlighting to reflect currentNode
                 self.selectedEndpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil)
@@ -126,11 +140,27 @@ class CellWithCustomSlider: BaseCreateProjectCell {
     
     func customSliderControlIsMoving(notification: NSNotification) {
         if let dict = notification.userInfo, sliderIsMoving = dict[BMN_CellWithCustomSlider_IsSliderMovingKey] as? Bool {
+            
+            var endpointIsUndefined: Bool = false
+            if let undefined = dict[BMN_CellWithCustomSlider_EndpointIsUndefinedKey] as? Bool { //check notification object to see if undefined endpoint was selected (this is necessary b/c the notification indicating endpoint selection fires only AFTER the notificatio that the slider has stopped moving!!!
+                endpointIsUndefined = undefined
+            }
+            
             if (sliderIsMoving) { //remove completionIndicator while slider is moving
                 configureCompletionIndicator(false)
             } else { //reset indicator when slider locks -> node
-                configureCompletionIndicator(true)
+                if (projectTypeIsCC) && (endpointIsUndefined) {
+                    configureCompletionIndicator(false) //if endpoint is undefined & ccType, set -> false
+                } else { //otherwise, set -> true
+                    configureCompletionIndicator(true)
+                }
             }
+        }
+    }
+    
+    func projectTypeDidChange(notification: NSNotification) { //if the selected projectType is CC, the endpoint can NOT be an indefinite project (must have defined endpoint)
+        if let info = notification.userInfo, ccType = info[BMN_CellWithCustomSlider_ProjectIsCCTypeKey] as? Bool { //set indicator w/ type
+            projectTypeIsCC = ccType
         }
     }
     
@@ -138,13 +168,13 @@ class CellWithCustomSlider: BaseCreateProjectCell {
     
     override func reportData() { //reports selectedEndpoint -> VC
         //We cannot directly report the endpoint, so we will send the # of days if it exists OR 0 if it does not; the 2nd Endpoint initializer can recreate the endpoint based on the # of days:
-        let numberOfDays: Int
-        if let endpoint = selectedEndpoint.endpointInDays {
-            numberOfDays = endpoint
+        let numberOfSeconds: NSTimeInterval
+        if let endpoint = selectedEndpoint.endpointInSeconds {
+            numberOfSeconds = endpoint
         } else {
-            numberOfDays = 0
+            numberOfSeconds = 0
         }
-        let notification = NSNotification(name: BMN_Notification_CellDidReportData, object: nil, userInfo: [BMN_ProjectEndpointID: numberOfDays]) //report # of days
+        let notification = NSNotification(name: BMN_Notification_CellDidReportData, object: nil, userInfo: [BMN_ProjectEndpointID: numberOfSeconds]) //report # of seconds
         NSNotificationCenter.defaultCenter().postNotification(notification)
     }
     

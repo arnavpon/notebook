@@ -53,11 +53,11 @@ class DateTime {
         seconds = components.second
     }
     
-    func getCurrentDateString() -> String {
+    func getDateString() -> String {
         return dateString
     }
     
-    func getCurrentTimeString() -> String {
+    func getTimeString() -> String {
         return timeString
     }
     

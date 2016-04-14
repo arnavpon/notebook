@@ -15,45 +15,52 @@ enum Endpoints: String { //assign raw values (string representations) to each en
     case Month = "Months"
     case Year = "Years"
     
-    func generateEndpoint(numberOfUnits: Int) -> Int? { //generates the combined endpoint, defined as the # of days from the current start point that the project will last for
-        let endPoint: Int
+    func generateEndpoint(numberOfUnits: Int) -> NSTimeInterval? { //generates the combined endpoint, defined as the # of seconds from the current start point that the project will last for
+        let endpointInDays: Int
         switch self {
         case .Continuous:
             return nil
         case .Day:
-            endPoint = numberOfUnits
+            endpointInDays = numberOfUnits
         case .Week:
-            endPoint = numberOfUnits * 7
+            endpointInDays = numberOfUnits * 7
         case .Month:
-            endPoint = numberOfUnits * 30
+            endpointInDays = numberOfUnits * 30
         case .Year:
-            endPoint = numberOfUnits * 365
+            endpointInDays = numberOfUnits * 365
         }
-        return endPoint
+        return NSTimeInterval(endpointInDays * 24 * 60 * 60) //convert days -> seconds
     }
     
 }
 
-struct Endpoint { //storage item for CoreData
+struct Endpoint { //calculates endpoint-related information
     
-    var endpointInDays: Int? //total # of days between now & end of project
+    var endpointInSeconds: NSTimeInterval? //total # of seconds between now & end of project
     
     init(endpoint: Endpoints, number: Int?) { //initializer from user selection - obtains the endpoint as # of days from the enum object
         if (endpoint == .Continuous) {
-            self.endpointInDays = nil
+            self.endpointInSeconds = nil
         } else { //endpoints w/ numerical values
             if let value = number {
-                self.endpointInDays = (endpoint.generateEndpoint(value))!
+                self.endpointInSeconds = (endpoint.generateEndpoint(value))!
             } else { //not intialized w/ a # for a non-Continuous endpoint
                 print("Error: endpoint does not have associated number!")
-                self.endpointInDays = nil
+                self.endpointInSeconds = nil
             }
-            
         }
     }
     
-    init(endpointInDays: Int?) { //initializer from CoreData store
+    init(endpointInSeconds: NSTimeInterval?) { //initializer from CoreData store
         //If endpointInDays == nil, it is assumed that this is a 'continuous' project:
-        self.endpointInDays = endpointInDays
+        self.endpointInSeconds = endpointInSeconds
+    }
+    
+    func getEndpointInDays() -> Int? { //reports # of days in SummaryVC
+        if let endpoint = endpointInSeconds {
+            let days = Int(endpoint / 60 / 60 / 24)
+            return days
+        }
+        return nil
     }
 }

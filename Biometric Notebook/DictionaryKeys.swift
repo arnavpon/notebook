@@ -27,6 +27,7 @@ let BMN_Notification_RevealHiddenArea = "BMN_RevealHiddenArea"
 let BMN_Notification_SliderSelectedNodeHasChanged = "BMN_SliderSelectedNodeHasChanged"
 let BMN_Notification_SliderCrownValueWasSet = "BMN_SliderCrownValueWasSet"
 let BMN_Notification_SliderControlIsMoving = "BMN_SliderControlIsMoving"
+let BMN_Notification_ProjectTypeDidChange = "BMN_ProjectTypeDidChange"
 
 //CustomOptionsConfigCell Notifications:
 let BMN_Notification_AddOptionButtonWasClicked = "BMN_AddOptionButtonWasClicked"
@@ -56,6 +57,8 @@ let BMN_PlusBtnCell_NumberOfHiddenLevelsKey = "PlusBtn_number_of_hidden_levels_k
 
 let BMN_CellWithCustomSlider_CrownValueKey = "CellWithCustomSlider_entered_value_key" //notification key
 let BMN_CellWithCustomSlider_IsSliderMovingKey = "CellWithCustomSlider_is_slider_moving_key" //notif key
+let BMN_CellWithCustomSlider_EndpointIsUndefinedKey = "CellWithCustomSlider_endpoint_is_undefined_key"
+let BMN_CellWithCustomSlider_ProjectIsCCTypeKey = "CellWithCustomSlider_project_is_cc_type_key" //notif
 
 // MARK: - ConfigurationOptions Data Source Keys
 
@@ -102,3 +105,9 @@ let BMN_CustomModule_RangeScale_IncrementID = "CM_range_scale_increment_id" //id
 // MARK: - Data Entry (DE) TV Cell Keys
 
 let BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey = "DE_custom_w/_options_number_of_options_key"
+
+// MARK: - Project Variables > Input Variable Dict Keys
+
+let BMN_InputOutput_InputVariablesKey = "InputOutput_input_variables_key"
+let BMN_ControlComparison_ControlKey = "ControlComparison_control_key"
+let BMN_ControlComparison_ComparisonKey = "ControlComparison_comparison_key"

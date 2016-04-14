@@ -16,10 +16,11 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     var projectTitle: String? //set value to indicate that a name has been entered
     var projectQuestion: String? //set value to indicate that a question has been entered
     var projectHypothesis: String? //optional configuration item
-    var projectEndpoint: Endpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil) //captures endpoint for segue
-    var projectType: ExperimentTypes?
+    var projectEndpoint: Endpoint = Endpoint(endpoint: Endpoints.Continuous, number: nil) //for segue
+    var projectType: ExperimentTypes? //indicates project type (IO vs. CC)
     var numberOfConfiguredCells: Int = 0 { //keeps track of the current # of configured cells
         didSet { //adjust 'doneButton' status appropriately
+            print("# of configured cells: \(numberOfConfiguredCells).")
             configureDoneButton()
         }
     }
@@ -63,11 +64,11 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
                 projectType = ExperimentTypes(rawValue: type) //re-init w/ rawValue
             } else if let hypothesis = dict[BMN_ProjectHypothesisID] as? String {
                 projectHypothesis = hypothesis
-            } else if let endpoint = dict[BMN_ProjectEndpointID] as? Int { //gets # of days from cell
+            } else if let endpoint = dict[BMN_ProjectEndpointID] as? NSTimeInterval { //endpnt in seconds
                 if (endpoint == 0) { //continuous project
-                    projectEndpoint = Endpoint(endpointInDays: nil) //use appropriate init
+                    projectEndpoint = Endpoint(endpointInSeconds: nil) //use appropriate init (#2)
                 } else { //definite length project
-                    projectEndpoint = Endpoint(endpointInDays: endpoint)
+                    projectEndpoint = Endpoint(endpointInSeconds: endpoint)
                 }
             }
         }
@@ -231,6 +232,7 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     var showTutorial: Bool = true //sets tutorial to ACTIVE in ProjectVarsVC
     
     @IBAction func setupButtonClick(sender: AnyObject) { //segue -> ProjectVarsVC
+        self.view.endEditing(true) //dismiss keyboard
         let userDefaults = NSUserDefaults.standardUserDefaults()
         if let shouldShowTutorial = userDefaults.valueForKey("SHOW_VARS_TUTORIAL") as? Bool {
             showTutorial = shouldShowTutorial
@@ -246,12 +248,16 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     
     // MARK: - Navigation
     
+    @IBAction func unwindToCreateProjectsVC(sender: UIStoryboardSegue) { //unwind segue
+        //do we need to do anything?
+    }
+    
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         //Pass the title, question, hypothesis, endpoint, & type through -> remaining flows:
         if (segue.identifier == "showVariables") {
             let destination = segue.destinationViewController as! ProjectVariablesViewController
-            destination.tutorialDescriptionViewMode = false //**enable/disable tutorial
-            //destination.tutorialDescriptionViewMode = self.showTutorial //true => show tutorial
+            destination.showTutorialMode = false //**enable/disable tutorial
+//            destination.showTutorialMode = self.showTutorial //true => show tutorial
             destination.projectTitle = self.projectTitle
             destination.projectQuestion = self.projectQuestion
             destination.projectHypothesis = self.projectHypothesis

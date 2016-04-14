@@ -20,7 +20,9 @@ class LevelsFrameworkCell: UITableViewCell {
     //(OPTIONAL) Default Views:
     private var hideRightSideView: Bool = false //indicates if R view should be hidden (default FALSE)
     private var rightSideView = UIImageView(frame: CGRectZero) //holds completion indicator
-    private var completionIndicator = UIImageView(image: UIImage(named: "x_mark")) //default => INCOMPLETE
+    private var completionIndicator = UIImageView(frame: CGRectZero) //default => INCOMPLETE
+    private let completeImage = UIImage(named: "check") //control img from here!
+    private let incompleteImage = UIImage(named: "x_mark") //control img from here!
     internal var firstLevelLeftButton: UIButton? { //btn is ALWAYS 35x35 if visible
         didSet { //layout views accordingly
             setNeedsLayout() //need this b/c btn is only revealed through dataSource, AFTER init
@@ -107,6 +109,7 @@ class LevelsFrameworkCell: UITableViewCell {
         
         //Add ALL other views -> insetBackgroundView:
         insetBackgroundView.addSubview(mainLabel)
+        completionIndicator.image = incompleteImage //set default to incomplete
         rightSideView.addSubview(completionIndicator) //add completionIndicator -> R side view
         insetBackgroundView.addSubview(rightSideView)
         insetBackgroundView.backgroundColor = insetBackgroundColor
@@ -254,7 +257,7 @@ class LevelsFrameworkCell: UITableViewCell {
     internal func configureCompletionIndicator(complete: Bool) { //adjusts visuals on completionIndicator
         if (isOptional) { //if cell is OPTIONAL, modify functionality - (1) When config is incomplete, the completionView shows NOTHING instead of an 'X'; (2) NO notifications are posted.
             if (complete) { //config COMPLETE
-                completionIndicator.image = UIImage(named: "check")
+                completionIndicator.image = completeImage
                 reportData() //fire the reportData() fx to update the external (VC) report object
             } else { //config INCOMPLETE
                 completionIndicator.image = nil //clear image, but don't show the X mark
@@ -262,14 +265,14 @@ class LevelsFrameworkCell: UITableViewCell {
         } else { //REQUIRED configuration cell
             if (complete) { //config COMPLETE
                 reportData() //fire reportData() to update the external (VC) report object
-                if (completionIndicator.image != UIImage(named: "check")) { //ONLY switch images if the current image is NOT alrdy set -> 'check'
-                    completionIndicator.image = UIImage(named: "check")
+                if (completionIndicator.image != completeImage) { //ONLY switch images if the current image is NOT alrdy set -> 'check'
+                    completionIndicator.image = completeImage
                     let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_LEVELS_CompletionIndicatorStatusKey: true])
                     NSNotificationCenter.defaultCenter().postNotification(notification) //send notification -> VC that the completion status has changed to COMPLETE
                 }
             } else { //config INCOMPLETE
-                if (completionIndicator.image != UIImage(named: "x_mark")) { //ONLY switch images if the current image is NOT alrdy set -> 'x_mark'
-                    completionIndicator.image = UIImage(named: "x_mark")
+                if (completionIndicator.image != incompleteImage) { //ONLY switch images if the current image is NOT alrdy set -> 'x_mark'
+                    completionIndicator.image = incompleteImage
                     let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_LEVELS_CompletionIndicatorStatusKey: false])
                     NSNotificationCenter.defaultCenter().postNotification(notification) //send notification -> VC that the completion status has changed to INCOMPLETE
                 }

@@ -28,7 +28,7 @@ class CellWithPlusButton: LevelsFrameworkCell {
             if let revealRightBtn = source[BMN_LEVELS_RevealRightButtonKey] as? Bool {
                 if (revealRightBtn) { //configure R button
                     firstLevelRightButton = UIButton() //initialize R button
-                    firstLevelRightButton?.setImage(UIImage(named: "plus_square"), forState: UIControlState.Normal) //need to be able to adjust color of img
+                    firstLevelRightButton?.setImage(UIImage(named: "plus_square_black"), forState: UIControlState.Normal) 
                     firstLevelRightButton?.addTarget(self, action: #selector(self.plusButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
                     self.insetBackgroundView.addSubview(firstLevelRightButton!) //add -> bckgrdView
                 }

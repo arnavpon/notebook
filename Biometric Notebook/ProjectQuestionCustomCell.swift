@@ -35,7 +35,16 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
     private let underlineWidth: CGFloat = 1
     private let underlineColor = UIColor.blackColor()
     
-    var projectType: ExperimentTypes?
+    var projectType: ExperimentTypes? {
+        didSet {
+            var ccType: Bool = false
+            if (projectType == .ControlComparison) { //CC type project
+                ccType = true
+            }
+            let notification = NSNotification(name: BMN_Notification_ProjectTypeDidChange, object: nil, userInfo: [BMN_CellWithCustomSlider_ProjectIsCCTypeKey: ccType])
+            NSNotificationCenter.defaultCenter().postNotification(notification)
+        }
+    }
     private var ioVariablesFieldComplete: Bool = false { //completion indicator
         didSet {
             setCompletionIndicatorForTextFields()
@@ -70,7 +79,7 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
         let ioAttributes: [String: AnyObject] = [NSFontAttributeName: UIFont.boldSystemFontOfSize(13), NSForegroundColorAttributeName: UIColor.darkGrayColor()]
         let ioString = NSAttributedString(string: "1) I'm looking for correlations between input & output variables", attributes: ioAttributes)
         let ccAttributes: [String: AnyObject] = [NSFontAttributeName: UIFont.boldSystemFontOfSize(13), NSForegroundColorAttributeName: UIColor.darkTextColor()]
-        let ccString = NSAttributedString(string: "2) I'm comparing 1 or more experimental groups to a control", attributes: ccAttributes)
+        let ccString = NSAttributedString(string: "2) I'm comparing an experimental group to a control group", attributes: ccAttributes)
         
         //Configure IO template button:
         templateButtonIO.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.75) //lighter
@@ -100,7 +109,7 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
         ioView.addSubview(ioVariablesTextField)
         ioSecondLabel.text = "on"
         ioView.addSubview(ioSecondLabel)
-        ioOutcomeTextField.placeholder = "<outcome of interest>"
+        ioOutcomeTextField.placeholder = "<outcome(s) of interest>"
         ioView.addSubview(ioOutcomeTextField)
         ioQuestionMark.text = "?"
         ioView.addSubview(ioQuestionMark)
@@ -116,7 +125,7 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
         
         ccFirstLabel.text = "Is"
         ccView.addSubview(ccFirstLabel)
-        ccComparisonGroupsTextField.placeholder = "<comparison group(s)>"
+        ccComparisonGroupsTextField.placeholder = "<comparison group>"
         ccView.addSubview(ccComparisonGroupsTextField)
         ccSecondLabel.text = "or"
         ccView.addSubview(ccSecondLabel)
@@ -124,7 +133,7 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
         ccView.addSubview(ccControlGroupTextField)
         ccThirdLabel.text = "better for"
         ccView.addSubview(ccThirdLabel)
-        ccOutcomeTextField.placeholder = "<outcome of interest>"
+        ccOutcomeTextField.placeholder = "<outcome(s) of interest>"
         ccView.addSubview(ccOutcomeTextField)
         ccQuestionMark.text = "?"
         ccView.addSubview(ccQuestionMark)
@@ -350,8 +359,8 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
     // MARK: - Report Data
     
     override func reportData() { //send notification -> VC w/ question & experiment type
+        var combinedText: String = ""
         if let type = projectType { //obtain combined question for appropriate view
-            var combinedText: String = ""
             if (type == ExperimentTypes.InputOutput) {
                 if let first = ioFirstLabel.text, second = ioVariablesFullText, third = ioSecondLabel.text, fourth = ioOutcomeFullText {
                     combinedText = "\(first) \(second) \(third) \(fourth)?"
@@ -361,7 +370,7 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
                     combinedText = "\(first) \(second) \(third) \(fourth) \(fifth) \(sixth)?"
                 }
             }
-            let notification = NSNotification(name: BMN_Notification_CellDidReportData, object: nil, userInfo: [BMN_ProjectQuestionID: combinedText, BMN_ProjectTypeID: type.rawValue]) //report question & project type
+            let notification = NSNotification(name: BMN_Notification_CellDidReportData, object: nil, userInfo: [BMN_ProjectQuestionID: combinedText, BMN_ProjectTypeID: type.rawValue]) //report ? & projectType
             NSNotificationCenter.defaultCenter().postNotification(notification)
         }
     }

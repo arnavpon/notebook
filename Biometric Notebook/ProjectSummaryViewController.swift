@@ -18,7 +18,8 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     var projectHypothesis: String? //hypothesis for project (obtained from ProjectVariablesVC)
     var projectAction: Action? //action (obtained from ProjectVariablesVC)
     var projectEndpoint: Endpoint? //endpoint (obtained from ProjectVariablesVC)
-    var inputVariables: [Module]? //obtained from ProjectVariablesVC
+    var projectType: ExperimentTypes? //project type (obtained from ProjectVariablesVC)
+    var inputVariables = Dictionary<String, [Module]>() //obtained from ProjectVariablesVC
     var outcomeVariables: [Module]? //obtained from ProjectVariablesVC
     
     // MARK: - View Configuration
@@ -37,7 +38,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     // MARK: - Table View
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 6
+        return 7
     }
     
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -47,13 +48,18 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         case 1:
             return "Research Question".uppercaseString
         case 2:
-            return "Endpoint".uppercaseString
+            return "Project Hypothesis".uppercaseString
         case 3:
-            return "Input Variables".uppercaseString
+            return "Endpoint".uppercaseString
         case 4:
-            return "Action".uppercaseString
+            return "Input Variables".uppercaseString
         case 5:
-            return "Outcome Variables".uppercaseString
+            return "Action".uppercaseString
+        case 6:
+            if (projectType == .ControlComparison) {
+                return "Outcome Measure(s)".uppercaseString
+            }
+            return "Outcome Variables".uppercaseString //default
         default:
             return "Error! Switch Case Default"
         }
@@ -68,12 +74,20 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         case 2:
             return 1
         case 3:
-            if let variables = inputVariables {
-                return variables.count
-            }
-        case 4:
             return 1
+        case 4:
+            if let type = projectType {
+                if (type == .InputOutput) {
+                    if let variables = inputVariables[BMN_InputOutput_InputVariablesKey] {
+                        return variables.count
+                    }
+                } else if (type == .ControlComparison) { //display comparison & control group
+                    return 2 //**
+                }
+            }
         case 5:
+            return 1
+        case 6:
             if let variables = outcomeVariables {
                 return variables.count
             }
@@ -90,9 +104,11 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
             cell.textLabel?.text = projectTitle
         case 1:
             cell.textLabel?.text = projectQuestion
-        case 2: //project's endpoint
+        case 2:
+            cell.textLabel?.text = projectHypothesis
+        case 3: //project's endpoint
             if let endpoint = projectEndpoint {
-                if let numberOfDays = endpoint.endpointInDays {
+                if let numberOfDays = endpoint.getEndpointInDays() {
                     cell.textLabel?.text = "Project ends \(numberOfDays) days from now"
                 } else { //continuous project
                     cell.textLabel?.text = "Continuous project (indefinite length)"
@@ -101,12 +117,23 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                 print("Error - projectEndpoint is nil")
                 cell.textLabel?.text = ""
             }
-        case 3: //input variables
-            if let variables = inputVariables {
-                cell.textLabel?.text = variables[indexPath.row].variableName
-                cell.detailTextLabel?.text = variables[indexPath.row].moduleTitle
+        case 4: //input variables
+            if let type = projectType {
+                if (type == .InputOutput) {
+                    if let variables = inputVariables[BMN_InputOutput_InputVariablesKey] {
+                        cell.textLabel?.text = variables[indexPath.row].variableName
+                        cell.detailTextLabel?.text = variables[indexPath.row].moduleTitle
+                    }
+                } else if (type == .ControlComparison) {
+                    //display comparison & control group side by side
+                    if (indexPath.row == 0) { //**
+                        cell.textLabel?.text = "Control Group"
+                    } else if (indexPath.row == 1) { //**
+                        cell.textLabel?.text = "Comparison Group"
+                    }
+                }
             }
-        case 4: //project action
+        case 5: //project action
             if let action = projectAction {
                 if let customAction = action.customAction { //custom action
                     cell.textLabel?.text = customAction
@@ -117,7 +144,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                 print("Error - projectAction is nil")
                 cell.textLabel?.text = ""
             }
-        case 5: //outcome variables, 
+        case 6: //outcome variables
             if let variables = outcomeVariables {
                 cell.textLabel?.text = variables[indexPath.row].variableName
                 cell.detailTextLabel?.text = variables[indexPath.row].moduleTitle
@@ -130,37 +157,48 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //Allow user to go to correct location to edit.
+        //Allow user to go to correct location to edit:
         switch indexPath.section { //control navigation based on the selected SECTION
         case 0:
-            print("")
+            break
         case 1:
-            print("")
+            break
         case 2:
-            print("")
+            break
         case 3:
-            print("")
+            break
         case 4:
-            print("")
+            break
         case 5:
-            print("")
+            break
+        case 6:
+            break
         default:
             print("[didSelectRow] Error - default in switch")
         }
     }
     
     func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
-        if (indexPath.section == 3) || (indexPath.section == 5) { //enable deletion for project vars
-            return .Delete
-        } else {
-            return .None
+        if (indexPath.section == 4) && (projectType == .InputOutput) { //enable deletion for project vars
+            if let inputs = inputVariables[BMN_InputOutput_InputVariablesKey] {
+                if (inputs.count > 1) {
+                    return .Delete //DO NOT allow deletion of ALL inputs (1 must exist!)
+                }
+            }
+        } else if (indexPath.section == 6) { //DO NOT allow deletion of ALL outcomes (1 must be present)
+            if (outcomeVariables?.count > 1) {
+                return .Delete
+            }
         }
+        return .None
     }
     
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if (indexPath.section == 3) {
-            inputVariables?.removeAtIndex(indexPath.row)
-        } else if (indexPath.section == 5) {
+        if (indexPath.section == 4) {
+            if let _ = inputVariables[BMN_InputOutput_InputVariablesKey] {
+                inputVariables[BMN_InputOutput_InputVariablesKey]!.removeAtIndex(indexPath.row)
+            }
+        } else if (indexPath.section == 6) {
             outcomeVariables?.removeAtIndex(indexPath.row)
         }
         tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
@@ -169,23 +207,42 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     // MARK: - Button Actions
     
     @IBAction func createProjectButtonClick(sender: AnyObject) {
-        //Add before & after variable arrays to the current object & then save it -> persistent store before returning to homescreen:
+        //Construct CoreData objects for the input & output variables, then construct the Project & Group objects & save -> persistent store:
         //**In the future, this project will be sent -> the web for DB configuration, cloud backup, etc.
-        let beforeActionVariablesDict = self.createDictionaryForCoreData(inputVariables)
-        let afterActionVariablesDict = self.createDictionaryForCoreData(outcomeVariables)
-        let _ = Project(title: projectTitle!, question: projectQuestion!, endPoint: projectEndpoint?.endpointInDays, action: (projectAction?.action.rawValue)!, beforeVariables: beforeActionVariablesDict, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context)
-        saveManagedObjectContext() //save new project -> CoreData
+        
+        if let type = projectType, title = projectTitle, question = projectQuestion {
+            let project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, endPoint: projectEndpoint?.endpointInSeconds, insertIntoManagedObjectContext: context)
+            if (projectType == .ControlComparison) { //for CC type, create 2 groups
+                if let controlInputs = inputVariables[BMN_ControlComparison_ControlKey], comparisonInputs = inputVariables[BMN_ControlComparison_ComparisonKey], outcomes = outcomeVariables, action = projectAction?.action.rawValue { //construct control & comparison groups
+                    let controlBeforeActionVariables = createCoreDataDictionary(controlInputs)
+                    let comparisonBeforeActionVariables = createCoreDataDictionary(comparisonInputs)
+                    let afterActionVariablesDict = createCoreDataDictionary(outcomes)
+                    let controlGroup = Group(action: action, beforeVariables: controlBeforeActionVariables, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context)
+                    controlGroup.project = project //set parent project
+                    let comparisonGroup = Group(action: action, beforeVariables: comparisonBeforeActionVariables, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context)
+                    comparisonGroup.project = project //set parent project (note - this AUTOMATICALLY sets the Project's groups object due to the inverse relationship!)
+                }
+            } else if (projectType == .InputOutput) { //for IO type, there is only 1 group
+                if let inputs = inputVariables[BMN_InputOutput_InputVariablesKey], outputs = outcomeVariables, action = projectAction?.action.rawValue {
+                    let beforeActionVariablesDict = createCoreDataDictionary(inputs)
+                    let afterActionVariablesDict = createCoreDataDictionary(outputs)
+                    let group = Group(action: action, beforeVariables: beforeActionVariablesDict, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context)
+                    group.project = project
+                }
+            }
+            saveManagedObjectContext() //save new project & group(s) -> CoreData
+        }
+        
+        //Return to homescreen after operation is complete:
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let controller = storyboard.instantiateInitialViewController()!
         presentViewController(controller, animated: true, completion: nil)
     }
     
-    func createDictionaryForCoreData(variableArray: [Module]?) -> Dictionary<String, [String: AnyObject]> { //construct the master dictionary for CoreData given the array of user-created variables
+    func createCoreDataDictionary(variableArray: [Module]) -> Dictionary<String, [String: AnyObject]> { //construct master dictionary for CoreData given the array of user-created variables
         var dictionary = Dictionary<String, [String: AnyObject]>()
-        if let variables = variableArray {
-            for variable in variables { //construct dict for each variable, KEY is variable's unique name
-                dictionary[variable.variableName] = variable.createDictionaryForCoreDataStore()
-            }
+        for variable in variableArray { //construct dict for each variable, KEY is variable's unique name
+            dictionary[variable.variableName] = variable.createDictionaryForCoreDataStore()
         }
         return dictionary
     }

@@ -27,11 +27,11 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         
         //Reconstruct variables & set them as TV data source:
         print("Selected Project: '\(selectedProject?.title)'.")
-        selectedProject!.reconstructProjectFromPersistentRepresentation() //reconstruct variables
+//        selectedProject!.reconstructProjectFromPersistentRepresentation() //reconstruct variables
         if (currentSectionToDisplay == false) { //construct inputVars array
-            variablesArray = selectedProject!.getBeforeActionVariablesArray()
+//            variablesArray = selectedProject!.getBeforeActionVariablesArray()
         } else { //construct outcomeMeasures array
-            variablesArray = selectedProject!.getAfterActionVariablesArray()
+//            variablesArray = selectedProject!.getAfterActionVariablesArray()
         }
         
         registerCustomTVCells() //register ALL possible custom cell types
@@ -51,9 +51,9 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         //Resets project's tracker variable -> 'False' so that IV entry will be displayed (in case user missed the 2nd part of the entry) & dumps the associated data for the first measurement:
         //Send the user a warning that data will be deleted! Only works when we are in OM reporting mode!
         currentSectionToDisplay = false //reset to IV (needed for doneButtonClick)
-        selectedProject!.inputVariableDataHasBeenEntered = false
+//        selectedProject!.inputVariableDataHasBeenEntered = false
         saveManagedObjectContext()
-        variablesArray = selectedProject!.getBeforeActionVariablesArray() //reset TV data source
+//        variablesArray = selectedProject!.getBeforeActionVariablesArray() //reset TV data source
         dataEntryTV.reloadData()
     }
     
@@ -129,9 +129,9 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         }
         
         if !(currentSectionToDisplay) { //IV data was entered, set var -> true
-            selectedProject!.inputVariableDataHasBeenEntered = true
+//            selectedProject!.inputVariableDataHasBeenEntered = true
         } else { //OM data was entered, reset variable to prepare for next set of reports
-            selectedProject!.inputVariableDataHasBeenEntered = false
+//            selectedProject!.inputVariableDataHasBeenEntered = false
         }
         saveManagedObjectContext()
         performSegueWithIdentifier("returnToOverview", sender: self) //return to project overview or home screen?

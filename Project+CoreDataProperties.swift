@@ -8,27 +8,39 @@ import CoreData
 
 extension Project {
     
-    @NSManaged var inputVariableDataHasBeenEntered: Bool //tracker to check whether input variable data has been input for this project @ the current time (used to determine whether to display IV or OM in the DataEntryTV). **Need to check if saving the MOC on a reconstructed object will be saved the next time the app is opened. 
+    @NSManaged var groups: NSSet //relationship -> 'Group' entity (one-to-many b/c each project contains multiple groups); INVERSE of 'project' relationship in Group class (modifying one automatically adjusts the other); *one-to-many objects must be of NSSet type*
     
+    @NSManaged var temporaryStorageObject: NSObject? //temporarily holds the inputsVariables data during a single measurement cycle (e.g. while the action is being performed). After the action, this temporarily held data + outputVariables are sent -> DB. || tracker to check whether input variable data has been input for this project @ the current time (used to determine whether to display IV or OM in the DataEntryTV). **Need to check if saving the MOC on a reconstructed object will be saved the next time the app is opened.
+    
+    @NSManaged var projectType: String //string representation for ExperimentTypes enum
     @NSManaged var title: String //project title
     @NSManaged var question: String //question being investigated in the project
-    @NSManaged var endPoint: NSNumber? //duration of project in # of days
-    @NSManaged var beforeActionVars: Dictionary<String, [String: AnyObject]> //must have at least 1
-    @NSManaged var action: String //action separating input variables from outcome variables
-    @NSManaged var afterActionVars: Dictionary<String, [String: AnyObject]> //must have at least 1
+    @NSManaged var hypothesis: String? //(optional) hypothesis for the project
+    @NSManaged var startDate: NSDate //date on which project was created
+    @NSManaged var endDate: NSDate? //end date for project (start date + endpoint)
     
-    convenience init(title: String, question: String, endPoint: NSNumber?, action: String, beforeVariables: [String: [String: AnyObject]], afterVariables: [String: [String: AnyObject]], insertIntoManagedObjectContext context: NSManagedObjectContext) {
+    convenience init(type: ExperimentTypes, title: String, question: String, hypothesis: String?, endPoint: NSTimeInterval?, insertIntoManagedObjectContext context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entityForName("Project", inManagedObjectContext: context)
         self.init(entity: entity!, insertIntoManagedObjectContext: context)
+        
+        self.projectType = type.rawValue
         self.title = title
         self.question = question
-        self.endPoint = endPoint
-        self.action = action //store the raw value (which is a string)
-        self.beforeActionVars = beforeVariables
-        self.afterActionVars = afterVariables
+        self.hypothesis = hypothesis
+        
+        //Use the entered 'endPoint' to configure the start & end date properties:
+        self.startDate = NSDate() //get the current date
+        let start = DateTime(date: startDate).getFullTimeStamp()
+        print("Formatted Start: '\(start)'.")
+        if let end = endPoint { //project w/ defined endpoint
+            self.endDate = startDate.dateByAddingTimeInterval(end)
+            let ending = DateTime(date: endDate!) //**remove after stable
+            print("Formatted End: '\(ending.getFullTimeStamp())'.")
+        } else { //project w/ undefined endpoint
+            self.endDate = nil //set endDate -> nil
+        }
         
         //After the object has been inserted, simply save the MOC to make it persist.
     }
-
     
 }
