@@ -103,7 +103,7 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
             NSNotificationCenter.defaultCenter().postNotification(notification)
         })
         let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: { (let ok) -> Void in
-            //add typed value -> crown for the slider; type check to make sure it is an int:
+            //add typed value -> crown for the slider; type check to make sure it is an Int > 0:
             if let input = Int((alert.textFields?.first?.text)!) {
                 if (input > 0) { //make sure value is > 0
                     let notification = NSNotification(name: BMN_Notification_SliderCrownValueWasSet, object: nil, userInfo: [BMN_CellWithCustomSlider_CrownValueKey: input])

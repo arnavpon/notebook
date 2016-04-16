@@ -13,6 +13,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
+        
+        //When app first launches, run through all projects & determine if they are still active:
+        if let projects = fetchObjectsFromCoreDataStore("Project", filterProperty: nil, filterValue: nil) as? [Project] {
+            for project in projects {
+                project.checkProjectCompletionStatus() //check if project is still active
+            }
+        }
+        
         return true
     }
     
@@ -28,6 +36,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationWillEnterForeground(application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
+        
+        //When app returns from foreground, run through all projects & determine if they are still active:
+        if let projects = fetchObjectsFromCoreDataStore("Project", filterProperty: nil, filterValue: nil) as? [Project] {
+            for project in projects {
+                project.checkProjectCompletionStatus() //check if project is still active
+            }
+        }
     }
     
     func applicationDidBecomeActive(application: UIApplication) {

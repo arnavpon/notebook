@@ -63,6 +63,8 @@ class CustomModule: Module {
     private var multipleSelectionEnabled: Bool? //for a variable w/ options, checks if user is allowed to select MULTIPLE OPTIONS (if nil => FALSE)
     private var rangeScaleParameters: (Int, Int, Int)? //(minimum, maximum, increment)
     
+    var counterUniqueID: Int? //unique counter ID, used to match to 'Counter' CoreData object
+    
     // MARK: - Initializers
     
     override init(name: String) { //set-up init
@@ -100,8 +102,11 @@ class CustomModule: Module {
                         print("[BinaryVariable] Option: '\(opt)'.")
                     }
                 }
-            case .Behavior_Counter: //no set-up needed?
-                print("Counter variable.")
+            case .Behavior_Counter: //obtain the uniqueID (for matching -> external Counter object)
+                if let id = dict[BMN_CustomModule_CounterUniqueIDKey] as? Int {
+                    self.counterUniqueID = id
+                    print("[Counter] Unique ID: \(id).")
+                }
             case .Behavior_RangeScale:
                 if let min = dict[BMN_CustomModule_RangeScaleMinimumKey] as? Int, max = dict[BMN_CustomModule_RangeScaleMaximumKey] as? Int, increment = dict[BMN_CustomModule_RangeScaleIncrementKey] as? Int {
                     self.rangeScaleParameters = (min, max, increment)
@@ -232,7 +237,12 @@ class CustomModule: Module {
                     persistentDictionary[BMN_CustomModule_RangeScaleIncrementKey] = increment
                 }
             case CustomModuleVariableTypes.Behavior_Counter:
-                print("[CustomModule - createDictForCoreData] Counter Behavior.")
+                if let id = counterUniqueID {
+                    persistentDictionary[BMN_CustomModule_CounterUniqueIDKey] = id
+                } else {
+                    print("[CustomMod createCoreDataDict] Fatal Error - counter has no uniqueID.")
+                    abort()
+                }
             case CustomModuleVariableTypes.Computation_TimeDifference:
                 print("[CustomModule - createDictForCoreData] Time Difference computation.")
             }

@@ -11,9 +11,15 @@ class CustomWithCounterCell: BaseDataEntryCell { //add new class -> enum!
     
     private let incrementButton = UIButton(frame: CGRectZero)
     private let currentCountLabel = UILabel(frame: CGRectZero)
-    private var currentCount: Int = 0 {
+    private var currentCount: Int { //pull current value from linked Counter object
+        if let counter = counterDataSource {
+            return (counter.currentCount as Int)
+        }
+        return 0
+    }
+    private var counterDataSource: Counter? { //persistent source holding currentCount
         didSet {
-            currentCountLabel.text = "Count: \(currentCount)"
+            updateTextLabelWithCount()
         }
     }
     
@@ -28,7 +34,8 @@ class CustomWithCounterCell: BaseDataEntryCell { //add new class -> enum!
         insetBackgroundView.addSubview(incrementButton)
         
         currentCountLabel.textAlignment = .Center
-        currentCountLabel.layer.borderWidth = 1
+        currentCountLabel.adjustsFontSizeToFitWidth = true
+        currentCountLabel.layer.borderWidth = 0.5
         currentCountLabel.layer.borderColor = UIColor.blackColor().CGColor
         currentCountLabel.text = "Count: \(currentCount)"
         insetBackgroundView.addSubview(currentCountLabel)
@@ -42,9 +49,21 @@ class CustomWithCounterCell: BaseDataEntryCell { //add new class -> enum!
         super.accessModuleProperties()
         if let customMod = self.module as? CustomModule, type = customMod.getTypeForVariable() { //downcast to CUSTOM module
             if (type == CustomModuleVariableTypes.Behavior_Counter) { //check variableType to be safe
-                
+                if let uniqueID = customMod.counterUniqueID, counter = fetchObjectsFromCoreDataStore("Counter", filterProperty: "id", filterValue: [uniqueID as NSNumber]) as? [Counter] { //obtain linked counter
+                    if (counter.isEmpty) { //no counter found for that ID
+                        print("[accessModuleProperties] ERROR - no counter was found for that ID #!")
+                    } else if (counter.count == 1) { //1 counter found
+                        self.counterDataSource = counter.first
+                    } else { //error
+                        print("[accessModuleProperties] ERROR - > 1 counter was found for that ID #!")
+                    }
+                }
             }
         }
+    }
+    
+    private func updateTextLabelWithCount() { //adjust txtLbl w/ updated count
+        self.currentCountLabel.text = "Count: \(currentCount)"
     }
     
     // MARK: - Visual Layout
@@ -58,15 +77,19 @@ class CustomWithCounterCell: BaseDataEntryCell { //add new class -> enum!
     
     // MARK: - Button Actions
     
-    @IBAction func incrementButtonClick(sender: UIButton) {
-        currentCount += 1
+    @IBAction func incrementButtonClick(sender: UIButton) { //update persistent Counter's count value
+        if let counter = counterDataSource {
+            counter.incrementCounter()
+            updateTextLabelWithCount() //show updated count in lbl
+        }
     }
     
     // MARK: - Data Reporting
     
-    override func reportData() {
-        //*REPORT TYPE: Int*
-        let count = currentCount
+    override func updateModuleReportObject() { //updates the Module dataSource's report object
+        if let mod = module {
+            mod.mainDataObject = nil
+        }
     }
     
 }

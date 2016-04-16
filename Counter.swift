@@ -10,6 +10,17 @@ import CoreData
 
 class Counter: NSManagedObject {
 
-// Insert code here to add functionality to your managed object subclass
+    // MARK: - Counter Incrementing Logic
+    
+    func incrementCounter() { //increases counter value by 1
+        let value = self.currentCount.integerValue
+        self.currentCount = value + 1
+        saveManagedObjectContext() //persist changes
+    }
+    
+    func refreshCounter() { //resets counter's value to 0
+        self.currentCount = 0
+        saveManagedObjectContext() //persist changes
+    }
 
 }

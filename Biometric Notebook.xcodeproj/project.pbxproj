@@ -33,6 +33,7 @@
 		B13CF6BB1C2D93BB0019D315 /* GlanceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BA1C2D93BB0019D315 /* GlanceController.swift */; };
 		B13CF6BD1C2D93BB0019D315 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */; };
 		B13CF6BF1C2D93BB0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */; };
+		B16282641CC1839800096CE5 /* CellForCounterBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = B16282631CC1839800096CE5 /* CellForCounterBehavior.swift */; };
 		B16EC9801C317D650085265C /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B16EC97F1C317D650085265C /* HealthKit.framework */; };
 		B17019561CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019551CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift */; };
 		B17019591CAA2C73004CAEB8 /* BaseConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */; };
@@ -60,6 +61,8 @@
 		B1B996661CBF342700E977DF /* Counter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B996641CBF342700E977DF /* Counter.swift */; };
 		B1B9D99A1C528B50000D501E /* CustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B9D9991C528B50000D501E /* CustomSlider.swift */; };
 		B1BC886F1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B1BC886D1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld */; };
+		B1BE110E1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1BE110C1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift */; };
+		B1BE110F1CC120C70029C80C /* UniqueIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1BE110D1CC120C70029C80C /* UniqueIDs.swift */; };
 		B1C403351C3974A100AF4BB9 /* CreateProjectFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */; };
 		B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */; };
 		B1C623FC1C619C72006DDD13 /* AttachModuleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */; };
@@ -181,6 +184,7 @@
 		B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B13CF6C01C2D93BB0019D315 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B16282631CC1839800096CE5 /* CellForCounterBehavior.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellForCounterBehavior.swift; sourceTree = "<group>"; };
 		B16EC97F1C317D650085265C /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		B16EC9811C317D650085265C /* Biometric Notebook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Biometric Notebook.entitlements"; sourceTree = "<group>"; };
 		B17019551CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigurationOptionsViewController.swift; sourceTree = "<group>"; };
@@ -210,6 +214,8 @@
 		B1B996641CBF342700E977DF /* Counter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Counter.swift; path = ../Counter.swift; sourceTree = "<group>"; };
 		B1B9D9991C528B50000D501E /* CustomSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSlider.swift; sourceTree = "<group>"; };
 		B1BC886E1C3205930085A4F4 /* BiometricNotebook.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = BiometricNotebook.xcdatamodel; sourceTree = "<group>"; };
+		B1BE110C1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "UniqueIDs+CoreDataProperties.swift"; path = "../UniqueIDs+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		B1BE110D1CC120C70029C80C /* UniqueIDs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UniqueIDs.swift; path = ../UniqueIDs.swift; sourceTree = "<group>"; };
 		B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = CreateProjectFlow.storyboard; sourceTree = "<group>"; };
 		B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectSummaryViewController.swift; sourceTree = "<group>"; };
 		B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleTableViewCell.swift; sourceTree = "<group>"; };
@@ -503,6 +509,8 @@
 				B13BB7361CBEDDFE0084E640 /* Group+CoreDataProperties.swift */,
 				B1B996641CBF342700E977DF /* Counter.swift */,
 				B1B996631CBF342700E977DF /* Counter+CoreDataProperties.swift */,
+				B1BE110D1CC120C70029C80C /* UniqueIDs.swift */,
+				B1BE110C1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift */,
 				B10838FD1C4D40210023C060 /* Action.swift */,
 				B10838FB1C4D3FDD0023C060 /* Endpoint.swift */,
 				B1D555861C30739C00C20742 /* DateTime.swift */,
@@ -540,6 +548,7 @@
 			children = (
 				B1D51C5F1CB2A25C00DED6B2 /* SwipeInMenu.swift */,
 				B1D51C621CB2A34300DED6B2 /* CellWithGradientFill.swift */,
+				B16282631CC1839800096CE5 /* CellForCounterBehavior.swift */,
 			);
 			name = Supplements;
 			sourceTree = "<group>";
@@ -801,6 +810,7 @@
 				B1AA96CE1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift in Sources */,
 				B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */,
 				B1D51C5C1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift in Sources */,
+				B1BE110E1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift in Sources */,
 				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
 				B1A8C7D01CAF7E8C00380E99 /* BooleanConfigurationCell.swift in Sources */,
 				B1D51C581CB29CB500DED6B2 /* ActiveProjectsViewController.swift in Sources */,
@@ -836,10 +846,12 @@
 				B1395DAE1CB76A5800DEBC91 /* BaseCreateProjectCell.swift in Sources */,
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
 				B17019561CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift in Sources */,
+				B1BE110F1CC120C70029C80C /* UniqueIDs.swift in Sources */,
 				B1C623FC1C619C72006DDD13 /* AttachModuleTableViewCell.swift in Sources */,
 				B1CCF1BF1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift in Sources */,
 				B1B20A6B1C5E8576003B791B /* LabelWithPadding.swift in Sources */,
 				B1AA96C81CAB1C870009E716 /* ConfigurationOptionCellTypes.swift in Sources */,
+				B16282641CC1839800096CE5 /* CellForCounterBehavior.swift in Sources */,
 				B17019591CAA2C73004CAEB8 /* BaseConfigurationCell.swift in Sources */,
 				B1D560A81CB4573600F6A7AC /* CellWithCustomSlider.swift in Sources */,
 				B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */,

@@ -9,8 +9,10 @@ import CoreData
 extension Project {
     
     @NSManaged var groups: NSSet //relationship -> 'Group' entity (one-to-many b/c each project contains multiple groups); INVERSE of 'project' relationship in Group class (modifying one automatically adjusts the other); *one-to-many objects must be of NSSet type*
+    //Each group in the project's 'groups' relationship must have a unique identifier so that it can be told apart during data entry from other groups. 
+    @NSManaged var counters: NSSet //relationship -> 'Counter' entity (one-to-many)
     
-    @NSManaged var temporaryStorageObject: NSObject? //temporarily holds the inputsVariables data during a single measurement cycle (e.g. while the action is being performed). After the action, this temporarily held data + outputVariables are sent -> DB. || tracker to check whether input variable data has been input for this project @ the current time (used to determine whether to display IV or OM in the DataEntryTV). **Need to check if saving the MOC on a reconstructed object will be saved the next time the app is opened.
+    @NSManaged var temporaryStorageObject: [String: [String: AnyObject]]? //temporarily holds the inputsVariables data during a single measurement cycle (e.g. while the action is being performed). After the action, this temporarily held data + outputVariables are sent -> DB. || tracker to check whether input variable data has been input for this project @ the current time (used to determine whether to display IV or OM in the DataEntryTV).
     
     @NSManaged var projectType: String //string representation for ExperimentTypes enum
     @NSManaged var title: String //project title
@@ -18,6 +20,7 @@ extension Project {
     @NSManaged var hypothesis: String? //(optional) hypothesis for the project
     @NSManaged var startDate: NSDate //date on which project was created
     @NSManaged var endDate: NSDate? //end date for project (start date + endpoint)
+    @NSManaged var isActive: Bool //var indicating if project is Active (TRUE) or Expired (FALSE)
     
     convenience init(type: ExperimentTypes, title: String, question: String, hypothesis: String?, endPoint: NSTimeInterval?, insertIntoManagedObjectContext context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entityForName("Project", inManagedObjectContext: context)
@@ -27,6 +30,7 @@ extension Project {
         self.title = title
         self.question = question
         self.hypothesis = hypothesis
+        self.isActive = true //project starts as ACTIVE
         
         //Use the entered 'endPoint' to configure the start & end date properties:
         self.startDate = NSDate() //get the current date

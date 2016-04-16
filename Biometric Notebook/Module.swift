@@ -123,15 +123,24 @@ class Module { //defines the behaviors that are common to all modules
     
     var cellHeightUserInfo: [String: AnyObject]? { //dictionary containing information needed to calculate cell height for the variable, accessed externally by VC
         return nil
-    }
+    } //For cells that have VARIABLE HEIGHTS (e.g. Custom Module options cell), we will need to include in the data source a custom cell height (which we can calculate beforehand b/c we know everything about how the cell needs to be configured, e.g. if the CustomOptions cell has 3 answer choices, we can calculate the height w/ a function, add that height to the data source; the VC TV delegate method should check for custom height & set to default if one is not found.)
     
-    //For cells that have VARIABLE HEIGHTS (e.g. Custom Module options cell), we will need to include in the data source a custom cell height (which we can calculate beforehand b/c we know everything about how the cell needs to be configured, e.g. if the CustomOptions cell has 3 answer choices, we can calculate the height w/ a function, add that height to the data source; the VC TV delegate method should check for custom height & set to default if one is not found.)
+    //**
+    internal var mainDataObject: AnyObject? //main object to report -> DataEntryVC, set by custom TV cell
+    
+    func reportDataForVariable() -> [String: AnyObject]? { //called by DataEntryVC during aggregation
+        var reportObject = Dictionary<String, AnyObject>()
+        reportObject[BMN_Module_TimeStampKey] = getDateAndTimeAtMeasurement()
+        reportObject[BMN_Module_MainDataKey] = mainDataObject
+        return reportObject
+        //should also capture the TimeStamp & any other measurements that accompany the main data
+    }
     
     // MARK: - Basic Behaviors
     
-    internal func getDateAndTimeAtMeasurement() -> DateTime { //returns date & time @ measurement
+    internal func getDateAndTimeAtMeasurement() -> String { //returns date & time @ measurement
         //All modules should include a timeStamp variable (every time a measurement is taken for any kind of module, the current date & time of the recording should be noted down).
-        return DateTime()
+        return DateTime().getFullTimeStamp()
     }
     
 }

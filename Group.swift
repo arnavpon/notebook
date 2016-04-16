@@ -10,34 +10,32 @@ import CoreData
 
 class Group: NSManagedObject {
 
-    private var beforeActionVariablesArray: [Module]? //reconstructed variablesArray
-    private var afterActionVariablesArray: [Module]? //reconstructed variablesArray
+    private var dataEntryVariablesArray: [Module]? //dataSource for VC TV
     
-    internal func getBeforeActionVariablesArray() -> [Module]? {
-        return beforeActionVariablesArray
-    }
-    
-    internal func getAfterActionVariablesArray() -> [Module]? {
-        return afterActionVariablesArray
+    func getVariablesArrayForTV() -> [Module]? {
+        reconstructProjectFromPersistentRepresentation() //initialize TV dataSource
+        return dataEntryVariablesArray
     }
     
     // MARK: - Reconstruction Logic
     
-    internal func reconstructProjectFromPersistentRepresentation() { //use the project's CoreData representation to reconstruct its variables as Module objects
-        beforeActionVariablesArray = [] //initialize variableArray
-        afterActionVariablesArray = [] //initialize variableArray
-        
-        for (variable, dict) in self.beforeActionVariables { //'dict' = configuration dict for variable
-            if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
-                let reconstructedVariable: Module = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
-                beforeActionVariablesArray!.append(reconstructedVariable)
+    private func reconstructProjectFromPersistentRepresentation() { //use the project's CoreData representation to reconstruct its variables (EITHER inputs OR outputs) as Module objects
+        dataEntryVariablesArray = [] //initialize array
+        if (self.project.temporaryStorageObject == nil) { //no temp storage => report BEFORE ACTION VARS
+            print("Temp object is nil!!!")
+            for (variable, dict) in self.beforeActionVariables { //'dict' = configuration dict for var
+                if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
+                    let reconstructedVariable: Module = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
+                    dataEntryVariablesArray!.append(reconstructedVariable)
+                }
             }
-        }
-        
-        for (variable, dict) in self.afterActionVariables { //'dict' = configuration dict for variable
-            if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
-                let reconstructedVariable: Module = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
-                afterActionVariablesArray!.append(reconstructedVariable)
+        } else { //temp storage obj exists => report AFTER ACTION VARS
+            print("Temp object is NOT nil")
+            for (variable, dict) in self.afterActionVariables { //'dict' = configuration dict for variable
+                if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
+                    let reconstructedVariable: Module = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
+                    dataEntryVariablesArray!.append(reconstructedVariable)
+                }
             }
         }
     }
@@ -45,7 +43,7 @@ class Group: NSManagedObject {
     private func createModuleObjectFromModuleName(moduleType module: Modules, variableName: String, configurationDict: [String: AnyObject]) -> Module { //init Module obj w/ its name & config dict
         var object: Module = Module(name: variableName)
         
-        //Determine the var's Module type, then pass the var's name & dictionary -> that module's CoreData initializer, which will create the variable (complete w/ configuration):
+        //Determine the var's Module type, then pass the var's name & dictionary -> that module's CoreData initializer, which will re-create the variable (complete w/ all configuration):
         switch module {
         case .CustomModule:
             object = CustomModule(name: variableName, dict: configurationDict)

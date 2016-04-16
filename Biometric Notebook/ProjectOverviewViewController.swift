@@ -10,6 +10,7 @@ import UIKit
 class ProjectOverviewViewController: UIViewController {
     
     var selectedProject: Project?
+    var sender: UIViewController? //stores ID of sender for unwind segue
     
     // MARK: - View Configuration
     
@@ -19,8 +20,12 @@ class ProjectOverviewViewController: UIViewController {
     
     // MARK: - Button Actions
     
-    @IBAction func backButtonClick(sender: AnyObject) { //* can segue back -> either Archived or Active projects, depending on which one sent it here
-        performSegueWithIdentifier("unwindToActiveProjects", sender: nil)
+    @IBAction func backButtonClick(sender: AnyObject) { //unwind to sender VC
+        if (self.sender is ActiveProjectsViewController) {
+            performSegueWithIdentifier("unwindToActiveProjects", sender: nil)
+        } else if (self.sender is ArchivedProjectsViewController) {
+            performSegueWithIdentifier("unwindToArchivedProjects", sender: nil)
+        }
     }
     
 }

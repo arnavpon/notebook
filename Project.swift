@@ -12,19 +12,43 @@ import CoreData
 
 class Project: NSManagedObject {
     
-    // MARK: - External Access
-    
-    func getProjectTypeForDisplay() -> String? { //obtains a display-friendly projectType
-        if let type = ExperimentTypes(rawValue: self.projectType) {
-            return type.getTypeNameForDisplay()
-        }
-        return nil
+    private var experimentType: ExperimentTypes? { //get projectType as an enum object
+        return ExperimentTypes(rawValue: self.projectType)
     }
     
-    // MARK: - Data Reporting Logic
+    // MARK: - External Access
     
-    internal func getInputVariablesForProjectType() {
-        //externally facing method - based on some criteria, pulls up the input variables for the section of the project that is CURRENTLY being measured.
+    func getProjectTypeForDisplay() -> String? { //obtains a display-friendly projectType for VC
+        return experimentType?.getTypeNameForDisplay()
+    }
+    
+    func checkProjectCompletionStatus() { //checks if project is ACTIVE or INACTIVE
+        if (self.isActive) { //ONLY perform check if project is currently active
+            let currentDate = NSDate()
+            if let end = endDate { //check if project has expiry date
+                print("[CURRENT] \(DateTime(date: currentDate).getFullTimeStamp())")
+                print("[END] \(DateTime(date: end).getFullTimeStamp())")
+                if (currentDate.timeIntervalSinceReferenceDate >= end.timeIntervalSinceReferenceDate) {
+                    //Project has expired - perform cleanup (delete all associated counter objects, block data reporting, etc.):
+                    print("'\(self.title)' Project has expired!.")
+                    self.isActive = false
+                    for object in self.counters { //delete any associated Counter objects
+                        if let counter = object as? Counter {
+                            deleteManagedObject(counter)
+                        }
+                    }
+                    saveManagedObjectContext() //persist all changes
+                }
+            }
+        }
+    }
+    
+    func refreshProjectCounters() { //@ end of measurement cycle, refreshes a project's counters
+        for object in self.counters {
+            if let counter = object as? Counter {
+                counter.refreshCounter()
+            }
+        }
     }
     
     // MARK: - Project Endpoint Logic
@@ -32,11 +56,11 @@ class Project: NSManagedObject {
     internal func getPercentageCompleted() -> Double? { //calculates what % of project is complete
         let currentDate = NSDate() //get current time
         let currentTimeElapsed = abs(self.startDate.timeIntervalSinceDate(currentDate)) //proj run length
-        print("Current Time Elapsed: \(currentTimeElapsed).")
+//        print("Current Time Elapsed: \(currentTimeElapsed).")
         if let totalTimeDifference = self.endDate?.timeIntervalSinceDate(self.startDate) { //total length
             let percentCompleted = Double(currentTimeElapsed / abs(totalTimeDifference))
-            print("Total Time Difference: \(totalTimeDifference).")
-            print("% Complete = \(percentCompleted * 100)%.")
+//            print("Total Time Difference: \(totalTimeDifference).")
+//            print("% Complete = \(percentCompleted * 100)%.")
             return percentCompleted
         }
         return nil //indefinite project (NO % value)

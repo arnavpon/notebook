@@ -9,22 +9,33 @@ import CoreData
 
 // MARK: - Core Data
 
-func saveManagedObjectContext() {
+func saveManagedObjectContext() -> Bool {
     let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     do {
         try context.save()
         print("MOC was saved successfully.")
+        return true
     } catch let error as NSError {
         print("Error saving context: \(error).")
+        return false
     }
 }
 
-func fetchAllObjectsFromStore(entity: String) -> [AnyObject] { //fetches ALL objects in a given entity
+func deleteManagedObject(object: NSManagedObject) { //deletes the specified object
+    let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
+    context.deleteObject(object)
+}
+
+func fetchObjectsFromCoreDataStore(entity: String, filterProperty: String?, filterValue: [AnyObject]?) -> [AnyObject] { //fetches objects for entity & predicate options
     let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     let request = NSFetchRequest(entityName: entity)
+    if let property = filterProperty, value = filterValue { //create predicate if filters were input
+        let predicate = NSPredicate(format: "\(property) == %@", argumentArray: value)
+        request.predicate = predicate
+    }
     do {
         let results = try context.executeFetchRequest(request)
-        print("[fetchAllObjects] Fetched \(results.count) objects.")
+        print("[fetchObjectsFromStore] Fetched \(results.count) objects for '\(entity.uppercaseString)' entity.")
         return results
     } catch let error as NSError {
         print("Error fetching stored projects: \(error)")
@@ -40,15 +51,13 @@ func clearCoreDataStoreForEntity(entity entity: String) {
         let results = try context.executeFetchRequest(request)
         for result in results {
             context.deleteObject(result as! NSManagedObject)
-            print("Deleted object.")
-            do {
-                print("Context saved!")
-                try context.save()
-            } catch let error as NSError {
-                print("Error saving store: \(error)")
-            }
+            print("Deleting object.")
         }
-        print("Deleted \(results.count) object(s)\n")
+        if (saveManagedObjectContext()) { //persist changes -> store
+            print("Deleted \(results.count) object(s).\n")
+        } else { //save was unsuccessful
+            print("ERROR - could note save changes (deletion) to store!")
+        }
     } catch let error as NSError {
         print("Error fetching stored projects: \(error)")
     }

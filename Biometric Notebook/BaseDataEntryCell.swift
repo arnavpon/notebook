@@ -35,8 +35,10 @@ class BaseDataEntryCell: LevelsFrameworkCell { //data source for DataEntry cells
     
     // MARK: - Data Reporting
     
-    override func reportData() {
-        //
+    func updateModuleReportObject() { //updates the Module dataSource's report object
+        if let mod = module {
+            mod.mainDataObject = nil
+        }
     }
     
 }

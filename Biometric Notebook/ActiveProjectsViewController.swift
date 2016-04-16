@@ -3,7 +3,7 @@
 //  Created by Arnav Pondicherry  on 4/4/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Displays a TV listing all of the active Counters (if any) & Projects (i.e. those projects for which data is still actively being reported). The user can navigate to the DataEntryVC or the ProjectOverviewVC from here. 
+// Displays a TV listing all of the active Counters (if any) & Projects (i.e. those projects for which data is still actively being reported). Allow user to navigate -> DataEntryVC or ProjectOverviewVC.
 
 import UIKit
 import HealthKit
@@ -13,58 +13,55 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
 
     @IBOutlet weak var activeProjectsTableView: UITableView!
     
-    var projects: [Project] = [] //list of project objects (TV dataSource)
-    let cellColors: [UIColor] = [UIColor.blueColor(), UIColor.greenColor(), UIColor.redColor(), UIColor.blackColor()] //adjust the colors so that they have some meaning
+    var activeCounters: [Counter] = [] //list of active counters (TV dataSource)
+    var projects: [Project] = [] //list of activeProject objects (TV dataSource)
     var selectedProject: Project? //object to pass on segue
     
     // MARK: - View Configuration
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //        clearCoreDataStoreForEntity(entity: "Project") //*
+//        clearCoreDataStoreForEntity(entity: "Project") //*
+//        clearCoreDataStoreForEntity(entity: "Counter") //*
         
         if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //user is logged in
-            if let activeProjects = fetchAllObjectsFromStore("Project") as? [Project] { //obtain list of all projects from data store
-                self.projects = activeProjects
-                for project in projects {
-                    let date = DateTime(date: project.startDate)
-                    print("Project Title: '\(project.title)'. Start Date: [\(date.getFullTimeStamp())]. # of groups: \(project.groups.count).")
-                    for item in project.groups {
-                        if let group = item as? Group {
-                            print("[Group] Action: \(group.action). # of Inputs: \(group.beforeActionVariables.count). # of Outputs: \(group.afterActionVariables.count).")
-                        }
-                    }
-                }
-                if (self.projects.isEmpty) { //empty state, handle appropriately
-                    
-                } else {
-                    
-                }
+            activeCounters = fetchObjectsFromCoreDataStore("Counter", filterProperty: nil, filterValue: nil) as! [Counter] //fetch counters
+            self.projects = getActiveProjects()
+            if (self.projects.isEmpty) { //empty state, handle appropriately
+                activeProjectsTableView.hidden = true //hide TV
+            } else {
+                activeProjectsTableView.hidden = false
             }
         }
         
         //Register TV dataSource & delegate:
         activeProjectsTableView.dataSource = self
         activeProjectsTableView.delegate = self
-        activeProjectsTableView.registerClass(CellWithGradientFill.self, forCellReuseIdentifier: NSStringFromClass(CellWithGradientFill))
+        activeProjectsTableView.registerClass(CellForCounterBehavior.self, forCellReuseIdentifier: NSStringFromClass(CellForCounterBehavior)) //counter cell type
+        activeProjectsTableView.registerClass(CellWithGradientFill.self, forCellReuseIdentifier: NSStringFromClass(CellWithGradientFill)) //project cell type
     }
     
-    override func viewWillAppear(animated: Bool) {
+    func getActiveProjects() -> [Project] { //obtains ACTIVE projects from store
+        if let activeProjects = fetchObjectsFromCoreDataStore("Project", filterProperty: "isActive", filterValue: [true]) as? [Project] { //list of ACTIVE projects
+            return activeProjects
+        }
+        return []
+    }
+    
+    override func viewWillAppear(animated: Bool) { //check for active projects
         activeProjectsTableView.reloadData() //clears visuals on selected TV cell
         
-        if (userJustLoggedIn) { //check if user just logged in & set the projects accordingly
-            if let activeProjects = fetchAllObjectsFromStore("Project") as? [Project] {
-                self.projects = activeProjects //**obtain projects SPECIFIC to new user?!? - we will need to store local projects against username for this to work; better to pull all projects from the cloud & store to the device (overwriting existing entity) rather than creating a store for each user
-                    print("User was logged out & has now logged in.")
-                if (self.projects.isEmpty) { //empty state, handle appropriately
-                    
-                } else {
-                    
-                }
-                activeProjectsTableView.reloadData() //reload UI w/ new project list
-                userJustLoggedIn = false //reset the variable
-            }
+        //**obtain projects SPECIFIC to new user?!? - we will need to store local projects against username for this to work; better to pull all projects from the cloud & store to the device (overwriting existing entity) rather than creating a store for each user!
+        self.projects = getActiveProjects()
+        if (self.projects.isEmpty) { //empty state, handle appropriately
+            activeProjectsTableView.hidden = true
+        } else {
+            activeProjectsTableView.hidden = false
         }
+        activeProjectsTableView.reloadData() //reload UI w/ new project list (also clears highlight!)
+        userJustLoggedIn = false //reset the variable
+        
+        //Reset notification observer:
         NSNotificationCenter.defaultCenter().removeObserver(self) //clear old indicators to be safe
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
     }
@@ -84,47 +81,85 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     func dataEntryButtonWasClicked(notification: NSNotification) {
         if let dict = notification.userInfo, index = dict[BMN_CellWithGradient_CellIndexKey] as? Int {
             print("Data entry button clicked by cell #\(index).")
-            selectedProject = projects[index] //set selectedProject before segue
-            performSegueWithIdentifier("showDataEntry", sender: nil)
+            if (index >= 0) {
+                selectedProject = projects[index] //set selectedProject before segue
+                performSegueWithIdentifier("showDataEntry", sender: nil)
+            } else { //sent an error from the VC, refresh TV to remove expired project
+                self.projects = getActiveProjects()
+                activeProjectsTableView.reloadData()
+            }
         }
     }
     
     // MARK: - TV Data Source
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return 1
+        if (self.activeCounters.isEmpty) { //if no counters are active, only 1 section
+            return 1
+        }
+        return 2 //1 section for counters, 1 for projects
         //eventually, we will want to organize projects using the same framework as for IA???
     }
     
+    func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        if (self.activeCounters.isEmpty) { //no section headers if there is only 1 section
+            return nil
+        }
+        if (section == 0) { //Counters section
+            return "Active Counters"
+        } else { //Projects section
+            return "Project List"
+        }
+    }
+    
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return projects.count
+        if !(self.activeCounters.isEmpty) && (section == 0) {
+            return activeCounters.count
+        } else {
+            return projects.count
+        }
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithGradientFill)) as! CellWithGradientFill
-        cell.highlighted = false //clears highlighting on view reload
-        cell.selected = false //clears highlighting on view reload
-        cell.cellIndex = indexPath.row
-        let project = projects[indexPath.row]
-        let title = project.title
-        if let projectType = project.getProjectTypeForDisplay() {
-            cell.textLabel?.text = "\(title.uppercaseString): \(projectType)"
-        } else {
-            cell.textLabel?.text = title
+        if !(activeCounters.isEmpty) && (indexPath.section == 0) { //Counter cells
+            let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellForCounterBehavior)) as! CellForCounterBehavior
+            let counter = activeCounters[indexPath.row]
+            let dataSource: [String: AnyObject] = [BMN_LEVELS_MainLabelKey: counter.variableName, BMN_LEVELS_HideRightViewKey: true]
+            cell.dataSource = dataSource //set cell's mainLabel w/ name & hide completionIndicator
+            cell.counterDataSource = counter //set counter as dataSource
+            return cell
+        } else { //Project cells
+            let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithGradientFill)) as! CellWithGradientFill
+            cell.highlighted = false //clears highlighting on view reload
+            cell.selected = false //clears highlighting on view reload
+            cell.cellIndex = indexPath.row
+            let project = projects[indexPath.row]
+            let title = project.title
+            if let projectType = project.getProjectTypeForDisplay() {
+                cell.textLabel?.text = "\(title.uppercaseString): \(projectType)"
+            } else {
+                cell.textLabel?.text = title
+            }
+            cell.dataSource = project
+            return cell
         }
-        cell.textLabel?.textColor = UIColor.whiteColor()
-        cell.backgroundColor = cellColors[indexPath.row]
-        return cell
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        return 75
+        return 80 + BMN_DefaultBottomSpacer
+    }
+    
+    func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        if !(activeCounters.isEmpty) && (indexPath.section == 0) { //prevent selection of Counter cells
+            return false
+        }
+        return true
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        //Tapping a cell brings up the data visualization flow for that project?:
+        //Tapping a cell brings up the data visualization flow for that project:
         selectedProject = projects[indexPath.row]
-        performSegueWithIdentifier("showDataVisuals", sender: nil) //segue -> ProjectOverviewVC
+        performSegueWithIdentifier("showProjectOverview", sender: nil) //segue -> ProjectOverviewVC
     }
     
     func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle { //allow deletion of projects from here
@@ -185,9 +220,10 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        if (segue.identifier == "showDataVisuals") { //pass the selected project
+        if (segue.identifier == "showProjectOverview") { //pass the selected project
             let destination = segue.destinationViewController as! ProjectOverviewViewController
             destination.selectedProject = self.selectedProject
+            destination.sender = self
         } else if (segue.identifier == "showDataEntry") { //pass the selected project
             let destination = segue.destinationViewController as! DataEntryViewController
             destination.selectedProject = self.selectedProject

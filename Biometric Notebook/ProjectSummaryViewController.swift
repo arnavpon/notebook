@@ -210,24 +210,23 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         //Construct CoreData objects for the input & output variables, then construct the Project & Group objects & save -> persistent store:
         //**In the future, this project will be sent -> the web for DB configuration, cloud backup, etc.
         
+        //If the project contains any counter variables, create Core Data objects for the counters.
+        
         if let type = projectType, title = projectTitle, question = projectQuestion {
             let project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, endPoint: projectEndpoint?.endpointInSeconds, insertIntoManagedObjectContext: context)
             if (projectType == .ControlComparison) { //for CC type, create 2 groups
                 if let controlInputs = inputVariables[BMN_ControlComparison_ControlKey], comparisonInputs = inputVariables[BMN_ControlComparison_ComparisonKey], outcomes = outcomeVariables, action = projectAction?.action.rawValue { //construct control & comparison groups
-                    let controlBeforeActionVariables = createCoreDataDictionary(controlInputs)
-                    let comparisonBeforeActionVariables = createCoreDataDictionary(comparisonInputs)
-                    let afterActionVariablesDict = createCoreDataDictionary(outcomes)
-                    let controlGroup = Group(action: action, beforeVariables: controlBeforeActionVariables, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context)
-                    controlGroup.project = project //set parent project
-                    let comparisonGroup = Group(action: action, beforeVariables: comparisonBeforeActionVariables, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context)
-                    comparisonGroup.project = project //set parent project (note - this AUTOMATICALLY sets the Project's groups object due to the inverse relationship!)
+                    let controlBeforeActionVariables = createCoreDataDictionary(controlInputs, project: project)
+                    let comparisonBeforeActionVariables = createCoreDataDictionary(comparisonInputs, project: project)
+                    let afterActionVariablesDict = createCoreDataDictionary(outcomes, project: project)
+                    let _ = Group(type: GroupTypes.Control, project: project, action: action, beforeVariables: controlBeforeActionVariables, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context) //control grp
+                    let _ = Group(type: GroupTypes.Comparison, project: project, action: action, beforeVariables: comparisonBeforeActionVariables, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context) //comparison
                 }
             } else if (projectType == .InputOutput) { //for IO type, there is only 1 group
                 if let inputs = inputVariables[BMN_InputOutput_InputVariablesKey], outputs = outcomeVariables, action = projectAction?.action.rawValue {
-                    let beforeActionVariablesDict = createCoreDataDictionary(inputs)
-                    let afterActionVariablesDict = createCoreDataDictionary(outputs)
-                    let group = Group(action: action, beforeVariables: beforeActionVariablesDict, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context)
-                    group.project = project
+                    let beforeActionVariablesDict = createCoreDataDictionary(inputs, project: project)
+                    let afterActionVariablesDict = createCoreDataDictionary(outputs, project: project)
+                    let _ = Group(type: GroupTypes.LoneGroup, project: project, action: action, beforeVariables: beforeActionVariablesDict, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context)
                 }
             }
             saveManagedObjectContext() //save new project & group(s) -> CoreData
@@ -239,9 +238,14 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         presentViewController(controller, animated: true, completion: nil)
     }
     
-    func createCoreDataDictionary(variableArray: [Module]) -> Dictionary<String, [String: AnyObject]> { //construct master dictionary for CoreData given the array of user-created variables
+    func createCoreDataDictionary(variableArray: [Module], project: Project) -> Dictionary<String, [String: AnyObject]> { //construct master dict for CoreData given array of user-created variables
         var dictionary = Dictionary<String, [String: AnyObject]>()
         for variable in variableArray { //construct dict for each variable, KEY is variable's unique name
+            if let custom = variable as? CustomModule { //check for Counter variables
+                if (custom.getTypeForVariable() == CustomModuleVariableTypes.Behavior_Counter) {
+                    let _ = Counter(linkedVar: custom, project: project, insertIntoManagedObjectContext: context) //create Counter obj for persistence
+                }
+            }
             dictionary[variable.variableName] = variable.createDictionaryForCoreDataStore()
         }
         return dictionary

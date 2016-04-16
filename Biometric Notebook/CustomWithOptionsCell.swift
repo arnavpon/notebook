@@ -38,4 +38,12 @@ class CustomWithOptionsCell: BaseDataEntryCell { //add new class -> enum!
         super.layoutSubviews()
     }
     
+    // MARK: - Data Reporting
+    
+    override func updateModuleReportObject() { //updates the Module dataSource's report object
+        if let mod = module {
+            mod.mainDataObject = nil
+        }
+    }
+    
 }

@@ -33,6 +33,9 @@ let BMN_Notification_ProjectTypeDidChange = "BMN_ProjectTypeDidChange"
 let BMN_Notification_AddOptionButtonWasClicked = "BMN_AddOptionButtonWasClicked"
 let BMN_CustomOptionsConfigCell_NumberOfLevelsKey = "BMN_CustomOptionsConfigCell_number_of_levels_key" //*
 
+//CellWithGradientFill Notifications:
+let BMN_CellWithGradientFill_ErrorObject = -1 //indicates an error to VC through notification
+
 // MARK: - LEVELS Framework General Keys
 
 let BMN_DefaultBottomSpacer: CGFloat = 3 //adds height to cells so there is space from bottom
@@ -78,6 +81,12 @@ let BMN_ComputationsKey = "computations_key"
 let BMN_ModuleTitleKey = "module_title_key" //key to obtain var's Module type
 let BMN_VariableTypeKey = "variable_type_key" //key to obtain var's behavior/computation
 
+// MARK: - [MODULE] Data Reporting Keys
+
+let BMN_CurrentlyReportingGroupKey = "currently_reporting_group_key" //stores groupID in tempStorageObj
+let BMN_Module_TimeStampKey = "module_time_stamp_key" //time stamp
+let BMN_Module_MainDataKey = "module_main_data_key" //main data (differs depending on behavior/comp)
+
 // MARK: - CreateProject VC Cell IDs
 
 let BMN_ProjectTitleID = "project_title_id"
@@ -94,6 +103,7 @@ let BMN_CustomModule_CustomOptionsMultipleSelectionAllowedKey = "CM_custom_optio
 let BMN_CustomModule_RangeScaleMinimumKey = "CM_range_scale_min_key"
 let BMN_CustomModule_RangeScaleMaximumKey = "CM_range_scale_max_key"
 let BMN_CustomModule_RangeScaleIncrementKey = "CM_range_scale_increment_key"
+let BMN_CustomModule_CounterUniqueIDKey = "CM_counter_unique_id_key"
 
 let BMN_CustomModule_CustomOptions_PromptID = "CM_custom_options_prompt_id" //identifier: CustomModule > CustomOptions [behavior] > 'prompt' configuration cell
 let BMN_CustomModule_CustomOptions_OptionsID = "CM_custom_options_options_id" //identifier: CustomModule > CustomOptions [behavior] > 'options' array

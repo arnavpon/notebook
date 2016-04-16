@@ -4,26 +4,35 @@
         <attribute name="currentCount" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="variableName" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="project" maxCount="1" deletionRule="Nullify" destinationEntity="Project" inverseName="counters" inverseEntity="Project" syncable="YES"/>
     </entity>
     <entity name="Group" representedClassName=".Group" syncable="YES">
         <attribute name="action" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="afterActionVariables" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="beforeActionVariables" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="groupType" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="project" maxCount="1" deletionRule="Nullify" destinationEntity="Project" inverseName="groups" inverseEntity="Project" syncable="YES"/>
     </entity>
     <entity name="Project" representedClassName=".Project" syncable="YES">
         <attribute name="endDate" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="hypothesis" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="isActive" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="projectType" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="question" attributeType="String" syncable="YES"/>
         <attribute name="startDate" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="temporaryStorageObject" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="title" attributeType="String" syncable="YES"/>
+        <relationship name="counters" toMany="YES" deletionRule="Cascade" destinationEntity="Counter" inverseName="project" inverseEntity="Counter" syncable="YES"/>
         <relationship name="groups" toMany="YES" minCount="1" maxCount="2" deletionRule="Cascade" destinationEntity="Group" inverseName="project" inverseEntity="Group" syncable="YES"/>
     </entity>
+    <entity name="UniqueIDs" representedClassName=".UniqueIDs" syncable="YES">
+        <attribute name="activeCounterIDs" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="deactivatedCounterIDs" optional="YES" attributeType="Transformable" syncable="YES"/>
+    </entity>
     <elements>
-        <element name="Group" positionX="-63" positionY="-19" width="128" height="105"/>
-        <element name="Project" positionX="-290" positionY="-33" width="128" height="165"/>
-        <element name="Counter" positionX="-180" positionY="36" width="128" height="90"/>
+        <element name="Counter" positionX="-180" positionY="36" width="128" height="105"/>
+        <element name="Group" positionX="-63" positionY="-19" width="128" height="120"/>
+        <element name="Project" positionX="-290" positionY="-33" width="128" height="195"/>
+        <element name="UniqueIDs" positionX="-180" positionY="36" width="128" height="75"/>
     </elements>
 </model>

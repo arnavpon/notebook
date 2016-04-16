@@ -10,11 +10,12 @@ import UIKit
 class CellWithGradientFill: UITableViewCell {
     
     let backgroundImageView = UIImageView(frame: CGRectZero) //draw gradient fill into here
+    var percentComplete: Double? //% completion of project, obtained from dataSource
     let reportDataButton = UIButton(frame: CGRectZero) //tapping this button segues -> DataEntryVC
     let buttonWidth: CGFloat = 40 //height & width of button
-    let rightOffset: CGFloat = 10 //horizontal distance between button & end of view
+    let rightOffset: CGFloat = 0 //horizontal distance between button & end of view
     var cellIndex: Int? //cell's indexPath.row value (for notification)
-    var dataSource: [String: AnyObject]? {
+    var dataSource: Project? { //cell's dataSource is the associated Project object
         didSet {
             accessDataSource()
             setNeedsLayout()
@@ -27,13 +28,12 @@ class CellWithGradientFill: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         contentView.addSubview(backgroundImageView)
-        contentView.addSubview(reportDataButton) //need to add btn directly to contentView for touches to register!
+        contentView.addSubview(reportDataButton) //add btn directly to contentView for touch to register!
 //        contentView.sendSubviewToBack(backgroundImageView) //move behind the default txtLabel
-//        backgroundImageView.addSubview(reportDataButton)
         
         //Configure reportDataBtn:
-        reportDataButton.backgroundColor = UIColor.whiteColor()
-        reportDataButton.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
+        reportDataButton.backgroundColor = UIColor.blueColor()
+        reportDataButton.setTitleColor(UIColor.redColor(), forState: UIControlState.Normal)
         reportDataButton.setTitle(">", forState: UIControlState.Normal)
         reportDataButton.addTarget(self, action: #selector(self.reportDataButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
     }
@@ -43,8 +43,8 @@ class CellWithGradientFill: UITableViewCell {
     }
     
     private func accessDataSource() {
-        if let source = dataSource { //access Project name & cell color
-            //
+        if let project = dataSource { //access Project name & cell color?
+            self.percentComplete = project.getPercentageCompleted()
         }
     }
     
@@ -55,19 +55,30 @@ class CellWithGradientFill: UITableViewCell {
         backgroundImageView.frame = CGRectMake(0, 0, self.frame.width, self.frame.height)
         
         //(2) Configure the 'reportData' button:
-        let centerY = backgroundImageView.frame.height/2
-        let originY = centerY - buttonWidth/2
-        let originX = backgroundImageView.frame.width - rightOffset - buttonWidth
-        reportDataButton.frame = CGRectMake(originX, originY, buttonWidth, buttonWidth)
+//        let centerY = backgroundImageView.frame.height/2
+//        let originY = centerY - buttonWidth/2
+//        let originX = backgroundImageView.frame.width - rightOffset - buttonWidth
+//        reportDataButton.frame = CGRectMake(originX, originY, buttonWidth, self.frame.height)
+        reportDataButton.frame = CGRectMake((self.frame.width - buttonWidth), 0, buttonWidth, self.frame.height)
+        
+        //(3) Based on the % completion, fill the background an equivalent amount:
     }
     
     // MARK: - Button Actions
     
     @IBAction func reportDataButtonClick(sender: UIButton) { //send notification -> VC w/ sender's index
-        print("Button was clicked.")
-        if let index = cellIndex {
-            let notification = NSNotification(name: BMN_Notification_DataEntryButtonClick, object: nil, userInfo: [BMN_CellWithGradient_CellIndexKey: index])
-            NSNotificationCenter.defaultCenter().postNotification(notification)
+        if let source = dataSource { //check if project is still active before sending notification!
+            source.checkProjectCompletionStatus() //check status
+            if (source.isActive) { //project is still active
+                if let index = cellIndex {
+                    let notification = NSNotification(name: BMN_Notification_DataEntryButtonClick, object: nil, userInfo: [BMN_CellWithGradient_CellIndexKey: index])
+                    NSNotificationCenter.defaultCenter().postNotification(notification)
+                }
+            } else { //user clicked on expired project
+                print("Project is inactive! Moving to archive...")
+                let notification = NSNotification(name: BMN_Notification_DataEntryButtonClick, object: nil, userInfo: [BMN_CellWithGradient_CellIndexKey: BMN_CellWithGradientFill_ErrorObject]) //send invalid index #
+                NSNotificationCenter.defaultCenter().postNotification(notification)
+            }
         }
     }
     

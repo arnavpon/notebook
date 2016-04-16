@@ -106,10 +106,12 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
         ioFirstLabel.text = "What is the impact of"
         ioView.addSubview(ioFirstLabel)
         ioVariablesTextField.placeholder = "<variable(s)>"
+        ioVariablesTextField.autocapitalizationType = .None
         ioView.addSubview(ioVariablesTextField)
         ioSecondLabel.text = "on"
         ioView.addSubview(ioSecondLabel)
         ioOutcomeTextField.placeholder = "<outcome(s) of interest>"
+        ioOutcomeTextField.autocapitalizationType = .None
         ioView.addSubview(ioOutcomeTextField)
         ioQuestionMark.text = "?"
         ioView.addSubview(ioQuestionMark)
@@ -126,14 +128,17 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
         ccFirstLabel.text = "Is"
         ccView.addSubview(ccFirstLabel)
         ccComparisonGroupsTextField.placeholder = "<comparison group>"
+        ccComparisonGroupsTextField.autocapitalizationType = .None
         ccView.addSubview(ccComparisonGroupsTextField)
         ccSecondLabel.text = "or"
         ccView.addSubview(ccSecondLabel)
-        ccControlGroupTextField.placeholder = "<control>"
+        ccControlGroupTextField.placeholder = "<control grp>"
+        ccControlGroupTextField.autocapitalizationType = .None
         ccView.addSubview(ccControlGroupTextField)
         ccThirdLabel.text = "better for"
         ccView.addSubview(ccThirdLabel)
         ccOutcomeTextField.placeholder = "<outcome(s) of interest>"
+        ccOutcomeTextField.autocapitalizationType = .None
         ccView.addSubview(ccOutcomeTextField)
         ccQuestionMark.text = "?"
         ccView.addSubview(ccQuestionMark)
