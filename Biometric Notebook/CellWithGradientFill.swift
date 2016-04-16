@@ -55,10 +55,6 @@ class CellWithGradientFill: UITableViewCell {
         backgroundImageView.frame = CGRectMake(0, 0, self.frame.width, self.frame.height)
         
         //(2) Configure the 'reportData' button:
-//        let centerY = backgroundImageView.frame.height/2
-//        let originY = centerY - buttonWidth/2
-//        let originX = backgroundImageView.frame.width - rightOffset - buttonWidth
-//        reportDataButton.frame = CGRectMake(originX, originY, buttonWidth, self.frame.height)
         reportDataButton.frame = CGRectMake((self.frame.width - buttonWidth), 0, buttonWidth, self.frame.height)
         
         //(3) Based on the % completion, fill the background an equivalent amount:

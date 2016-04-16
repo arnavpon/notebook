@@ -165,21 +165,24 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             cell.contentView.alpha = dimmedAlpha
             if (tableView == inputVariablesTV) { //inputs TV
                 cell.textLabel?.text = inputsTableDummyData[indexPath.row]
-                cell.detailTextLabel?.text = "<> Module" //*not working!
             } else if (tableView == outcomeVariablesTV) { //outcomes TV
                 cell.textLabel?.text = outcomesTableDummyData[indexPath.row]
-                cell.detailTextLabel?.text = "<> Module" //*
             }
         } else { //NOT in tutorial
             cell.contentView.alpha = 1
             if (tableView == inputVariablesTV) { //inputs TV
                 cell = tableView.dequeueReusableCellWithIdentifier("input_cell")!
                 cell.textLabel?.text = inputVariableRows[indexPath.row].variableName
-                cell.detailTextLabel?.text = "\(inputVariableRows[indexPath.row].moduleTitle) Module"
+                if let functionality = inputVariableRows[indexPath.row].selectedFunctionality {
+                    cell.detailTextLabel?.text = "\(functionality)"
+                }
             } else if (tableView == outcomeVariablesTV) { //outcomes TV
                 cell = tableView.dequeueReusableCellWithIdentifier("outcome_cell")!
                 cell.textLabel?.text = outcomeVariableRows[indexPath.row].variableName
-                cell.detailTextLabel?.text = "\(outcomeVariableRows[indexPath.row].moduleTitle) Module"
+                if let functionality = outcomeVariableRows[indexPath.row].selectedFunctionality {
+                    cell.detailTextLabel?.text = "\(functionality)"
+                }
+                cell.selectionStyle = .None //prevents highlighting in gray of cell on selection
             }
         }
         return cell
@@ -206,12 +209,26 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             if (tableView == inputVariablesTV) { //inputs TV
                 //
             } else if (tableView == outcomeVariablesTV) { //outcomes TV
-                //
+                //selecting cell sets it as an outcome measure (highlight it in green)
+                let cell = tableView.cellForRowAtIndexPath(indexPath)
+                cell?.backgroundColor = UIColor.greenColor()
+                let module = outcomeVariableRows[indexPath.row]
+                module.isOutcomeMeasure = true //set indicator in module class
             }
         } else { //tutorial behavior
             if (screenNumber == 3) {
                 tableView.cellForRowAtIndexPath(indexPath)?.selected = false
                 closeTutorialScreenNumber(3) //close screen
+            }
+        }
+    }
+    
+    func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
+        if !(showTutorialMode) && !(tutorialIsOn) { //normal behavior
+            if (tableView == outcomeVariablesTV) { //outcomes TV, remove OM marking
+                tableView.cellForRowAtIndexPath(indexPath)?.backgroundColor = UIColor.whiteColor()
+                let module = outcomeVariableRows[indexPath.row]
+                module.isOutcomeMeasure = false //nullify indicator in module class
             }
         }
     }
@@ -307,7 +324,6 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         } else if (row == 0) { //first item in the picker (the blank) was selected
             selectedAction = nil
         } else { //if any other action is selected, set selectedAction & hide picker
-            print("Normal Action Set")
             if let action = Actions(rawValue: actionPickerRowArray[row]) {
                 selectedAction = Action(action: action, actionName: nil)
                 shouldShowPickerView(showPicker: false, actionName: selectedAction?.action.rawValue)
@@ -322,7 +338,6 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         } else {
             print("Normal Action: \(selectedAction?.action.rawValue)")
         }
-        
     }
     
     func shouldShowPickerView(showPicker show: Bool, actionName: String?) { //controls picker display
@@ -336,10 +351,8 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             }
         } else { //hide picker & set 'actionButton' title
             addActionButton.setTitleColor(UIColor.blackColor(), forState: .Normal)
-            if let name = actionName {
+            if let name = actionName { //if new name was selected, update btn w/ name
                 addActionButton.setTitle(name, forState: .Normal)
-            } else {
-                addActionButton.setTitle("Error, no actionName was set", forState: .Normal)
             }
             actionPicker.hidden = true
             interactionEnabled = true
@@ -353,6 +366,12 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             if (self.inputVariableRows.count > 0) && (self.outcomeVariableRows.count > 0) && (self.selectedAction != nil) { //enable 'Done' button if criteria are met
                 self.doneButton.enabled = true
             }
+        }
+    }
+    
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) { //if user taps on view when picker is visible, dismiss picker
+        if (actionPicker.hidden == false) { //only fires when pickerView is visible
+            shouldShowPickerView(showPicker: false, actionName: nil) //dismiss picker
         }
     }
     

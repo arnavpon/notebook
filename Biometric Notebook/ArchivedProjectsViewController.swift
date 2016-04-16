@@ -79,7 +79,7 @@ class ArchivedProjectsViewController: UIViewController, UITableViewDataSource, U
         if (segue.identifier == "showProjectOverview") { //pass project -> VC for visualization of stats
             let destination = segue.destinationViewController as! ProjectOverviewViewController
             destination.selectedProject = self.selectedProject
-            destination.sender = self
+            destination.sender = NSStringFromClass(ArchivedProjectsViewController) //pass type over
         }
     }
 

@@ -53,14 +53,20 @@
                                     <constraint firstAttribute="bottom" secondItem="cfR-Z2-Ywy" secondAttribute="bottom" constant="10" id="a69-c4-lOo"/>
                                 </constraints>
                             </view>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="07C-Kc-Zev">
+                                <rect key="frame" x="290" y="266" width="20" height="20"/>
+                                <color key="color" red="0.95686274510000002" green="0.010632896517307529" blue="0.17742894908304591" alpha="1" colorSpace="calibratedRGB"/>
+                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="i2e-pd-7VK" firstAttribute="leading" secondItem="f7o-7r-rRA" secondAttribute="leadingMargin" constant="-20" id="2ZV-NZ-bbj"/>
+                            <constraint firstItem="07C-Kc-Zev" firstAttribute="centerY" secondItem="f7o-7r-rRA" secondAttribute="centerY" id="Ctw-HG-8oB"/>
                             <constraint firstItem="qNu-9W-amZ" firstAttribute="top" secondItem="OoM-vZ-jYA" secondAttribute="bottom" id="KuA-QD-54Q"/>
                             <constraint firstItem="i2e-pd-7VK" firstAttribute="top" secondItem="f7o-7r-rRA" secondAttribute="topMargin" id="Rwc-e8-VzL"/>
                             <constraint firstItem="OoM-vZ-jYA" firstAttribute="leading" secondItem="f7o-7r-rRA" secondAttribute="leadingMargin" constant="-20" id="gCX-Ts-NFW"/>
                             <constraint firstItem="OoM-vZ-jYA" firstAttribute="top" secondItem="i2e-pd-7VK" secondAttribute="bottom" id="kMj-HA-ttm"/>
+                            <constraint firstItem="07C-Kc-Zev" firstAttribute="centerX" secondItem="f7o-7r-rRA" secondAttribute="centerX" id="uS2-4d-HKT"/>
                             <constraint firstAttribute="trailingMargin" secondItem="i2e-pd-7VK" secondAttribute="trailing" constant="-20" id="vrP-3H-c48"/>
                             <constraint firstAttribute="trailingMargin" secondItem="OoM-vZ-jYA" secondAttribute="trailing" constant="-20" id="yDY-3J-2ga"/>
                         </constraints>
@@ -73,6 +79,7 @@
                     </navigationItem>
                     <connections>
                         <outlet property="activeProjectsTableView" destination="OoM-vZ-jYA" id="EsW-MS-jn1"/>
+                        <outlet property="activityIndicator" destination="07C-Kc-Zev" id="LZH-fG-vQh"/>
                         <segue destination="KUW-fG-PHb" kind="show" identifier="showProjectOverview" id="oMq-qS-n7d"/>
                         <segue destination="80s-Av-aib" kind="presentation" identifier="showLogin" id="8af-fA-d80"/>
                         <segue destination="ygE-bo-Iiv" kind="show" identifier="showDataEntry" id="GaI-Ih-rC1"/>
@@ -98,8 +105,8 @@
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="68"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="waC-8j-yLW">
-                                        <rect key="frame" x="15" y="23" width="63" height="36"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                        <rect key="frame" x="15" y="25" width="56" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <state key="normal" title="&lt; Back"/>
                                         <connections>
                                             <action selector="backButtonClick:" destination="KUW-fG-PHb" eventType="touchUpInside" id="6aZ-vM-ZeH"/>
@@ -129,7 +136,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fYf-mg-gx6" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <exit id="cJU-5j-O7e" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3184" y="204"/>
+            <point key="canvasLocation" x="3179" y="204"/>
         </scene>
         <!--Login View Controller-->
         <scene sceneID="Kgf-aO-vZO">
@@ -288,20 +295,20 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QX5-EK-fDN">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="68"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="art-Kl-41b">
-                                        <rect key="frame" x="15" y="23" width="63" height="36"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                        <state key="normal" title="&lt; Back"/>
-                                        <connections>
-                                            <action selector="backButtonClick:" destination="ygE-bo-Iiv" eventType="touchUpInside" id="OnQ-OA-N0P"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PbP-11-YPQ">
-                                        <rect key="frame" x="535" y="22" width="50" height="36"/>
-                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="20"/>
+                                        <rect key="frame" x="540" y="24" width="45" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="18"/>
                                         <state key="normal" title="Done"/>
                                         <connections>
                                             <action selector="doneButtonClick:" destination="ygE-bo-Iiv" eventType="touchUpInside" id="Ocb-LQ-PhM"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="art-Kl-41b">
+                                        <rect key="frame" x="15" y="25" width="56" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <state key="normal" title="&lt; Back"/>
+                                        <connections>
+                                            <action selector="backButtonClick:" destination="ygE-bo-Iiv" eventType="touchUpInside" id="OnQ-OA-N0P"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -471,6 +478,6 @@
         <image name="projects_tab_icon" width="26" height="33"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="Fth-MT-kEH"/>
+        <segue reference="oMq-qS-n7d"/>
     </inferredMetricsTieBreakers>
 </document>

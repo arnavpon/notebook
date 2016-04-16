@@ -3,7 +3,7 @@
 //  Created by Arnav Pondicherry  on 1/7/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Module used to capture text based information based on a variable & its options. When we store this information to CoreData, we create a dictionary containing all necessary information & pass this to the managed object. When the app is reopened, this dictionary is broken down to produce individual components, which will be used for data capture.
+// Module used to describe behaviors & computations that don't fit into other, more specific Module types. When we a variable is created, a dictionary is saved to CoreData that contains all necessary information to configure the object for data reporting. When the persisted variable is accessed, the dictionary is used to configure the object appropriately.
 
 import Foundation
 import UIKit
@@ -78,7 +78,7 @@ class CustomModule: Module {
         
         //Break down the dictionary depending on the variable's type key & reconstruct object:
         if let typeName = dict[BMN_VariableTypeKey] as? String, type = CustomModuleVariableTypes(rawValue: typeName) {
-            self.selectedFunctionality = typeName //reset the variable's selection
+            self.selectedFunctionality = typeName //reset the variable's selectedFunctionality
             switch type { //configure according to 'variableType'
             case .Behavior_CustomOptions:
                 if let opts = dict[BMN_CustomModule_OptionsKey] as? [String] {

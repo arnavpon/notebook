@@ -43,12 +43,14 @@ class Project: NSManagedObject {
         }
     }
     
-    func refreshProjectCounters() { //@ end of measurement cycle, refreshes a project's counters
-        for object in self.counters {
+    func refreshMeasurementCycle() { //refreshes counters & tempStorage obj (called automatically @ end of measurement cycle or manually by user)
+        self.temporaryStorageObject = nil //clear temp object
+        for object in self.counters { //refresh each counter
             if let counter = object as? Counter {
                 counter.refreshCounter()
             }
         }
+        saveManagedObjectContext() //persist all changes
     }
     
     // MARK: - Project Endpoint Logic

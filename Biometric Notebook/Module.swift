@@ -12,7 +12,8 @@ import UIKit
 class Module { //defines the behaviors that are common to all modules
     static let modules: [Modules] = [Modules.CustomModule, Modules.EnvironmentModule, Modules.FoodIntakeModule, Modules.ExerciseModule, Modules.BiometricModule, Modules.CarbonEmissionsModule] //list of available modules, update whenever a new one is added
     
-    private let variableState: ModuleVariableStates //state of THIS instance (configuration or reporting)
+    var isOutcomeMeasure: Bool = false //externally set to indicate that the variable is an OM
+    private let variableState: ModuleVariableStates //state of THIS instance (Configuration or Reporting)
     internal let variableName: String //the name given to the variable attached to this module
     internal var moduleTitle: String = "" //overwrite w/ <> Module enum raw value in each class
     internal var sectionsToDisplay: [String] { //sections to display in ConfigureModuleVC
@@ -82,13 +83,6 @@ class Module { //defines the behaviors that are common to all modules
         self.variableState = ModuleVariableStates.DataReporting
     }
     
-    // MARK: - Core Data
-    
-    internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        let persistentDictionary = [BMN_ModuleTitleKey: self.moduleTitle] //'moduleTitle' matches switch case in 'Project' > 'createModuleObjectFromModuleName' func
-        return persistentDictionary
-    }
-    
     // MARK: - Variable Configuration
     
     internal var selectedFunctionality: String? { //the behavior OR computation (picked from the enum defined in each module object) that the user selected for this variable
@@ -96,8 +90,6 @@ class Module { //defines the behaviors that are common to all modules
             if (self.variableState == ModuleVariableStates.VariableConfiguration) { //ONLY set-up the configurationOptionsLayoutObject if the variable is being set-up
                 print("User selected behavior: '\(selectedFunctionality!)'.")
                 setConfigurationOptionsForSelection()
-            } else { //**remove this
-                print("[selectedFunctionality] Set during reconstruction!")
             }
         }
     }
@@ -113,6 +105,13 @@ class Module { //defines the behaviors that are common to all modules
     internal func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [String]?) {
         //Matches reportedData from configurationCells -> properties in the Module object & returns TRUE if operation was successful, (FALSE + an error message) if the operation failed; the 3rd part of the return object is an optional FLAG (that tells the VC to visually mark the cell w/ the corresponding DESCRIPTOR in the data source, b/c that is where the problem has occurred).
         return (false, "Superclass matchConfiguration fx call!", nil)
+    }
+    
+    // MARK: - Core Data
+    
+    internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
+        let persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle, BMN_VariableIsOutcomeMeasureKey: self.isOutcomeMeasure] //'moduleTitle' matches switch case in 'Project' > 'createModuleObjectFromModuleName' func
+        return persistentDictionary
     }
     
     // MARK: - Data Entry

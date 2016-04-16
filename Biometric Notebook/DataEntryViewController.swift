@@ -21,7 +21,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        doneButton.enabled = true //**should auto-enable when all completionIndicators are set
+        doneButton.enabled = true //**delete
         
         dataEntryTV.dataSource = self
         dataEntryTV.delegate = self
@@ -31,6 +31,8 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         getTableViewDataSource() //set data source for TV
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.configureDoneButton), name: BMN_Notification_CompletionIndicatorDidChange, object: nil)
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(self.manualMeasurementCycleRefresh)) //add manual cycle refresh gesture recognizer
+        dataEntryTV.addGestureRecognizer(longPress)
     }
     
     override func didReceiveMemoryWarning() { //save current entries?
@@ -47,22 +49,22 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         dataEntryTV.registerClass(CustomWithRangeScaleCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithRangeScaleCell))
     }
     
-    func getTableViewDataSource() { //picks TV dataSource array for the selectedProject
-        //First, check how many groups the selectedProject contains (> 1 means user must select which one they are filling data for):
+    func getTableViewDataSource() { //picks TV dataSource array for the selectedProject (**@ some point in future, when the interaction is more clearly defined, wrap this up in the 'Project' class)
+        //First, check how many groups the selectedProject contains (> 1 => user must select which one they are filling data for):
         if let project = selectedProject, groups = project.groups.allObjects as? [Group] {
-            if (groups.count == 1) { //project contains only 1 group
+            if (groups.isEmpty) { //ERROR
+                print("Error! Selected project contains NO GROUPS!")
+            } else if (groups.count == 1) { //project contains only 1 group
                 let group = groups.first!
                 variablesArray = group.getVariablesArrayForTV() //initialize TV dataSource
                 dataEntryTV.reloadData() //update UI
-            } else if (groups.count == 0) { //ERROR
-                print("Error! Selected project contains NO GROUPS!")
             } else { //provide interface for user to select which group to report data for
                 //If the temporary object already exists, see which group inputs were reported for:
                 if let temp = project.temporaryStorageObject {
                     if let groupDict = temp[BMN_CurrentlyReportingGroupKey] {
                         for (key, _) in groupDict { //Key & Value BOTH equal the groupType's rawValue
                             if let group = GroupTypes(rawValue: key) {
-                                getTableViewDataSourceForGroup(group)
+                                getTableViewDataSourceForGroup(group) //auto-set data source for group
                                 break //only needs to run 1x (only 1 key/value pair in this dict)
                             }
                         }
@@ -74,21 +76,18 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         }
     }
     
-    func refreshMeasurementCycle() {
-        //Resets project's temporary data object so that IV entry will be displayed (in case user missed the 2nd part of the entry) & dumps the associated data for the first measurement:
-        //Send the user a warning that data will be deleted! Only works when we are in OM reporting mode!
-        let alert = UIAlertController(title: "Warning", message: "If you choose to refresh the cycle, it will permanently delete the first half of the data collected.", preferredStyle: .Alert) //*reword
-        let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
-        let ok = UIAlertAction(title: "I'm Sure", style: .Destructive) { (let ok) in
-            if let project = self.selectedProject {
-                project.temporaryStorageObject = nil //delete data in temporary storage
+    func manualMeasurementCycleRefresh() { //resets project's tempDataObject so IV entry will be displayed (in case user missed 2nd part of the entry) & dumps the associated data for the 1st measurement
+        if let project = selectedProject, _ = project.temporaryStorageObject { //function can only fire if the user has input IV data (i.e. is in 2nd half of measurement cycle)
+            let alert = UIAlertController(title: "Warning", message: "If you choose to refresh the cycle, it will permanently delete the data collected for the input variables during this cycle.", preferredStyle: .Alert) ////send the user a warning that data will be deleted!
+            let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
+            let ok = UIAlertAction(title: "I'm Sure", style: .Destructive) { (let ok) in
+                project.refreshMeasurementCycle() //refresh
+                self.getTableViewDataSource() //get TV's new dataSource
             }
-            saveManagedObjectContext()
-            self.getTableViewDataSource() //get TV's new dataSource
+            alert.addAction(cancel)
+            alert.addAction(ok)
+            presentViewController(alert, animated: true, completion: nil)
         }
-        alert.addAction(cancel)
-        alert.addAction(ok)
-        presentViewController(alert, animated: true, completion: nil)
     }
     
     func configureGroupSelectionView(show: Bool) { //configures pop-up view for group selection
@@ -166,17 +165,17 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         
         if let project = selectedProject {
             if let temp = project.temporaryStorageObject { //tempObject EXISTS (send combined data -> DB)
-                for (key, value) in temp {
-                    print("[doneButtonClick] DB Object BEFORE Count: \(dataObjectToDatabase.count).")
-                    print("[doneButtonClick] Temp Object Count: \(temp.count).")
-                    dataObjectToDatabase.updateValue(value, forKey: key)
-                    print("[doneButtonClick] DB Object AFTER Count: \(dataObjectToDatabase.count).")
-                    
-                    //**send combined dict -> DB
-                    
-                    project.refreshProjectCounters() //efresh all the project's counters (if they exist)
+                for (key, value) in dataObjectToDatabase {
+                    print("[doneButtonClick] DB Object BEFORE: KEY = '\(key)'. Value Count: \(value.count).")
                 }
-                project.temporaryStorageObject = nil //clear temp object AFTER reporting
+                for (key, value) in temp { //add all items in temp object -> DB data object
+                    dataObjectToDatabase.updateValue(value, forKey: key)
+                }
+                for (key, value) in dataObjectToDatabase {
+                    print("[doneButtonClick] DB Object AFTER: KEY = '\(key)'. Value Count: \(value.count).")
+                }
+                //**send combined dict -> DB
+                project.refreshMeasurementCycle() //set tempObj -> nil & refresh counters
             } else { //tempObject does NOT exist (save dict -> tempObject until outputs are reported)
                 let numberOfGroups = project.groups.count
                 if (numberOfGroups > 1) { //multiple groups (save a groupType in the tempObject)
@@ -185,8 +184,8 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                     }
                 }
                 project.temporaryStorageObject = dataObjectToDatabase //store obj -> temp
+                saveManagedObjectContext()
             }
-            saveManagedObjectContext()
         }
         performSegueWithIdentifier("unwindToActiveProjects", sender: nil) //return -> home screen
     }
@@ -209,7 +208,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                         variablesArray = grp.getVariablesArrayForTV()
                         dataEntryTV.reloadData()
                         configureGroupSelectionView(false) //show TV again
-                        groupType = group //set indicator
+                        groupType = group //set groupType indicator for doneButtonClick()
                         break
                     }
                 }

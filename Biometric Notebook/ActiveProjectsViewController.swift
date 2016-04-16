@@ -12,6 +12,7 @@ import CoreData
 class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, LoginViewControllerDelegate {
 
     @IBOutlet weak var activeProjectsTableView: UITableView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     var activeCounters: [Counter] = [] //list of active counters (TV dataSource)
     var projects: [Project] = [] //list of activeProject objects (TV dataSource)
@@ -39,19 +40,11 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         activeProjectsTableView.delegate = self
         activeProjectsTableView.registerClass(CellForCounterBehavior.self, forCellReuseIdentifier: NSStringFromClass(CellForCounterBehavior)) //counter cell type
         activeProjectsTableView.registerClass(CellWithGradientFill.self, forCellReuseIdentifier: NSStringFromClass(CellWithGradientFill)) //project cell type
+        activityIndicator.hidesWhenStopped = true
     }
     
-    func getActiveProjects() -> [Project] { //obtains ACTIVE projects from store
-        if let activeProjects = fetchObjectsFromCoreDataStore("Project", filterProperty: "isActive", filterValue: [true]) as? [Project] { //list of ACTIVE projects
-            return activeProjects
-        }
-        return []
-    }
-    
-    override func viewWillAppear(animated: Bool) { //check for active projects
-        activeProjectsTableView.reloadData() //clears visuals on selected TV cell
-        
-        //**obtain projects SPECIFIC to new user?!? - we will need to store local projects against username for this to work; better to pull all projects from the cloud & store to the device (overwriting existing entity) rather than creating a store for each user!
+    override func viewWillAppear(animated: Bool) { //update TV UI whenever view appears
+        //**obtain projects SPECIFIC to current user when view appears - pull all projects from the cloud & store to the device (overwriting existing Projects entity)!
         self.projects = getActiveProjects()
         if (self.projects.isEmpty) { //empty state, handle appropriately
             activeProjectsTableView.hidden = true
@@ -66,7 +59,14 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
     }
     
-    override func viewDidAppear(animated: Bool) { //if user is not logged in, transitions -> loginVC
+    func getActiveProjects() -> [Project] { //obtains ACTIVE projects from store
+        if let activeProjects = fetchObjectsFromCoreDataStore("Project", filterProperty: "isActive", filterValue: [true]) as? [Project] { //list of ACTIVE projects
+            return activeProjects
+        }
+        return []
+    }
+    
+    override func viewDidAppear(animated: Bool) { //if user is not logged in, transition -> loginVC
         if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //check if user is logged in
             loggedIn = true //tell system that user is logged in
         } else {
@@ -76,6 +76,10 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     override func viewWillDisappear(animated: Bool) { //clear notification observer
         NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
+    override func viewDidDisappear(animated: Bool) {
+        configureActivityIndicator(false) //stop activity animation after disappearing
     }
     
     func dataEntryButtonWasClicked(notification: NSNotification) {
@@ -88,6 +92,16 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 self.projects = getActiveProjects()
                 activeProjectsTableView.reloadData()
             }
+        }
+    }
+    
+    func configureActivityIndicator(animate: Bool) {
+        if (animate) { //start animation
+            activityIndicator.startAnimating()
+            activeProjectsTableView.alpha = 0.3 //dimmed alpha
+        } else { //stop animation
+            activityIndicator.stopAnimating()
+            activeProjectsTableView.alpha = 1 //restore alpha
         }
     }
     
@@ -130,8 +144,8 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             return cell
         } else { //Project cells
             let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithGradientFill)) as! CellWithGradientFill
-            cell.highlighted = false //clears highlighting on view reload
-            cell.selected = false //clears highlighting on view reload
+            cell.selectionStyle = .None //prevents highlighting of cell on selection
+            cell.backgroundImageView.backgroundColor = UIColor.whiteColor() //**reset -> default
             cell.cellIndex = indexPath.row
             let project = projects[indexPath.row]
             let title = project.title
@@ -153,6 +167,10 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         if !(activeCounters.isEmpty) && (indexPath.section == 0) { //prevent selection of Counter cells
             return false
         }
+        if let cell = tableView.cellForRowAtIndexPath(indexPath) as? CellWithGradientFill {
+            cell.backgroundImageView.backgroundColor = UIColor(red: 239/255, green: 239/255, blue: 244/255, alpha: 1) //highlight selected cell
+        }
+        configureActivityIndicator(true) //start activity animation
         return true
     }
     
@@ -215,15 +233,13 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     // MARK: - Navigation
     
-    @IBAction func unwindToActiveProjectsVC(sender: UIStoryboardSegue) { //unwind segue
-        //
-    }
+    @IBAction func unwindToActiveProjectsVC(sender: UIStoryboardSegue) { } //unwind segue
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if (segue.identifier == "showProjectOverview") { //pass the selected project
             let destination = segue.destinationViewController as! ProjectOverviewViewController
             destination.selectedProject = self.selectedProject
-            destination.sender = self
+            destination.sender = NSStringFromClass(ActiveProjectsViewController) //pass class name
         } else if (segue.identifier == "showDataEntry") { //pass the selected project
             let destination = segue.destinationViewController as! DataEntryViewController
             destination.selectedProject = self.selectedProject

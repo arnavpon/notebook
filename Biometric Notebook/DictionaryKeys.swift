@@ -79,6 +79,7 @@ let BMN_ComputationsKey = "computations_key"
 // MARK: - [MODULE] Core Data Keys
 
 let BMN_ModuleTitleKey = "module_title_key" //key to obtain var's Module type
+let BMN_VariableIsOutcomeMeasureKey = "variable_is_outcome_measure_key" //indicator if var is an OM
 let BMN_VariableTypeKey = "variable_type_key" //key to obtain var's behavior/computation
 
 // MARK: - [MODULE] Data Reporting Keys

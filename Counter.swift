@@ -20,7 +20,6 @@ class Counter: NSManagedObject {
     
     func refreshCounter() { //resets counter's value to 0
         self.currentCount = 0
-        saveManagedObjectContext() //persist changes
     }
 
 }
