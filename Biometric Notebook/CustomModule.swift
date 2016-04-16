@@ -58,11 +58,11 @@ class CustomModule: Module {
         }
     }
     
-    private var prompt: String? //the (optional) prompt attached to the variable (replaces the variable's name as the section header in Data Entry mode)
-    private var options: [String]? //array of user-created options associated w/ the variable/prompt
-    private var multipleSelectionEnabled: Bool? //for a variable w/ options, checks if user is allowed to select MULTIPLE OPTIONS (if nil => FALSE)
-    private var rangeScaleParameters: (Int, Int, Int)? //(minimum, maximum, increment)
-    
+    //Custom DataEntryCell Configuration Variables:
+    var prompt: String? //the (optional) prompt attached to the variable (replaces the variable's name as the section header in Data Entry mode)
+    var options: [String]? //array of user-created options associated w/ the variable/prompt
+    var multipleSelectionEnabled: Bool? //for a variable w/ options, checks if user is allowed to select MULTIPLE OPTIONS (if nil => FALSE)
+    var rangeScaleParameters: (Int, Int, Int)? //(minimum, maximum, increment)
     var counterUniqueID: Int? //unique counter ID, used to match to 'Counter' CoreData object
     
     // MARK: - Initializers
@@ -131,7 +131,7 @@ class CustomModule: Module {
                 //3 config cells are needed (prompt + multiple selection + custom options):
                 array.append((ConfigurationOptionCellTypes.SimpleText, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_PromptID, BMN_LEVELS_CellIsOptionalKey: true, BMN_LEVELS_MainLabelKey: "Set a prompt (optional). Replaces the variable's name during data reporting:"])) //cell to accept prompt
                 array.append((ConfigurationOptionCellTypes.Boolean, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID, BMN_LEVELS_MainLabelKey: "Allow multiple options to be selected (default NO):"])) //cell to check whether multiple selection is allowed or not
-                array.append((ConfigurationOptionCellTypes.CustomOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_OptionsID, BMN_LEVELS_MainLabelKey: "Enter 1 or more custom options for selection:"])) //cell to enter custom options
+                array.append((ConfigurationOptionCellTypes.CustomOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_OptionsID, BMN_LEVELS_MainLabelKey: "Enter 2 or more custom options for selection:"])) //cell to enter custom options
                 configurationOptionsLayoutObject = array
                 
             case CustomModuleVariableTypes.Behavior_BinaryOptions:
@@ -206,7 +206,7 @@ class CustomModule: Module {
         return (false, "No selected functionality was found!", nil)
     }
     
-    // MARK: - Core Data
+    // MARK: - Core Data Logic
     
     internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict allows FULL reconstruction of the object into a Module subclass). Each variable will occupy 1 spot in the overall dictionary, so we need to merge these individual dictionaries for each variable into 1 master dictionary. Each variable's dictionary will be indicated by the variable name, so MAKE SURE THERE ARE NO REPEAT NAMES!
         
@@ -250,7 +250,7 @@ class CustomModule: Module {
         return persistentDictionary
     }
     
-    // MARK: - Data Entry
+    // MARK: - Data Entry Logic
     
     func getTypeForVariable() -> CustomModuleVariableTypes? { //used by DataEntry TV cells as safety check
         return self.variableType
@@ -273,8 +273,12 @@ class CustomModule: Module {
     }
     
     override var cellHeightUserInfo: [String : AnyObject]? {
-        if let opts = options { //return the # of options cells that are present
-            return [BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey: opts.count]
+        if let opts = options { //return the # of options cells that are present (VC adds 1 lvl per opt)
+            if (variableType == CustomModuleVariableTypes.Behavior_BinaryOptions) { //BINARY layout
+                return [BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey: 1] //only need 1 lvl
+            } else {
+                return [BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey: opts.count]
+            }
         }
         return nil
     }

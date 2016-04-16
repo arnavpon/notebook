@@ -39,8 +39,8 @@ class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate 
     
     // MARK: - Visual Layout
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func setNeedsLayout() {
+        super.setNeedsLayout()
         
         //Layout textField (centered beneath the instructionsLabel):
         textEntryField.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.MidThirdLevel, nil))

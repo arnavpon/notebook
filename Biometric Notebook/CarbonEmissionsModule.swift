@@ -48,7 +48,7 @@ class CarbonEmissionsModule: Module {
         self.moduleTitle = Modules.CarbonEmissionsModule.rawValue
     }
     
-    // MARK: - Core Data
+    // MARK: - Core Data Logic
     
     internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> {
         let persistentDictionary: [String: AnyObject] = super.createDictionaryForCoreDataStore()
@@ -59,7 +59,7 @@ class CarbonEmissionsModule: Module {
         //
     }
     
-    // MARK: - Data Entry
+    // MARK: - Data Entry Logic
     
     override func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
         if let type = self.variableType {

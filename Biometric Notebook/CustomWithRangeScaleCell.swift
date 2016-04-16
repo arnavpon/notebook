@@ -30,8 +30,8 @@ class CustomWithRangeScaleCell: BaseDataEntryCell { //add new class -> enum!
     
     // MARK: - Visual Layout
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func setNeedsLayout() {
+        super.setNeedsLayout()
     }
     
     // MARK: - Data Reporting

@@ -63,8 +63,8 @@ class BooleanConfigurationCell: BaseConfigurationCell { //add new class -> enum!
     
     // MARK: - Visual Layout
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func setNeedsLayout() {
+        super.setNeedsLayout()
         
         //Configure buttons side by side around center of view:
         yesButton.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.LeftThirdLevel, nil))

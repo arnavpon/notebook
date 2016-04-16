@@ -20,6 +20,7 @@ class CustomWithCounterCell: BaseDataEntryCell { //add new class -> enum!
     private var counterDataSource: Counter? { //persistent source holding currentCount
         didSet {
             updateTextLabelWithCount()
+            updateModuleReportObject() //send preliminary persistent count -> Module object
         }
     }
     
@@ -27,6 +28,7 @@ class CustomWithCounterCell: BaseDataEntryCell { //add new class -> enum!
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        self.configureCompletionIndicator(true) //cell is ALWAYS complete
         
         incrementButton.addTarget(self, action: #selector(self.incrementButtonClick(_:)), forControlEvents: .TouchUpInside)
         incrementButton.setTitle("Plus 1", forState: UIControlState.Normal)
@@ -68,8 +70,8 @@ class CustomWithCounterCell: BaseDataEntryCell { //add new class -> enum!
     
     // MARK: - Visual Layout
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func setNeedsLayout() {
+        super.setNeedsLayout()
         
         incrementButton.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.LeftThirdLevel, nil))
         currentCountLabel.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.RightThirdLevel, nil))
@@ -81,6 +83,7 @@ class CustomWithCounterCell: BaseDataEntryCell { //add new class -> enum!
         if let counter = counterDataSource {
             counter.incrementCounter()
             updateTextLabelWithCount() //show updated count in lbl
+            updateModuleReportObject() //update Module object w/ the incremented count
         }
     }
     
@@ -88,7 +91,7 @@ class CustomWithCounterCell: BaseDataEntryCell { //add new class -> enum!
     
     override func updateModuleReportObject() { //updates the Module dataSource's report object
         if let mod = module {
-            mod.mainDataObject = nil
+            mod.mainDataObject = currentCount
         }
     }
     

@@ -32,10 +32,6 @@ class BaseConfigurationCell: LevelsFrameworkCell {
     
     // MARK: - Visual Layout
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-    }
-    
     internal override func accessDataSource() {
         super.accessDataSource()
         if let source = dataSource, descriptor = source[BMN_Configuration_CellDescriptorKey] as? String {

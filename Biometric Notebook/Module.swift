@@ -107,16 +107,16 @@ class Module { //defines the behaviors that are common to all modules
         return (false, "Superclass matchConfiguration fx call!", nil)
     }
     
-    // MARK: - Core Data
+    // MARK: - Core Data Logic
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
         let persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle, BMN_VariableIsOutcomeMeasureKey: self.isOutcomeMeasure] //'moduleTitle' matches switch case in 'Project' > 'createModuleObjectFromModuleName' func
         return persistentDictionary
     }
     
-    // MARK: - Data Entry
+    // MARK: - Data Entry Logic
     
-    func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable (override in subclasses)
+    func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable (OVERRIDE in subclasses)
         return nil
     }
     

@@ -16,23 +16,27 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     
     var selectedProject: Project?
     var variablesArray: [Module]? //TV data source
+    var numberOfConfiguredCells: Int = 0 { //controls whether 'Done' btn is enabled
+        didSet {
+            print("[DataEntryVC] # of configured cells: \(numberOfConfiguredCells).")
+            configureDoneButton()
+        }
+    }
     
     // MARK: - View Configuration
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        doneButton.enabled = true //**delete
         
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(self.manualMeasurementCycleRefresh))
         dataEntryTV.dataSource = self
         dataEntryTV.delegate = self
+        dataEntryTV.addGestureRecognizer(longPress) //add manual refresh gesture recognizer
         registerCustomTVCells() //register ALL possible custom cell types
-        
-        print("Selected Project: '\(selectedProject?.title)'.")
         getTableViewDataSource() //set data source for TV
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.configureDoneButton), name: BMN_Notification_CompletionIndicatorDidChange, object: nil)
-        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(self.manualMeasurementCycleRefresh)) //add manual cycle refresh gesture recognizer
-        dataEntryTV.addGestureRecognizer(longPress)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil)
     }
     
     override func didReceiveMemoryWarning() { //save current entries?
@@ -95,12 +99,26 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         dataEntryTV.hidden = show
     }
     
-    func configureDoneButton(notification: NSNotification) { //handles Done button enablement
-        if let info = notification.userInfo, complete = info[BMN_LEVELS_CompletionIndicatorStatusKey] as? Bool, cellCount = variablesArray?.count {
-            if (complete) { //status changed -> COMPLETE
-                
-            } else { //status changed -> INCOMPLETE
-                
+    func cellCompletionStatusDidChange(notification: NSNotification) {
+        if let info = notification.userInfo, status = info[BMN_LEVELS_CompletionIndicatorStatusKey] as? Bool { //obtain current status & update the counter variable accordingly
+            if (status) { //status was set -> COMPLETE (add 1 to the counter)
+                self.numberOfConfiguredCells += 1
+            } else { //status was set -> INCOMPLETE (subtract 1 from the counter)
+                self.numberOfConfiguredCells -= 1
+            }
+        }
+    }
+    
+    func configureDoneButton() { //handles 'Done' button enablement
+        if let variables = variablesArray {
+            let totalCells = variables.count
+            if (self.numberOfConfiguredCells == totalCells) { //all cells have been reported
+                doneButton.enabled = true
+            } else { //some cells have not been reported
+                doneButton.enabled = false
+                if (numberOfConfiguredCells > totalCells) { //safety check
+                    print("[configureDoneButton] ERROR - # of configured cells is > than total!")
+                }
             }
         }
     }
@@ -165,14 +183,13 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         
         if let project = selectedProject {
             if let temp = project.temporaryStorageObject { //tempObject EXISTS (send combined data -> DB)
-                for (key, value) in dataObjectToDatabase {
-                    print("[doneButtonClick] DB Object BEFORE: KEY = '\(key)'. Value Count: \(value.count).")
-                }
                 for (key, value) in temp { //add all items in temp object -> DB data object
                     dataObjectToDatabase.updateValue(value, forKey: key)
                 }
-                for (key, value) in dataObjectToDatabase {
-                    print("[doneButtonClick] DB Object AFTER: KEY = '\(key)'. Value Count: \(value.count).")
+                for (key, dict) in dataObjectToDatabase {
+                    for (variableName, value) in dict {
+                        print("DB Object AFTER: KEY = '\(key)'. Variable: '\(variableName)'. Value: [\(value)].")
+                    }
                 }
                 //**send combined dict -> DB
                 project.refreshMeasurementCycle() //set tempObj -> nil & refresh counters

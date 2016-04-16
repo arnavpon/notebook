@@ -23,16 +23,6 @@ class BaseDataEntryCell: LevelsFrameworkCell { //data source for DataEntry cells
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - Visual Layout
-    
-    override func prepareForReuse() { //???
-        super.prepareForReuse()
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
-    }
-    
     // MARK: - Data Reporting
     
     func updateModuleReportObject() { //updates the Module dataSource's report object

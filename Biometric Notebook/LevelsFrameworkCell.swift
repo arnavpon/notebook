@@ -149,7 +149,11 @@ class LevelsFrameworkCell: UITableViewCell {
     
     internal func accessModuleProperties() { //configures DataEntry cell's visuals
         if let mod = module, selection = mod.selectedFunctionality { //update mainLabel
-            mainLabel.text = "\(mod.variableName): \(selection)"
+            if let customMod = mod as? CustomModule, prompt = customMod.prompt { //check for PROMPT
+                mainLabel.text = prompt
+            } else { //NO prompt, default behavior
+                mainLabel.text = "\(mod.variableName): \(selection)"
+            }
         }
     }
     
@@ -265,13 +269,13 @@ class LevelsFrameworkCell: UITableViewCell {
         } else { //REQUIRED configuration cell
             if (complete) { //config COMPLETE
                 reportData() //fire reportData() to update the external (VC) report object
-                if (completionIndicator.image != completeImage) { //ONLY switch images if the current image is NOT alrdy set -> 'check'
+                if (completionIndicator.image != completeImage) { //ONLY switch images & fire notification if the current image is NOT alrdy set -> 'check'
                     completionIndicator.image = completeImage
                     let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_LEVELS_CompletionIndicatorStatusKey: true])
                     NSNotificationCenter.defaultCenter().postNotification(notification) //send notification -> VC that the completion status has changed to COMPLETE
                 }
             } else { //config INCOMPLETE
-                if (completionIndicator.image != incompleteImage) { //ONLY switch images if the current image is NOT alrdy set -> 'x_mark'
+                if (completionIndicator.image != incompleteImage) { //ONLY switch images & fire notification if the current image is NOT alrdy set -> 'x_mark'
                     completionIndicator.image = incompleteImage
                     let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_LEVELS_CompletionIndicatorStatusKey: false])
                     NSNotificationCenter.defaultCenter().postNotification(notification) //send notification -> VC that the completion status has changed to INCOMPLETE

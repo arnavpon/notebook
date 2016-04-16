@@ -16,7 +16,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     var activeCounters: [Counter] = [] //list of active counters (TV dataSource)
     var projects: [Project] = [] //list of activeProject objects (TV dataSource)
-    var selectedProject: Project? //object to pass on segue
+    var selectedProject: Project? //project object to pass on segue
     
     // MARK: - View Configuration
     

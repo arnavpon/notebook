@@ -27,8 +27,8 @@ class SimpleTextConfigurationCell: BaseConfigurationCell, UITextFieldDelegate { 
     
     // MARK: - Visual Layout
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    override func setNeedsLayout() {
+        super.setNeedsLayout()
         textEntryField.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.RightTwoThirdsLevel, nil)) //layout textField
     }
     

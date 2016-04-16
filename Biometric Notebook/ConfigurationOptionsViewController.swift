@@ -96,7 +96,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             } else if let data = dict[BMN_CustomModule_CustomOptions_OptionsID] { //CUSTOM OPTS
                 reportedDataObject[BMN_CustomModule_CustomOptions_OptionsID] = data
                 let dat = data as! [String]
-                for opt in dat { //*
+                for opt in dat { //**
                     print("Option: '\(opt)'.")
                 }
             } else if let data = dict[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] { //check if multiple selection is allowed
