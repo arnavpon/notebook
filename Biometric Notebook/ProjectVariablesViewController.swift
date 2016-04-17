@@ -648,7 +648,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         }
         let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in }
         let done = UIAlertAction(title: "Add", style: .Default) { (let ok) -> Void in
-            let input = alert.textFields?.first?.text
+            let input = alert.textFields?.first?.text?.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
             if (input != "") {
                 var error: Bool = false
                 for variable in self.inputVariableRows { //make sure name is unique

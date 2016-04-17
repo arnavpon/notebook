@@ -137,7 +137,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
             let module = variables[indexPath.row]
             if let cellType = module.getDataEntryCellTypeForVariable() {
                 var userInfo = Dictionary<String, AnyObject>()
-                if let heightInfo = module.cellHeightUserInfo { //check if there is additional ht info
+                if let heightInfo = module.cellHeightUserInfo { //check if there is additional height info
                     userInfo = heightInfo
                 }
                 let height = cellType.getHeightForDataEntryCell(userInfo) //calculate height
@@ -154,11 +154,11 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
             if let cellType = moduleForCell.getDataEntryCellTypeForVariable() { //get cell type
                 switch cellType {
                 case .CustomWithOptions:
-                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithOptionsCell)) as! CustomWithOptionsCell
+                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithOptionsCell), forIndexPath: indexPath) as! CustomWithOptionsCell
                 case .CustomWithCounter:
-                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithCounterCell)) as! CustomWithCounterCell
+                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithCounterCell), forIndexPath: indexPath) as! CustomWithCounterCell
                 case .CustomWithRangeScale:
-                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithRangeScaleCell)) as! CustomWithRangeScaleCell
+                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithRangeScaleCell), forIndexPath: indexPath) as! CustomWithRangeScaleCell
                 }
             }
             cell.module = moduleForCell //assign dataSource -> cell

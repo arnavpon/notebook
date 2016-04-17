@@ -286,9 +286,8 @@ class LevelsFrameworkCell: UITableViewCell {
     
     // MARK: - Data Reporting
     
-    internal func reportData() { //reports all pertinent data entered by user, override ONLY in BASE cells for each type of custom TV cell (DataEntry & Configuration)
+    internal func reportData() { //reports all pertinent data entered by user, override ONLY in BASE ConfigurationCells & CreateProject cells
         //when called, send a notification -> VC w/ the data to update the report object whenever the cell is marked as complete
-        print("[CellW/Levels > reportData()] Being called from super class...")
     }
 
 }

@@ -14,6 +14,7 @@ class RangeScaleView: UIView {
             setNeedsLayout()
         }
     }
+    var rangeScaleID: String? //set by RangeScaleCell (matches the variableName for the cell)
     var parameters: (Int, Int, Int)? { //(min, max, increment) for scale
         didSet { //adjust currentValue when set
             if let params = parameters { //cast params -> Double so decimal calculation can be done
@@ -37,9 +38,9 @@ class RangeScaleView: UIView {
     }
     var currentValue: Int? { //the current location of the selectionLayer (starts @ center)
         didSet { //send notification -> VC & update label
-            if let value = currentValue {
+            if let value = currentValue { //pass over the new value
                 currentSelectionLabel.text = "\(value)" //update label when value changes
-                let notification = NSNotification(name: BMN_Notification_RangeScaleValueDidChange, object: nil, userInfo: [BMN_CustomWithRangeScaleCell_RangeScaleValueKey: value])
+                let notification = NSNotification(name: BMN_Notification_RangeScaleValueDidChange, object: self, userInfo: [BMN_CustomWithRangeScaleCell_RangeScaleValueKey: value])
                 NSNotificationCenter.defaultCenter().postNotification(notification)
             }
         }

@@ -34,7 +34,7 @@ class CustomWithRangeScaleCell: BaseDataEntryCell { //add new class -> enum!
         self.insetBackgroundView.addSubview(rangeScale)
         
         //Add observer for changes in scale value:
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.rangeScaleValueDidChange(_:)), name: BMN_Notification_RangeScaleValueDidChange, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.rangeScaleValueDidChange(_:)), name: BMN_Notification_RangeScaleValueDidChange, object: self.rangeScale) //ONLY respond to notifications coming from self.rangeScale (not to rangeScales contained in other custom cells)!
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -68,7 +68,7 @@ class CustomWithRangeScaleCell: BaseDataEntryCell { //add new class -> enum!
     // MARK: - Data Reporting
     
     func rangeScaleValueDidChange(notification: NSNotification) {
-        if let info = notification.userInfo, value = info[BMN_CustomWithRangeScaleCell_RangeScaleValueKey] as? Int { //get updated value
+        if let info = notification.userInfo, value = info[BMN_CustomWithRangeScaleCell_RangeScaleValueKey] as? Int { //get new value
             self.selectedValue = value
         }
     }

@@ -90,7 +90,7 @@ class CustomWithCounterCell: BaseDataEntryCell { //add new class -> enum!
     // MARK: - Data Reporting
     
     override func updateModuleReportObject() { //updates the Module dataSource's report object
-        if let mod = module {
+        if let mod = self.module {
             mod.mainDataObject = currentCount
         }
     }
