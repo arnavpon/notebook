@@ -20,10 +20,8 @@ enum DataEntryCellTypes: String { //REGISTER each new enum type w/ TV in DataEnt
         switch self {
         case .CustomWithOptions: //access key indicating # of custom options to calculate height
             numberOfLevels = CustomWithOptionsCell.numberOfLevels
-            print("Number of Levels from Class: \(numberOfLevels).")
             if let numberOfOptions = userInfo[BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey] as? Int {
                 numberOfLevels = CustomWithOptionsCell.numberOfLevels + numberOfOptions
-                print("Total # of Levels: \(numberOfLevels).")
             }
         case .CustomWithCounter:
             numberOfLevels = CustomWithCounterCell.numberOfLevels

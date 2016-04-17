@@ -10,11 +10,10 @@ import UIKit
 class RangeScaleView: UIView {
     
     override var frame: CGRect {
-        didSet { //redraw subviews
+        didSet { //redraw subviews when frame changes
             setNeedsLayout()
         }
     }
-    
     var parameters: (Int, Int, Int)? { //(min, max, increment) for scale
         didSet { //adjust currentValue when set
             if let params = parameters { //cast params -> Double so decimal calculation can be done
@@ -79,11 +78,12 @@ class RangeScaleView: UIView {
         
         //(2) Configure Subviews:
         plusButton.addTarget(self, action: #selector(self.plusButtonClick(_:)), forControlEvents: .TouchUpInside)
-        plusButton.setImage(UIImage(named: "plus_square_black"), forState: .Normal)
+        plusButton.setImage(UIImage(named: "RangeScale_plus_icon"), forState: .Normal)
         self.addSubview(plusButton)
         
         minusButton.addTarget(self, action: #selector(self.minusButtonClick(_:)), forControlEvents: .TouchUpInside)
-        minusButton.setImage(UIImage(named: "remove_icon"), forState: .Normal) //**update img
+        minusButton.setImage(UIImage(named: "RangeScale_minus_icon"), forState: .Normal)
+        minusButton.backgroundColor = UIColor.redColor()
         self.addSubview(minusButton)
         
         minimumValueLabel.textAlignment = .Center
@@ -142,7 +142,7 @@ class RangeScaleView: UIView {
     }
     
     func adjustSelectionLayerPosition() { //moves selectionLayer & its label based on currentValue
-        //(1) Animate the centerX positions for selectionLayer & currentSelectionLabel:
+        //Animate the centerX positions for selectionLayer & currentSelectionLabel:
         if let centerX = getCurrentValueAsPositionOnTrack() { //convert currentVal -> x coord on track
             UIView.animateWithDuration(0.65) { //run both animations simultaneously!
                 self.currentSelectionLabel.center.x = centerX
@@ -193,8 +193,8 @@ class RangeScaleSelectionLayerView: UIView { //container for selectionLayer (for
     
     private let selectionLayer = RangeScaleSelectionLayer() //layer indicating current selection on scale
     override var frame: CGRect {
-        didSet {
-            setNeedsLayout() //update layer's frame when container's (view) frame changes
+        didSet { //update layer's frame when container's (view's) frame changes
+            setNeedsLayout()
         }
     }
     
@@ -216,8 +216,8 @@ class RangeScaleSelectionLayerView: UIView { //container for selectionLayer (for
 class RangeScaleSelectionLayer: CALayer { //layer containing the indicator for the currently selected pnt
     
     override var frame: CGRect {
-        didSet {
-            setNeedsDisplay() //redraw layer
+        didSet { //redraw layer
+            setNeedsDisplay()
         }
     }
     
@@ -238,8 +238,8 @@ class RangeScaleTrackLayer: CALayer { //layer containing the track displaying th
     var rangeScaleParameters: (Int, Int, Int)? //reference to range scale parameters
     var inset: CGFloat? //reference to 'trackLayerInset' defined in RangeScale class; inset ensures that items drawn @ the edges of the view will be rendered in full (won't be cut off by frame)
     override var frame: CGRect {
-        didSet {
-            setNeedsDisplay() //redraw layer
+        didSet { //redraw layer
+            setNeedsDisplay()
         }
     }
     

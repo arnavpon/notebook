@@ -88,7 +88,7 @@ class LevelsFrameworkCell: UITableViewCell {
             }
         }
     }
-    weak var module: Module? { //all data to be displayed will be determined through the module property; for subviews of the base DataEntry cell, module property will be more specific module types!
+    weak var module: Module? { //for DataEntry cells, all data to be displayed will be determined through the module property; for subclasses of BaseDataEntryCell, 'module' is a specific Module subclass
         didSet {
             if (fireCounter == 0) { //make sure this is only running ONCE
                 accessModuleProperties() //layout cell according to module type/properties

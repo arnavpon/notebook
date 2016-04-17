@@ -173,11 +173,16 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     @IBAction func doneButtonClick(sender: AnyObject) { //construct dataObject to report -> DB
-        print("doneButtonClick firing...")
         var dataObjectToDatabase = Dictionary<String, [String: AnyObject]>()
         if let variables = variablesArray { //obtain each var's data
             for variable in variables { //each Module obj reports entered data -> VC to construct dict
                 dataObjectToDatabase[variable.variableName] = variable.reportDataForVariable()
+            }
+            for (variableName, dict) in dataObjectToDatabase { //**
+                for (key, value) in dict {
+                    print("DB Object: VAR = '\(variableName)'. KEY: '\(key)'. VALUE: [\(value)].")
+                }
+                print("\n") //*
             }
         }
         
@@ -186,11 +191,12 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                 for (key, value) in temp { //add all items in temp object -> DB data object
                     dataObjectToDatabase.updateValue(value, forKey: key)
                 }
-                for (key, dict) in dataObjectToDatabase {
-                    for (variableName, value) in dict {
-                        print("DB Object AFTER: KEY = '\(key)'. Variable: '\(variableName)'. Value: [\(value)].")
+                for (variableName, dict) in dataObjectToDatabase { //**
+                    for (key, value) in dict {
+                        print("DB Object: VAR = '\(variableName)'. KEY: '\(key)'. VALUE: [\(value)].")
                     }
                 }
+                print("\n") //**
                 //**send combined dict -> DB
                 project.refreshMeasurementCycle() //set tempObj -> nil & refresh counters
             } else { //tempObject does NOT exist (save dict -> tempObject until outputs are reported)

@@ -91,6 +91,8 @@ class CustomWithOptionsCell: BaseDataEntryCell { //add new class -> enum!
                 let boldAttribute = [NSFontAttributeName: UIFont.boldSystemFontOfSize(16)]
                 let attributedString = NSAttributedString(string: option, attributes: boldAttribute)
                 optionBtn.setAttributedTitle(attributedString, forState: .Normal)
+                optionBtn.layer.borderColor = UIColor.blackColor().CGColor
+                optionBtn.layer.borderWidth = 0.5
                 
                 //Depending on cellType (binary vs. custom), background colors are different:
                 if (cellType == CustomModuleVariableTypes.Behavior_BinaryOptions) { //BINARY cell

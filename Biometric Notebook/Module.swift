@@ -125,14 +125,18 @@ class Module { //defines the behaviors that are common to all modules
     } //For cells that have VARIABLE HEIGHTS (e.g. Custom Module options cell), we will need to include in the data source a custom cell height (which we can calculate beforehand b/c we know everything about how the cell needs to be configured, e.g. if the CustomOptions cell has 3 answer choices, we can calculate the height w/ a function, add that height to the data source; the VC TV delegate method should check for custom height & set to default if one is not found.)
     
     //**
-    internal var mainDataObject: AnyObject? //main object to report -> DataEntryVC, set by custom TV cell
+    internal var mainDataObject: AnyObject? { //main object to report -> DataEntryVC, set by custom TV cell
+        didSet {
+            print("[mainDataObjWasSet] Var: [\(variableName)]. Value: \(mainDataObject).")
+        }
+    }
     
     func reportDataForVariable() -> [String: AnyObject]? { //called by DataEntryVC during aggregation
         var reportObject = Dictionary<String, AnyObject>()
-        reportObject[BMN_Module_TimeStampKey] = getDateAndTimeAtMeasurement()
-        reportObject[BMN_Module_MainDataKey] = mainDataObject
+        reportObject[BMN_Module_TimeStampKey] = getDateAndTimeAtMeasurement() //capture timeStamp
+        reportObject[BMN_Module_MainDataKey] = mainDataObject //main object to report
         return reportObject
-        //should also capture the TimeStamp & any other measurements that accompany the main data
+        //We DO NOT need a timeStamp for every variable that is being measured w/in the measurement cycle - they all have the SAME stamp. To save space, we should create 1 time stamp for inputs & 1 for outcomes. This will adjust how we do the TIME DIFFERENCE computation!!!
     }
     
     // MARK: - Basic Behaviors
