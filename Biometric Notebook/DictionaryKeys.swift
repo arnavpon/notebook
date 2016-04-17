@@ -18,7 +18,6 @@ let SHOW_ATTACH_DESCRIPTION = "show_attach_description_key"
 
 let BMN_Notification_CompletionIndicatorDidChange = "BMN_CompletionIndicatorDidChange"
 let BMN_Notification_CellDidReportData = "BMN_CellDidReportData"
-let BMN_Notification_DataEntryButtonClick = "BMN_DataEntryButtonClick"
 
 //CellWithPlusButton Notifications:
 let BMN_Notification_RevealHiddenArea = "BMN_RevealHiddenArea"
@@ -34,7 +33,12 @@ let BMN_Notification_AddOptionButtonWasClicked = "BMN_AddOptionButtonWasClicked"
 let BMN_CustomOptionsConfigCell_NumberOfLevelsKey = "BMN_CustomOptionsConfigCell_number_of_levels_key" //*
 
 //CellWithGradientFill Notifications:
+let BMN_Notification_DataEntryButtonClick = "BMN_DataEntryButtonClick"
 let BMN_CellWithGradientFill_ErrorObject = -1 //indicates an error to VC through notification
+
+//CustomModule DataEntryCells Notifications:
+let BMN_Notification_RangeScaleValueDidChange = "BMN_RangeScaleValueDidChange"
+let BMN_CustomWithRangeScaleCell_RangeScaleValueKey = "CustomWithRangeScaleCell_range_scale_value_key"
 
 // MARK: - LEVELS Framework General Keys
 

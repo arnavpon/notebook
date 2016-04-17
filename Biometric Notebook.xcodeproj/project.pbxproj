@@ -11,6 +11,7 @@
 		B10838FE1C4D40210023C060 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10838FD1C4D40210023C060 /* Action.swift */; };
 		B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B921E1C52D8E70079A535 /* HelperFunctions.swift */; };
 		B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B92201C52D9BE0079A535 /* CustomTextView.swift */; };
+		B122EAFE1CC307E000CE3D33 /* RangeScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */; };
 		B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */; };
 		B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */; };
 		B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */; };
@@ -153,6 +154,7 @@
 		B10838FD1C4D40210023C060 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		B11B921E1C52D8E70079A535 /* HelperFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		B11B92201C52D9BE0079A535 /* CustomTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
+		B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RangeScaleView.swift; sourceTree = "<group>"; };
 		B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExperimentTypes.swift; sourceTree = "<group>"; };
 		B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectTitleCustomCell.swift; path = ../../ProjectTitleCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectHypothesisCustomCell.swift; path = ../../ProjectHypothesisCustomCell.swift; sourceTree = "<group>"; };
@@ -281,6 +283,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B122EAFC1CC307AD00CE3D33 /* Supplements */ = {
+			isa = PBXGroup;
+			children = (
+				B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */,
+			);
+			name = Supplements;
+			sourceTree = "<group>";
+		};
 		B1395DAF1CB76AAD00DEBC91 /* Create Project Cells */ = {
 			isa = PBXGroup;
 			children = (
@@ -521,6 +531,7 @@
 		B1CF34671C4F018D001C0F27 /* View Project(s) Flow */ = {
 			isa = PBXGroup;
 			children = (
+				B122EAFC1CC307AD00CE3D33 /* Supplements */,
 				B1B98BD91C39920300DDACEE /* ProjectOverviewViewController.swift */,
 				B1AA96C61CAB1B480009E716 /* Data Entry TV Cells */,
 				B1D51C651CB2A91A00DED6B2 /* DataEntryViewController.swift */,
@@ -857,6 +868,7 @@
 				B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */,
 				B1D0B2BA1C3F25F200C9438F /* Module.swift in Sources */,
 				B1A8C7C71CAF640300380E99 /* CustomWithRangeScaleCell.swift in Sources */,
+				B122EAFE1CC307E000CE3D33 /* RangeScaleView.swift in Sources */,
 				B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */,
 				B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */,
 				B1E1E1401CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift in Sources */,
