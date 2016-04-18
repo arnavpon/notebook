@@ -201,7 +201,13 @@ class CustomModule: Module {
                 
                 self.prompt = configurationData[BMN_CustomModule_CustomOptions_PromptID] as? String
                 self.options = configurationData[BMN_CustomModule_CustomOptions_OptionsID] as? [String]
-                self.multipleSelectionEnabled = configurationData[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] as? Bool
+                if let boolSelection = (configurationData[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] as? [String])?.first { //report type is [String]
+                    if (boolSelection.lowercaseString == "yes") { //match "YES" -> true
+                        self.multipleSelectionEnabled = true
+                    } else if (boolSelection.lowercaseString == "no") { //match "NO" -> false
+                        self.multipleSelectionEnabled = false
+                    }
+                }
                 if (self.options != nil) && (self.multipleSelectionEnabled != nil) {
                     print("Match Config: Prompt = '\(prompt)', Opts = \(options), Mult Selection = \(multipleSelectionEnabled).")
                     return (true, nil, nil)

@@ -15,9 +15,10 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
     
     private var isCellBoolean: Bool = false //indicator if cell is Boolean type
     private var multipleSelectionEnabled: Bool = false //indicator from dataSource object
+    private var fireCounter: Int = 0 //prevents btns from being generated more than 1x
     private var options: [String] = [] { //available options for selection
         didSet {
-            configureSelectionButtons() //make sure btns are created BEFORE updating layout!
+            configureSelectionButtons() //creates btns for options (fire BEFORE updating layout!)
             setNeedsLayout() //update visuals for cell
             if (isCellBoolean) && (options.count == 2) { //BINARY cell type
                 let notification = NSNotification(name: BMN_Notification_AdjustHeightForSelectFromOptionsCell, object: nil, userInfo: [BMN_SelectFromOptionsConfigCell_NumberOfLevelsKey: 2]) //height = 2 lvls
@@ -29,19 +30,15 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
         }
     }
     private var optionButtons: [UIButton] = [] //buttons for available options
-    private var selectedOptions: [String] = [] { //report object for cell (array instead of string b/c some cells can have multiple options selected)
-        didSet {
+    private var selectedOptions: [String] = [] { //reportObject for cell (ARRAY instead of string b/c some cells allow selection of multiple options)
+        didSet { //adjust completion status
             if !(selectedOptions.isEmpty) { //options have been selected, set cell -> COMPLETE
                 configureCompletionIndicator(true)
             } else { //array is empty (NO options selected), set cell -> INCOMPLETE
                 configureCompletionIndicator(false)
             }
-            for opt in selectedOptions { //**
-                print("[OPTION] '\(opt)'")
-            }
         }
     }
-    private var fireCounter: Int = 0 //prevents btns from being created more than 1x
     private let defaultBackgroundColor = UIColor(red: 248/255, green: 1, blue: 235/255, alpha: 1)
     
     // MARK: - Initializers
@@ -57,17 +54,22 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
     override func accessDataSource() {
         super.accessDataSource()
         
-        if let source = self.dataSource, availableOptions = source[BMN_SelectFromOptions_OptionsKey] as? [String] { //obtain the options, check for multipleSelection
-            self.options = availableOptions
-            if let cellIsBool = source[BMN_SelectFromOptions_IsBooleanKey] as? Bool { //check for Bool
+        if let source = self.dataSource, availableOptions = source[BMN_SelectFromOptions_OptionsKey] as? [String] { //obtain the options (REQUIRED for cell)
+            if let cellIsBool = source[BMN_SelectFromOptions_IsBooleanKey] as? Bool { //check for Bool BEFORE setting options & generating btns!
                 self.isCellBoolean = cellIsBool
             }
-            if let multipleSelection = source[BMN_SelectFromOptions_MultipleSelectionEnabledKey] as? Bool {
+            self.options = availableOptions //setting opts generates optionBtns!
+            if let multipleSelection = source[BMN_SelectFromOptions_MultipleSelectionEnabledKey] as? Bool { //check if multiple selection is allowed
                 self.multipleSelectionEnabled = multipleSelection
             }
             if let defaultOptions = source[BMN_SelectFromOptions_DefaultOptionsKey] as? [String] { //check if cell has defined defaults & set them -> report object
-                self.selectedOptions = defaultOptions
-                //**apply visuals for defaults
+                self.selectedOptions = defaultOptions //set defaults
+                for option in selectedOptions { //update visuals for defaults
+                    if let index = self.options.indexOf(option) { //get index (equivalent to btn tag)
+                        self.optionButtons[index].selected = true //set btn -> selected
+                    }
+                }
+                updateButtonVisualsForSelection() //set visuals
             }
         }
     }
@@ -78,13 +80,13 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
         super.setNeedsLayout()
         
         //The buttons are only added 1x, so we don't have to worry about duplication:
-        if (isCellBoolean) { //BINARY cell layout
-            optionButtons[0].frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.LeftHalfLevel, nil))
-            optionButtons[1].frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.RightHalfLevel, nil))
+        if (isCellBoolean) { //BINARY cell layout, configure btns side by side around center of view
+            optionButtons[0].frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.LeftThirdLevel, nil))
+            optionButtons[1].frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.RightThirdLevel, nil))
         } else { //DEFAULT layout
             var counter = 2 //start @ 2 b/c 1st level is already occupied
             for button in optionButtons {
-                button.frame = getViewFrameForLevel(viewLevel: (counter, HorizontalLevels.RightTwoThirdsLevel, nil)) //each btn takes up 1 lvl
+                button.frame = getViewFrameForLevel(viewLevel: (counter, HorizontalLevels.FullLevel, nil)) //each btn takes up 1 full lvl
                 counter += 1
             }
         }
@@ -94,21 +96,28 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
         if (fireCounter == 0) { //make sure fx hasn't fired yet
             var tagCounter = 0 //sets tag for btn (matches INDEX in 'options' & 'optionBtns' dataSource!)
             for option in options {
+                let defaultFont = UIFont.systemFontOfSize(18)
+                let boldFont = UIFont.boldSystemFontOfSize(18)
+                let defaultAttributes = [NSFontAttributeName: defaultFont, NSForegroundColorAttributeName: UIColor.darkGrayColor()] //attributes for .Normal cell
+                let selectedAttributes = [NSFontAttributeName: boldFont, NSForegroundColorAttributeName: UIColor.blackColor()] //attributes for .Selected cell
+                
                 let optionBtn = UIButton()
                 optionBtn.tag = tagCounter //set tag (i.e. INDEX in array)
-                let boldAttribute = [NSFontAttributeName: UIFont.boldSystemFontOfSize(16)]
-                let attributedString = NSAttributedString(string: option, attributes: boldAttribute)
-                optionBtn.setAttributedTitle(attributedString, forState: .Normal)
+                let defaultString = NSAttributedString(string: option, attributes: defaultAttributes)
+                let selectedString = NSAttributedString(string: option, attributes: selectedAttributes)
+                optionBtn.setAttributedTitle(defaultString, forState: .Normal)
+                optionBtn.setAttributedTitle(selectedString, forState: .Selected)
                 optionBtn.layer.borderColor = UIColor.blackColor().CGColor
                 optionBtn.layer.borderWidth = 0.5
                 
-                //Depending on cellType (binary vs. custom), background colors are different:
+                //Depending on cellType (binary vs. custom), some visuals are different:
                 if (isCellBoolean) { //BINARY cell
-                    if (option.lowercaseString == "yes") { //'YES' cell
+                    if (option.lowercaseString == "yes") { //'YES' cell is GREEN
                         optionBtn.backgroundColor = UIColor.greenColor()
-                    } else if (option.lowercaseString == "no") { //'NO' cell
+                    } else if (option.lowercaseString == "no") { //'NO' cell is RED
                         optionBtn.backgroundColor = UIColor.redColor()
                     }
+                    optionBtn.layer.cornerRadius = 5
                 } else {
                     optionBtn.backgroundColor = defaultBackgroundColor
                 }
@@ -135,7 +144,7 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
                     button.selected = false
                 }
                 sender.selected = true //set btn -> SELECTED
-            } else { //btn was already selected, so item was removed (when we cleared the array)
+            } else { //btn was already selected, so item was alrdy removed (when array was cleared^)
                 sender.selected = false //deselect btn
             }
         } else { //MULTIPLE SELECTION is allowed
@@ -151,10 +160,10 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
                 }
             }
         }
-        updateButtonVisualsForSelection() //update visuals for selection/deselection
+        updateButtonVisualsForSelection() //update visuals for selection/deselection @ the END
     }
     
-    private func updateButtonVisualsForSelection() { //adjust btn background color on selection
+    private func updateButtonVisualsForSelection() { //adjust btn visuals on selection
         if (isCellBoolean) { //BINARY behavior
             var deselectedCount = 0 //count # of deselected btns
             for button in optionButtons {
@@ -165,7 +174,7 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
                     button.alpha = 0.3
                 }
             }
-            if (deselectedCount == 2) { //if both buttons are deselected, restore full color bckgrd
+            if (deselectedCount == 2) { //if both buttons are deselected, restore alpha for both
                 optionButtons[0].alpha = 1
                 optionButtons[1].alpha = 1
             }
@@ -187,100 +196,4 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
         return selectedOptions
     }
 
-}
-
-let yesButton = UIButton(frame: CGRectZero) //YES option
-let noButton = UIButton(frame: CGRectZero) //NO option
-
-var currentSelection: Bool = false { //FALSE -> NO button, TRUE -> YES button
-didSet {
-    configureVisualsForSelection()
-}
-}
-
-// MARK: - Initializers
-
-override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-    super.init(style: style, reuseIdentifier: reuseIdentifier)
-    
-    //(1) Define general attributes:
-    let defaultFont = UIFont.systemFontOfSize(18)
-    let boldFont = UIFont.boldSystemFontOfSize(18)
-    let defaultAttributes = [NSFontAttributeName: defaultFont, NSForegroundColorAttributeName: UIColor.grayColor()]
-    let selectedAttributes = [NSFontAttributeName: boldFont, NSForegroundColorAttributeName: UIColor.blackColor()]
-    
-    //(2) Configure 'YES' button:
-    let yesDefault = NSAttributedString(string: "YES", attributes: defaultAttributes)
-    let yesSelected = NSAttributedString(string: "YES", attributes: selectedAttributes)
-    yesButton.setAttributedTitle(yesDefault, forState: UIControlState.Normal)
-    yesButton.setAttributedTitle(yesSelected, forState: UIControlState.Selected)
-    yesButton.backgroundColor = UIColor.greenColor()
-    yesButton.layer.cornerRadius = 5
-    yesButton.addTarget(self, action: #selector(self.yesButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
-    insetBackgroundView.addSubview(yesButton)
-    
-    //(3) Configure 'NO' button:
-    let noDefault = NSAttributedString(string: "NO", attributes: defaultAttributes)
-    let noSelected = NSAttributedString(string: "NO", attributes: selectedAttributes)
-    noButton.setAttributedTitle(noDefault, forState: UIControlState.Normal)
-    noButton.setAttributedTitle(noSelected, forState: UIControlState.Selected)
-    noButton.backgroundColor = UIColor.redColor()
-    noButton.layer.cornerRadius = 5
-    noButton.addTarget(self, action: #selector(self.noButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
-    insetBackgroundView.addSubview(noButton)
-}
-
-required init?(coder aDecoder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-}
-
-override func accessDataSource() {
-    super.accessDataSource()
-    
-    //Update visuals & external (VC) report object w/ the DEFAULT value selection of FALSE in accessDataSource() b/c the cellDescriptor is now set:
-    configureVisualsForSelection()
-}
-
-// MARK: - Visual Layout
-
-override func setNeedsLayout() {
-    super.setNeedsLayout()
-    
-    //Configure buttons side by side around center of view:
-    yesButton.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.LeftThirdLevel, nil))
-    noButton.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.RightThirdLevel, nil))
-}
-
-// MARK: - Button Actions
-
-@IBAction func yesButtonClick(sender: UIButton) {
-    currentSelection = true
-}
-
-@IBAction func noButtonClick(sender: UIButton) {
-    currentSelection = false
-}
-
-private func configureVisualsForSelection() {
-    let reducedAlpha: CGFloat = 0.3
-    if (currentSelection == true) { //selection is TRUE/YES
-        yesButton.alpha = 1
-        yesButton.selected = true //triggers txt for selection
-        noButton.alpha = reducedAlpha
-        noButton.selected = false //remove selected state from de-selected btn
-    } else { //selection is FALSE/NO
-        yesButton.alpha = reducedAlpha
-        yesButton.selected = false //remove selected state from de-selected btn
-        noButton.alpha = 1
-        noButton.selected = true //triggers txt for selection
-    }
-    configureCompletionIndicator(true) //completion indicator is ALWAYS checked
-}
-
-// MARK: - Data Reporting
-
-override var configurationReportObject: AnyObject? { //checks the currently highlighted button & reports TRUE for 'yes', FALSE for 'no'
-    //*REPORT TYPE: Bool*
-    print("Reporting current selection: \(currentSelection).")
-    return currentSelection
 }

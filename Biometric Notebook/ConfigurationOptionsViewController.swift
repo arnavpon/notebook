@@ -64,7 +64,6 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
     func registerConfigurationCellTypes() { //register ALL possible custom configuration cell types
         optionsTableView.registerClass(SimpleTextConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleTextConfigurationCell)) //simple txt
         optionsTableView.registerClass(SimpleNumberConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleNumberConfigurationCell)) //simple #
-        optionsTableView.registerClass(BooleanConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(BooleanConfigurationCell)) //boolean
         optionsTableView.registerClass(SelectFromOptionsConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SelectFromOptionsConfigurationCell)) //select from available options
         optionsTableView.registerClass(CustomOptionsConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(CustomOptionsConfigurationCell)) //custom options
         optionsTableView.registerClass(BaseComputationConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(BaseComputationConfigurationCell)) //computations cell
@@ -221,8 +220,6 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(SimpleNumberConfigurationCell)) as! SimpleNumberConfigurationCell
         case .SimpleText:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(SimpleTextConfigurationCell)) as! SimpleTextConfigurationCell
-        case .Boolean:
-            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(BooleanConfigurationCell)) as! BooleanConfigurationCell
         case .SelectFromOptions:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(SelectFromOptionsConfigurationCell)) as! SelectFromOptionsConfigurationCell
         case .CustomOptions:

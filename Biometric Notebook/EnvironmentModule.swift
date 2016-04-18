@@ -9,6 +9,27 @@ import Foundation
 
 class EnvironmentModule: Module {
     
+    override var configureModuleLayoutObject: Dictionary<String, AnyObject> {
+        get {
+            var tempObject = super.configureModuleLayoutObject //obtain superclass' dict & ADD TO IT
+            
+            var alertMessage = Dictionary<String, [String: String]>() //1st key is section name, 2nd key is behavior/computation name (using the RAW_VALUE of the ENUM object!), value is a message for the alertController
+            var messageForBehavior = Dictionary<String, String>()
+            for behavior in environmentModuleBehaviors {
+                messageForBehavior[behavior.rawValue] = behavior.getAlertMessageForVariable()
+            }
+            alertMessage[BMN_BehaviorsKey] = messageForBehavior
+            var messageForComputation = Dictionary<String, String>()
+            for computation in environmentModuleComputations {
+                messageForComputation[computation.rawValue] = computation.getAlertMessageForVariable()
+            }
+            alertMessage[BMN_ComputationsKey] = messageForComputation
+            tempObject[BMN_AlertMessageKey] = alertMessage //merge dictionaries
+            
+            return tempObject
+        }
+    }
+    
     private let environmentModuleBehaviors: [EnvironmentModuleVariableTypes] = [EnvironmentModuleVariableTypes.Behavior_TemperatureAndHumidity, EnvironmentModuleVariableTypes.Behavior_Weather]
     override var behaviors: [String] { //object containing titles for TV cells
         var behaviorTitles: [String] = []
@@ -80,13 +101,16 @@ class EnvironmentModule: Module {
             switch type {
             case EnvironmentModuleVariableTypes.Behavior_TemperatureAndHumidity:
                 
+                self.isAutomaticallyCaptured = true //auto-cap
                 configurationOptionsLayoutObject = nil //no further config needed??
                 
             case EnvironmentModuleVariableTypes.Behavior_Weather:
                 
                 //1 config cell is needed (SelectFromOptions):
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_EnvironmentModule_Weather_OptionsID, BMN_LEVELS_MainLabelKey: "Select 1 or more kinds of weather data you want to capture with this variable:", BMN_SelectFromOptions_OptionsKey: [], BMN_SelectFromOptions_MultipleSelectionEnabledKey: true])) //cell that contains granular weather selection options
+                let options = [EnvironmentModule_WeatherOptions.Weather.rawValue, EnvironmentModule_WeatherOptions.AmbientTemperature.rawValue, EnvironmentModule_WeatherOptions.AmbientHumidity.rawValue] //pull opts from enum
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_EnvironmentModule_Weather_OptionsID, BMN_LEVELS_MainLabelKey: "Select 1 or more kinds of weather data you want to capture with this variable:", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_MultipleSelectionEnabledKey: true])) //cell that contains granular weather selection options
                 
+                self.isAutomaticallyCaptured = true //auto-cap
                 configurationOptionsLayoutObject = array
                 
             }
@@ -110,6 +134,8 @@ class EnvironmentModule: Module {
                             print("[EM - matchConfigItems] String does not match enum raw!")
                         }
                     }
+                    print("Selected Options: \(selectedWeatherOptions).")
+                    return (true, nil, nil) //passed check
                 } else {
                     return (false, "No options were selected!", nil)
                 }

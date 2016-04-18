@@ -9,6 +9,27 @@ import Foundation
 
 class ExerciseModule: Module {
     
+    override var configureModuleLayoutObject: Dictionary<String, AnyObject> {
+        get {
+            var tempObject = super.configureModuleLayoutObject //obtain superclass' dict & ADD TO IT
+            
+            var alertMessage = Dictionary<String, [String: String]>() //1st key is section name, 2nd key is behavior/computation name (using the RAW_VALUE of the ENUM object!), value is a message for the alertController
+            var messageForBehavior = Dictionary<String, String>()
+            for behavior in exerciseModuleBehaviors {
+                messageForBehavior[behavior.rawValue] = behavior.getAlertMessageForVariable()
+            }
+            alertMessage[BMN_BehaviorsKey] = messageForBehavior
+            var messageForComputation = Dictionary<String, String>()
+            for computation in exerciseModuleComputations {
+                messageForComputation[computation.rawValue] = computation.getAlertMessageForVariable()
+            }
+            alertMessage[BMN_ComputationsKey] = messageForComputation
+            tempObject[BMN_AlertMessageKey] = alertMessage //merge dictionaries
+            
+            return tempObject
+        }
+    }
+    
     private let exerciseModuleBehaviors: [ExerciseModuleVariableTypes] = [ExerciseModuleVariableTypes.Behavior_Exercise, ExerciseModuleVariableTypes.Behavior_BeforeAndAfter]
     override var behaviors: [String] { //object containing titles for TV cells
         var behaviorTitles: [String] = []
