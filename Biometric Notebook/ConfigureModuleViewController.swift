@@ -14,16 +14,20 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     @IBOutlet weak var configureModuleTableView: UITableView!
     
     var createdVariable: Module? //variable w/ completed configuration
+    var moduleBlockers: [String]? //indicators for blocking display of specific variableTypes
+    var variableLocation: VariableLocations? //dynamic config
     
     // MARK: - View Configuration
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureModuleTableView.dataSource = self
-        configureModuleTableView.delegate = self
         if let variable = createdVariable {
+            variable.blockers = self.moduleBlockers //pass over blockers
+            variable.locationInFlow = self.variableLocation //pass var location (before or afterAction)
             configureModuleNavItem.title = "\(variable.moduleTitle) Var"
         }
+        configureModuleTableView.dataSource = self //set AFTER obtaining moduleBlockers!
+        configureModuleTableView.delegate = self
     }
 
     // MARK: - Table View
@@ -99,15 +103,13 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         if let variable = createdVariable, rowsForSection = variable.configureModuleLayoutObject[BMN_RowsForSectionKey], sectionTitle = createdVariable?.sectionsToDisplay[indexPath.section], rows = rowsForSection[sectionTitle] as? [String] {
             print("Selected Functionality: \(rows[indexPath.row])")
-            createdVariable?.selectedFunctionality = rows[indexPath.row]
+            createdVariable?.selectedFunctionality = rows[indexPath.row] //save selection -> Module object
             if (variable.configurationOptionsLayoutObject != nil) { //-> ConfigOptions if further config is needed
                 self.performSegueWithIdentifier("showConfigOptions", sender: nil)
             } else { //otherwise, create variable & -> ProjectVariablesVC
                 self.performSegueWithIdentifier("unwindToVariablesVC", sender: nil)
             }
         }
-        
-        //**Send selection -> the created variable's switch function, where it picks a subclass based on the user selection & creates a new variable. Assign this new variable to currentVar!
     }
 
     // MARK: - Navigation

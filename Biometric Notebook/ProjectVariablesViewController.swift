@@ -49,7 +49,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     var projectType: ExperimentTypes? //type of project (IO vs. comparison/control)
     var variableName: String? //the name of the variable entered by the user
     var createdVariable: Module? //the completed variable created by the user
-    var tableViewForVariableAddition: UITableView? //notes which TV a new variable is going to
+    var variableLocation: VariableLocations? //indicates whether createdVar goes before or afterAction
     
     var inputVariableRows: [Module] { //data source for rows before the 'Action'
         if (projectType == .InputOutput) {
@@ -93,6 +93,11 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     private let viewCornerRadius: CGFloat = 20
     private var interactionEnabled: Bool = true //blocks view interaction if picker is visible
     private let dimmedAlpha = CGFloat(0.3) //alpha for views in dimmed mode
+    
+    //***Testing area for adjusting the displayed behaviors/computations for user dynamically (showing certain variables/computations @ certain times, blocking selection for others, etc.). Need a flexible way to define this interaction (should become more clear as it becomes needed more). This can't be defined in Module variable since it applies to the Project as a whole!
+    //LINKED TO -> 'MODULE' > blockers array
+    var moduleBlockers: [String] = []
+    //***
     
     // MARK: - View Configuration
     
@@ -247,28 +252,43 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if !(showTutorialMode) && !(tutorialIsOn) { //normal behavior
             if (editingStyle == .Delete) { //delete row from data source
+                var varToDelete: Module? //variable that is about to be deleted
                 if (tableView == inputVariablesTV) { //inputs TV
                     if (projectType == .InputOutput) {
-                        if let _ = inputVariablesDict[BMN_InputOutput_InputVariablesKey] {
+                        if let variables = inputVariablesDict[BMN_InputOutput_InputVariablesKey] {
+                            varToDelete = variables[indexPath.row]
                             inputVariablesDict[BMN_InputOutput_InputVariablesKey]!.removeAtIndex(indexPath.row)
                         }
                     } else if (projectType == .ControlComparison) {
                         if (ccNavigationState == .Control) {
-                            if let _ = inputVariablesDict[BMN_ControlComparison_ControlKey] {
+                            if let variables = inputVariablesDict[BMN_ControlComparison_ControlKey] {
+                                varToDelete = variables[indexPath.row]
                                 inputVariablesDict[BMN_ControlComparison_ControlKey]!.removeAtIndex(indexPath.row)
                             }
                         } else if (ccNavigationState == .Comparison) {
-                            if let _ = inputVariablesDict[BMN_ControlComparison_ComparisonKey] {
+                            if let variables = inputVariablesDict[BMN_ControlComparison_ComparisonKey] {
+                                varToDelete = variables[indexPath.row]
                                 inputVariablesDict[BMN_ControlComparison_ComparisonKey]!.removeAtIndex(indexPath.row)
                             }
                         }
                     }
                 } else if (tableView == outcomeVariablesTV) { //outcomes TV
+                    varToDelete = outcomeVariableRows[indexPath.row]
                     outcomeVariableRows.removeAtIndex(indexPath.row)
                 }
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
                 if (inputVariableRows.isEmpty) || (outcomeVariableRows.isEmpty) {
                     doneButton.enabled = false
+                }
+                
+                //***Check if deletion of that variable changes any of the moduleBlockers:
+                if let deletedVar = varToDelete {
+                    if (deletedVar.selectedFunctionality == CustomModuleVariableTypes.Computation_TimeDifference.rawValue) { //TD was deleted, remove blocker
+                        print("Deleted variable was time difference! Removing blocker...")
+                        if let index = moduleBlockers.indexOf(BMN_Blocker_CustomModule_Computation_TimeDifference) {
+                            moduleBlockers.removeAtIndex(index)
+                        }
+                    }
                 }
             }
         } else { //tutorial behavior
@@ -609,7 +629,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 closeTutorialScreenNumber(1)
             }
         } else { //normal behavior
-            addVariable(inputVariablesTV)
+            addVariable(VariableLocations.BeforeAction)
         }
     }
     
@@ -633,15 +653,14 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         } else { //normal behavior
             if (projectType == .InputOutput) || ((projectType == .ControlComparison) && (ccNavigationState == .Control)) {
                 //ONLY enable addition of outcomeVars if the projectType is IO OR the projectType is CC & the navigation state is 'Control':
-                addVariable(outcomeVariablesTV)
+                addVariable(VariableLocations.AfterAction)
             }
         }
     }
     
     var showDescription: Bool = false //indicates whether to show descriptionView in attachModuleVC
     
-    func addVariable(sender: UITableView) {
-        tableViewForVariableAddition = sender //clear this after the variable is added
+    func addVariable(location: VariableLocations) {
         let alert = UIAlertController(title: "New Variable", message: "Type the name of the variable you wish to add. Two variables should not have the same name.", preferredStyle: .Alert)
         alert.addTextFieldWithConfigurationHandler { (let field) -> Void in
             field.autocapitalizationType = .Words //auto-capitalize words
@@ -674,6 +693,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                     } else { //key is not set (1st time going to view), show description
                         self.showDescription = true
                     }
+                    self.variableLocation = location //set location (TV that was clicked) before segue
                     self.performSegueWithIdentifier("showAttachModule", sender: nil)
                 }
             }
@@ -787,7 +807,12 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         }
         
         if let variable = createdVariable { //add the incoming variable -> appropriate TV
-            if (tableViewForVariableAddition == inputVariablesTV) {
+            
+            if (variable.selectedFunctionality == CustomModuleVariableTypes.Computation_TimeDifference.rawValue) { //***check if added var is a TimeDifference computation
+                self.moduleBlockers.append(BMN_Blocker_CustomModule_Computation_TimeDifference) //allow only 1 TimeDifference computation per project
+            }
+            
+            if (variableLocation == VariableLocations.BeforeAction) { //beforeAction var
                 if (projectType == .InputOutput) { //add -> IO data source
                     if let _ = inputVariablesDict[BMN_InputOutput_InputVariablesKey] {
                         inputVariablesDict[BMN_InputOutput_InputVariablesKey]!.append(variable)
@@ -804,10 +829,11 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                     }
                 }
                 inputVariablesTV.reloadData()
-            } else if (tableViewForVariableAddition == outcomeVariablesTV) {
+            } else if (variableLocation == VariableLocations.AfterAction) { //afterAction var
                 outcomeVariableRows.append(variable)
                 outcomeVariablesTV.reloadData()
             }
+            variableLocation = nil //reset indicator
             createdVariable = nil //reset for next run
         }
         
@@ -832,6 +858,10 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             let attachModuleVC = destination.topViewController as! AttachModuleViewController
             attachModuleVC.variableName = self.variableName
             attachModuleVC.showDescriptionView = showDescription
+            
+            //***
+            attachModuleVC.moduleBlockers = self.moduleBlockers //pass all blocker indicators
+            attachModuleVC.variableLocation = self.variableLocation //pass over var location (IO vs. OM)
         }
     }
 

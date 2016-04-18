@@ -80,17 +80,27 @@ let BMN_AlertMessageKey = "alert_message_key"
 let BMN_BehaviorsKey = "behaviors_key"
 let BMN_ComputationsKey = "computations_key"
 
+// MARK: - [MODULE] Configuration Blockers (indicate to Module subclasses that specific behaviors/computations should not be displayed in AttachModuleVC for selection)
+
+let BMN_Blocker_CustomModule_Computation_TimeDifference = "BL_CM_computation_time_difference"
+
 // MARK: - [MODULE] Core Data Keys
 
 let BMN_ModuleTitleKey = "module_title_key" //key to obtain var's Module type
 let BMN_VariableIsOutcomeMeasureKey = "variable_is_outcome_measure_key" //indicator if var is an OM
+let BMN_VariableIsAutomaticallyCapturedKey = "variable_is_automatically_captured_key" //manual vs. auto
 let BMN_VariableTypeKey = "variable_type_key" //key to obtain var's behavior/computation
 
 // MARK: - [MODULE] Data Reporting Keys
 
 let BMN_CurrentlyReportingGroupKey = "currently_reporting_group_key" //stores groupID in tempStorageObj
-let BMN_Module_TimeStampKey = "module_time_stamp_key" //time stamp
-let BMN_Module_MainDataKey = "module_main_data_key" //main data (differs depending on behavior/comp)
+let BMN_Module_MainTimeStampKey = "module_main_time_stamp_key" //main (outer) key in DB object
+let BMN_Module_InputsTimeStampKey = "module_inputs_time_stamp_key" //time stamp for input vars (inner key)
+let BMN_Module_OutputsTimeStampKey = "module_outputs_time_stamp_key" //time stamp for outcomes (inner key)
+let BMN_Module_ReportedDataKey = "module_main_data_key" //main data (differs depending on behavior/comp)
+
+let BMN_CustomModule_TimeDifferenceKey = "CM_time_difference_key" //key containing TD var's name
+let BMN_ProjectContainsTimeDifferenceKey = "project_contains_time_difference_key" //indicator
 
 // MARK: - CreateProject VC Cell IDs
 
@@ -109,6 +119,7 @@ let BMN_CustomModule_RangeScaleMinimumKey = "CM_range_scale_min_key"
 let BMN_CustomModule_RangeScaleMaximumKey = "CM_range_scale_max_key"
 let BMN_CustomModule_RangeScaleIncrementKey = "CM_range_scale_increment_key"
 let BMN_CustomModule_CounterUniqueIDKey = "CM_counter_unique_id_key"
+let BMN_CustomModule_IsTimeDifferenceKey = "CM_is_time_difference_key"
 
 let BMN_CustomModule_CustomOptions_PromptID = "CM_custom_options_prompt_id" //identifier: CustomModule > CustomOptions [behavior] > 'prompt' configuration cell
 let BMN_CustomModule_CustomOptions_OptionsID = "CM_custom_options_options_id" //identifier: CustomModule > CustomOptions [behavior] > 'options' array

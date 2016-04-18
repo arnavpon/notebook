@@ -34,8 +34,18 @@ class CustomModule: Module {
     private let customModuleBehaviors: [CustomModuleVariableTypes] = [CustomModuleVariableTypes.Behavior_CustomOptions, CustomModuleVariableTypes.Behavior_BinaryOptions, CustomModuleVariableTypes.Behavior_Counter, CustomModuleVariableTypes.Behavior_RangeScale]
     override var behaviors: [String] { //object containing titles for TV cells
         var behaviorTitles: [String] = []
+        
+        //(1) Set filters (i.e. exclude certain behaviors based on 'blockers' & 'locationInFlow'):
+        let filteredTypes = Set<CustomModuleVariableTypes>() //set containing types to be filtered
+//        if let blocks = blockers { //check for defined blockers
+//            //define blockers
+//        }
+        
+        //(2) Add items -> 'behaviors' array if they pass through filters:
         for behavior in customModuleBehaviors {
-            behaviorTitles.append(behavior.rawValue)
+            if !(filteredTypes.contains(behavior)) { //exclude filtered varTypes
+                behaviorTitles.append(behavior.rawValue)
+            }
         }
         return behaviorTitles
     }
@@ -43,8 +53,23 @@ class CustomModule: Module {
     private let customModuleComputations: [CustomModuleVariableTypes] = [CustomModuleVariableTypes.Computation_TimeDifference]
     override var computations: [String] { //object containing titles for TV cells
         var computationTitles: [String] = []
+        
+        //(1) Set filters (i.e. exclude certain computations based on 'blockers' & 'locationInFlow'):
+        var filteredTypes = Set<CustomModuleVariableTypes>() //set containing types to be filtered
+        if let blocks = blockers { //check for defined blockers
+            if (blocks.contains(BMN_Blocker_CustomModule_Computation_TimeDifference)) { //filter TimeDiff
+                filteredTypes.insert(CustomModuleVariableTypes.Computation_TimeDifference)
+            }
+            if (self.locationInFlow == VariableLocations.BeforeAction) { //TD CANNOT be a beforeAction var
+                filteredTypes.insert(CustomModuleVariableTypes.Computation_TimeDifference)
+            }
+        }
+        
+        //(2) Add items -> 'computations' array if they pass through filters:
         for computation in customModuleComputations {
-            computationTitles.append(computation.rawValue)
+            if !(filteredTypes.contains(computation)) { //exclude filtered varTypes
+                computationTitles.append(computation.rawValue)
+            }
         }
         return computationTitles
     }
@@ -64,6 +89,7 @@ class CustomModule: Module {
     var multipleSelectionEnabled: Bool? //for a variable w/ options, checks if user is allowed to select MULTIPLE OPTIONS (if nil => FALSE)
     var rangeScaleParameters: (Int, Int, Int)? //(minimum, maximum, increment)
     var counterUniqueID: Int? //unique counter ID, used to match to 'Counter' CoreData object
+    var variableIsTimeDifference: Bool = false //indicates that variable is TD
     
     // MARK: - Initializers
     
@@ -113,7 +139,10 @@ class CustomModule: Module {
                     print("[RangeScale] Minimum: \(min). Maximum: \(max). Increment: \(increment).")
                 }
             case .Computation_TimeDifference:
-                print("Time Difference variable.")
+                if let indicator = dict[BMN_CustomModule_IsTimeDifferenceKey] as? Bool {
+                    self.variableIsTimeDifference = indicator
+                    print("[TimeDifference] Variable is a TD computation.")
+                }
             }
         } else {
             print("[CustomModule > CoreData initializer] Error! Could not find a type for the object.")
@@ -122,7 +151,7 @@ class CustomModule: Module {
     
     // MARK: - Variable Configuration
     
-    internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the topBar visibility; (2) Sets the 'options' value as needed; (3) Constructs the configuration TV cells.
+    internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the 'options' value as needed; (2) Constructs the configuration TV cells if required; (3) Sets 'isAutoCaptured' var if var is auto-captured.
         if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
             var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = []
             switch type {
@@ -155,7 +184,8 @@ class CustomModule: Module {
                 
             case CustomModuleVariableTypes.Computation_TimeDifference:
                 
-                configurationOptionsLayoutObject = nil //**
+                configurationOptionsLayoutObject = nil //no further config needed
+                self.isAutomaticallyCaptured = true //TD is auto-captured
                 
             }
         } else { //no selection, set configOptionsObj -> nil
@@ -243,8 +273,8 @@ class CustomModule: Module {
                     print("[CustomMod createCoreDataDict] Fatal Error - counter has no uniqueID.")
                     abort()
                 }
-            case CustomModuleVariableTypes.Computation_TimeDifference:
-                print("[CustomModule - createDictForCoreData] Time Difference computation.")
+            case CustomModuleVariableTypes.Computation_TimeDifference: //indicate var is TimeDifference
+                persistentDictionary[BMN_CustomModule_IsTimeDifferenceKey] = variableIsTimeDifference
             }
         }
         return persistentDictionary
@@ -286,14 +316,14 @@ class CustomModule: Module {
 }
 
 enum CustomModuleVariableTypes: String { //*match each behavior/computation -> Configuration + DataEntry custom TV cells; for each new behavior/computation added, you must also add (1) Configuration logic, (2) Core Data storage logic (so the variable config can be preserved), (3) Unpacking logic (in the DataEntry initializer), & (4) DataEntry logic (enabling the user to report info).* 
-    //*BEHAVIORS* - make sure the rawValues are UNIQUE:
+    //*BEHAVIORS*:
     case Behavior_CustomOptions = "Custom Options" //allows user to enter custom options
     case Behavior_BinaryOptions = "Binary Options" //automatically creates 2 options, 'Yes' & 'No'.
     case Behavior_Counter = "Counter" //creates an incrementable counter
     case Behavior_RangeScale = "Range Scale" //gives users the option to select a value on a scale from A - B, where the user selects what the lower & upper limits are when they adopt this behavior; in data entry mode, the user will then select a value from this range using a slider/picker (TBD).
     
-    //*COMPUTATIONS* - make sure the rawValues are UNIQUE:
-    case Computation_TimeDifference = "Time Difference" //for configuration, need to select variables between which to calculate the time difference (as an animation, have a drag line that triggers when it runs over another variable or the project action, but disappears if placed outside of allowed location)
+    //*COMPUTATIONS*:
+    case Computation_TimeDifference = "Time Difference" //automatically generates a variable which will obtain a time difference between the report time for IVs & OMs (no configuration needed). There can only be 1 per project & it is ALWAYS set as an OM (calculated just before final dataObject is constructed & sent -> DB).
     
     func getAlertMessageForVariable() -> String { //provides an informative pop-up about the behavior
         var message = ""
@@ -307,7 +337,7 @@ enum CustomModuleVariableTypes: String { //*match each behavior/computation -> C
         case .Behavior_RangeScale:
             message = "A scale allows you to pick an integer value between the minimum and the maximum value that you set."
         case .Computation_TimeDifference:
-            message = "Calculates a time difference between 2 variables or between a variable and the project's action."
+            message = "Calculates the time difference between reporting the input variables & reporting the output variables (equivalent to the duration of the action)."
         }
         return message
     }

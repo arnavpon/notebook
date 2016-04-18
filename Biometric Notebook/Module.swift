@@ -12,7 +12,13 @@ import UIKit
 class Module { //defines the behaviors that are common to all modules
     static let modules: [Modules] = [Modules.CustomModule, Modules.EnvironmentModule, Modules.FoodIntakeModule, Modules.ExerciseModule, Modules.BiometricModule, Modules.CarbonEmissionsModule] //list of available modules, update whenever a new one is added
     
-    var isOutcomeMeasure: Bool = false //externally set to indicate that the variable is an OM
+    //***Testing ground for external interaction to dynamically alter the Behaviors/Computations displayed in ConfigureModuleVC for selection:
+    var blockers: [String]? //array of blocker indicators for comp/behavior display, set by ConfigVC
+    var locationInFlow: VariableLocations? //indicates whether var is input or output
+    //***
+    
+    var isOutcomeMeasure: Bool = false //externally set to indicate that this variable is an OM
+    var isAutomaticallyCaptured: Bool = false //set after functionality is selected (manual vs. auto-cap)
     private let variableState: ModuleVariableStates //state of THIS instance (Configuration or Reporting)
     internal let variableName: String //the name given to the variable attached to this module
     internal var moduleTitle: String = "" //overwrite w/ <> Module enum raw value in each class
@@ -28,6 +34,7 @@ class Module { //defines the behaviors that are common to all modules
     }
     
     internal var configureModuleLayoutObject: Dictionary<String, AnyObject> { //dataObject for laying out the available behaviors & computations in the ConfigureModuleVC
+        print("[Module Super] creating configuration module object...")
         var tempObject = Dictionary<String, AnyObject>()
         
         var viewForSection = Dictionary<String, CustomTableViewHeader>()
@@ -81,6 +88,9 @@ class Module { //defines the behaviors that are common to all modules
     init(name: String, dict: [String: AnyObject]) { //initializer for variable during RECONSTRUCTION from CoreData dict
         self.variableName = name
         self.variableState = ModuleVariableStates.DataReporting
+        if let auto = dict[BMN_VariableIsAutomaticallyCapturedKey] as? Bool { //check for auto or manual
+            self.isAutomaticallyCaptured = auto
+        }
     }
     
     // MARK: - Variable Configuration
@@ -110,7 +120,7 @@ class Module { //defines the behaviors that are common to all modules
     // MARK: - Core Data Logic
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        let persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle, BMN_VariableIsOutcomeMeasureKey: self.isOutcomeMeasure] //'moduleTitle' matches switch case in 'Project' > 'createModuleObjectFromModuleName' func
+        let persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle, BMN_VariableIsOutcomeMeasureKey: self.isOutcomeMeasure, BMN_VariableIsAutomaticallyCapturedKey : self.isAutomaticallyCaptured] //'moduleTitle' matches switch case in 'Project' > 'createModuleObjectFromModuleName' func
         return persistentDictionary
     }
     
@@ -124,8 +134,7 @@ class Module { //defines the behaviors that are common to all modules
         return nil
     } //For cells that have VARIABLE HEIGHTS (e.g. Custom Module options cell), we will need to include in the data source a custom cell height (which we can calculate beforehand b/c we know everything about how the cell needs to be configured, e.g. if the CustomOptions cell has 3 answer choices, we can calculate the height w/ a function, add that height to the data source; the VC TV delegate method should check for custom height & set to default if one is not found.)
     
-    //**
-    internal var mainDataObject: AnyObject? { //main object to report -> DataEntryVC, set by custom TV cell
+    internal var mainDataObject: AnyObject? { //main object to report -> DataEntryVC, set by TV cells
         didSet {
             print("[mainDataObjWasSet] Var: [\(variableName)]. Value: \(mainDataObject).")
         }
@@ -133,17 +142,9 @@ class Module { //defines the behaviors that are common to all modules
     
     func reportDataForVariable() -> [String: AnyObject]? { //called by DataEntryVC during aggregation
         var reportObject = Dictionary<String, AnyObject>()
-        reportObject[BMN_Module_TimeStampKey] = getDateAndTimeAtMeasurement() //capture timeStamp
-        reportObject[BMN_Module_MainDataKey] = mainDataObject //main object to report
+        reportObject[BMN_Module_ReportedDataKey] = mainDataObject //main data object to report (unique to each type of Custom DataEntry cell)
         return reportObject
-        //We DO NOT need a timeStamp for every variable that is being measured w/in the measurement cycle - they all have the SAME stamp. To save space, we should create 1 time stamp for inputs & 1 for outcomes. This will adjust how we do the TIME DIFFERENCE computation!!!
-    }
-    
-    // MARK: - Basic Behaviors
-    
-    internal func getDateAndTimeAtMeasurement() -> String { //returns date & time @ measurement
-        //All modules should include a timeStamp variable (every time a measurement is taken for any kind of module, the current date & time of the recording should be noted down).
-        return DateTime().getFullTimeStamp()
+        //Note - timeStamps are generated @ time of aggregation in DataEntryVC; a SINGLE time stamp is generated for IVs & another for OMs (b/c all IVs have same time stamp as other IVs, & all OMs have same time stamp as other OMs). This may vary for auto-captured data!
     }
     
 }

@@ -174,7 +174,8 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     
     @IBAction func doneButtonClick(sender: AnyObject) { //construct dataObject to report -> DB
         var dataObjectToDatabase = Dictionary<String, [String: AnyObject]>()
-        if let variables = variablesArray { //obtain each var's data
+        if let variables = variablesArray, project = selectedProject { //obtain each var's data
+            //(1) Obtain the data stored in the variables currently being reported:
             for variable in variables { //each Module obj reports entered data -> VC to construct dict
                 dataObjectToDatabase[variable.variableName] = variable.reportDataForVariable()
             }
@@ -184,22 +185,47 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                 }
                 print("\n") //*
             }
-        }
-        
-        if let project = selectedProject {
+            
+            //(2) If IV are being reported, store data -> tempObj, else send data -> DB:
             if let temp = project.temporaryStorageObject { //tempObject EXISTS (send combined data -> DB)
-                for (key, value) in temp { //add all items in temp object -> DB data object
-                    dataObjectToDatabase.updateValue(value, forKey: key)
+                if let timeStamps = temp[BMN_Module_MainTimeStampKey], inputsReportTime = timeStamps[BMN_Module_InputsTimeStampKey] as? NSDate { //get inputTime from dict
+                    let outputsReportTime = NSDate() //get CURRENT time for outputs timeStamp
+                    
+                    //Check if project contains a TimeDifference variable & calculate @ this point:
+                    if let tdInfo = temp[BMN_ProjectContainsTimeDifferenceKey], name =  tdInfo[BMN_CustomModule_TimeDifferenceKey] as? String {
+                        let difference = outputsReportTime.timeIntervalSinceReferenceDate - inputsReportTime.timeIntervalSinceReferenceDate
+                        project.temporaryStorageObject![BMN_ProjectContainsTimeDifferenceKey] = nil //clear indicator in tempObject
+                        dataObjectToDatabase[name] = [BMN_Module_ReportedDataKey: difference] //save time difference in var's 'reportedDataKey'
+                    }
+                    project.temporaryStorageObject![BMN_Module_MainTimeStampKey] = nil //clear item
+                    
+                    //Update dataObject's input & output NSDate timeStamps w/ STRING timeStamps:
+                    let outputsTimeStamp = DateTime(date: outputsReportTime).getFullTimeStamp() //string
+                    dataObjectToDatabase[BMN_Module_MainTimeStampKey]?.updateValue(outputsTimeStamp, forKey: BMN_Module_OutputsTimeStampKey)
+                    dataObjectToDatabase[BMN_Module_MainTimeStampKey] = [BMN_Module_OutputsTimeStampKey: outputsTimeStamp]
+                    let inputsTimeStamp = DateTime(date: inputsReportTime).getFullTimeStamp() //string
+                    dataObjectToDatabase[BMN_Module_MainTimeStampKey]?.updateValue(inputsTimeStamp, forKey: BMN_Module_InputsTimeStampKey)
                 }
+                
+                //Obtain data from tempDataObject:
+                if let updatedTemp = project.temporaryStorageObject { //get UPDATED temp object
+                    for (key, value) in updatedTemp { //add all items in temp object -> DB data object
+                        dataObjectToDatabase.updateValue(value, forKey: key)
+                    }
+                }
+                
+                //**send combined dict -> DB
+                
                 for (variableName, dict) in dataObjectToDatabase { //**
                     for (key, value) in dict {
                         print("DB Object: VAR = '\(variableName)'. KEY: '\(key)'. VALUE: [\(value)].")
                     }
                 }
                 print("\n") //**
-                //**send combined dict -> DB
-                project.refreshMeasurementCycle() //set tempObj -> nil & refresh counters
+                
+                project.refreshMeasurementCycle() //set tempObj -> nil & refresh counters after reporting
             } else { //tempObject does NOT exist (save dict -> tempObject until outputs are reported)
+                dataObjectToDatabase[BMN_Module_MainTimeStampKey] = [BMN_Module_InputsTimeStampKey: NSDate()] //set single time stamp for ALL of the IVs - *this timeStamp must initially be set as an NSDATE obj so that it can be used to calculate time differences*
                 let numberOfGroups = project.groups.count
                 if (numberOfGroups > 1) { //multiple groups (save a groupType in the tempObject)
                     if let group = groupType {
@@ -210,6 +236,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                 saveManagedObjectContext()
             }
         }
+        
         performSegueWithIdentifier("unwindToActiveProjects", sender: nil) //return -> home screen
     }
     

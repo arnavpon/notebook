@@ -210,8 +210,6 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         //Construct CoreData objects for the input & output variables, then construct the Project & Group objects & save -> persistent store:
         //**In the future, this project will be sent -> the web for DB configuration, cloud backup, etc.
         
-        //If the project contains any counter variables, create Core Data objects for the counters.
-        
         if let type = projectType, title = projectTitle, question = projectQuestion {
             let project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, endPoint: projectEndpoint?.endpointInSeconds, insertIntoManagedObjectContext: context)
             if (projectType == .ControlComparison) { //for CC type, create 2 groups

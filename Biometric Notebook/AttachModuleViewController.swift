@@ -23,6 +23,9 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     var selectedModule: Modules? //matches TV selection -> enum containing the defined module types
     var createdVariable: Module? //attach a type to this variable & initialize it before -> ConfigureVC
     
+    var moduleBlockers: [String]? //***allows dynamic configuration of ConfigVC
+    var variableLocation: VariableLocations? //***allows dynamic config
+    
     // MARK: - View Configuration 
     
     override func viewWillAppear(animated: Bool) {
@@ -40,8 +43,10 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
         if (showDescription) { //show view
             createCardForView(descriptionView, color: UIColor.blackColor().CGColor, borderWidth: 3, radius: 20)
             moduleTableView.alpha = 0.3
+            moduleTableView.userInteractionEnabled = false //disable interaction
         } else { //hide view
             moduleTableView.alpha = 1
+            moduleTableView.userInteractionEnabled = true //re-enable interaction
             for subview in descriptionView.subviews { //clear tutorialView from VC
                 let constraints = subview.constraints
                 subview.removeConstraints(constraints)
@@ -151,6 +156,8 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
         if (segue.identifier == "showConfigureModule") { //pass created variable over
             let destination = segue.destinationViewController as! ConfigureModuleViewController
             destination.createdVariable = self.createdVariable
+            destination.variableLocation = self.variableLocation
+            destination.moduleBlockers = self.moduleBlockers //***pass blockers over
         }
     }
 
