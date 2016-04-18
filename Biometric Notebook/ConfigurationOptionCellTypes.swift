@@ -12,7 +12,7 @@ enum ConfigurationOptionCellTypes { //REGISTER each new cell class w/ TV in Conf
     
     case SimpleText //corresponds -> SimpleTextConfigurationCell type
     case SimpleNumber //corresponds -> SimpleNumberConfigurationCell type
-    case Boolean //corresponds -> BooleanConfigurationCell type
+    case SelectFromOptions //corresponds -> SelectFromOptionsConfigurationCell type
     case CustomOptions //corresponds -> CustomOptionsConfigurationCell type
     case Computation //corresponds -> BaseComputationConfigurationCell type
     case Example //corresponds -> ExampleConfigurationCell type
@@ -25,8 +25,8 @@ enum ConfigurationOptionCellTypes { //REGISTER each new cell class w/ TV in Conf
             numberOfLevels = SimpleTextConfigurationCell.numberOfLevels
         case .SimpleNumber:
             numberOfLevels = SimpleNumberConfigurationCell.numberOfLevels
-        case .Boolean:
-            numberOfLevels = BooleanConfigurationCell.numberOfLevels
+        case .SelectFromOptions:
+            numberOfLevels = SelectFromOptionsConfigurationCell.numberOfLevels
         case .CustomOptions:
             numberOfLevels = CustomOptionsConfigurationCell.numberOfLevels
         case .Computation:

@@ -10,7 +10,7 @@ import UIKit
 class LevelsFrameworkCell: UITableViewCell {
     
     class var numberOfLevels: Int { return 1 } //total height of cell = (numLevels * 40) + separatorHeight
-    static let levelHeight: CGFloat = 40 //height of each level is constant
+    static let levelHeight: CGFloat = 40 //height of each level is constant (linked to 'heightForRow()' method in VC TV delegate)
     
     //(REQUIRED) Default Views:
     internal let insetBackgroundView = UIView(frame: CGRectZero) //background for LEVELS cell

@@ -31,6 +31,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
     }
     var customOptionsCellLevels: Int? //indicator for heightForRow() for CustomOptionsConfigCell
     var computationCellLevels: Int? //indicator for heightForRow() for BaseComputationConfigCell
+    var selectFromOptionsCellLevels: Int? //indicator for heightForRow() for SelectFromOptsConfigCell
     
     var currentVariables: [Module]? //list of existing variables (for computation)**
     
@@ -46,8 +47,9 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         //Add notification observers:
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil) //add observer for LEVELS Cell notification BEFORE configuring TV!
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellDidReportData(_:)), name: BMN_Notification_CellDidReportData, object: nil) //update report obj w/ data
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.addOptionButtonWasClicked(_:)), name: BMN_Notification_AddOptionButtonWasClicked, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.adjustHeightForComputationCell(_:)), name: BMN_Notification_AdjustHeightForComputationCell, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.adjustHeightForConfigurationCell(_:)), name: BMN_Notification_AddOptionButtonWasClicked, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.adjustHeightForConfigurationCell(_:)), name: BMN_Notification_AdjustHeightForComputationCell, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.adjustHeightForConfigurationCell(_:)), name: BMN_Notification_AdjustHeightForSelectFromOptionsCell, object: nil)
         
         //Keyboard notifications:
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardDidAppearWithFrame(_:)), name: UIKeyboardDidChangeFrameNotification, object: nil)
@@ -63,6 +65,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         optionsTableView.registerClass(SimpleTextConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleTextConfigurationCell)) //simple txt
         optionsTableView.registerClass(SimpleNumberConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleNumberConfigurationCell)) //simple #
         optionsTableView.registerClass(BooleanConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(BooleanConfigurationCell)) //boolean
+        optionsTableView.registerClass(SelectFromOptionsConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SelectFromOptionsConfigurationCell)) //select from available options
         optionsTableView.registerClass(CustomOptionsConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(CustomOptionsConfigurationCell)) //custom options
         optionsTableView.registerClass(BaseComputationConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(BaseComputationConfigurationCell)) //computations cell
         optionsTableView.registerClass(ExampleConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(ExampleConfigurationCell)) //example
@@ -116,6 +119,12 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             } else if let data = dict[BMN_CustomModule_RangeScale_IncrementID] { //RangeScale - Inc
                 reportedDataObject[BMN_CustomModule_RangeScale_IncrementID] = data
                 print("RS Increment: \(data as? Int).")
+            } else if let data = dict[BMN_EnvironmentModule_Weather_OptionsID] { //EM - WeatherOptions
+                reportedDataObject[BMN_EnvironmentModule_Weather_OptionsID] = data
+                let dat = data as! [String]
+                for opt in dat { //*
+                    print("[EM-WeatherOpts] '\(opt)'.")
+                }
             }
         }
     }
@@ -130,16 +139,17 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         }
     }
     
-    func addOptionButtonWasClicked(notification: NSNotification) { //adjusts height for TV cell
-        if let info = notification.userInfo, numberOfLevels = info[BMN_CustomOptionsConfigCell_NumberOfLevelsKey] as? Int {
-            customOptionsCellLevels = numberOfLevels //set indicator w/ new # of levels
-            optionsTableView.reloadData() //redraw w/ new height
-        }
-    }
-    
-    func adjustHeightForComputationCell(notification: NSNotification) { //adjusts ht for ComputationCell
-        if let info = notification.userInfo, let levels = info[BMN_BaseComputationConfigCell_NumberOfLevelsKey] as? Int {
-            computationCellLevels = levels
+    func adjustHeightForConfigurationCell(notification: NSNotification) { //adjusts ht for cell
+        if let info = notification.userInfo {
+            if let numberOfLevels = info[BMN_CustomOptionsConfigCell_NumberOfLevelsKey] as? Int { //value is for CustomOptions cell
+                customOptionsCellLevels = numberOfLevels //set indicator w/ new # of levels
+            }
+            if let levels = info[BMN_BaseComputationConfigCell_NumberOfLevelsKey] as? Int { //value is for BaseComputation cell
+                computationCellLevels = levels
+            }
+            if let levels = info[BMN_SelectFromOptionsConfigCell_NumberOfLevelsKey] as? Int { //value is for SelectFromOptions cell
+                selectFromOptionsCellLevels = levels
+            }
             optionsTableView.reloadData() //redraw w/ new height
         }
     }
@@ -192,6 +202,12 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             } else { //default height
                 return cellType.getHeightForConfigurationCellType()
             }
+        case .SelectFromOptions:
+            if let levels = selectFromOptionsCellLevels { //check if height was defined
+                return CGFloat(levels) * 40 + BMN_DefaultBottomSpacer
+            } else { //default height
+                return cellType.getHeightForConfigurationCellType()
+            }
         default:
             return cellType.getHeightForConfigurationCellType()
         }
@@ -207,11 +223,13 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(SimpleTextConfigurationCell)) as! SimpleTextConfigurationCell
         case .Boolean:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(BooleanConfigurationCell)) as! BooleanConfigurationCell
+        case .SelectFromOptions:
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(SelectFromOptionsConfigurationCell)) as! SelectFromOptionsConfigurationCell
         case .CustomOptions:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomOptionsConfigurationCell)) as! CustomOptionsConfigurationCell
         case .Computation:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(BaseComputationConfigurationCell)) as! BaseComputationConfigurationCell
-            (cell as! BaseComputationConfigurationCell).availableVariables = self.currentVariables //pass -> cell all existing variables
+            (cell as! BaseComputationConfigurationCell).availableVariables = self.currentVariables //pass all existing variables -> cell
         case .Example:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExampleConfigurationCell)) as! ExampleConfigurationCell
         }

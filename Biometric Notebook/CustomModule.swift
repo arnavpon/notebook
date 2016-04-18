@@ -159,7 +159,7 @@ class CustomModule: Module {
                 
                 //3 config cells are needed (prompt + multiple selection + custom options):
                 array.append((ConfigurationOptionCellTypes.SimpleText, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_PromptID, BMN_LEVELS_CellIsOptionalKey: true, BMN_LEVELS_MainLabelKey: "Set a prompt (optional). Replaces the variable's name during data reporting:"])) //cell to accept prompt
-                array.append((ConfigurationOptionCellTypes.Boolean, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID, BMN_LEVELS_MainLabelKey: "Allow multiple options to be selected (default NO):"])) //cell to check whether multiple selection is allowed or not
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID, BMN_LEVELS_MainLabelKey: "Allow multiple options to be selected (default NO):", BMN_SelectFromOptions_OptionsKey: ["YES", "NO"], BMN_SelectFromOptions_DefaultOptionsKey: ["NO"], BMN_SelectFromOptions_IsBooleanKey: true])) //cell to check whether multiple selection is allowed or not
                 array.append((ConfigurationOptionCellTypes.CustomOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_OptionsID, BMN_LEVELS_MainLabelKey: "Enter 2 or more custom options for selection:"])) //cell to enter custom options
                 configurationOptionsLayoutObject = array
                 
