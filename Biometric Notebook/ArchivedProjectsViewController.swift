@@ -68,7 +68,7 @@ class ArchivedProjectsViewController: UIViewController, UITableViewDataSource, U
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         performSegueWithIdentifier("showProjectOverview", sender: nil)
     }
-
+    
     // MARK: - Navigation
     
     @IBAction func unwindToArchivedProjectsVC(sender: UIStoryboardSegue) { //unwind segue

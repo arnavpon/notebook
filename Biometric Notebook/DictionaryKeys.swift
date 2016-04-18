@@ -14,10 +14,11 @@ let USERNAME_KEY = "username_key"
 let EMAIL_KEY = "email_key"
 let SHOW_ATTACH_DESCRIPTION = "show_attach_description_key"
 
-// MARK: - Custom NSNotification IDs
+// MARK: - [GENERAL] NSNotification IDs
 
 let BMN_Notification_CompletionIndicatorDidChange = "BMN_CompletionIndicatorDidChange"
 let BMN_Notification_CellDidReportData = "BMN_CellDidReportData"
+let BMN_Notification_CoreLocationManager_LocationDidChange = "BMN_CL_location_did_change"
 
 //CellWithPlusButton Notifications:
 let BMN_Notification_RevealHiddenArea = "BMN_RevealHiddenArea"

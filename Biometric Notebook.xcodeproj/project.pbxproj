@@ -42,6 +42,10 @@
 		B17C21101C31D96800B59FB0 /* FoodItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17C210F1C31D96800B59FB0 /* FoodItem.swift */; };
 		B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */; };
 		B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */; };
+		B19DF36D1CC57388008F44C4 /* CoreLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */; };
+		B19DF36E1CC58CA8008F44C4 /* ReturnedDataObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555841C30694A00C20742 /* ReturnedDataObject.swift */; };
+		B19DF36F1CC58CAA008F44C4 /* DataParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555821C30692A00C20742 /* DataParser.swift */; };
+		B19DF3701CC58CAC008F44C4 /* NetworkConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555801C3068FD00C20742 /* NetworkConnection.swift */; };
 		B1A7C62E1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */; };
 		B1A8C7C71CAF640300380E99 /* CustomWithRangeScaleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */; };
 		B1A8C7C91CAF656500380E99 /* CustomWithOptionsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7C81CAF656500380E99 /* CustomWithOptionsCell.swift */; };
@@ -197,6 +201,7 @@
 		B17C210F1C31D96800B59FB0 /* FoodItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodItem.swift; sourceTree = "<group>"; };
 		B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureModuleViewController.swift; sourceTree = "<group>"; };
 		B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSliderBackgroundView.swift; sourceTree = "<group>"; };
+		B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreLocationManager.swift; sourceTree = "<group>"; };
 		B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectFromOptionsConfigurationCell.swift; sourceTree = "<group>"; };
 		B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithRangeScaleCell.swift; sourceTree = "<group>"; };
 		B1A8C7C81CAF656500380E99 /* CustomWithOptionsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithOptionsCell.swift; sourceTree = "<group>"; };
@@ -417,6 +422,7 @@
 			children = (
 				B1C403331C3973CB00AF4BB9 /* Core Data */,
 				B1D0B2AE1C3F246200C9438F /* Modules */,
+				B19DF36B1CC5735A008F44C4 /* CoreLocation */,
 				B16EC9831C317E380085265C /* HealthKit */,
 				B1D5557F1C3068B100C20742 /* Networking */,
 			);
@@ -475,6 +481,14 @@
 				B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */,
 			);
 			name = "Config Options TV Cells";
+			sourceTree = "<group>";
+		};
+		B19DF36B1CC5735A008F44C4 /* CoreLocation */ = {
+			isa = PBXGroup;
+			children = (
+				B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */,
+			);
+			name = CoreLocation;
 			sourceTree = "<group>";
 		};
 		B1A8C7CE1CAF685100380E99 /* Custom Module Cells */ = {
@@ -844,6 +858,7 @@
 				B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */,
 				B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */,
 				B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */,
+				B19DF36E1CC58CA8008F44C4 /* ReturnedDataObject.swift in Sources */,
 				B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */,
 				B1A7C62E1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift in Sources */,
 				B1D51C661CB2A91A00DED6B2 /* DataEntryViewController.swift in Sources */,
@@ -856,6 +871,7 @@
 				B1A8C7CD1CAF663300380E99 /* BaseDataEntryCell.swift in Sources */,
 				B1B996651CBF342700E977DF /* Counter+CoreDataProperties.swift in Sources */,
 				B1B996661CBF342700E977DF /* Counter.swift in Sources */,
+				B19DF3701CC58CAC008F44C4 /* NetworkConnection.swift in Sources */,
 				B122261E1CC479A600A00109 /* BaseComputationConfigurationCell.swift in Sources */,
 				B13BB7391CBEDDFE0084E640 /* Group.swift in Sources */,
 				B1395DAE1CB76A5800DEBC91 /* BaseCreateProjectCell.swift in Sources */,
@@ -866,6 +882,7 @@
 				B1CCF1BF1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift in Sources */,
 				B1B20A6B1C5E8576003B791B /* LabelWithPadding.swift in Sources */,
 				B1AA96C81CAB1C870009E716 /* ConfigurationOptionCellTypes.swift in Sources */,
+				B19DF36D1CC57388008F44C4 /* CoreLocationManager.swift in Sources */,
 				B16282641CC1839800096CE5 /* CellForCounterBehavior.swift in Sources */,
 				B17019591CAA2C73004CAEB8 /* BaseConfigurationCell.swift in Sources */,
 				B1D560A81CB4573600F6A7AC /* CellWithCustomSlider.swift in Sources */,
@@ -876,6 +893,7 @@
 				B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */,
 				B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */,
 				B1E1E1401CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift in Sources */,
+				B19DF36F1CC58CAA008F44C4 /* DataParser.swift in Sources */,
 				B1A8C7CB1CAF657300380E99 /* CustomWithCounterCell.swift in Sources */,
 				B1D0B2C21C3F29B400C9438F /* Project.swift in Sources */,
 				B1D560AA1CB4585900F6A7AC /* ProjectQuestionCustomCell.swift in Sources */,

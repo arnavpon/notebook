@@ -6,6 +6,7 @@
 // Offers more specific configuration options after the user has selected a behavior or computation for the variable.
 
 import UIKit
+import CoreLocation
 
 class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
