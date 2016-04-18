@@ -14,6 +14,7 @@ enum ConfigurationOptionCellTypes { //REGISTER each new cell class w/ TV in Conf
     case SimpleNumber //corresponds -> SimpleNumberConfigurationCell type
     case Boolean //corresponds -> BooleanConfigurationCell type
     case CustomOptions //corresponds -> CustomOptionsConfigurationCell type
+    case Computation //corresponds -> BaseComputationConfigurationCell type
     case Example //corresponds -> ExampleConfigurationCell type
     
     func getHeightForConfigurationCellType() -> CGFloat { //called by VC to set cell height
@@ -28,6 +29,8 @@ enum ConfigurationOptionCellTypes { //REGISTER each new cell class w/ TV in Conf
             numberOfLevels = BooleanConfigurationCell.numberOfLevels
         case .CustomOptions:
             numberOfLevels = CustomOptionsConfigurationCell.numberOfLevels
+        case .Computation:
+            numberOfLevels = BaseComputationConfigurationCell.numberOfLevels
         case .Example:
             numberOfLevels = ExampleConfigurationCell.numberOfLevels
         }

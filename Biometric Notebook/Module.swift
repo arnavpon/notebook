@@ -34,7 +34,6 @@ class Module { //defines the behaviors that are common to all modules
     }
     
     internal var configureModuleLayoutObject: Dictionary<String, AnyObject> { //dataObject for laying out the available behaviors & computations in the ConfigureModuleVC
-        print("[Module Super] creating configuration module object...")
         var tempObject = Dictionary<String, AnyObject>()
         
         var viewForSection = Dictionary<String, CustomTableViewHeader>()

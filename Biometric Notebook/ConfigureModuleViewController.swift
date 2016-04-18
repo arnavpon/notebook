@@ -16,6 +16,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     var createdVariable: Module? //variable w/ completed configuration
     var moduleBlockers: [String]? //indicators for blocking display of specific variableTypes
     var variableLocation: VariableLocations? //dynamic config
+    var currentVariables: [Module]? //*list of available vars (for computation)
     
     // MARK: - View Configuration
     
@@ -118,6 +119,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         if (segue.identifier == "showConfigOptions") { //show segue -> ConfigurationOptionsVC
             let destination = segue.destinationViewController as! ConfigurationOptionsViewController
             destination.createdVariable = self.createdVariable
+            destination.currentVariables = self.currentVariables
         }
     }
     

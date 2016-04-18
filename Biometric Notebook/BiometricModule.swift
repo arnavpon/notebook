@@ -48,15 +48,57 @@ class BiometricModule: Module {
         self.moduleTitle = Modules.BiometricModule.rawValue
     }
     
+    // MARK: - Variable Configuration
+    
+    internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the 'options' value as needed; (2) Constructs the configuration TV cells if required; (3) Sets 'isAutoCaptured' var if var is auto-captured.
+        if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
+            var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = [] //pass -> VC (CustomCellType, cell's dataSource)
+            switch type {
+            case BiometricModuleVariableTypes.Behavior_Height:
+                
+                configurationOptionsLayoutObject = nil //no further config needed
+                
+            case BiometricModuleVariableTypes.Behavior_Weight:
+                
+                configurationOptionsLayoutObject = nil //no further config needed
+                
+            case BiometricModuleVariableTypes.Computation_Age:
+                
+                //***Adjust specifically to computation
+                array.append((ConfigurationOptionCellTypes.Computation, [BMN_Configuration_CellDescriptorKey: "Age", BMN_LEVELS_MainLabelKey: "Click and drag over 2 variable labels:", BMN_Configuration_AllowedVariableTypesForComputationKey: [CustomModuleVariableTypes.Behavior_BinaryOptions.rawValue]]))
+                
+                configurationOptionsLayoutObject = array
+                
+            case BiometricModuleVariableTypes.Computation_BMI:
+                
+                //***Adjust specifically to computation
+                array.append((ConfigurationOptionCellTypes.Computation, [BMN_Configuration_CellDescriptorKey: "BMI", BMN_LEVELS_MainLabelKey: "Click and drag over 2 variable labels:", BMN_Configuration_AllowedVariableTypesForComputationKey: [CustomModuleVariableTypes.Behavior_BinaryOptions.rawValue]]))
+                
+                configurationOptionsLayoutObject = array
+                
+            }
+        } else { //no selection, set configOptionsObj -> nil
+            configurationOptionsLayoutObject = nil
+        }
+    }
+    
+    internal override func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [String]?) {
+        //(1) Takes as INPUT the data that was entered into each config TV cell. (2) Given the variableType, matches configuration data -> properties in the Module object by accessing specific configuration cell identifiers (defined in 'HelperFx' > 'Dictionary Keys').
+        if let type = variableType {
+            switch type { //only needed for sections that require configuration
+            default:
+                print("[BiometricMod: matchConfigToProps] Error! Default in switch!")
+                return (false, "Default in switch!", nil)
+            }
+        }
+        return (false, "No selected functionality was found!", nil)
+    }
+    
     // MARK: - Core Data Logic
     
     internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { 
         let persistentDictionary: [String: AnyObject] = super.createDictionaryForCoreDataStore()
         return persistentDictionary
-    }
-    
-    internal override func setConfigurationOptionsForSelection() {
-        //
     }
     
     // MARK: - Data Entry Logic

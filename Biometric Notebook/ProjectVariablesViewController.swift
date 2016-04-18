@@ -862,6 +862,15 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             //***
             attachModuleVC.moduleBlockers = self.moduleBlockers //pass all blocker indicators
             attachModuleVC.variableLocation = self.variableLocation //pass over var location (IO vs. OM)
+            
+            var currentVars: [Module] = []
+            for variable in outcomeVariableRows {
+                currentVars.append(variable)
+            }
+            for variable in inputVariableRows {
+                currentVars.append(variable)
+            }
+            attachModuleVC.currentVariables = currentVars
         }
     }
 

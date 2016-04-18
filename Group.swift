@@ -14,7 +14,14 @@ class Group: NSManagedObject {
     
     func getVariablesArrayForTV() -> [Module]? {
         reconstructProjectFromPersistentRepresentation() //initialize TV dataSource
-        return dataEntryVariablesArray
+        if let variables = dataEntryVariablesArray {
+            if !(variables.isEmpty) { //array is NOT empty (default behavior)
+                return dataEntryVariablesArray
+            } else { //array is EMPTY (all variables are AUTO-CAP)
+                //**set some indicator that does something...we need to define how the interaction works for projects that have 1 or both sections fully auto-captured (in terms of the temporary storage object, the interaction w/ the VC, & when/how data is reported).**
+            }
+        }
+        return nil
     }
     
     // MARK: - Reconstruction Logic

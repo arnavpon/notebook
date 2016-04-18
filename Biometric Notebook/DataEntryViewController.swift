@@ -191,8 +191,8 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                 if let timeStamps = temp[BMN_Module_MainTimeStampKey], inputsReportTime = timeStamps[BMN_Module_InputsTimeStampKey] as? NSDate { //get inputTime from dict
                     let outputsReportTime = NSDate() //get CURRENT time for outputs timeStamp
                     
-                    //Check if project contains a TimeDifference variable & calculate @ this point:
-                    if let tdInfo = temp[BMN_ProjectContainsTimeDifferenceKey], name =  tdInfo[BMN_CustomModule_TimeDifferenceKey] as? String {
+                    //Check if project contains a TimeDifference variable:
+                    if let tdInfo = temp[BMN_ProjectContainsTimeDifferenceKey], name =  tdInfo[BMN_CustomModule_TimeDifferenceKey] as? String { //calculate TD if it exists
                         let difference = outputsReportTime.timeIntervalSinceReferenceDate - inputsReportTime.timeIntervalSinceReferenceDate
                         project.temporaryStorageObject![BMN_ProjectContainsTimeDifferenceKey] = nil //clear indicator in tempObject
                         dataObjectToDatabase[name] = [BMN_Module_ReportedDataKey: difference] //save time difference in var's 'reportedDataKey'

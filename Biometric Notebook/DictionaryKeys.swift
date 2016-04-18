@@ -30,7 +30,11 @@ let BMN_Notification_ProjectTypeDidChange = "BMN_ProjectTypeDidChange"
 
 //CustomOptionsConfigCell Notifications:
 let BMN_Notification_AddOptionButtonWasClicked = "BMN_AddOptionButtonWasClicked"
-let BMN_CustomOptionsConfigCell_NumberOfLevelsKey = "BMN_CustomOptionsConfigCell_number_of_levels_key" //*
+let BMN_CustomOptionsConfigCell_NumberOfLevelsKey = "BMN_CustomOptionsConfigCell_number_of_levels_key"
+
+//ComputationsCell Notifications:
+let BMN_Notification_AdjustHeightForComputationCell = "BMN_AdjustHeightForComputationCell"
+let BMN_BaseComputationConfigCell_NumberOfLevelsKey = "BMN_BaseComputationConfigCell_number_of_levels_key"
 
 //CellWithGradientFill Notifications:
 let BMN_Notification_DataEntryButtonClick = "BMN_DataEntryButtonClick"
@@ -71,6 +75,7 @@ let BMN_CellWithCustomSlider_ProjectIsCCTypeKey = "CellWithCustomSlider_project_
 
 let BMN_Configuration_CellDescriptorKey = "configuration_cell_descriptor_key" //key for the cell's descriptor (the dictionary key used to identify each unique cell for configuration reporting)
 let BMN_Configuration_DefaultNumberKey = "configuration_default_number_key" //key for a default number to assign to a SimpleNumberConfigurationCell
+let BMN_Configuration_AllowedVariableTypesForComputationKey = "configuration_allowed_variable_types_for_computation_key" //key for BaseComputationConfigCell
 
 // MARK: - [MODULE] General Configuration Keys
 

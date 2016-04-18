@@ -25,6 +25,7 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     
     var moduleBlockers: [String]? //***allows dynamic configuration of ConfigVC
     var variableLocation: VariableLocations? //***allows dynamic config
+    var currentVariables: [Module]? //list of all existing variables (for computations)
     
     // MARK: - View Configuration 
     
@@ -158,6 +159,7 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
             destination.createdVariable = self.createdVariable
             destination.variableLocation = self.variableLocation
             destination.moduleBlockers = self.moduleBlockers //***pass blockers over
+            destination.currentVariables = self.currentVariables 
         }
     }
 

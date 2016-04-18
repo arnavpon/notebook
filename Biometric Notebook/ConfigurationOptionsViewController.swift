@@ -29,7 +29,10 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             configureDoneButton()
         }
     }
-    var customOptionsCellLevels: Int? //indicator for heightForRow() for CustomOptions config cells
+    var customOptionsCellLevels: Int? //indicator for heightForRow() for CustomOptionsConfigCell
+    var computationCellLevels: Int? //indicator for heightForRow() for BaseComputationConfigCell
+    
+    var currentVariables: [Module]? //list of existing variables (for computation)**
     
     // MARK: - View Configuration
     
@@ -44,6 +47,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil) //add observer for LEVELS Cell notification BEFORE configuring TV!
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellDidReportData(_:)), name: BMN_Notification_CellDidReportData, object: nil) //update report obj w/ data
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.addOptionButtonWasClicked(_:)), name: BMN_Notification_AddOptionButtonWasClicked, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.adjustHeightForComputationCell(_:)), name: BMN_Notification_AdjustHeightForComputationCell, object: nil)
         
         //Keyboard notifications:
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardDidAppearWithFrame(_:)), name: UIKeyboardDidChangeFrameNotification, object: nil)
@@ -60,6 +64,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         optionsTableView.registerClass(SimpleNumberConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleNumberConfigurationCell)) //simple #
         optionsTableView.registerClass(BooleanConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(BooleanConfigurationCell)) //boolean
         optionsTableView.registerClass(CustomOptionsConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(CustomOptionsConfigurationCell)) //custom options
+        optionsTableView.registerClass(BaseComputationConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(BaseComputationConfigurationCell)) //computations cell
         optionsTableView.registerClass(ExampleConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(ExampleConfigurationCell)) //example
     }
     
@@ -132,6 +137,13 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         }
     }
     
+    func adjustHeightForComputationCell(notification: NSNotification) { //adjusts ht for ComputationCell
+        if let info = notification.userInfo, let levels = info[BMN_BaseComputationConfigCell_NumberOfLevelsKey] as? Int {
+            computationCellLevels = levels
+            optionsTableView.reloadData() //redraw w/ new height
+        }
+    }
+    
     // MARK: - Keyboard Logic
     
     var blockKeyboardDidAppear: Bool = false //blocker
@@ -174,6 +186,12 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             } else { //default height
                 return cellType.getHeightForConfigurationCellType()
             }
+        case .Computation:
+            if let levels = computationCellLevels { //check if height was defined
+                return CGFloat(levels) * 40 + BMN_DefaultBottomSpacer
+            } else { //default height
+                return cellType.getHeightForConfigurationCellType()
+            }
         default:
             return cellType.getHeightForConfigurationCellType()
         }
@@ -191,6 +209,9 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(BooleanConfigurationCell)) as! BooleanConfigurationCell
         case .CustomOptions:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomOptionsConfigurationCell)) as! CustomOptionsConfigurationCell
+        case .Computation:
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(BaseComputationConfigurationCell)) as! BaseComputationConfigurationCell
+            (cell as! BaseComputationConfigurationCell).availableVariables = self.currentVariables //pass -> cell all existing variables
         case .Example:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExampleConfigurationCell)) as! ExampleConfigurationCell
         }
