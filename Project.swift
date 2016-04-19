@@ -68,4 +68,18 @@ class Project: NSManagedObject {
         return nil //indefinite project (NO % value)
     }
     
+    // MARK: - Auto-Captured Variable Logic
+    
+    func obtainAutoCaptureData() -> [String: [String: AnyObject]] { //set this as a completion!
+        let autoCapturedData = Dictionary<String, [String: AnyObject]>()
+        return autoCapturedData //**make completion
+    }
+    
+    //flexible way to obtain data for auto-captured variables: (1) TYPE 1 - variables that are automatically captured 1 time just before the DB object is generated (i.e. when 'Done' button is pressed in VC); (2) TYPE 2 - data captured from sensors (how to handle this is TBD).
+    //When variables are going to be reported, we need to check if any of the variables w/in a given set of IV or OM are auto-captured. If so, we need to collect that data @ this time -
+    //(1) Need method to check if there are auto-captured variables - needs to introspectively check which of its groups is being reported, whether IV or OM are being reported, & for that group, determine which vars are auto vs. manual.
+    //(2) Need flexible method to have all of these variables report their data back before generating the final dict - this is tricky b/c it will require access to HealthKit, Location services, etc. & if these are disabled, we won't be able to collect that info. We must prompt the user to enable that info sooner (e.g. when they open the DataEntryVC, prompt them even before DoneBtn is hit). All of the data will be reported asynchronously, aggregated w/ the manually reported data, & sent -> DB. **We could place a method inside the Module class that ONLY works for auto-cap vars, & is similar to the REPORT DATA fx in TV cells. When called by the Project class or VC, it executes an overriden functionality that sends back the data for that variable in a dictionary against its name [varName: data].
+    //When do we obtain the data & how do we handle the fact that data will be returned asynchronously (hence we cannot collect it when the Done btn is pressed [OR CAN WE & just send the data asynchronously?]).
+    //For type II variables (sensor data), we will need to create a separate DB table b/c the entries will not be collected @ the same frequency as other data (OR SHOULD WE SET IT SO THE RATES MATCH?).
+    
 }

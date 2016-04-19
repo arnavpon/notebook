@@ -14,6 +14,7 @@
 		B122261E1CC479A600A00109 /* BaseComputationConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B122261D1CC479A500A00109 /* BaseComputationConfigurationCell.swift */; };
 		B122EAFE1CC307E000CE3D33 /* RangeScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */; };
 		B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */; };
+		B12554151CC5C5A9006C2651 /* WeatherForecastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */; };
 		B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */; };
 		B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */; };
 		B1395DAE1CB76A5800DEBC91 /* BaseCreateProjectCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAD1CB76A5800DEBC91 /* BaseCreateProjectCell.swift */; };
@@ -43,8 +44,6 @@
 		B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */; };
 		B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */; };
 		B19DF36D1CC57388008F44C4 /* CoreLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */; };
-		B19DF36E1CC58CA8008F44C4 /* ReturnedDataObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555841C30694A00C20742 /* ReturnedDataObject.swift */; };
-		B19DF36F1CC58CAA008F44C4 /* DataParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555821C30692A00C20742 /* DataParser.swift */; };
 		B19DF3701CC58CAC008F44C4 /* NetworkConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555801C3068FD00C20742 /* NetworkConnection.swift */; };
 		B1A7C62E1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */; };
 		B1A8C7C71CAF640300380E99 /* CustomWithRangeScaleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */; };
@@ -162,6 +161,7 @@
 		B122261D1CC479A500A00109 /* BaseComputationConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BaseComputationConfigurationCell.swift; path = ../../BaseComputationConfigurationCell.swift; sourceTree = "<group>"; };
 		B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RangeScaleView.swift; sourceTree = "<group>"; };
 		B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExperimentTypes.swift; sourceTree = "<group>"; };
+		B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherForecastService.swift; sourceTree = "<group>"; };
 		B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectTitleCustomCell.swift; path = ../../ProjectTitleCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectHypothesisCustomCell.swift; path = ../../ProjectHypothesisCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAD1CB76A5800DEBC91 /* BaseCreateProjectCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BaseCreateProjectCell.swift; path = ../../BaseCreateProjectCell.swift; sourceTree = "<group>"; };
@@ -244,8 +244,6 @@
 		B1D51C621CB2A34300DED6B2 /* CellWithGradientFill.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellWithGradientFill.swift; sourceTree = "<group>"; };
 		B1D51C651CB2A91A00DED6B2 /* DataEntryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataEntryViewController.swift; sourceTree = "<group>"; };
 		B1D555801C3068FD00C20742 /* NetworkConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkConnection.swift; sourceTree = "<group>"; };
-		B1D555821C30692A00C20742 /* DataParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataParser.swift; sourceTree = "<group>"; };
-		B1D555841C30694A00C20742 /* ReturnedDataObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReturnedDataObject.swift; sourceTree = "<group>"; };
 		B1D555861C30739C00C20742 /* DateTime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateTime.swift; sourceTree = "<group>"; };
 		B1D560A71CB4573600F6A7AC /* CellWithCustomSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellWithCustomSlider.swift; sourceTree = "<group>"; };
 		B1D560A91CB4585900F6A7AC /* ProjectQuestionCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectQuestionCustomCell.swift; sourceTree = "<group>"; };
@@ -622,8 +620,7 @@
 			isa = PBXGroup;
 			children = (
 				B1D555801C3068FD00C20742 /* NetworkConnection.swift */,
-				B1D555821C30692A00C20742 /* DataParser.swift */,
-				B1D555841C30694A00C20742 /* ReturnedDataObject.swift */,
+				B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */,
 			);
 			name = Networking;
 			sourceTree = "<group>";
@@ -839,6 +836,7 @@
 				B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */,
 				B1D51C5C1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift in Sources */,
 				B1BE110E1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift in Sources */,
+				B12554151CC5C5A9006C2651 /* WeatherForecastService.swift in Sources */,
 				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
 				B1D51C581CB29CB500DED6B2 /* ActiveProjectsViewController.swift in Sources */,
 				B1A8C7C91CAF656500380E99 /* CustomWithOptionsCell.swift in Sources */,
@@ -858,7 +856,6 @@
 				B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */,
 				B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */,
 				B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */,
-				B19DF36E1CC58CA8008F44C4 /* ReturnedDataObject.swift in Sources */,
 				B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */,
 				B1A7C62E1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift in Sources */,
 				B1D51C661CB2A91A00DED6B2 /* DataEntryViewController.swift in Sources */,
@@ -893,7 +890,6 @@
 				B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */,
 				B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */,
 				B1E1E1401CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift in Sources */,
-				B19DF36F1CC58CAA008F44C4 /* DataParser.swift in Sources */,
 				B1A8C7CB1CAF657300380E99 /* CustomWithCounterCell.swift in Sources */,
 				B1D0B2C21C3F29B400C9438F /* Project.swift in Sources */,
 				B1D560AA1CB4585900F6A7AC /* ProjectQuestionCustomCell.swift in Sources */,

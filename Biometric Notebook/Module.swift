@@ -146,4 +146,6 @@ class Module { //defines the behaviors that are common to all modules
         //Note - timeStamps are generated @ time of aggregation in DataEntryVC; a SINGLE time stamp is generated for IVs & another for OMs (b/c all IVs have same time stamp as other IVs, & all OMs have same time stamp as other OMs). This may vary for auto-captured data!
     }
     
+    //**Add overwritable method for automatic data reporting from a variable which is defined as auto-captured!!! Overwrite in each subclass based on how data should be gathered.
+    
 }
