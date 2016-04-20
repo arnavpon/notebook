@@ -15,7 +15,16 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     @IBOutlet weak var groupSelectionView: UIView!
     
     var selectedProject: Project?
-    var variablesArray: [Module]? //TV data source
+    var variablesArray: [Module]? { //TV data source
+        didSet {
+            configureDoneButton() //if an empty array is set as dataSource, enable 'Done' btn
+            if let variables = variablesArray {
+                if (variables.isEmpty) {
+                    //hide TV & display a message to the user that vars have been auto-capped
+                }
+            }
+        }
+    }
     var numberOfConfiguredCells: Int = 0 { //controls whether 'Done' btn is enabled
         didSet {
             print("[DataEntryVC] # of configured cells: \(numberOfConfiguredCells).")
@@ -53,29 +62,14 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         dataEntryTV.registerClass(CustomWithRangeScaleCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithRangeScaleCell))
     }
     
-    func getTableViewDataSource() { //picks TV dataSource array for the selectedProject (**@ some point in future, when the interaction is more clearly defined, wrap this up in the 'Project' class)
+    func getTableViewDataSource() { //obtains TV dataSource array from the selectedProject
         //First, check how many groups the selectedProject contains (> 1 => user must select which one they are filling data for):
-        if let project = selectedProject, groups = project.groups.allObjects as? [Group] {
-            if (groups.isEmpty) { //ERROR
-                print("Error! Selected project contains NO GROUPS!")
-            } else if (groups.count == 1) { //project contains only 1 group
-                let group = groups.first!
-                variablesArray = group.getVariablesArrayForTV() //initialize TV dataSource
+        if let project = selectedProject {
+            if (project.shouldDisplayGroupSelectionView()) { //show groupSelectionView
+                configureGroupSelectionView(true)
+            } else { //obtain variablesArray directly from Project class
+                self.variablesArray = project.getVariablesForGroup(nil) //no groupType needed
                 dataEntryTV.reloadData() //update UI
-            } else { //provide interface for user to select which group to report data for
-                //If the temporary object already exists, see which group inputs were reported for:
-                if let temp = project.temporaryStorageObject {
-                    if let groupDict = temp[BMN_CurrentlyReportingGroupKey] {
-                        for (key, _) in groupDict { //Key & Value BOTH equal the groupType's rawValue
-                            if let group = GroupTypes(rawValue: key) {
-                                getTableViewDataSourceForGroup(group) //auto-set data source for group
-                                break //only needs to run 1x (only 1 key/value pair in this dict)
-                            }
-                        }
-                    } //**both groups in CC project have EXACT SAME outputs, so it doesn't matter which group we get the variables for, both will be the same! This is redundant now, but may come in handy in the future!
-                } else {
-                    configureGroupSelectionView(true) //present view to allow user to choose a group
-                }
             }
         }
     }
@@ -173,70 +167,10 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     @IBAction func doneButtonClick(sender: AnyObject) { //construct dataObject to report -> DB
-        var dataObjectToDatabase = Dictionary<String, [String: AnyObject]>()
-        if let variables = variablesArray, project = selectedProject { //obtain each var's data
-            //(1) Obtain the data stored in the variables currently being reported:
-            for variable in variables { //each Module obj reports entered data -> VC to construct dict
-                dataObjectToDatabase[variable.variableName] = variable.reportDataForVariable()
-            }
-            for (variableName, dict) in dataObjectToDatabase { //**
-                for (key, value) in dict {
-                    print("DB Object: VAR = '\(variableName)'. KEY: '\(key)'. VALUE: [\(value)].")
-                }
-                print("\n") //*
-            }
-            
-            //(2) If IV are being reported, store data -> tempObj, else send data -> DB:
-            if let temp = project.temporaryStorageObject { //tempObject EXISTS (send combined data -> DB)
-                if let timeStamps = temp[BMN_Module_MainTimeStampKey], inputsReportTime = timeStamps[BMN_Module_InputsTimeStampKey] as? NSDate { //get inputTime from dict
-                    let outputsReportTime = NSDate() //get CURRENT time for outputs timeStamp
-                    
-                    //Check if project contains a TimeDifference variable:
-                    if let tdInfo = temp[BMN_ProjectContainsTimeDifferenceKey], name =  tdInfo[BMN_CustomModule_TimeDifferenceKey] as? String { //calculate TD if it exists
-                        let difference = outputsReportTime.timeIntervalSinceReferenceDate - inputsReportTime.timeIntervalSinceReferenceDate
-                        project.temporaryStorageObject![BMN_ProjectContainsTimeDifferenceKey] = nil //clear indicator in tempObject
-                        dataObjectToDatabase[name] = [BMN_Module_ReportedDataKey: difference] //save time difference in var's 'reportedDataKey'
-                    }
-                    project.temporaryStorageObject![BMN_Module_MainTimeStampKey] = nil //clear item
-                    
-                    //Update dataObject's input & output NSDate timeStamps w/ STRING timeStamps:
-                    let outputsTimeStamp = DateTime(date: outputsReportTime).getFullTimeStamp() //string
-                    dataObjectToDatabase[BMN_Module_MainTimeStampKey]?.updateValue(outputsTimeStamp, forKey: BMN_Module_OutputsTimeStampKey)
-                    dataObjectToDatabase[BMN_Module_MainTimeStampKey] = [BMN_Module_OutputsTimeStampKey: outputsTimeStamp]
-                    let inputsTimeStamp = DateTime(date: inputsReportTime).getFullTimeStamp() //string
-                    dataObjectToDatabase[BMN_Module_MainTimeStampKey]?.updateValue(inputsTimeStamp, forKey: BMN_Module_InputsTimeStampKey)
-                }
-                
-                //Obtain data from tempDataObject:
-                if let updatedTemp = project.temporaryStorageObject { //get UPDATED temp object
-                    for (key, value) in updatedTemp { //add all items in temp object -> DB data object
-                        dataObjectToDatabase.updateValue(value, forKey: key)
-                    }
-                }
-                
-                //**send combined dict -> DB
-                
-                for (variableName, dict) in dataObjectToDatabase { //**
-                    for (key, value) in dict {
-                        print("DB Object: VAR = '\(variableName)'. KEY: '\(key)'. VALUE: [\(value)].")
-                    }
-                }
-                print("\n") //**
-                
-                project.refreshMeasurementCycle() //set tempObj -> nil & refresh counters after reporting
-            } else { //tempObject does NOT exist (save dict -> tempObject until outputs are reported)
-                dataObjectToDatabase[BMN_Module_MainTimeStampKey] = [BMN_Module_InputsTimeStampKey: NSDate()] //set single time stamp for ALL of the IVs - *this timeStamp must initially be set as an NSDATE obj so that it can be used to calculate time differences*
-                let numberOfGroups = project.groups.count
-                if (numberOfGroups > 1) { //multiple groups (save a groupType in the tempObject)
-                    if let group = groupType {
-                        dataObjectToDatabase[BMN_CurrentlyReportingGroupKey] = [group.rawValue: group.rawValue] //store Group type in dict
-                    }
-                }
-                project.temporaryStorageObject = dataObjectToDatabase //store obj -> temp
-                saveManagedObjectContext()
-            }
+        if let project = selectedProject { //call method in project to generate & send data -> DB
+            project.constructDataObjectForDatabase()
+            //**when clicked, call method in Project class that handles ALL data aggregation logic appropriately & transition -> VC. Variables are all part of the project's group, so data should be stored in the Var object when set by the TV cell. Access the entered data from this var object when aggregating.
         }
-        
         performSegueWithIdentifier("unwindToActiveProjects", sender: nil) //return -> home screen
     }
     
@@ -248,21 +182,11 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         getTableViewDataSourceForGroup(.Comparison)
     }
     
-    var groupType: GroupTypes? //keeps track of currently reporting group
-    
-    func getTableViewDataSourceForGroup(group: GroupTypes) { //sets TV dataSource for group
+    func getTableViewDataSourceForGroup(group: GroupTypes) { //gets TV dataSource for selectedGroup
         if let project = selectedProject {
-            for obj in project.groups {
-                if let grp = obj as? Group {
-                    if (grp.groupType == group.rawValue) { //check if input type matches obj type
-                        variablesArray = grp.getVariablesArrayForTV()
-                        dataEntryTV.reloadData()
-                        configureGroupSelectionView(false) //show TV again
-                        groupType = group //set groupType indicator for doneButtonClick()
-                        break
-                    }
-                }
-            }
+            variablesArray = project.getVariablesForGroup(group) //set dataSource
+            dataEntryTV.reloadData() //update UI
+            configureGroupSelectionView(false) //hide selectionView
         }
     }
 

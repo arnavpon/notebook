@@ -10,24 +10,21 @@ import CoreData
 
 class Group: NSManagedObject {
 
-    private var dataEntryVariablesArray: [Module]? //dataSource for VC TV
+    private var dataEntryVariablesArray: [Module] = [] //dataSource for VC TV
     
-    func getVariablesArrayForTV() -> [Module]? {
+    func getVariablesArrayForDataEntry() -> [Module] {
         reconstructProjectFromPersistentRepresentation() //initialize TV dataSource
-        if let variables = dataEntryVariablesArray {
-            if !(variables.isEmpty) { //array is NOT empty (default behavior)
-                return dataEntryVariablesArray
-            } else { //array is EMPTY (all variables are AUTO-CAP)
-                //**set some indicator that does something...we need to define how the interaction works for projects that have 1 or both sections fully auto-captured (in terms of the temporary storage object, the interaction w/ the VC, & when/how data is reported).**
-            }
-        }
-        return nil
+        return dataEntryVariablesArray
+        //**we need to define how the interaction works for projects that have 1 or both sections fully auto-captured (in terms of the temporary storage object, the interaction w/ the VC, & when/how data is reported).**
     }
     
     // MARK: - Reconstruction Logic
     
+    var reconstructedVariables: [Module] = [] //**accessed by Project Class
+    
     private func reconstructProjectFromPersistentRepresentation() { //use the project's CoreData representation to reconstruct its variables (EITHER inputs OR outputs) as Module objects
-        dataEntryVariablesArray = [] //initialize array
+        reconstructedVariables = [] //clear array
+        dataEntryVariablesArray = [] //clear array
         let variableDict: [String: [String: AnyObject]]
         if (self.project.temporaryStorageObject == nil) { //no temp storage => report BEFORE ACTION VARS
             print("[reconstructProjFromCD] Temp object is nil! Configuring before action vars...")
@@ -37,17 +34,20 @@ class Group: NSManagedObject {
             variableDict = self.afterActionVariables
         }
         
-        //Check the Module obj for the auto-capture indicator before adding -> array (variables that are AUTO-captured are NOT added -> variablesArray):
+        //Check the Module obj for the auto-capture indicator before adding var -> array (variables that are AUTO-captured are NOT added, but are asked to report their data now):
         for (variable, dict) in variableDict { //'dict' = configurationDict for variable
             if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
                 let reconstructedVariable: Module = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
+                reconstructedVariables.append(reconstructedVariable) //add -> array for data capture
                 if !(reconstructedVariable.isAutomaticallyCaptured) { //MANUALLY captured vars
-                    dataEntryVariablesArray!.append(reconstructedVariable)
+                    dataEntryVariablesArray.append(reconstructedVariable)
                 } else { //AUTO-captured vars
                     if (reconstructedVariable.selectedFunctionality == CustomModuleVariableTypes.Computation_TimeDifference.rawValue) { //TIME DIFFERENCE
                         //Create entry in tempStorageObject indicating there is a TimeDifference var (ONLY works if TimeDiff is an OUTPUT variable):
                         self.project.temporaryStorageObject?.updateValue([BMN_CustomModule_TimeDifferenceKey: reconstructedVariable.variableName], forKey: BMN_ProjectContainsTimeDifferenceKey) //store var's name in dict
                         saveManagedObjectContext() //save after inputting indicator
+                    } else { //**tell the remainder of auto-cap variables to report their data!
+                        reconstructedVariable.setDataObjectForAutoCapturedVariable()
                     }
                 }
             }

@@ -42,8 +42,11 @@ struct CurrentWeather { //object used to represent the CURRENT WEATHER for Envir
     
     // MARK: - Data Reporting Logic
     
-    func reportDataForWeatherVariable(variable: EnvironmentModule) -> [String: AnyObject] { //**based on the user's defined preferences for a Weather variable, filter the data that is reported by this variable (e.g. if they only want ambient temperature, provide only that).
-        let reportObject = Dictionary<String, AnyObject>()
+    func reportDataForWeatherVariable(filter: [String]) -> [String: AnyObject] { //**based on the user's defined preferences for a Weather variable, filter the data that is reported by this variable (e.g. if they only want ambient temperature, provide only that).
+        var reportObject = Dictionary<String, AnyObject>()
+        reportObject["temperature"] = self.temperature
+        reportObject["apparentTemperature"] = self.apparentTemperature
+        reportObject["humidity"] = self.relativeHumidity
         return reportObject
     }
     
@@ -51,8 +54,10 @@ struct CurrentWeather { //object used to represent the CURRENT WEATHER for Envir
 
 struct DailyWeather { //object used to represent the DAILY WEATHER (used to grab potentially useful data points that are found in the 'daily' dictionary)
     
+    //**The object sent back by the API contains several different entries. Need to check documentation to get the correct one. 
+    
     let sunriseTime: Int? //represented as UNIX time stamp w/ # of seconds since Jan 1, 1970 (NSDate has method to convert that)
-    let sunsetTime: Int? //**may be different type!
+    let sunsetTime: Int? //UNIX timeStamp
     let temperatureMin: Int? //ºF
     let temperatureMinTime: Int? //UNIX timeStamp
     let temperatureMax: Int? //ºF
@@ -79,8 +84,12 @@ struct DailyWeather { //object used to represent the DAILY WEATHER (used to grab
     
     // MARK: - Data Reporting Logic
     
-    func reportDataForWeatherVariable(variable: EnvironmentModule) -> [String: AnyObject] { //**
-        let reportObject = Dictionary<String, AnyObject>()
+    func reportDataForWeatherVariable(filter: [String]) -> [String: AnyObject] {
+        var reportObject = Dictionary<String, AnyObject>()
+        reportObject["sunriseTime"] = self.sunriseTime
+        reportObject["sunsetTime"] = self.sunsetTime
+        reportObject["temperatureMin"] = self.temperatureMin
+        reportObject["temperatureMax"] = self.temperatureMax
         return reportObject
     }
     
@@ -96,7 +105,7 @@ struct ForecastService { //creates a SPECIALIZED network connection (utilizing t
     
     // MARK: - Initializer
     
-    init(coordinate: (Double, Double)) { //initialize w/ coordinates @ which to obtain CURRENT weather
+    init(coordinate: (latitude: Double, longitude: Double)) { //initialize w/ coordinates @ which to obtain CURRENT weather
         self.coordinate = coordinate
     }
     

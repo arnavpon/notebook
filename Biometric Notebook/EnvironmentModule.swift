@@ -58,7 +58,6 @@ class EnvironmentModule: Module {
     }
     
     //Configuration Properties (unique to specific behaviors/computations):
-    private let concatenationSeparator: String = "__" //separator for CoreData combinedString object
     private var selectedWeatherOptions: [EnvironmentModule_WeatherOptions] = [] //granular weather options the user wants to capture
     
     // MARK: - Initializers
@@ -82,6 +81,7 @@ class EnvironmentModule: Module {
                 if let options = dict[BMN_EnvironmentModule_Weather_SelectedOptionsKey] as? [String] {
                     //Convert the rawValues -> enum objects:
                     for option in options {
+                        print("[EnM init()] Weather Option: \(option).")
                         if let weatherOption = EnvironmentModule_WeatherOptions(rawValue: option) {
                             self.selectedWeatherOptions.append(weatherOption)
                         }
@@ -107,8 +107,8 @@ class EnvironmentModule: Module {
             case EnvironmentModuleVariableTypes.Behavior_Weather:
                 
                 //1 config cell is needed (SelectFromOptions):
-                let options = [EnvironmentModule_WeatherOptions.Weather.rawValue, EnvironmentModule_WeatherOptions.AmbientTemperature.rawValue, EnvironmentModule_WeatherOptions.AmbientHumidity.rawValue] //pull opts from enum
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_EnvironmentModule_Weather_OptionsID, BMN_LEVELS_MainLabelKey: "Select 1 or more kinds of weather data you want to capture with this variable:", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_MultipleSelectionEnabledKey: true])) //cell that contains granular weather selection options
+                let options = [EnvironmentModule_WeatherOptions.CurrentWeather.rawValue, EnvironmentModule_WeatherOptions.DailyWeather.rawValue] //enum opts
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_EnvironmentModule_Weather_OptionsID, BMN_LEVELS_MainLabelKey: "Select 1 or more kinds of weather data you want to capture with this variable:", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_MultipleSelectionEnabledKey: true, BMN_SelectFromOptions_DefaultOptionsKey: [EnvironmentModule_WeatherOptions.CurrentWeather.rawValue]])) //cell that contains granular weather selection options
                 
                 self.isAutomaticallyCaptured = true //auto-cap
                 configurationOptionsLayoutObject = array
@@ -172,22 +172,53 @@ class EnvironmentModule: Module {
     
     // MARK: - Data Entry Logic
     
+    lazy var coreLocationManager = CoreLocationManager()
+    
     func getTypeForVariable() -> EnvironmentModuleVariableTypes? { //used by DataEntry cells for safety
         return self.variableType
     }
     
-    override func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
-        if let type = self.variableType {
+    override func setDataObjectForAutoCapturedVariable() {
+        if let type = variableType {
             switch type {
-            default:
-                return nil
+            case .Behavior_Weather: //access current location from CLManager
+                NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.didReceiveLocationFromCLManager(_:)), name: BMN_Notification_CoreLocationManager_LocationDidChange, object: nil) //register
+                coreLocationManager.startStandardUpdates() //start up location manager
+            case .Behavior_TemperatureAndHumidity:
+                break
             }
         }
-        return nil
     }
     
-    override var cellHeightUserInfo: [String : AnyObject]? { //define DYNAMIC cell heights
-        return nil
+    @objc func didReceiveLocationFromCLManager(notification: NSNotification) {
+        if let info = notification.userInfo, latitude = info[BMN_CoreLocationManager_LatitudeKey] as? Double, longitude = info[BMN_CoreLocationManager_LongitudeKey] as? Double {
+            let service = ForecastService(coordinate: (latitude, longitude)) //create API network request
+            if (self.selectedWeatherOptions.contains(EnvironmentModule_WeatherOptions.CurrentWeather)) {
+                service.getCurrentWeather({ (let weather) in
+                    self.mainDataObject = weather?.reportDataForWeatherVariable([])
+                    print("Weather has been successfully obtained")
+                    NSNotificationCenter.defaultCenter().removeObserver(self) //remove observer
+                })
+            }
+            if (self.selectedWeatherOptions.contains(EnvironmentModule_WeatherOptions.DailyWeather)) {
+                service.getDailyWeather({ (let weather) in
+                    if let daily = weather {
+                        let dict = daily.reportDataForWeatherVariable([])
+                        if var mainData = self.mainDataObject as? [String: AnyObject] { //update obj
+                            for (key, value) in dict {
+                                mainData.updateValue(value, forKey: key)
+                            }
+                        } else { //object does not exist yet
+                            self.mainDataObject = dict
+                        }
+                    }
+                })
+            }
+        }
+    }
+    
+    deinit { //remove notification observer
+        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
 }
@@ -214,7 +245,6 @@ enum EnvironmentModuleVariableTypes: String {//*match each behavior/computation 
 
 enum EnvironmentModule_WeatherOptions: String { //granular options for the WEATHER behavior that allow the user to pick & choose what kinds of ambient information they want to collect for a given project.
     //**define this based on the information returned by the weather API
-    case Weather = "Weather" //e.g. sunny, rainy, cloudy, etc.
-    case AmbientTemperature = "Ambient Temperature"
-    case AmbientHumidity = "Ambient Humidity"
+    case CurrentWeather = "Current Weather" //weather (sun/rain/etc.) + T&H
+    case DailyWeather = "Daily Weather" //**rename
 }

@@ -19,6 +19,8 @@ let SHOW_ATTACH_DESCRIPTION = "show_attach_description_key"
 let BMN_Notification_CompletionIndicatorDidChange = "BMN_CompletionIndicatorDidChange"
 let BMN_Notification_CellDidReportData = "BMN_CellDidReportData"
 let BMN_Notification_CoreLocationManager_LocationDidChange = "BMN_CL_location_did_change"
+let BMN_CoreLocationManager_LatitudeKey = "BMN_CL_location_latitude_key" //key for notification dict
+let BMN_CoreLocationManager_LongitudeKey = "BMN_CL_location_longitude_key" //key for notification dict
 
 //CellWithPlusButton Notifications:
 let BMN_Notification_RevealHiddenArea = "BMN_RevealHiddenArea"
