@@ -5,6 +5,8 @@
 
 import Foundation
 
+//***Need to make safe keys for all of the weather API dictionary objects!!!
+
 struct CurrentWeather { //object used to represent the CURRENT WEATHER for EnvironmentModule_Weather vars
     
     let temperature: Int? //degrees F
@@ -47,39 +49,49 @@ struct CurrentWeather { //object used to represent the CURRENT WEATHER for Envir
         reportObject["temperature"] = self.temperature
         reportObject["apparentTemperature"] = self.apparentTemperature
         reportObject["humidity"] = self.relativeHumidity
+        reportObject["windSpeed"] = self.windSpeed
+        reportObject["icon"] = self.icon
+        reportObject["precipType"] = self.precipType
+        reportObject["ozone"] = self.ozone
+        reportObject["pressure"] = self.pressure
+        reportObject["cloudCover"] = self.cloudCover
         return reportObject
     }
     
 }
 
-struct DailyWeather { //object used to represent the DAILY WEATHER (used to grab potentially useful data points that are found in the 'daily' dictionary)
+struct DailyWeather { //object used to represent the DAILY WEATHER (used to grab potentially useful data points that are found in the 'daily' > 'data'.first dictionary)
     
-    //**The object sent back by the API contains several different entries. Need to check documentation to get the correct one. 
-    
-    let sunriseTime: Int? //represented as UNIX time stamp w/ # of seconds since Jan 1, 1970 (NSDate has method to convert that)
-    let sunsetTime: Int? //UNIX timeStamp
+    let sunriseTime: NSTimeInterval? //returned time is represented as UNIX time stamp (# of seconds since Jan 1, 1970)
+    let sunsetTime: NSTimeInterval? //timeStamp
     let temperatureMin: Int? //ºF
-    let temperatureMinTime: Int? //UNIX timeStamp
+    let temperatureMinTime: NSTimeInterval? //timeStamp
     let temperatureMax: Int? //ºF
-    let temperatureMaxTime: Int?
+    let temperatureMaxTime: NSTimeInterval? //timeStamp
     let apparentTemperatureMin: Int? //ºF
-    let apparentTemperatureMinTime: Int?
+    let apparentTemperatureMinTime: NSTimeInterval? //timeStamp
     let apparentTemperatureMax: Int? //ºF
-    let apparentTemperatureMaxTime: Int?
+    let apparentTemperatureMaxTime: NSTimeInterval? //timeStamp
     
     // MARK: - Initializer
     
     init(weatherDictionary: [String: AnyObject]) { //extract info from the 'DAILY' dict
-        sunriseTime = weatherDictionary["sunriseTime"] as? Int
-        sunsetTime = weatherDictionary["sunsetTime"] as? Int
+        sunriseTime = weatherDictionary["sunriseTime"] as? NSTimeInterval
+        sunsetTime = weatherDictionary["sunsetTime"] as? NSTimeInterval
         temperatureMin = weatherDictionary["temperatureMin"] as? Int
-        temperatureMinTime = weatherDictionary["temperatureMinTime"] as? Int
+        temperatureMinTime = weatherDictionary["temperatureMinTime"] as? NSTimeInterval
         temperatureMax = weatherDictionary["temperatureMax"] as? Int
-        temperatureMaxTime = weatherDictionary["temperatureMaxTime"] as? Int
+        temperatureMaxTime = weatherDictionary["temperatureMaxTime"] as? NSTimeInterval
         apparentTemperatureMin = weatherDictionary["apparentTemperatureMin"] as? Int
-        apparentTemperatureMinTime = weatherDictionary["apparentTemperatureMinTime"] as? Int
+        apparentTemperatureMinTime = weatherDictionary["apparentTemperatureMinTime"] as? NSTimeInterval
         apparentTemperatureMax = weatherDictionary["apparentTemperatureMax"] as? Int
-        apparentTemperatureMaxTime = weatherDictionary["apparentTemperatureMaxTime"] as? Int
+        apparentTemperatureMaxTime = weatherDictionary["apparentTemperatureMaxTime"] as? NSTimeInterval
+        
+        if let sunrise = sunriseTime, sunset = sunsetTime {
+            let rise = NSDate(timeIntervalSince1970: sunrise)
+            let set = NSDate(timeIntervalSince1970: sunset)
+            print("Sunrise: \(DateTime(date: rise).getFullTimeStamp()). Sunset: \(DateTime(date: set).getFullTimeStamp()).")
+        }
     }
     
     // MARK: - Data Reporting Logic
@@ -89,7 +101,13 @@ struct DailyWeather { //object used to represent the DAILY WEATHER (used to grab
         reportObject["sunriseTime"] = self.sunriseTime
         reportObject["sunsetTime"] = self.sunsetTime
         reportObject["temperatureMin"] = self.temperatureMin
+        reportObject["temperatureMinTime"] = self.temperatureMinTime
         reportObject["temperatureMax"] = self.temperatureMax
+        reportObject["temperatureMaxTime"] = self.temperatureMaxTime
+        reportObject["apparentTempMin"] = self.apparentTemperatureMin
+        reportObject["apparentTempMinTime"] = self.apparentTemperatureMinTime
+        reportObject["apparentTempMax"] = self.apparentTemperatureMax
+        reportObject["apparentTempMaxTime"] = self.apparentTemperatureMaxTime
         return reportObject
     }
     
@@ -97,7 +115,7 @@ struct DailyWeather { //object used to represent the DAILY WEATHER (used to grab
 
 struct ForecastService { //creates a SPECIALIZED network connection (utilizing the 'NetworkConnection' class) w/ the WeatherAPI to obtain weather data @ the user's current location. The obtained data is used to populate the 'CurrentWeather' struct.
     
-    private let forecastAPIKey = "50d0ace7a11ac15f3f335d70512f12be" //**key still working???
+    private let forecastAPIKey = "50d0ace7a11ac15f3f335d70512f12be"
     private let coordinate: (latitude: Double, longitude: Double) //obtain coordinates from CL manager
     private var forecastBaseURL: NSURL? { //base URL for the weather API
         return NSURL(string: "https://api.forecast.io/forecast/\(forecastAPIKey)/")
@@ -121,7 +139,7 @@ struct ForecastService { //creates a SPECIALIZED network connection (utilizing t
                 completion(currentWeather) //pass forecast -> completionHandler
             })
         } else {
-            print("Could not construct valid URL")
+            print("Could not construct valid URL.")
         }
     }
     
@@ -135,7 +153,7 @@ struct ForecastService { //creates a SPECIALIZED network connection (utilizing t
                 completion(dailyWeather) //pass forecast -> completionHandler
             })
         } else {
-            print("Could not construct valid URL")
+            print("Could not construct valid URL.")
         }
     }
 
@@ -144,7 +162,6 @@ struct ForecastService { //creates a SPECIALIZED network connection (utilizing t
     
     private func currentWeatherFromJSON(jsonDictionary: [String: AnyObject]?) -> CurrentWeather? { //construct a 'CurrentWeather' object from the JSON dict returned by the URL request
         if let currentWeatherDictionary = jsonDictionary?["currently"] as? [String: AnyObject] { //data stored against 'currently' key gives CURRENT weather
-            print(currentWeatherDictionary)
             return CurrentWeather(weatherDictionary: currentWeatherDictionary)
         } else { //JSONDict does NOT have a 'currently' key
             print("JSON dictionary returned nil for 'currently' key")
@@ -153,13 +170,14 @@ struct ForecastService { //creates a SPECIALIZED network connection (utilizing t
     }
     
     private func dailyWeatherFromJSON(jsonDictionary: [String: AnyObject]?) -> DailyWeather? { //construct a 'DailyWeather' object from the JSON dict returned by the URL request
-        if let dailyWeatherDictionary = jsonDictionary?["daily"] as? [String: AnyObject] { //data stored against 'daily' key gives DAILY weather
-            print(dailyWeatherDictionary)
-            return DailyWeather(weatherDictionary: dailyWeatherDictionary)
-        } else { //JSONDict does NOT have a 'daily' key
+        if let dailyDict = jsonDictionary?["daily"] as? [String: AnyObject], days = dailyDict["data"] as? NSArray { //data stored against 'daily' key > 'data' key gives a set of DAILY weather objects for the week, obtain the 1st object for today's weather
+            if let today = days.firstObject as? [String: AnyObject] {
+                return DailyWeather(weatherDictionary: today)
+            }
+        } else { //JSONDict does NOT have a 'daily' or 'data' key
             print("JSON dictionary returned nil for 'daily' key")
-            return nil
         }
+        return nil
     }
     
 }
