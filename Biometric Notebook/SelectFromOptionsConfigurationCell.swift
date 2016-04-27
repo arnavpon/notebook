@@ -109,6 +109,7 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
                 optionBtn.setAttributedTitle(selectedString, forState: .Selected)
                 optionBtn.layer.borderColor = UIColor.blackColor().CGColor
                 optionBtn.layer.borderWidth = 0.5
+                optionBtn.titleLabel?.adjustsFontSizeToFitWidth = true 
                 
                 //Depending on cellType (binary vs. custom), some visuals are different:
                 if (isCellBoolean) { //BINARY cell

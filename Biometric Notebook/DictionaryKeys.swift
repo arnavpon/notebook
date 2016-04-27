@@ -18,6 +18,10 @@ let SHOW_ATTACH_DESCRIPTION = "show_attach_description_key"
 
 let BMN_Notification_CompletionIndicatorDidChange = "BMN_CompletionIndicatorDidChange"
 let BMN_Notification_CellDidReportData = "BMN_CellDidReportData"
+
+let BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError = "BMN_ServiceDidReportError"
+let BMN_DataReportingErrorProtocol_ServiceTypeKey = "BMN_DataReportingErrorProtocol_service_type_key"
+
 let BMN_Notification_CoreLocationManager_LocationDidChange = "BMN_CL_location_did_change"
 let BMN_CoreLocationManager_LatitudeKey = "BMN_CL_location_latitude_key" //key for notification dict
 let BMN_CoreLocationManager_LongitudeKey = "BMN_CL_location_longitude_key" //key for notification dict
@@ -135,7 +139,13 @@ let BMN_InputOutput_InputVariablesKey = "InputOutput_input_variables_key"
 let BMN_ControlComparison_ControlKey = "ControlComparison_control_key"
 let BMN_ControlComparison_ComparisonKey = "ControlComparison_comparison_key"
 
-// MARK: - CustomModule [CM] *(KEY = dictionary key, used for storing/unpacking config options from CoreData; ID = unique identifier, used to identify information coming from a ConfigCell)*
+// MARK: - MODULE Superclass (GENERAL) Configuration Keys
+
+let BMN_FreeformCell_CharacterLimitKey = "FreeformCell_character_limit_key"
+let BMN_FreeformCell_DefaultValueKey = "FreeformCell_default_value_key"
+let BMN_FreeformCell_DataTypeKey = "FreeformCell_data_type_key"
+
+// MARK: - CustomModule [CM] *(KEY = dictionary key, used for storing/unpacking config options from CoreData; ID = unique identifier, used to identify information coming from specific ConfigCells)*
 
 //[Configuration KEYS]:
 let BMN_CustomModule_OptionsKey = "CM_options_key"
@@ -155,13 +165,22 @@ let BMN_CustomModule_RangeScale_MinimumID = "CM_range_scale_min_id" //identifier
 let BMN_CustomModule_RangeScale_MaximumID = "CM_range_scale_max_id" //identifier: CustomModule > RangeScale [behavior] > 'maximum value' configuration cell
 let BMN_CustomModule_RangeScale_IncrementID = "CM_range_scale_increment_id" //identifier: CustomModule > RangeScale [behavior] > 'increment value' configuration cell
 
-//DataEntry Keys:
+//[DataEntry Keys]:
 let BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey = "DE_custom_w/_options_number_of_options_key"
 
-// MARK: - EnvironmentModule [EM]
+// MARK: - EnvironmentModule [EnM]
 
-//Configuration (CoreData) Keys:
-let BMN_EnvironmentModule_Weather_SelectedOptionsKey = "EM_weather_selected_options_key"
+//[Configuration Keys]:
+let BMN_EnvironmentModule_Weather_SelectedOptionsKey = "EnM_weather_selected_options_key"
 
-//Configuration IDs:
-let BMN_EnvironmentModule_Weather_OptionsID = "EM_weather_options_id"
+//[Configuration IDs]:
+let BMN_EnvironmentModule_Weather_OptionsID = "EnM_weather_options_id"
+
+// MARK: - BiometricModule [BM]
+
+//[Configuration KEYS]:
+let BMN_BiometricModule_DataSourceOptionsKey = "BM_data_source_options_key"
+
+//[Configuration IDs]:
+let BMN_BiometricModule_DataSourceOptionsID = "BM_data_source_options_id"
+let BMN_BiometricModule_HeartRate_DevicesID = "BM_heart_rate_devices_id"

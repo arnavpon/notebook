@@ -31,12 +31,27 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
             configureDoneButton()
         }
     }
+    var erroredServices = Set<ServiceTypes>() { //used for reporting service connection errors
+        didSet { //when obj changes, fire alert if view is visible & alertController is NOT alrdy active
+            if !(erroredServices.isEmpty) && (viewIsVisible) && !(isPresentingAlert) {
+                displayAlertForServiceError() //fire alert
+            }
+        }
+    }
+    var viewIsVisible: Bool = false //indicator that VC's view is on screen (for alert presentation)
+    var isPresentingAlert: Bool = false //indicator that VC is currently presenting alertController
     
     // MARK: - View Configuration
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        //(1) Register for notifications:
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.configureDoneButton), name: BMN_Notification_CompletionIndicatorDidChange, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.serviceDidReportError(_:)), name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil)
+        
+        //(2) Populate TV w/ variables:
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(self.manualMeasurementCycleRefresh))
         dataEntryTV.dataSource = self
         dataEntryTV.delegate = self
@@ -44,19 +59,11 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         registerCustomTVCells() //register ALL possible custom cell types
         getTableViewDataSource() //set data source for TV
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.configureDoneButton), name: BMN_Notification_CompletionIndicatorDidChange, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil)
-    }
-    
-    override func didReceiveMemoryWarning() { //save current entries?
-        super.didReceiveMemoryWarning()
-    }
-    
-    override func viewWillDisappear(animated: Bool) { //clear notification observer
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        //**Test by creating project w/ 2 weather variables & generating errors!
     }
     
     func registerCustomTVCells() { //registers all possible custom cell types
+        dataEntryTV.registerClass(FreeformDataEntryCell.self, forCellReuseIdentifier: NSStringFromClass(FreeformDataEntryCell))
         dataEntryTV.registerClass(CustomWithOptionsCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithOptionsCell))
         dataEntryTV.registerClass(CustomWithCounterCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithCounterCell))
         dataEntryTV.registerClass(CustomWithRangeScaleCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithRangeScaleCell))
@@ -74,8 +81,23 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         }
     }
     
+    func configureGroupSelectionView(show: Bool) { //configures pop-up view for group selection
+        groupSelectionView.hidden = !show
+        dataEntryTV.hidden = show
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        viewIsVisible = true //set visibility indicator
+        displayAlertForServiceError() //check for any connection errors
+    }
+    
+    override func viewWillDisappear(animated: Bool) { //clear notification observer
+        viewIsVisible = false //clear visibility indicator
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
     func manualMeasurementCycleRefresh() { //resets project's tempDataObject so IV entry will be displayed (in case user missed 2nd part of the entry) & dumps the associated data for the 1st measurement
-        if let project = selectedProject, _ = project.temporaryStorageObject { //function can only fire if the user has input IV data (i.e. is in 2nd half of measurement cycle)
+        if let project = selectedProject, _ = project.temporaryStorageObject { //refresh only works if the user has input IV data (i.e. is in 2nd half of measurement cycle)
             let alert = UIAlertController(title: "Warning", message: "If you choose to refresh the cycle, it will permanently delete the data collected for the input variables during this cycle.", preferredStyle: .Alert) ////send the user a warning that data will be deleted!
             let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
             let ok = UIAlertAction(title: "I'm Sure", style: .Destructive) { (let ok) in
@@ -88,10 +110,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         }
     }
     
-    func configureGroupSelectionView(show: Bool) { //configures pop-up view for group selection
-        groupSelectionView.hidden = !show
-        dataEntryTV.hidden = show
-    }
+    // MARK: - Notification Handling
     
     func cellCompletionStatusDidChange(notification: NSNotification) {
         if let info = notification.userInfo, status = info[BMN_LEVELS_CompletionIndicatorStatusKey] as? Bool { //obtain current status & update the counter variable accordingly
@@ -114,6 +133,52 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                     print("[configureDoneButton] ERROR - # of configured cells is > than total!")
                 }
             }
+        }
+    }
+    
+    func serviceDidReportError(notification: NSNotification) { //unable to connect -> service
+        print("[serviceDidReportError] Firing...")
+        if let info = notification.userInfo, service = info[BMN_DataReportingErrorProtocol_ServiceTypeKey] as? String, erroredService = ServiceTypes(rawValue: service) {
+            if !(erroredServices.contains(erroredService)) { //make sure item is not already in set
+                erroredServices.insert(erroredService) //add service -> set
+            }
+        }
+    }
+    
+    func displayAlertForServiceError() { //only fires when view is visible!
+        print("[displayAlertForServiceError()] Firing...")
+        if let service = erroredServices.first, project = selectedProject {
+            //(1) Construct error message:
+            var message: String = "" //error msg
+            switch service { //generate error message based on specified service
+            case .CoreLocation:
+                message = "Could not access Location Services. Please make sure Location Services is enabled and then tap 'Retry'."
+            case .Internet:
+                message = "Could not obtain an internet connection. Please check your internet connection and then tap 'Retry'."
+            case .HealthKit:
+                message = "App does not have permission to interact with HealthKit. Please grant the appropriate permissions and then tap 'Retry'."
+            }
+            
+            //(2) Construct & present alertViewController:
+            let alert = UIAlertController(title: "Connection Error", message: message, preferredStyle: .Alert)
+            let cancel = UIAlertAction(title: "Cancel", style: .Default, handler: { (let cancel) in
+                self.performSegueWithIdentifier("unwindToActiveProjects", sender: nil) //exit VC
+            })
+            let retry = UIAlertAction(title: "Retry", style: .Default, handler: { (let retry) in
+                self.isPresentingAlert = false //clear indicator (indicating alert dismissal)
+                self.erroredServices.remove(service) //remove service from error set
+                project.repopulateDataObjectForSubscribedVariables(erroredService: service) //re-report data for variables subscribed to the specified service
+                
+                if !(self.erroredServices.isEmpty) && !(self.isPresentingAlert) { //any remaining errors?
+                    self.displayAlertForServiceError() //errors exist! - fire fx again!
+                }
+            })
+            alert.addAction(cancel)
+            alert.addAction(retry)
+            dispatch_async(dispatch_get_main_queue(), { //*present alert on main thread*
+                self.presentViewController(alert, animated: true, completion: nil)
+            })
+            self.isPresentingAlert = true //set indicator (indicate alert is active)
         }
     }
     
@@ -147,6 +212,8 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
             let moduleForCell = variables[indexPath.row] //module obj is dataSource for TV cell
             if let cellType = moduleForCell.getDataEntryCellTypeForVariable() { //get cell type
                 switch cellType {
+                case .Freeform:
+                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(FreeformDataEntryCell), forIndexPath: indexPath) as! FreeformDataEntryCell
                 case .CustomWithOptions:
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithOptionsCell), forIndexPath: indexPath) as! CustomWithOptionsCell
                 case .CustomWithCounter:
@@ -167,9 +234,8 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     @IBAction func doneButtonClick(sender: AnyObject) { //construct dataObject to report -> DB
-        if let project = selectedProject { //call method in project to generate & send data -> DB
+        if let project = selectedProject { //call method in project to aggregate & send data -> DB
             project.constructDataObjectForDatabase()
-            //**when clicked, call method in Project class that handles ALL data aggregation logic appropriately & transition -> VC. Variables are all part of the project's group, so data should be stored in the Var object when set by the TV cell. Access the entered data from this var object when aggregating.
         }
         performSegueWithIdentifier("unwindToActiveProjects", sender: nil) //return -> home screen
     }

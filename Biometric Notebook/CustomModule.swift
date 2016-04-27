@@ -252,7 +252,7 @@ class CustomModule: Module {
         if let type = variableType {
             persistentDictionary[BMN_VariableTypeKey] = type.rawValue //save variable type
             switch type {
-            case CustomModuleVariableTypes.Behavior_CustomOptions:
+            case .Behavior_CustomOptions:
                 if let headerTitle = self.prompt { //check if user entered a prompt
                     persistentDictionary[BMN_CustomModule_CustomOptionsPromptKey] = headerTitle
                 }
@@ -262,24 +262,24 @@ class CustomModule: Module {
                 if let multipleSelect = multipleSelectionEnabled { //check if multiple selection allowed
                     persistentDictionary[BMN_CustomModule_CustomOptionsMultipleSelectionAllowedKey] = multipleSelect
                 }
-            case CustomModuleVariableTypes.Behavior_BinaryOptions:
+            case .Behavior_BinaryOptions:
                 if let opts = self.options { //make sure there are options
                     persistentDictionary[BMN_CustomModule_OptionsKey] = opts
                 }
-            case CustomModuleVariableTypes.Behavior_RangeScale:
+            case .Behavior_RangeScale:
                 if let (min, max, increment) = self.rangeScaleParameters {
                     persistentDictionary[BMN_CustomModule_RangeScaleMinimumKey] = min
                     persistentDictionary[BMN_CustomModule_RangeScaleMaximumKey] = max
                     persistentDictionary[BMN_CustomModule_RangeScaleIncrementKey] = increment
                 }
-            case CustomModuleVariableTypes.Behavior_Counter:
+            case .Behavior_Counter:
                 if let id = counterUniqueID {
                     persistentDictionary[BMN_CustomModule_CounterUniqueIDKey] = id
                 } else {
                     print("[CustomMod createCoreDataDict] Fatal Error - counter has no uniqueID.")
                     abort()
                 }
-            case CustomModuleVariableTypes.Computation_TimeDifference: //indicate var is TimeDifference
+            case .Computation_TimeDifference: //indicate var is TimeDifference
                 persistentDictionary[BMN_CustomModule_IsTimeDifferenceKey] = variableIsTimeDifference
             }
         }

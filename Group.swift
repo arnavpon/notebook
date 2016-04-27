@@ -11,6 +11,8 @@ import CoreData
 class Group: NSManagedObject {
 
     private var dataEntryVariablesArray: [Module] = [] //dataSource for VC TV
+    var reconstructedVariables: [Module] = [] //contains ALL variables for current measurement cycle; accessed by Project Class during data reporting
+    var autoCapturedVariables: [Module] = [] //contains ONLY auto-captured variables for current measurement cycle; accessed by Project Class
     
     func getVariablesArrayForDataEntry() -> [Module] {
         reconstructProjectFromPersistentRepresentation() //initialize TV dataSource
@@ -20,10 +22,9 @@ class Group: NSManagedObject {
     
     // MARK: - Reconstruction Logic
     
-    var reconstructedVariables: [Module] = [] //**accessed by Project Class
-    
     private func reconstructProjectFromPersistentRepresentation() { //use the project's CoreData representation to reconstruct its variables (EITHER inputs OR outputs) as Module objects
         reconstructedVariables = [] //clear array
+        autoCapturedVariables = [] //**clear array
         dataEntryVariablesArray = [] //clear array
         let variableDict: [String: [String: AnyObject]]
         if (self.project.temporaryStorageObject == nil) { //no temp storage => report BEFORE ACTION VARS
@@ -46,8 +47,9 @@ class Group: NSManagedObject {
                         //Create entry in tempStorageObject indicating there is a TimeDifference var (ONLY works if TimeDiff is an OUTPUT variable):
                         self.project.temporaryStorageObject?.updateValue([BMN_CustomModule_TimeDifferenceKey: reconstructedVariable.variableName], forKey: BMN_ProjectContainsTimeDifferenceKey) //store var's name in dict
                         saveManagedObjectContext() //save after inputting indicator
-                    } else { //**tell the remainder of auto-cap variables to report their data!
-                        reconstructedVariable.setDataObjectForAutoCapturedVariable()
+                    } else { //instruct the remaining auto-cap variables to report their data @ this time!
+                        reconstructedVariable.populateDataObjectForAutoCapturedVariable()
+                        autoCapturedVariables.append(reconstructedVariable) //add -> array
                     }
                 }
             }

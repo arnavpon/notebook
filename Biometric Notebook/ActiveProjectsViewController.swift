@@ -56,15 +56,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         //Reset notification observer:
         NSNotificationCenter.defaultCenter().removeObserver(self) //clear old indicators to be safe
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
-        
-        //***HK testing
-        let hkTest = HealthKitConnection()
-        hkTest.addHeightMeasurementToHKStore(5.6)
-        hkTest.addBodyMassMeasurementToHKStore(136)
-        hkTest.addHeartRateMeasurementToHKStore(76)
-        hkTest.getLastHeightFromHKStore()
-        hkTest.getDateOfBirthFromHKStore("")
-        hkTest.getGenderFromHKStore()
     }
     
     func getActiveProjects() -> [Project] { //obtains ACTIVE projects from store

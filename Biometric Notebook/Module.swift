@@ -87,7 +87,7 @@ class Module { //defines the behaviors that are common to all modules
     init(name: String, dict: [String: AnyObject]) { //initializer for variable during RECONSTRUCTION from CoreData dict
         self.variableName = name
         self.variableState = ModuleVariableStates.DataReporting
-        if let auto = dict[BMN_VariableIsAutomaticallyCapturedKey] as? Bool { //check for auto or manual
+        if let auto = dict[BMN_VariableIsAutomaticallyCapturedKey] as? Bool { //chck if auto or manual cap
             self.isAutomaticallyCaptured = auto
         }
     }
@@ -125,6 +125,11 @@ class Module { //defines the behaviors that are common to all modules
     
     // MARK: - Data Entry Logic
     
+    // Configuration variables - used to customize DataEntry TV cells (e.g. for freeform data entry):
+    var FreeformCell_defaultValue: String? //default value for cell's textField
+    var FreeformCell_characterLimit: Int?
+    var FreeformCell_dataType: ProtectedFreeformTypes? //enum defined in 'FreeformCell'.swift
+    
     func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable (OVERRIDE in subclasses)
         return nil
     }
@@ -133,21 +138,29 @@ class Module { //defines the behaviors that are common to all modules
         return nil
     } //For cells that have VARIABLE HEIGHTS (e.g. Custom Module options cell), we will need to include in the data source a custom cell height (which we can calculate beforehand b/c we know everything about how the cell needs to be configured, e.g. if the CustomOptions cell has 3 answer choices, we can calculate the height w/ a function, add that height to the data source; the VC TV delegate method should check for custom height & set to default if one is not found.)
     
+    // MARK: - Data Aggregation Logic
+    
     internal var mainDataObject: AnyObject? { //main object to report -> DataEntryVC, set by TV cells
         didSet {
             print("[mainDataObjWasSet] Var: [\(variableName)]. Value: \(mainDataObject).")
         }
     }
     
-    func reportDataForVariable() -> [String: AnyObject]? { //called by DataEntryVC during aggregation
+    func reportDataForVariable() -> [String: AnyObject]? { //called by Project class during aggregation
         var reportObject = Dictionary<String, AnyObject>()
         reportObject[BMN_Module_ReportedDataKey] = mainDataObject //main data object to report (unique to each type of Custom DataEntry cell)
         return reportObject
         //Note - timeStamps are generated @ time of aggregation in DataEntryVC; a SINGLE time stamp is generated for IVs & another for OMs (b/c all IVs have same time stamp as other IVs, & all OMs have same time stamp as other OMs). This may vary for auto-captured data!
     }
     
-    func setDataObjectForAutoCapturedVariable() { //OVERRIDE in subclasses, custom reporting behavior for AUTO-CAPTURED data; called by Project object containing this variable
-        //end result is to set the mainDataObject for the variable!
+    func populateDataObjectForAutoCapturedVariable() { //OVERRIDE in subclasses; custom reporting behavior for AUTO-CAPTURED data; called by Project object containing this variable
+        //end result is to set the 'mainDataObject' for the variable!
     }
+    
+    func isSubscribedToService(service: ServiceTypes) -> Bool { //OVERRIDE in subclasses (as needed); checks if variable is subscribed to the specified service (called by Project object containing this variable during re-population of data object [in event of a service failure])
+        return false //default is FALSE
+    }
+    
+//    array.append((ConfigurationOptionCellTypes.Computation, [BMN_Configuration_CellDescriptorKey: "BMI", BMN_LEVELS_MainLabelKey: "Click and drag over 2 variable labels:", BMN_Configuration_AllowedVariableTypesForComputationKey: [CustomModuleVariableTypes.Behavior_BinaryOptions.rawValue]])) //computation default config logic
     
 }

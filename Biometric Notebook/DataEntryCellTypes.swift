@@ -10,6 +10,7 @@ import UIKit
 
 enum DataEntryCellTypes: String { //REGISTER each new enum type w/ TV in DataEntryVC & add class to cellForRowAtIndexPath()!
     
+    case Freeform //General cell for freeform entry (contains textField)
     case CustomWithCounter //Custom Module cell w/ counter
     case CustomWithOptions //Custom Module cell w/ options
     case CustomWithRangeScale //Custom Module cell w/ range scale
@@ -18,6 +19,8 @@ enum DataEntryCellTypes: String { //REGISTER each new enum type w/ TV in DataEnt
         let levelHeight: CGFloat = LevelsFrameworkCell.levelHeight
         var numberOfLevels: Int //default # of lvls
         switch self {
+        case .Freeform:
+            numberOfLevels = FreeformDataEntryCell.numberOfLevels
         case .CustomWithOptions: //access key indicating # of custom options to calculate height
             numberOfLevels = CustomWithOptionsCell.numberOfLevels
             if let numberOfOptions = userInfo[BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey] as? Int {

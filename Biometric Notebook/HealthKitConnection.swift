@@ -11,28 +11,40 @@
 import Foundation
 import HealthKit
 
-class HealthKitConnection {
+enum Gender: String {
+    case Male = "Male"
+    case Female = "Female"
+    case Other = "Other"
+    case NotSet = "Not Set"
+}
+
+class HealthKitConnection: DataReportingErrorProtocol {
     
     private let isAvailable = HKHealthStore.isHealthDataAvailable() //checks if device has access to HK
     private let healthStore = HKHealthStore() //manages interaction w/ store
-    private let timeSortDescriptor: NSSortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false) //sorts HKSamples in DESC order by end date (last -> first)
+    private let timeSortDescriptor: NSSortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false) //sorts samples in DESC order (newest -> oldest)
     
-    //HK Type Identifiers (for reading/writing to store):
-    private let heartRateType = HKObjectType.quantityTypeForIdentifier(HKQuantityTypeIdentifierHeartRate)!
-    private let heightType = HKObjectType.quantityTypeForIdentifier(HKQuantityTypeIdentifierHeight)!
-    private let bodyMassType = HKObjectType.quantityTypeForIdentifier(HKQuantityTypeIdentifierBodyMass)!
-    private let bodyTemperatureType = HKObjectType.quantityTypeForIdentifier(HKQuantityTypeIdentifierBodyTemperature)!
-    private let dateOfBirthType = HKObjectType.characteristicTypeForIdentifier(HKCharacteristicTypeIdentifierDateOfBirth)!
-    private let biologicalSexType = HKObjectType.characteristicTypeForIdentifier(HKCharacteristicTypeIdentifierBiologicalSex)!
+    //HK Type Identifiers (for reading/writing to store) [STATIC vars]:
+    static let heartRateType = HKObjectType.quantityTypeForIdentifier(HKQuantityTypeIdentifierHeartRate)!
+    static let heightType = HKObjectType.quantityTypeForIdentifier(HKQuantityTypeIdentifierHeight)!
+    static let bodyMassType = HKObjectType.quantityTypeForIdentifier(HKQuantityTypeIdentifierBodyMass)!
+    static let bodyTemperatureType = HKObjectType.quantityTypeForIdentifier(HKQuantityTypeIdentifierBodyTemperature)!
+    static let dateOfBirthType = HKObjectType.characteristicTypeForIdentifier(HKCharacteristicTypeIdentifierDateOfBirth)!
+    static let biologicalSexType = HKObjectType.characteristicTypeForIdentifier(HKCharacteristicTypeIdentifierBiologicalSex)!
+    
     private let dietaryEnergyType: HKQuantityType = HKObjectType.quantityTypeForIdentifier(HKQuantityTypeIdentifierDietaryEnergyConsumed)! //?
     private let foodType: HKCorrelationType = HKObjectType.correlationTypeForIdentifier(HKCorrelationTypeIdentifierFood)! //?
+    
+    //HK Base & Compound Units [STATIC vars]:
+    static let beatsPerMinuteUnit = HKUnit.minuteUnit().reciprocalUnit() //HR unit
+    static let bmiUnit = HKUnit.gramUnitWithMetricPrefix(HKMetricPrefix.Kilo).unitDividedByUnit(HKUnit.meterUnit().unitRaisedToPower(2)) //BMI measured in kg/m2**
     
     // MARK: - Initializers
     
     init() {
         if (isAvailable) { //check that device has access to HKHealthStore
-            let shareTypes: Set<HKSampleType> = [heartRateType, heightType, bodyMassType, bodyTemperatureType, dietaryEnergyType] //write permissions
-            let readTypes: Set<HKObjectType> = [dateOfBirthType, biologicalSexType, heartRateType, heightType, bodyMassType, dietaryEnergyType] //read permissions
+            let shareTypes: Set<HKSampleType> = [HealthKitConnection.heartRateType, HealthKitConnection.heightType, HealthKitConnection.bodyMassType, HealthKitConnection.bodyTemperatureType, dietaryEnergyType] //write permissions
+            let readTypes: Set<HKObjectType> = [HealthKitConnection.dateOfBirthType, HealthKitConnection.biologicalSexType, HealthKitConnection.heartRateType, HealthKitConnection.heightType, HealthKitConnection.bodyMassType, dietaryEnergyType] //read permissions
             healthStore.requestAuthorizationToShareTypes(shareTypes, readTypes: readTypes) { (let success, let error) -> Void in
                 if (success) {
                     //user granted access
@@ -47,150 +59,140 @@ class HealthKitConnection {
     
     // MARK: - HKStore Interaction Logic
     
-    func getDataFromHKStore(type: String) -> AnyObject? { //what is most specific yet extensible return type?
-        return nil
+    func getSampleQuantityFromHKStore(sampleType: HKSampleType, unit: HKUnit, completion: (Double?) -> Void) {
+        //**allow specification of predicates to filter results (e.g. based on time).
+        let query: HKSampleQuery = HKSampleQuery(sampleType: sampleType, predicate: nil, limit: 5, sortDescriptors: [timeSortDescriptor]) { (let query, let results, let error) -> Void in
+            if let samples = results {
+                if !(samples.isEmpty) {
+                    if let quantitySample = samples.first as? HKQuantitySample {
+                        let quantityValue = quantitySample.quantity.doubleValueForUnit(unit)
+                        completion(quantityValue) //return value through completion
+                    }
+                } else {
+                    print("No samples were found in the store!")
+                    completion(nil) //return nil
+                    self.reportAccessErrorForService() //throw error
+                }
+            } else {
+                print("Failed to obtain results! Error: \(error).")
+                completion(nil) //return nil
+                self.reportAccessErrorForService() //throw error
+            }
+        }
+        healthStore.executeQuery(query)
     }
     
-    func writeDataToHKStore(type: String, value: Double) {
-        
-    }
-    
-    func getDateOfBirthFromHKStore(dataType: String) { //dataType is type of data wanted from store, break down by categories (quantity vs. correlation vs. category) or just use a single method
-        //make a general function for extracting any specific kind of data & make a function for writing any kind of data to the store. Specify externally what kind of data to write or receive. Use enums to control for types.
-        do {
-            let dateOfBirth = try healthStore.dateOfBirth()
-            let date = DateTime(date: dateOfBirth)
-            let ageComponents: NSDateComponents = NSCalendar.currentCalendar().components(.Year, fromDate: dateOfBirth, toDate: NSDate(), options: .WrapComponents) //compute age
-            print("DOB from HK: [\(date.getDateString())]. Age: \(ageComponents.year)")
-        } catch (let error as NSError) {
-            print("[getDOB] Error: \(error).")
+    func writeSampleQuantityToHKStore(sampleType: HKQuantityType, quantity: Double, unit: HKUnit) { //method for WRITING QUANTITIES (height, body mass, BMI, LBM, body fat %) -> HKStore
+        print("[HKConnection] writing sample quantity to store...")
+        let authorization = healthStore.authorizationStatusForType(sampleType).rawValue
+        if (authorization == 2) { //AUTHORIZED
+            let currentDate = NSDate() //use current time for sample's timeStamp
+            let quantitySample = HKQuantity(unit: unit, doubleValue: quantity) //make sure unit is valid!
+            let sample = HKQuantitySample(type: sampleType, quantity: quantitySample, startDate: currentDate, endDate: currentDate)
+            healthStore.saveObject(sample) { (let success, let error) -> Void in
+                if (success) {
+                    print("[HKConnection] Save was successful!")
+                } else {
+                    print("[HKConnection] Save failed w/ error: \(error).")
+                }
+            }
+        } else { //interaction is NOT authorized
+            print("Not authorized to input. Raw value = \(authorization).")
+            reportAccessErrorForService() //throw error** (this is called when 'Done' btn is pressed, so it will be leaving the VC, need to reconfigure this
         }
     }
     
-    func getGenderFromHKStore() {
+    func getCurrentAgeFromHKStore() -> Int? { //method specific to obtaining DOB to compute Age
+        do {
+            let dateOfBirth = try healthStore.dateOfBirth() //obtain DOB from HK
+//            let date = DateTime(date: dateOfBirth)
+            let ageComponents: NSDateComponents = NSCalendar.currentCalendar().components(.Year, fromDate: dateOfBirth, toDate: NSDate(), options: .WrapComponents) //compute age
+            return ageComponents.year
+        } catch (let error as NSError) {
+            print("[getDOB] Error: \(error).")
+        }
+        return nil
+    }
+    
+    func getGenderFromHKStore() -> Gender? { //method specific to obtaining Gender
         do {
             let gender = try healthStore.biologicalSex().biologicalSex //returns enum object
             switch gender {
             case .NotSet:
-                print("patient sex is NOT SET")
+                return Gender.NotSet
             case .Male:
-                print("patient sex is MALE")
+                return Gender.Male
             case .Female:
-                print("patient sex is FEMALE")
+                return Gender.Female
             case .Other:
-                print("patient sex is OTHER")
+                return Gender.Other
             }
         } catch let error as NSError {
             print("[getGender] Error: \(error).")
         }
-    }
-    
-    func getLastHeightFromHKStore() -> Double? { //returns the most recent height entry from the store
-        var returnedHeight: Double?
-        let heightUnit: HKUnit = HKUnit.footUnit() //define data unit type
-        let heightQuery: HKSampleQuery = HKSampleQuery(sampleType: heightType, predicate: nil, limit: 5, sortDescriptors: [timeSortDescriptor]) { (let query, let results, let error) -> Void in
-            if let heights = results {
-                if !(heights.isEmpty) {
-                    if let quantitySample: HKSample = heights.first {
-                        let quantity = (quantitySample as! HKQuantitySample).quantity
-                        let height: Double = quantity.doubleValueForUnit(heightUnit) //convert val -> feet
-                        returnedHeight = height
-                        print("Returned height: \(returnedHeight)")
-                    }
-                }
-            } else {
-                returnedHeight = nil
-                print("Error: \(error)")
-            }
-        }
-        healthStore.executeQuery(heightQuery)
-        return returnedHeight
-    }
-    
-    func getLastBodyMassFromHKStore() -> Double? { //returns the most recent weight entry in the store
-        var returnedWeight: Double?
-        let weightUnit: HKUnit = HKUnit.poundUnit()
-        let weightQuery: HKSampleQuery = HKSampleQuery.init(sampleType: bodyMassType, predicate: nil, limit: 5, sortDescriptors: [timeSortDescriptor]) { (let query, let results, let error) -> Void in
-            if let weights = results {
-                if !(weights.isEmpty) {
-                    if let quantitySample: HKSample = weights.first {
-                        let quantity = (quantitySample as! HKQuantitySample).quantity
-                        let weight: Double = quantity.doubleValueForUnit(weightUnit)
-                        returnedWeight = weight
-                        print(returnedWeight)
-                    }
-                }
-            } else {
-                print("Error: \(error)")
-                returnedWeight = nil
-            }
-             //top-most item is nil for some reason (can't read user created information??? Also, the value of the return object may be nil b/c of threading, w/ the completion occurring on the background thread. When I call from view did load, the external function reports back before the class function, so definitely a thread problem.
-                //we want to return the value as a completion!
-        }
-        healthStore.executeQuery(weightQuery)
-        return returnedWeight
+        return nil
     }
     
     // MARK: - Write Methods
     
-    func addHeartRateMeasurementToHKStore(heartRate: Int) { //obtains HR from AppleWatch & saves it -> HK
-        let heartRateInputAuth = healthStore.authorizationStatusForType(heartRateType).rawValue
-        if (heartRateInputAuth == 2) { //authorized
-            let currentDate = NSDate()
-            let hr: Double = Double(heartRate)
-            let bpm = HKUnit.minuteUnit().reciprocalUnit() //custom unit
-            let heartRateQuantity = HKQuantity(unit: bpm, doubleValue: hr) //HR requires a unit of inverse time (for measurement of counts/minute)
-            let heartRateSample = HKQuantitySample(type: heartRateType, quantity: heartRateQuantity, startDate: currentDate, endDate: currentDate) 
-            healthStore.saveObject(heartRateSample) { (let success, let error) -> Void in
-                if (!success) {
-                    print("Save failed w/ error: \(error)")
-                } else {
-                    print("Save successful.")
-                }
-            }
-        } else { //not authorized to write to HR store
-            print("Not authorized to input. Raw value = \(heartRateInputAuth)")
-        }
-    }
+//    func addHeartRateMeasurementToHKStore(heartRate: Int) { //obtains HR from AppleWatch & saves it -> HK
+//        let heartRateInputAuth = healthStore.authorizationStatusForType(HealthKitConnection.heartRateType).rawValue
+//        if (heartRateInputAuth == 2) { //authorized
+//            let currentDate = NSDate()
+//            let hr: Double = Double(heartRate)
+//            let bpm = HKUnit.minuteUnit().reciprocalUnit() //custom unit
+//            let heartRateQuantity = HKQuantity(unit: bpm, doubleValue: hr) //HR requires a unit of inverse time (for measurement of counts/minute)
+//            let heartRateSample = HKQuantitySample(type: HealthKitConnection.heartRateType, quantity: heartRateQuantity, startDate: currentDate, endDate: currentDate)
+//            healthStore.saveObject(heartRateSample) { (let success, let error) -> Void in
+//                if (!success) {
+//                    print("Save failed w/ error: \(error)")
+//                } else {
+//                    print("Save successful.")
+//                }
+//            }
+//        } else { //not authorized to write to HR store
+//            print("Not authorized to input. Raw value = \(heartRateInputAuth)")
+//        }
+//    }
     
-    func addHeightMeasurementToHKStore(height: Double) { //save height data point into store
-        //Make sure you are authorized to SHARE specific types of data before sharing them, 2 = authorized, 1 = not authorized
-        let heightInputAuth = healthStore.authorizationStatusForType(heightType).rawValue
-        if (heightInputAuth == 2) {
-            let currentDate = NSDate() //for sample timeStamp
-            let footUnit = HKUnit.footUnit()
-            let heightQuantity = HKQuantity(unit: footUnit, doubleValue: height)
-            let heightSample = HKQuantitySample(type: heightType, quantity: heightQuantity, startDate: currentDate, endDate: currentDate)
-            healthStore.saveObject(heightSample) { (let success, let error) -> Void in
-                if (!success) {
-                    print("Save failed w/ error: \(error)")
-                } else {
-                    print("Save successful.")
-                }
-            }
-        } else {
-            print("Not authorized to input. Raw value = \(heightInputAuth)")
-        }
-    }
+//    func addHeightMeasurementToHKStore(height: Double) { //save height data point into store
+//        //Make sure you are authorized to SHARE specific types of data before sharing them, 2 = authorized, 1 = not authorized
+//        let heightInputAuth = healthStore.authorizationStatusForType(heightType).rawValue
+//        if (heightInputAuth == 2) {
+//            let currentDate = NSDate() //for sample timeStamp
+//            let footUnit = HKUnit.footUnit()
+//            let heightQuantity = HKQuantity(unit: footUnit, doubleValue: height)
+//            let heightSample = HKQuantitySample(type: heightType, quantity: heightQuantity, startDate: currentDate, endDate: currentDate)
+//            healthStore.saveObject(heightSample) { (let success, let error) -> Void in
+//                if (!success) {
+//                    print("Save failed w/ error: \(error)")
+//                } else {
+//                    print("Save successful.")
+//                }
+//            }
+//        } else {
+//            print("Not authorized to input. Raw value = \(heightInputAuth)")
+//        }
+//    }
     
-    func addBodyMassMeasurementToHKStore(weight: Double) { //save weight data point into store
-        let weightInputAuth = healthStore.authorizationStatusForType(bodyMassType).rawValue
-        if (weightInputAuth == 2) { //authorized
-            let poundUnit = HKUnit.poundUnit()
-            let weightQuantity = HKQuantity(unit: poundUnit, doubleValue: weight)
-            let currentDate = NSDate() //for sample timeStamp
-            let weightSample = HKQuantitySample(type: bodyMassType, quantity: weightQuantity, startDate: currentDate, endDate: currentDate) //quantity sample is a single sample for a quantity occurring @ a given point in time
-            healthStore.saveObject(weightSample) { (let success, let error) -> Void in
-                if (!success) {
-                    print("Save failed w/ error: \(error)")
-                } else {
-                    print("Save successful.")
-                }
-            }
-        } else { //not authorized to write to Weight store
-            print("Not authorized to input. Raw value = \(weightInputAuth)")
-        }
-    }
+//    func addBodyMassMeasurementToHKStore(weight: Double) { //save weight data point into store
+//        let weightInputAuth = healthStore.authorizationStatusForType(bodyMassType).rawValue
+//        if (weightInputAuth == 2) { //authorized
+//            let poundUnit = HKUnit.poundUnit()
+//            let weightQuantity = HKQuantity(unit: poundUnit, doubleValue: weight)
+//            let currentDate = NSDate() //for sample timeStamp
+//            let weightSample = HKQuantitySample(type: bodyMassType, quantity: weightQuantity, startDate: currentDate, endDate: currentDate) //quantity sample is a single sample for a quantity occurring @ a given point in time
+//            healthStore.saveObject(weightSample) { (let success, let error) -> Void in
+//                if (!success) {
+//                    print("Save failed w/ error: \(error)")
+//                } else {
+//                    print("Save successful.")
+//                }
+//            }
+//        } else { //not authorized to write to Weight store
+//            print("Not authorized to input. Raw value = \(weightInputAuth)")
+//        }
+//    }
     
     func addFoodItemToHKStore(foodItem: String) { //save food item into store
         let dietaryEnergyInputAuth = healthStore.authorizationStatusForType(dietaryEnergyType).rawValue
@@ -228,6 +230,13 @@ class HealthKitConnection {
         }
         healthStore.executeQuery(foodQuery)
         return returnedFoodItem
+    }
+    
+    // MARK: - Error Handling
+    
+    func reportAccessErrorForService() { //fire notification for VC
+        let notification = NSNotification(name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil, userInfo: [BMN_DataReportingErrorProtocol_ServiceTypeKey: ServiceTypes.HealthKit.rawValue])
+        NSNotificationCenter.defaultCenter().postNotification(notification)
     }
     
 }

@@ -119,12 +119,15 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             } else if let data = dict[BMN_CustomModule_RangeScale_IncrementID] { //RangeScale - Inc
                 reportedDataObject[BMN_CustomModule_RangeScale_IncrementID] = data
                 print("RS Increment: \(data as? Int).")
-            } else if let data = dict[BMN_EnvironmentModule_Weather_OptionsID] { //EM - WeatherOptions
+            } else if let data = dict[BMN_EnvironmentModule_Weather_OptionsID] { //EnM - WeatherOptions
                 reportedDataObject[BMN_EnvironmentModule_Weather_OptionsID] = data
                 let dat = data as! [String]
                 for opt in dat { //*
                     print("[EM-WeatherOpts] '\(opt)'.")
                 }
+            } else if let data = dict[BMN_BiometricModule_DataSourceOptionsID] { //BM - DataSourceOpts
+                reportedDataObject[BMN_BiometricModule_DataSourceOptionsID] = data
+                print("Selected data source: [\(data as? [String])].")
             }
         }
     }

@@ -70,12 +70,7 @@ class Project: NSManagedObject {
     
     // MARK: - Data Reporting Logic
     
-    //flexible way to obtain data for auto-captured variables: (1) TYPE 1 - variables that are automatically captured 1 time just before the DB object is generated (i.e. when 'Done' button is pressed in VC); (2) TYPE 2 - data captured from sensors (how to handle this is TBD).
-    //When variables are going to be reported, we need to check if any of the variables w/in a given set of IV or OM are auto-captured. If so, we need to collect that data @ this time -
-    //(1) Need method to check if there are auto-captured variables - needs to introspectively check which of its groups is being reported, whether IV or OM are being reported, & for that group, determine which vars are auto vs. manual.
-    //(2) Need flexible method to have all of these variables report their data back before generating the final dict - this is tricky b/c it will require access to HealthKit, Location services, etc. & if these are disabled, we won't be able to collect that info. We must prompt the user to enable that info sooner (e.g. when they open the DataEntryVC, prompt them even before DoneBtn is hit). All of the data will be reported asynchronously, aggregated w/ the manually reported data, & sent -> DB. **We could place a method inside the Module class that ONLY works for auto-cap vars, & is similar to the REPORT DATA fx in TV cells. When called by the Project class or VC, it executes an overriden functionality that sends back the data for that variable in a dictionary against its name [varName: data].
-    //When do we obtain the data & how do we handle the fact that data will be returned asynchronously (hence we cannot collect it when the Done btn is pressed [OR CAN WE & just send the data asynchronously?]).
-    //For type II variables (sensor data), we will need to create a separate DB table b/c the entries will not be collected @ the same frequency as other data (OR SHOULD WE SET IT SO THE RATES MATCH?).
+    //**For type II variables (sensor data), we will need to create a separate DB table b/c the entries will not be collected @ the same frequency as other data (OR SHOULD WE SET IT SO THE RATES MATCH?).
     
     func shouldDisplayGroupSelectionView() -> Bool { //accessed by DataEntryVC
         if let type = self.experimentType {
@@ -125,6 +120,18 @@ class Project: NSManagedObject {
         return nil
     }
     
+    func repopulateDataObjectForSubscribedVariables(erroredService service: ServiceTypes) { //called by DataEntryVC in response to error messages - instructs all variables subscribed to the specified service to re-populate their report data object
+        if let group = self.reportingGroup {
+            for variable in group.autoCapturedVariables { //check if var is subscribed to service
+                if (variable.isSubscribedToService(service)) {
+                    variable.populateDataObjectForAutoCapturedVariable() //if it is subscribed, ask it to re-populate the data object
+                }
+            }
+        }
+    }
+    
+    // MARK: - Data Aggregation Logic
+    
     func constructDataObjectForDatabase() { //construct dataObject to report -> DB
         var dataObjectToDatabase = Dictionary<String, [String: AnyObject]>()
         var variables: [Module] = []
@@ -132,19 +139,33 @@ class Project: NSManagedObject {
             variables = group.reconstructedVariables
         }
         
-        
-        //(1) Obtain the data stored in all of the variables that are being reported:
+        //(1) Obtain the data stored in ALL variables (manual + auto) that are being reported:
+        var reportCount = 0
         for variable in variables { //each Module obj reports entered data -> VC to construct dict
-            dataObjectToDatabase[variable.variableName] = variable.reportDataForVariable()
+            if let data = variable.reportDataForVariable() { //check if data was successfully reported
+                dataObjectToDatabase[variable.variableName] = data
+                reportCount += 1 //compare report count -> full count
+                
+                //If variable is of BiometricModule, tell it to report data -> HK:
+                if let biometricVar = variable as? BiometricModule { //**test
+                    if !(biometricVar.isAutomaticallyCaptured) { //MANUAL vars ONLY
+                        biometricVar.writeManualDataToHKStore() //**
+                    }
+                }
+            } else {
+                print("[constructDataObject] Error - no data for '\(variable.variableName)' variable!")
+            }
         }
+        print("Report Count: \(reportCount). Full Count: \(variables.count).\n") //**block 'Done' btn press if the 2 values don't match!
+        
         for (variableName, dict) in dataObjectToDatabase { //**
             for (key, value) in dict {
                 print("DB Object: VAR = '\(variableName)'. KEY: '\(key)'. VALUE: [\(value)].")
             }
-            print("\n") //*
+            print("\n")
         }
         
-        //If IV are being reported, store data -> tempObj; if OM are reported, send data -> DB:
+        //(2) If IV are being reported, store data -> tempObj; if OM are reported, send data -> DB:
         if let temp = self.temporaryStorageObject { //tempObject EXISTS (send combined data -> DB)
             if let timeStamps = temp[BMN_Module_MainTimeStampKey], inputsReportTime = timeStamps[BMN_Module_InputsTimeStampKey] as? NSDate { //get inputTime from dict
                 let outputsReportTime = NSDate() //get CURRENT time for outputs timeStamp

@@ -9,8 +9,8 @@ import Foundation
 
 struct CurrentWeather { //object used to represent the CURRENT WEATHER for EnvironmentModule_Weather vars
     
-    let temperature: Int? //degrees F
-    let apparentTemperature: Int? //degrees F
+    let temperature: Int? //ºF
+    let apparentTemperature: Int? //ºF
     let relativeHumidity: Int? //0-100%
     let windSpeed: Int? //measured in MPH
     let icon: String? //name indicates the current Weather
@@ -62,7 +62,7 @@ struct CurrentWeather { //object used to represent the CURRENT WEATHER for Envir
 
 struct DailyWeather { //object used to represent the DAILY WEATHER (used to grab potentially useful data points that are found in the 'daily' > 'data'.first dictionary)
     
-    let sunriseTime: NSTimeInterval? //returned time is represented as UNIX time stamp (# of seconds since Jan 1, 1970)
+    let sunriseTime: NSTimeInterval? //UNIX time stamp (# of seconds since Jan 1, 1970)
     let sunsetTime: NSTimeInterval? //timeStamp
     let temperatureMin: Int? //ºF
     let temperatureMinTime: NSTimeInterval? //timeStamp
@@ -129,55 +129,36 @@ struct ForecastService { //creates a SPECIALIZED network connection (utilizing t
     
     // MARK: - Networking Logic
     
-    func getCurrentWeather(completion: (CurrentWeather? -> Void)) {
+    func getWeatherObjectFromAPI(completion: ((CurrentWeather?, DailyWeather?) -> Void)) {
         if let forecastURL = NSURL(string: "\(coordinate.latitude),\(coordinate.longitude)", relativeToURL: forecastBaseURL) {
             let networkOperation = NetworkConnection(url: forecastURL)
             
-            //Download JSON object from constructed URL (w/ API key & location coordinates):
+            //Download JSON object from constructed URL (using API key & location coordinates):
             networkOperation.downloadJSONFromURL({ (let JSONDictionary) in
-                let currentWeather = self.currentWeatherFromJSON(JSONDictionary)
-                completion(currentWeather) //pass forecast -> completionHandler
+                let (current, daily) = self.parseWeatherDataFromJSON(JSONDictionary)
+                completion((current, daily)) //pass constructed weather objects -> completionHandler
             })
         } else {
             print("Could not construct valid URL.")
         }
     }
-    
-    func getDailyWeather(completion: (DailyWeather? -> Void)) {
-        if let forecastURL = NSURL(string: "\(coordinate.latitude),\(coordinate.longitude)", relativeToURL: forecastBaseURL) {
-            let networkOperation = NetworkConnection(url: forecastURL)
-            
-            //Download JSON object from constructed URL (w/ API key & location coordinates):
-            networkOperation.downloadJSONFromURL({ (let JSONDictionary) in
-                let dailyWeather = self.dailyWeatherFromJSON(JSONDictionary)
-                completion(dailyWeather) //pass forecast -> completionHandler
-            })
-        } else {
-            print("Could not construct valid URL.")
-        }
-    }
-
     
     // MARK: - Data Parsing Logic
     
-    private func currentWeatherFromJSON(jsonDictionary: [String: AnyObject]?) -> CurrentWeather? { //construct a 'CurrentWeather' object from the JSON dict returned by the URL request
-        if let currentWeatherDictionary = jsonDictionary?["currently"] as? [String: AnyObject] { //data stored against 'currently' key gives CURRENT weather
-            return CurrentWeather(weatherDictionary: currentWeatherDictionary)
-        } else { //JSONDict does NOT have a 'currently' key
-            print("JSON dictionary returned nil for 'currently' key")
-            return nil
-        }
-    }
-    
-    private func dailyWeatherFromJSON(jsonDictionary: [String: AnyObject]?) -> DailyWeather? { //construct a 'DailyWeather' object from the JSON dict returned by the URL request
-        if let dailyDict = jsonDictionary?["daily"] as? [String: AnyObject], days = dailyDict["data"] as? NSArray { //data stored against 'daily' key > 'data' key gives a set of DAILY weather objects for the week, obtain the 1st object for today's weather
+    private func parseWeatherDataFromJSON(jsonDictionary: [String: AnyObject]?) -> (CurrentWeather?, DailyWeather?) { //constructs a 'CurrentWeather' & 'DailyWeather' object from JSON dict returned by the URL request
+        if let currentWeatherDictionary = jsonDictionary?["currently"] as? [String: AnyObject], dailyDict = jsonDictionary?["daily"] as? [String: AnyObject], days = dailyDict["data"] as? NSArray {
+            //(1) Data stored against 'currently' key gives the CURRENT weather DICT:
+            let current = CurrentWeather(weatherDictionary: currentWeatherDictionary)
+            
+            //(2) Data stored against 'daily' key > 'data' key gives an ARRAY of DAILY weather objects for the week; obtain the 1st object in the array for TODAY'S weather:
             if let today = days.firstObject as? [String: AnyObject] {
-                return DailyWeather(weatherDictionary: today)
+                let daily = DailyWeather(weatherDictionary: today)
+                return (current, daily)
             }
-        } else { //JSONDict does NOT have a 'daily' or 'data' key
-            print("JSON dictionary returned nil for 'daily' key")
+        } else { //JSONDict does NOT have a 'currently' or 'daily' key
+            print("JSON dictionary returned nil for 'currently' or 'daily' key")
         }
-        return nil
+        return (nil, nil)
     }
     
 }

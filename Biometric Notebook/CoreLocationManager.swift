@@ -9,11 +9,11 @@
 import Foundation
 import CoreLocation
 
-class CoreLocationManager: NSObject, CLLocationManagerDelegate {
+class CoreLocationManager: NSObject, CLLocationManagerDelegate, DataReportingErrorProtocol {
     
     private let locationManager = CLLocationManager()
     
-    // MARK: - Initializer
+    // MARK: - Initializers
     
     override init() {
         super.init()
@@ -22,18 +22,24 @@ class CoreLocationManager: NSObject, CLLocationManagerDelegate {
     
     // MARK: - External Access
     
-    func startStandardUpdates() { //call fx when ready to access location (DELAY START until needed)
+    func startStandardUpdates() -> Bool { //DELAY function call until needed by variable obj
         let enabled = CLLocationManager.locationServicesEnabled()
-        print("Location Access Available?: \(enabled).")
-        if (enabled) { //need to shoot reminder -> user to access
-            
-        } else {
-            
+        print("[startStandardUpdates()] CoreLocation Access Available?: \(enabled).")
+        if (enabled) { //location services IS enabled
+            if (NetworkConnection.deviceIsConnectedToNetwork()) { //internet connection is available
+                print("device is connected to wifi")
+                locationManager.desiredAccuracy = kCLLocationAccuracyKilometer //set accuracy -> w/in 1 km
+                locationManager.distanceFilter = 500 //set movement threshold for new events [meters]
+                locationManager.requestWhenInUseAuthorization() //asks user for permission to use location
+                locationManager.startUpdatingLocation() //begin listening for location update
+                return true
+            } else {
+                print("device is NOT connected to wifi")
+                internetConnectionIssue = true //set indicator
+            }
         }
-        locationManager.desiredAccuracy = kCLLocationAccuracyKilometer //set accuracy -> w/in 1 km
-        locationManager.distanceFilter = 500 //set movement threshold for new events [meters]
-        locationManager.requestWhenInUseAuthorization() //asks user for permission to use location
-        locationManager.startUpdatingLocation() //begin listening for location update
+        reportAccessErrorForService() //throw error (no location services &/or internet)
+        return false
     }
     
     // MARK: - Delegate Methods
@@ -42,11 +48,14 @@ class CoreLocationManager: NSObject, CLLocationManagerDelegate {
         print("CoreLocation authorization did change...")
         switch status {
         case .AuthorizedAlways, .AuthorizedWhenInUse:
-            print("App is now AUTHORIZED for location services! Starting updates...")
-            locationManager.startUpdatingLocation()
+            if (NetworkConnection.deviceIsConnectedToNetwork()) { //make sure device is connected
+                print("App is AUTHORIZED for location services & wifi is available! Starting updates...")
+                locationManager.startUpdatingLocation()
+            }
         default: //access is Undetermined, Denied, or Restricted
-            print("Access was denied for location services! Stopping updates...")
+            print("Access was DENIED for location services! Stopping updates...")
             locationManager.stopUpdatingLocation() //stop updating location (no access)
+            reportAccessErrorForService() //throw error
         }
     }
     
@@ -66,8 +75,25 @@ class CoreLocationManager: NSObject, CLLocationManagerDelegate {
         }
     }
     
-    func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
+    var internetConnectionIssue: Bool = false //inidicator for error function
+    
+    func locationManager(manager: CLLocationManager, didFailWithError error: NSError) { //sometimes thrown when there is no internet connection
         print("[locationManager] Did fail w/ error! Error: \(error).")
+        internetConnectionIssue = true //set indicator
+        reportAccessErrorForService()
+    }
+    
+    // MARK: - Error Handling
+    
+    func reportAccessErrorForService() { //fire notification for VC
+        if !(internetConnectionIssue) { //default behavior (no access to CL)
+            let notification = NSNotification(name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil, userInfo: [BMN_DataReportingErrorProtocol_ServiceTypeKey: ServiceTypes.CoreLocation.rawValue])
+            NSNotificationCenter.defaultCenter().postNotification(notification)
+        } else { //sender was locationMgr's 'didFailWithError' method (INTERNET issue, not CL problem)
+            internetConnectionIssue = false //reset indicator
+            let notification = NSNotification(name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil, userInfo: [BMN_DataReportingErrorProtocol_ServiceTypeKey: ServiceTypes.Internet.rawValue])
+            NSNotificationCenter.defaultCenter().postNotification(notification)
+        }
     }
     
 }

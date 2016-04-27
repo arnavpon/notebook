@@ -92,6 +92,10 @@ class FoodIntakeModule: Module {
         return nil
     }
     
+    override func isSubscribedToService(service: ServiceTypes) -> Bool {
+        return false //override
+    }
+    
 }
 
 enum FoodIntakeModuleVariableTypes: String { //*match each behavior/computation -> Configuration + DataEntry custom TV cells; for each new behavior/comp added, you must also add (1) Configuration logic, (2) Core Data storage logic (so the variable config can be preserved), (3) Unpacking logic (in the DataEntry initializer), & (4) DataEntry logic (enabling the user to report info).* 
@@ -104,6 +108,19 @@ enum FoodIntakeModuleVariableTypes: String { //*match each behavior/computation 
             message = ""
         }
         return message
+    }
+    
+    func isSubscribedToService(service: ServiceTypes) -> Bool { //list of subscribed services for each variableType
+        let subscribedServices: [ServiceTypes]
+        switch self { //for each var that uses services, create list of subscribed services
+        default:
+            subscribedServices = [] //no subscribed services
+        }
+        if (subscribedServices.contains(service)) { //subscribed to service
+            return true
+        } else { //NOT subscribed to service
+            return false
+        }
     }
 
 }

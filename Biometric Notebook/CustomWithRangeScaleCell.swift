@@ -75,7 +75,7 @@ class CustomWithRangeScaleCell: BaseDataEntryCell { //add new class -> enum!
     
     override func updateModuleReportObject() { //updates the Module dataSource's report object
         if let mod = self.module, value = selectedValue {
-            mod.mainDataObject = value //called by all range scales simultaneously???
+            mod.mainDataObject = value 
         }
     }
     

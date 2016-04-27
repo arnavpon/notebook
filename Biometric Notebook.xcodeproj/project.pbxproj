@@ -69,6 +69,7 @@
 		B1BE110F1CC120C70029C80C /* UniqueIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1BE110D1CC120C70029C80C /* UniqueIDs.swift */; };
 		B1C403351C3974A100AF4BB9 /* CreateProjectFlow.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */; };
 		B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */; };
+		B1C42F7A1CCFA40800F27DDF /* DataReportingErrorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C42F791CCFA40800F27DDF /* DataReportingErrorProtocol.swift */; };
 		B1C623FC1C619C72006DDD13 /* AttachModuleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */; };
 		B1CCF1BF1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */; };
 		B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */; };
@@ -91,6 +92,7 @@
 		B1D560AC1CB458D700F6A7AC /* CellWithPlusButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D560AB1CB458D700F6A7AC /* CellWithPlusButton.swift */; };
 		B1D868D61C3F58810026334B /* Modules.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D868D51C3F58810026334B /* Modules.swift */; };
 		B1DD2FD01CCEFEBC00E10558 /* HealthKitConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17C210D1C31B5F400B59FB0 /* HealthKitConnection.swift */; };
+		B1DEE0491CD042B700F73F77 /* FreeformDataEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DEE0481CD042B700F73F77 /* FreeformDataEntryCell.swift */; };
 		B1E1E1401CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */; };
 		B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1EDACB41CA4A2560087E3B1 /* CarbonEmissionsModule.swift */; };
 		B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */; };
@@ -226,6 +228,7 @@
 		B1BE110D1CC120C70029C80C /* UniqueIDs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UniqueIDs.swift; path = ../UniqueIDs.swift; sourceTree = "<group>"; };
 		B1C403341C3974A100AF4BB9 /* CreateProjectFlow.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = CreateProjectFlow.storyboard; sourceTree = "<group>"; };
 		B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectSummaryViewController.swift; sourceTree = "<group>"; };
+		B1C42F791CCFA40800F27DDF /* DataReportingErrorProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataReportingErrorProtocol.swift; sourceTree = "<group>"; };
 		B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleTableViewCell.swift; sourceTree = "<group>"; };
 		B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ExampleConfigurationCell.swift; path = ../../ExampleConfigurationCell.swift; sourceTree = "<group>"; };
 		B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricModule.swift; sourceTree = "<group>"; };
@@ -248,6 +251,7 @@
 		B1D560A91CB4585900F6A7AC /* ProjectQuestionCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectQuestionCustomCell.swift; sourceTree = "<group>"; };
 		B1D560AB1CB458D700F6A7AC /* CellWithPlusButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellWithPlusButton.swift; sourceTree = "<group>"; };
 		B1D868D51C3F58810026334B /* Modules.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Modules.swift; sourceTree = "<group>"; };
+		B1DEE0481CD042B700F73F77 /* FreeformDataEntryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FreeformDataEntryCell.swift; sourceTree = "<group>"; };
 		B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CustomOptionsConfigurationCell.swift; path = ../../CustomOptionsConfigurationCell.swift; sourceTree = "<group>"; };
 		B1EDACB41CA4A2560087E3B1 /* CarbonEmissionsModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarbonEmissionsModule.swift; sourceTree = "<group>"; };
 		B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTableViewHeader.swift; sourceTree = "<group>"; };
@@ -502,6 +506,7 @@
 			children = (
 				B1AA96C91CAB1CCC0009E716 /* DataEntryCellTypes.swift */,
 				B1A8C7CC1CAF663300380E99 /* BaseDataEntryCell.swift */,
+				B1DEE0481CD042B700F73F77 /* FreeformDataEntryCell.swift */,
 				B1A8C7CE1CAF685100380E99 /* Custom Module Cells */,
 			);
 			name = "Data Entry TV Cells";
@@ -617,6 +622,7 @@
 		B1D5557F1C3068B100C20742 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
+				B1C42F791CCFA40800F27DDF /* DataReportingErrorProtocol.swift */,
 				B1D555801C3068FD00C20742 /* NetworkConnection.swift */,
 				B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */,
 			);
@@ -844,10 +850,12 @@
 				B1D51C5A1CB29CC200DED6B2 /* ArchivedProjectsViewController.swift in Sources */,
 				B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */,
 				B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */,
+				B1C42F7A1CCFA40800F27DDF /* DataReportingErrorProtocol.swift in Sources */,
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,
 				B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */,
 				B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */,
 				B1AA96CC1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift in Sources */,
+				B1DEE0491CD042B700F73F77 /* FreeformDataEntryCell.swift in Sources */,
 				B1AA96CA1CAB1CCC0009E716 /* DataEntryCellTypes.swift in Sources */,
 				B1D560AC1CB458D700F6A7AC /* CellWithPlusButton.swift in Sources */,
 				B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */,

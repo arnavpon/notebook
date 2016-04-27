@@ -93,6 +93,10 @@ class EnvironmentModule: Module {
         }
     }
     
+    deinit { //remove notification observer (in case service has failed)
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+    
     // MARK: - Variable Configuration
     
     internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the 'options' value as needed; (2) Constructs the configuration TV cells if required; (3) Sets 'isAutoCaptured' var if var is auto-captured.
@@ -174,16 +178,21 @@ class EnvironmentModule: Module {
     
     lazy var coreLocationManager = CoreLocationManager()
     
-    func getTypeForVariable() -> EnvironmentModuleVariableTypes? { //used by DataEntry cells for safety
+    func getTypeForVariable() -> EnvironmentModuleVariableTypes? { //used by DataEntry clls as safety chck
         return self.variableType
     }
     
-    override func setDataObjectForAutoCapturedVariable() {
-        if let type = variableType {
+    override func populateDataObjectForAutoCapturedVariable() { //gets data for auto-cap variable
+        mainDataObject = nil //clear object before overwriting!
+        if let type = variableType { //source of auto-cap data depends on varType
             switch type {
             case .Behavior_Weather: //access current location from CLManager
+                NSNotificationCenter.defaultCenter().removeObserver(self, name: BMN_Notification_CoreLocationManager_LocationDidChange, object: nil) //*safety item*
                 NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.didReceiveLocationFromCLManager(_:)), name: BMN_Notification_CoreLocationManager_LocationDidChange, object: nil) //register
-                coreLocationManager.startStandardUpdates() //start up location manager
+                let success = coreLocationManager.startStandardUpdates() //start up CL to get location
+                if !(success) { //no access to location services, remove notification observer
+                    NSNotificationCenter.defaultCenter().removeObserver(self, name: BMN_Notification_CoreLocationManager_LocationDidChange, object: nil)
+                }
             case .Behavior_TemperatureAndHumidity:
                 break
             }
@@ -192,33 +201,33 @@ class EnvironmentModule: Module {
     
     @objc func didReceiveLocationFromCLManager(notification: NSNotification) {
         if let info = notification.userInfo, latitude = info[BMN_CoreLocationManager_LatitudeKey] as? Double, longitude = info[BMN_CoreLocationManager_LongitudeKey] as? Double {
+            
+            NSNotificationCenter.defaultCenter().removeObserver(self) //remove observer after firing 1x
             let service = ForecastService(coordinate: (latitude, longitude)) //create API network request
-            if (self.selectedWeatherOptions.contains(EnvironmentModule_WeatherOptions.CurrentWeather)) {
-                service.getCurrentWeather({ (let weather) in
-                    self.mainDataObject = weather?.reportDataForWeatherVariable([])
-                    print("Weather has been successfully obtained")
-                    NSNotificationCenter.defaultCenter().removeObserver(self) //remove observer
-                })
-            }
-            if (self.selectedWeatherOptions.contains(EnvironmentModule_WeatherOptions.DailyWeather)) {
-                service.getDailyWeather({ (let weather) in
-                    if let daily = weather {
-                        let dict = daily.reportDataForWeatherVariable([])
-                        if var mainData = self.mainDataObject as? [String: AnyObject] { //update obj
-                            for (key, value) in dict {
-                                mainData.updateValue(value, forKey: key)
-                            }
-                        } else { //object does not exist yet
-                            self.mainDataObject = dict
+            
+            service.getWeatherObjectFromAPI({ (let weather) in
+                if let currentWeather = weather.0, dailyWeather = weather.1 { //check for nil objects
+                    var combinedDict = Dictionary<String, AnyObject>()
+                    if (self.selectedWeatherOptions.contains(EnvironmentModule_WeatherOptions.CurrentWeather)) { //construct CURRENT weather obj
+                        combinedDict = currentWeather.reportDataForWeatherVariable([]) //filter returned data based on variable config
+                    }
+                    if (self.selectedWeatherOptions.contains(EnvironmentModule_WeatherOptions.DailyWeather)) { //construct DAILY weather obj
+                        let dailyInfo = dailyWeather.reportDataForWeatherVariable([]) //filter returned data based on variable config
+                        for (key, value) in dailyInfo { //update combinedObj w/ dailyInfo
+                            combinedDict.updateValue(value, forKey: key)
                         }
                     }
-                })
-            }
+                    self.mainDataObject = combinedDict
+                }
+            })
         }
     }
     
-    deinit { //remove notification observer
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+    override func isSubscribedToService(service: ServiceTypes) -> Bool {
+        if let type = self.variableType { //check if subscribed to service using enum object
+            return type.isSubscribedToService(service)
+        }
+        return false
     }
     
 }
@@ -239,6 +248,21 @@ enum EnvironmentModuleVariableTypes: String {//*match each behavior/computation 
             message = "A variable that determines the current weather at your location, including ambient temperature & humidity. <Must enable location services for its use>"
         }
         return message
+    }
+    
+    func isSubscribedToService(service: ServiceTypes) -> Bool { //list of subscribed services for each variableType
+        let subscribedServices: [ServiceTypes]
+        switch self { //for each var that uses services, create list of subscribed services
+        case .Behavior_Weather:
+            subscribedServices = [ServiceTypes.CoreLocation, ServiceTypes.Internet]
+        default:
+            subscribedServices = [] //no subscribed services
+        }
+        if (subscribedServices.contains(service)) { //subscribed to service
+            return true
+        } else { //NOT subscribed to service
+            return false
+        }
     }
     
 }
