@@ -193,6 +193,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     // MARK: - Button Actions
     
     @IBAction func addProjectButtonClick(sender: AnyObject) { //navigate to CreateProject flow
+        configureActivityIndicator(true) //start animation
         let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
         let controller = storyboard.instantiateInitialViewController()!
         presentViewController(controller, animated: true, completion: nil)
