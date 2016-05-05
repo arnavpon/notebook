@@ -111,8 +111,8 @@ class EnvironmentModule: Module {
             case EnvironmentModuleVariableTypes.Behavior_Weather:
                 
                 //1 config cell is needed (SelectFromOptions):
-                let options = [EnvironmentModule_WeatherOptions.CurrentWeather.rawValue, EnvironmentModule_WeatherOptions.DailyWeather.rawValue] //enum opts
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_EnvironmentModule_Weather_OptionsID, BMN_LEVELS_MainLabelKey: "Select 1 or more kinds of weather data you want to capture with this variable:", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_MultipleSelectionEnabledKey: true, BMN_SelectFromOptions_DefaultOptionsKey: [EnvironmentModule_WeatherOptions.CurrentWeather.rawValue]])) //cell that contains granular weather selection options
+                let options = [EnvironmentModule_WeatherOptions.Temperature.rawValue, EnvironmentModule_WeatherOptions.ApparentTemperature.rawValue, EnvironmentModule_WeatherOptions.Humidity.rawValue, EnvironmentModule_WeatherOptions.WindSpeed.rawValue, EnvironmentModule_WeatherOptions.Ozone.rawValue, EnvironmentModule_WeatherOptions.BarometricPressure.rawValue, EnvironmentModule_WeatherOptions.CloudCover.rawValue, EnvironmentModule_WeatherOptions.SunriseTime.rawValue, EnvironmentModule_WeatherOptions.SunsetTime.rawValue, EnvironmentModule_WeatherOptions.WeatherCondition.rawValue] //enum opts
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_EnvironmentModule_Weather_OptionsID, BMN_LEVELS_MainLabelKey: "Select 1 or more kinds of weather data you want to capture with this variable:", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_MultipleSelectionEnabledKey: true])) //cell that contains granular weather selection options
                 
                 self.isAutomaticallyCaptured = true //auto-cap
                 configurationOptionsLayoutObject = array
@@ -127,7 +127,7 @@ class EnvironmentModule: Module {
         //(1) Takes as INPUT the data that was entered into each config TV cell. (2) Given the variableType, matches configuration data -> properties in the Module object by accessing specific configuration cell identifiers (defined in 'HelperFx' > 'Dictionary Keys').
         if let type = variableType { //obtain config info stored against the appropriate ID
             switch type { //only needed for sections that require configuration
-            case .Behavior_Weather: //incoming data - selection of weather alone, temperature alone, humidity alone, or some combination of them. Depending on the info offered by the API, set the granularity.
+            case .Behavior_Weather: //incoming data - selection of subsets of weather data
                 
                 if let options = configurationData[BMN_EnvironmentModule_Weather_OptionsID] as? [String] { //get selected options
                     self.selectedWeatherOptions = [] //clear array before proceeding
@@ -201,21 +201,18 @@ class EnvironmentModule: Module {
     
     @objc func didReceiveLocationFromCLManager(notification: NSNotification) {
         if let info = notification.userInfo, latitude = info[BMN_CoreLocationManager_LatitudeKey] as? Double, longitude = info[BMN_CoreLocationManager_LongitudeKey] as? Double {
-            
             NSNotificationCenter.defaultCenter().removeObserver(self) //remove observer after firing 1x
             let service = ForecastService(coordinate: (latitude, longitude)) //create API network request
-            
             service.getWeatherObjectFromAPI({ (let weather) in
                 if let currentWeather = weather.0, dailyWeather = weather.1 { //check for nil objects
                     var combinedDict = Dictionary<String, AnyObject>()
-                    if (self.selectedWeatherOptions.contains(EnvironmentModule_WeatherOptions.CurrentWeather)) { //construct CURRENT weather obj
-                        combinedDict = currentWeather.reportDataForWeatherVariable([]) //filter returned data based on variable config
+                    let currentInfo = currentWeather.reportDataForWeatherVariable(self.selectedWeatherOptions)
+                    let dailyInfo = dailyWeather.reportDataForWeatherVariable(self.selectedWeatherOptions)
+                    for (key, value) in currentInfo { //update combinedObject w/ currentWeatherInfo
+                        combinedDict.updateValue(value, forKey: key)
                     }
-                    if (self.selectedWeatherOptions.contains(EnvironmentModule_WeatherOptions.DailyWeather)) { //construct DAILY weather obj
-                        let dailyInfo = dailyWeather.reportDataForWeatherVariable([]) //filter returned data based on variable config
-                        for (key, value) in dailyInfo { //update combinedObj w/ dailyInfo
-                            combinedDict.updateValue(value, forKey: key)
-                        }
+                    for (key, value) in dailyInfo { //update combinedObject w/ dailyWeatherInfo
+                        combinedDict.updateValue(value, forKey: key)
                     }
                     self.mainDataObject = combinedDict
                 }
@@ -267,8 +264,17 @@ enum EnvironmentModuleVariableTypes: String {//*match each behavior/computation 
     
 }
 
-enum EnvironmentModule_WeatherOptions: String { //granular options for the WEATHER behavior that allow the user to pick & choose what kinds of ambient information they want to collect for a given project.
-    //**define this based on the information returned by the weather API
-    case CurrentWeather = "Current Weather" //weather (sun/rain/etc.) + T&H
-    case DailyWeather = "Daily Weather" //**rename
+enum EnvironmentModule_WeatherOptions: String { //granular options for the WEATHER behavior that allow the user to pick & choose what kinds of ambient information they want to collect for a given project
+
+    case Temperature = "Temperature"
+    case ApparentTemperature = "Apparent Temperature"
+    case Humidity = "Humidity"
+    case WindSpeed = "Wind Speed"
+    case WeatherCondition = "Weather Condition"
+    case Ozone = "Ozone"
+    case BarometricPressure = "Barometric Pressure"
+    case CloudCover = "Cloud Cover"
+    case SunriseTime = "Sunrise Time"
+    case SunsetTime = "Sunset Time"
+    
 }

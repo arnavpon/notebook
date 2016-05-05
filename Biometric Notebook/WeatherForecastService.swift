@@ -5,15 +5,13 @@
 
 import Foundation
 
-//***Need to make safe keys for all of the weather API dictionary objects!!!
-
 struct CurrentWeather { //object used to represent the CURRENT WEATHER for EnvironmentModule_Weather vars
     
     let temperature: Int? //ºF
     let apparentTemperature: Int? //ºF
     let relativeHumidity: Int? //0-100%
     let windSpeed: Int? //measured in MPH
-    let icon: String? //name indicates the current Weather
+    let icon: String? //name indicates the current Weather condition (from set of possibilities)
     let precipType: String? //if precipIntensity > 0, indicates the type of precipitation (make sure it matches the icon)
     let ozone: Int? //measured in Dobson units
     let pressure: Int? //measured in millibars
@@ -21,7 +19,7 @@ struct CurrentWeather { //object used to represent the CURRENT WEATHER for Envir
     
     // MARK: - Initializer
     
-    init(weatherDictionary: [String: AnyObject]) { //extract values from the 'CURRENT' dict
+    init(weatherDictionary: [String: AnyObject]) { //extract values from the 'CURRENT' dict, keys MUST match values specified in API!
         temperature = weatherDictionary["temperature"] as? Int
         apparentTemperature = weatherDictionary["apparentTemperature"] as? Int
         windSpeed = weatherDictionary["windSpeed"] as? Int
@@ -44,17 +42,30 @@ struct CurrentWeather { //object used to represent the CURRENT WEATHER for Envir
     
     // MARK: - Data Reporting Logic
     
-    func reportDataForWeatherVariable(filter: [String]) -> [String: AnyObject] { //**based on the user's defined preferences for a Weather variable, filter the data that is reported by this variable (e.g. if they only want ambient temperature, provide only that).
+    func reportDataForWeatherVariable(filter: [EnvironmentModule_WeatherOptions]) -> [String: AnyObject] { //based on the user's defined preferences for a Weather variable, filter the data that is reported by this variable (e.g. if they only want ambientTemp, provide only that)
         var reportObject = Dictionary<String, AnyObject>()
-        reportObject["temperature"] = self.temperature
-        reportObject["apparentTemperature"] = self.apparentTemperature
-        reportObject["humidity"] = self.relativeHumidity
-        reportObject["windSpeed"] = self.windSpeed
-        reportObject["icon"] = self.icon
-        reportObject["precipType"] = self.precipType
-        reportObject["ozone"] = self.ozone
-        reportObject["pressure"] = self.pressure
-        reportObject["cloudCover"] = self.cloudCover
+        for filterOption in filter { //for each filter, add the specified data -> reportDict
+            switch filterOption {
+            case .Temperature:
+                reportObject["temperature"] = self.temperature
+            case .ApparentTemperature:
+                reportObject["apparentTemperature"] = self.apparentTemperature
+            case .Humidity:
+                reportObject["humidity"] = self.relativeHumidity
+            case .WindSpeed:
+                reportObject["windSpeed"] = self.windSpeed
+            case .WeatherCondition:
+                reportObject["weatherCondition"] = self.icon
+            case .Ozone:
+                reportObject["ozone"] = self.ozone
+            case .BarometricPressure:
+                reportObject["pressure"] = self.pressure
+            case .CloudCover:
+                reportObject["cloudCover"] = self.cloudCover
+            default:
+                break
+            }
+        }
         return reportObject
     }
     
@@ -75,7 +86,7 @@ struct DailyWeather { //object used to represent the DAILY WEATHER (used to grab
     
     // MARK: - Initializer
     
-    init(weatherDictionary: [String: AnyObject]) { //extract info from the 'DAILY' dict
+    init(weatherDictionary: [String: AnyObject]) { //extract info from the 'DAILY' dict, keys MUST match values specified in API!
         sunriseTime = weatherDictionary["sunriseTime"] as? NSTimeInterval
         sunsetTime = weatherDictionary["sunsetTime"] as? NSTimeInterval
         temperatureMin = weatherDictionary["temperatureMin"] as? Int
@@ -96,18 +107,18 @@ struct DailyWeather { //object used to represent the DAILY WEATHER (used to grab
     
     // MARK: - Data Reporting Logic
     
-    func reportDataForWeatherVariable(filter: [String]) -> [String: AnyObject] {
+    func reportDataForWeatherVariable(filter: [EnvironmentModule_WeatherOptions]) -> [String: AnyObject] {
         var reportObject = Dictionary<String, AnyObject>()
-        reportObject["sunriseTime"] = self.sunriseTime
-        reportObject["sunsetTime"] = self.sunsetTime
-        reportObject["temperatureMin"] = self.temperatureMin
-        reportObject["temperatureMinTime"] = self.temperatureMinTime
-        reportObject["temperatureMax"] = self.temperatureMax
-        reportObject["temperatureMaxTime"] = self.temperatureMaxTime
-        reportObject["apparentTempMin"] = self.apparentTemperatureMin
-        reportObject["apparentTempMinTime"] = self.apparentTemperatureMinTime
-        reportObject["apparentTempMax"] = self.apparentTemperatureMax
-        reportObject["apparentTempMaxTime"] = self.apparentTemperatureMaxTime
+        for filterOption in filter { //for each filter option, add specified data -> reportDict
+            switch filterOption {
+            case .SunsetTime:
+                reportObject["sunsetTime"] = self.sunsetTime
+            case .SunriseTime:
+                reportObject["sunriseTime"] = self.sunriseTime
+            default:
+                break
+            }
+        }
         return reportObject
     }
     
