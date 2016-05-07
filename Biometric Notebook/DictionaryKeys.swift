@@ -139,16 +139,6 @@ let BMN_InputOutput_InputVariablesKey = "InputOutput_input_variables_key"
 let BMN_ControlComparison_ControlKey = "ControlComparison_control_key"
 let BMN_ControlComparison_ComparisonKey = "ControlComparison_comparison_key"
 
-// MARK: - MODULE Superclass (GENERAL) Configuration Keys
-
-let BMN_FreeformCell_LabelIsBeforeTextFieldKey = "FreeformCell_label_is_before_text_field_key"
-let BMN_FreeformCell_TextFieldLabelsKey = "FreeformCell_text_field_labels_key"
-let BMN_FreeformCell_DataTypesKey = "FreeformCell_data_types_key"
-let BMN_FreeformCell_DefaultValuesKey = "FreeformCell_default_values_key"
-let BMN_FreeformCell_CharacterLimitsKey = "FreeformCell_character_limits_key"
-let BMN_FreeformCell_LowerBoundsKey = "FreeformCell_lower_bounds_key"
-let BMN_FreeformCell_UpperBoundsKey = "FreeformCell_upper_bounds_key"
-
 // MARK: - CustomModule [CM] *(KEY = dictionary key, used for storing/unpacking config options from CoreData; ID = unique identifier, used to identify information coming from specific ConfigCells)*
 
 //[Configuration KEYS]:
@@ -188,3 +178,6 @@ let BMN_BiometricModule_DataSourceOptionsKey = "BM_data_source_options_key"
 //[Configuration IDs]:
 let BMN_BiometricModule_DataSourceOptionsID = "BM_data_source_options_id"
 let BMN_BiometricModule_HeartRate_DevicesID = "BM_heart_rate_devices_id"
+
+//[DataEntry Keys]:
+let BMN_DataEntry_FreeformCell_NumberOfViewsKey = "BM_DE_freeform_cell_number_of_views_key" //for height calculation

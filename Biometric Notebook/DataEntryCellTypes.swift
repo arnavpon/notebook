@@ -21,6 +21,13 @@ enum DataEntryCellTypes: String { //REGISTER each new enum type w/ TV in DataEnt
         switch self {
         case .Freeform:
             numberOfLevels = FreeformDataEntryCell.numberOfLevels
+            if let numberOfOptions = userInfo[BMN_DataEntry_FreeformCell_NumberOfViewsKey] as? Double { //every 2 views (past the original 2) increases # of levels by 1
+                if (numberOfOptions > 2) {
+                    numberOfLevels = FreeformDataEntryCell.numberOfLevels + Int(floor(numberOfOptions/2))
+                } else { //less than 2 options (return only base # of levels)
+                    numberOfLevels = FreeformDataEntryCell.numberOfLevels
+                }
+            }
         case .CustomWithOptions: //access key indicating # of custom options to calculate height
             numberOfLevels = CustomWithOptionsCell.numberOfLevels
             if let numberOfOptions = userInfo[BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey] as? Int {

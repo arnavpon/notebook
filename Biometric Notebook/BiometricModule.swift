@@ -75,42 +75,27 @@ class BiometricModule: Module {
         //Break down the dictionary depending on the variable's type key & reconstruct object:
         if let typeName = dict[BMN_VariableTypeKey] as? String, type = BiometricModuleVariableTypes(rawValue: typeName) {
             self.selectedFunctionality = typeName //reset the variable's selectedFunctionality
+            if let source = dict[BMN_BiometricModule_DataSourceOptionsKey] as? String, selectedSource = BiometricModule_DataSourceOptions(rawValue: source) { //dataSource common to ALL variables
+                self.dataSourceOption = selectedSource
+            }
+            
             switch type { //configure according to 'variableType'
             case .Behavior_HeartRate: //unpack the linked device & measurement rates
                 break
-            case .Behavior_Weight: //unpack the data entry option (manual or HK extraction)
-                if let source = dict[BMN_BiometricModule_DataSourceOptionsKey] as? String, selectedSource = BiometricModule_DataSourceOptions(rawValue: source) {
-                    self.dataSourceOption = selectedSource
+            case .Behavior_Weight: //unpack data entry option (manual or HK extraction)
+                //If source is MANUAL entry, set the freeform cell configObject:
+                if (self.dataSourceOption == BiometricModule_DataSourceOptions.Manual) {
+                    self.FreeformCell_configurationObject = [] //initialize
+                    FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Decimal, nil, 3, nil)) //lone view for weight entry
                 }
-                
-                //Check for freeform cell keys: 
-                if let lblPosition = dict[BMN_FreeformCell_LabelIsBeforeTextFieldKey] as? Bool {
-                    self.FreeformCell_labelBeforeField = lblPosition //set lbl position
-                }
-                if let labels = dict[BMN_FreeformCell_TextFieldLabelsKey] as? [Int: String] {
-                    //
-                }
-                if let dataTypes = dict[BMN_FreeformCell_DataTypesKey] as? [Int: String] {
-                    //
-                }
-                if let defaultValues = dict[BMN_FreeformCell_DefaultValuesKey] as? [Int: String] {
-                    //
-                }
-                if let characterLimits = dict[BMN_FreeformCell_CharacterLimitsKey] as? [Int: Int] {
-                    //
-                }
-                if let lowerBounds = dict[BMN_FreeformCell_LowerBoundsKey] as? [Int: Double] {
-                    //
-                }
-                if let upperBounds = dict[BMN_FreeformCell_UpperBoundsKey] as? [Int: Double] {
-                    //
-                }
-//                if let charLimit = dict[BMN_FreeformCell_CharacterLimitKey] as? Int, entryType = dict[BMN_FreeformCell_DataTypeKey] as? String, dataType = ProtectedFreeformTypes(rawValue: entryType) { //cell config options
-//                    self.FreeformCell_characterLimit = charLimit
-//                    self.FreeformCell_dataType = dataType
-//                }
             case .Behavior_Height:
-                break
+                //If source is MANUAL entry, set the freeform cell configObject:
+                if (self.dataSourceOption == BiometricModule_DataSourceOptions.Manual) {
+                    self.FreeformCell_labelBeforeField = false //label goes AFTER field
+                    self.FreeformCell_configurationObject = [] //initialize
+                    FreeformCell_configurationObject!.append(("feet", ProtectedFreeformTypes.Int, nil, 1, nil)) //view 1 (for # of feet)
+                    FreeformCell_configurationObject!.append(("inches", ProtectedFreeformTypes.Int, nil, 2, (0, 12))) //view 2 (for # of inches)
+                }
             case .Computation_BiologicalSex:
                 break
             case .Computation_Age:
@@ -208,29 +193,10 @@ class BiometricModule: Module {
             switch type {
             case .Behavior_HeartRate:
                 break //store linked device & measurement options
-            case .Behavior_Weight:
+            case .Behavior_Weight, .Behavior_Height:
                 if let source = dataSourceOption { //store selected data entry option
                     persistentDictionary[BMN_BiometricModule_DataSourceOptionsKey] = source.rawValue
                 }
-                //Add configuration values for the FreeformTV cell - need all of the values corresponding to each TF to stay grouped, but we cannot save tuples & optional values are allowed so we need to use a DICTIONARY matched against each key w/ the interior key being the TF # (MASTER KEY: [TF #: config value]:
-                persistentDictionary[BMN_FreeformCell_TextFieldLabelsKey] = [0: ""] //STRING
-                persistentDictionary[BMN_FreeformCell_DataTypesKey] = [0: ProtectedFreeformTypes.Int.rawValue] //enum rawValue
-                persistentDictionary[BMN_FreeformCell_DefaultValuesKey] = [0: ""] //STRING
-                persistentDictionary[BMN_FreeformCell_CharacterLimitsKey] = [0: 3] //limit weight to 3 significant digits (what about decimal values)?
-//                persistentDictionary[BMN_FreeformCell_LowerBoundsKey] = [1: 2] //DOUBLE
-//                persistentDictionary[BMN_FreeformCell_UpperBoundsKey] = [1: 2] //DOUBLE
-            case .Behavior_Height:
-                if let source = dataSourceOption { //store selected data entry option
-                    persistentDictionary[BMN_BiometricModule_DataSourceOptionsKey] = source.rawValue
-                }
-                //Add configuration values for the FreeformTV cell - need all of the values corresponding to each TF to stay grouped, but we cannot save tuples & optional values are allowed so we need to use a DICTIONARY matched against each key w/ the interior key being the TF # (MASTER KEY: [TF #: config value]:
-                persistentDictionary[BMN_FreeformCell_TextFieldLabelsKey] = [1: ""] //STRING
-                persistentDictionary[BMN_FreeformCell_DataTypesKey] = [1: ProtectedFreeformTypes.Int.rawValue] //enum rawValue
-                persistentDictionary[BMN_FreeformCell_DefaultValuesKey] = [1: ""] //STRING
-                persistentDictionary[BMN_FreeformCell_CharacterLimitsKey] = [1: 3] //INT; limit weight to 3 significant digits (what about decimal values)?
-                persistentDictionary[BMN_FreeformCell_LowerBoundsKey] = [1: 2] //DOUBLE
-                persistentDictionary[BMN_FreeformCell_UpperBoundsKey] = [1: 2] //DOUBLE
-                persistentDictionary[BMN_FreeformCell_LabelIsBeforeTextFieldKey] = false //label comes AFTER TF
             case .Computation_BMI:
                 break
             default:
@@ -253,6 +219,18 @@ class BiometricModule: Module {
                 return DataEntryCellTypes.Freeform
             default:
                 return nil
+            }
+        }
+        return nil
+    }
+    
+    override var cellHeightUserInfo: [String : AnyObject]? {
+        if let configObject = FreeformCell_configurationObject, type = variableType {
+            switch type {
+            case .Behavior_Weight, .Behavior_Height: //supply # of freeformViews for the cell
+                return [BMN_DataEntry_FreeformCell_NumberOfViewsKey: configObject.count]
+            default:
+                break
             }
         }
         return nil

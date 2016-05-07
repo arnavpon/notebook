@@ -126,11 +126,9 @@ class Module { //defines the behaviors that are common to all modules
     // MARK: - Data Entry Logic
     
     // Configuration variables - used to customize DataEntry TV cells (e.g. for freeform data entry):
-//    var FreeformCell_defaultValue: String? //default value for cell's textField
-//    var FreeformCell_characterLimit: Int?
-//    var FreeformCell_dataType: ProtectedFreeformTypes? //enum defined in 'FreeformCell'.swift
-    var FreeformCell_configurationObject: [(String?, ProtectedFreeformTypes?, String?, Int?, (Int?, Int?)?)]? //tuple specifies all config for FreeformCell - indicates (1) # of TFs (via the array's count); (2) label? for each TF; (3) type? of data in TF (corresponds w/ ProtectedFreeformTypes enum); (4) defaultValue?; (5) characterLimit?; (6) (if text is numerical) an upper/lower bound in format (Int? <-lower, Int? <-upper)?.
     var FreeformCell_labelBeforeField: Bool? //specifies whether TF lbl is before or after field
+    var FreeformCell_configurationObject: [(String?, ProtectedFreeformTypes?, String?, Int?, (Double?, Double?)?)]? //tuple specifies all config for FreeformCell - indicates # of TFs (via the array's count) + (1) label? for each TF; (2) type? of data in TF (corresponds w/ ProtectedFreeformTypes enum); (3) defaultValue?; (4) characterLimit?; (5) (if text is numerical) an upper/lower bound in format (Int? <-lower, Int? <-upper)?.
+    
     
     func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable (OVERRIDE in subclasses)
         return nil
