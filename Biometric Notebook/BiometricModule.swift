@@ -86,7 +86,7 @@ class BiometricModule: Module {
                 //If source is MANUAL entry, set the freeform cell configObject:
                 if (self.dataSourceOption == BiometricModule_DataSourceOptions.Manual) {
                     self.FreeformCell_configurationObject = [] //initialize
-                    FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Decimal, nil, 3, nil)) //lone view for weight entry
+                    FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Decimal, nil, 6, (0, 999))) //lone view for weight entry
                 }
             case .Behavior_Height:
                 //If source is MANUAL entry, set the freeform cell configObject:
