@@ -91,8 +91,8 @@ class BiometricModule: Module {
             case .Behavior_Height:
                 //If source is MANUAL entry, set the freeform cell configObject:
                 if (self.dataSourceOption == BiometricModule_DataSourceOptions.Manual) {
-                    self.FreeformCell_labelBeforeField = false //label goes AFTER field
                     self.FreeformCell_configurationObject = [] //initialize
+                    self.FreeformCell_labelBeforeField = false //label goes AFTER field
                     FreeformCell_configurationObject!.append(("feet", ProtectedFreeformTypes.Int, nil, 1, nil)) //view 1 (for # of feet)
                     FreeformCell_configurationObject!.append(("inches", ProtectedFreeformTypes.Int, nil, 2, (0, 12))) //view 2 (for # of inches)
                 }
@@ -197,6 +197,11 @@ class BiometricModule: Module {
                 if let source = dataSourceOption { //store selected data entry option
                     persistentDictionary[BMN_BiometricModule_DataSourceOptionsKey] = source.rawValue
                 }
+                if (type == BiometricModuleVariableTypes.Behavior_Weight) { //add a prompt
+                    persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = "Enter your current weight:"
+                } else if (type == BiometricModuleVariableTypes.Behavior_Height) { //add a prompt
+                    persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = "Enter your current height:"
+                }
             case .Computation_BMI:
                 break
             default:
@@ -224,7 +229,7 @@ class BiometricModule: Module {
         return nil
     }
     
-    override var cellHeightUserInfo: [String : AnyObject]? {
+    override var cellHeightUserInfo: [String : AnyObject]? { //provides info to set height for TV cell
         if let configObject = FreeformCell_configurationObject, type = variableType {
             switch type {
             case .Behavior_Weight, .Behavior_Height: //supply # of freeformViews for the cell
@@ -237,10 +242,28 @@ class BiometricModule: Module {
     }
     
     override func isSubscribedToService(service: ServiceTypes) -> Bool {
-        if let type = self.variableType { //check if subscribed to service using enum object
+        if let type = self.variableType { //check if var is subscribed to service using enum object
             return type.isSubscribedToService(service)
         }
         return false
+    }
+    
+    override func performConversionOnUserEnteredData(input: AnyObject) -> AnyObject? { //convert user entered data to HK-appropriate form before saving it to moduleReportObject
+        if let type = variableType {
+            switch type {
+            case .Behavior_Weight: //convert inc array from TV cell -> a SINGLE weight value
+                if let inputAsArray = input as? [String], weight = inputAsArray.first {
+                    return Double(weight)
+                }
+            case .Behavior_Height: //convert user-entered height (feet + inches) -> inches
+                if let heightValues = input as? [String], feet = Int(heightValues[0]), inches = Int(heightValues[1]) {
+                    return (feet * 12 + inches) //convert height to 1 data point in inches
+                }
+            default:
+                break
+            }
+        }
+        return nil
     }
     
     override func populateDataObjectForAutoCapturedVariable() { //gets data for auto-cap variable
@@ -253,14 +276,16 @@ class BiometricModule: Module {
                 healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.bodyMassType, unit: HKUnit.poundUnit(), completion: { (let wt) in
                     if let weight = wt {
                         self.mainDataObject = weight
-                    } else {
-                        print("[BM - populateDataObj] Weight was nil!")
+                    } else { //how do we handle when there are no objects in store?!? - @ this point, could throw an error to the VC that will generate a TV cell for this variable to enter its data into (error will add new item to TV data source for that session)
+                        print("[BM - populateDataObj] Error - No Weight in HK Store!")
                     }
                 })
             case .Behavior_Height: //get last height in HK or manually entered height
-                healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heightType, unit: HKUnit.footUnit(), completion: { (let ht) in
+                healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heightType, unit: HKUnit.inchUnit(), completion: { (let ht) in
                     if let height = ht {
                         self.mainDataObject = height
+                    } else { //how do we handle when there are no objects in store?!? - @ this point, could throw an error to the VC that will generate a TV cell for this variable to enter its data into.
+                        print("[BM - populateDataObj] Error - No Height in HK Store!")
                     }
                 })
             case .Computation_BiologicalSex:
@@ -274,20 +299,14 @@ class BiometricModule: Module {
     }
     
     func writeManualDataToHKStore() { //called by Project class during aggregation - instructs the manually entered variable to report its data to HK if it is of Biometric Class**
-        print("write data firing...")
         if let type = variableType {
             switch type {
             case .Behavior_Weight:
-                print("before weight cast")
                 if let weight = self.mainDataObject as? Double {
-                    print("after weight cast")
                     healthKitConnection.writeSampleQuantityToHKStore(HealthKitConnection.bodyMassType, quantity: weight, unit: HKUnit.poundUnit())
                 }
             case .Behavior_Height:
-                print("before height cast")
-                if let height = self.mainDataObject as? Double {
-                    print("after height cast")
-                    //convert the height, entered in feet, -> inches
+                if let height = self.mainDataObject as? Double { //height is expressed in INCHES
                     healthKitConnection.writeSampleQuantityToHKStore(HealthKitConnection.heightType, quantity: height, unit: HKUnit.inchUnit())
                 }
             default:
@@ -299,8 +318,6 @@ class BiometricModule: Module {
 }
 
 enum BiometricModuleVariableTypes: String { //*match each behavior/computation -> Configuration + DataEntry custom TV cells; for each new behavior/comp added, you must also add (1) Configuration logic, (2) Core Data storage logic (so the variable config can be preserved), (3) Unpacking logic (in the DataEntry initializer), & (4) DataEntry logic (enabling the user to report info).*
-    
-    //For all of the behaviors where values are changing constantly, in config give user the option for the data to be input manually @ run time or have the last available value pulled from HK.
     
     //Available Behaviors:
     case Behavior_HeartRate = "Heart Rate" //sampling - utilize time stamps, user can configure the range of time for which to take the same (during the action makes the most sense - the system will access all values w/in that range & either compute an average of take 1 sample / time span).

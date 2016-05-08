@@ -84,7 +84,6 @@ class CustomModule: Module {
     }
     
     //Custom DataEntryCell Configuration Variables:
-    var prompt: String? //the (optional) prompt attached to the variable (replaces the variable's name as the section header in Data Entry mode)
     var options: [String]? //array of user-created options associated w/ the variable/prompt
     var multipleSelectionEnabled: Bool? //for a variable w/ options, checks if user is allowed to select MULTIPLE OPTIONS (if nil => FALSE)
     var rangeScaleParameters: (Int, Int, Int)? //(minimum, maximum, increment)
@@ -112,10 +111,6 @@ class CustomModule: Module {
                     for opt in opts {
                         print("[CustomOptions] Option: '\(opt)'.")
                     }
-                }
-                if let optionalPrompt = dict[BMN_CustomModule_CustomOptionsPromptKey] as? String {
-                    self.prompt = optionalPrompt
-                    print("[CustomOptions] Prompt: '\(optionalPrompt)'.")
                 }
                 if let multipleSelection = dict[BMN_CustomModule_CustomOptionsMultipleSelectionAllowedKey] as? Bool {
                     self.multipleSelectionEnabled = multipleSelection
@@ -199,7 +194,7 @@ class CustomModule: Module {
             switch type { //only needed for sections that require configuration
             case .Behavior_CustomOptions:
                 
-                self.prompt = configurationData[BMN_CustomModule_CustomOptions_PromptID] as? String
+                self.cellPrompt = configurationData[BMN_CustomModule_CustomOptions_PromptID] as? String
                 self.options = configurationData[BMN_CustomModule_CustomOptions_OptionsID] as? [String]
                 if let boolSelection = (configurationData[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] as? [String])?.first { //report type is [String]
                     if (boolSelection.lowercaseString == "yes") { //match "YES" -> true
@@ -209,7 +204,7 @@ class CustomModule: Module {
                     }
                 }
                 if (self.options != nil) && (self.multipleSelectionEnabled != nil) {
-                    print("Match Config: Prompt = '\(prompt)', Opts = \(options), Mult Selection = \(multipleSelectionEnabled).")
+                    print("Match Config: Prompt = '\(cellPrompt)', Opts = \(options), Mult Selection = \(multipleSelectionEnabled).")
                     return (true, nil, nil)
                 } else { //error
                     return (false, "Either the options or multiple selection indicator haven't been set.", nil)
@@ -253,8 +248,8 @@ class CustomModule: Module {
             persistentDictionary[BMN_VariableTypeKey] = type.rawValue //save variable type
             switch type {
             case .Behavior_CustomOptions:
-                if let headerTitle = self.prompt { //check if user entered a prompt
-                    persistentDictionary[BMN_CustomModule_CustomOptionsPromptKey] = headerTitle
+                if let prompt = self.cellPrompt { //check if user entered a prompt
+                    persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = prompt
                 }
                 if let opts = self.options { //make sure there are options
                     persistentDictionary[BMN_CustomModule_OptionsKey] = opts

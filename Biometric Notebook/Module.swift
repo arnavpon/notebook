@@ -90,6 +90,9 @@ class Module { //defines the behaviors that are common to all modules
         if let auto = dict[BMN_VariableIsAutomaticallyCapturedKey] as? Bool { //chck if auto or manual cap
             self.isAutomaticallyCaptured = auto
         }
+        if let prompt = dict[BMN_DataEntry_MainLabelPromptKey] as? String { //check if cell has a prompt
+            self.cellPrompt = prompt //set prompt (used in place of varType in mainLabel of TV cell)
+        }
     }
     
     // MARK: - Variable Configuration
@@ -125,6 +128,8 @@ class Module { //defines the behaviors that are common to all modules
     
     // MARK: - Data Entry Logic
     
+    var cellPrompt: String? //an alternative mainLabel title for DataEntry TV cells w/ a prompt
+    
     // Configuration variables - used to customize DataEntry TV cells (e.g. for freeform data entry):
     var FreeformCell_labelBeforeField: Bool? //specifies whether TF lbl is before or after field
     var FreeformCell_configurationObject: [(String?, ProtectedFreeformTypes?, String?, Int?, (Double?, Double?)?)]? //tuple specifies all config for FreeformCell - indicates # of TFs (via the array's count) + (1) label? for each TF; (2) type? of data in TF (corresponds w/ ProtectedFreeformTypes enum); (3) defaultValue?; (4) characterLimit?; (5) (if text is numerical) an upper/lower bound in format (Int? <-lower, Int? <-upper)?.
@@ -134,9 +139,13 @@ class Module { //defines the behaviors that are common to all modules
         return nil
     }
     
-    var cellHeightUserInfo: [String: AnyObject]? { //dictionary containing information needed to calculate cell height for the variable, accessed externally by VC
+    func performConversionOnUserEnteredData(input: AnyObject) -> AnyObject? { //OVERRIDE in subclasses - allows modules to perform conversions on user-entered data before storing it to the reportObject
         return nil
-    } //For cells that have VARIABLE HEIGHTS (e.g. Custom Module options cell), we will need to include in the data source a custom cell height (which we can calculate beforehand b/c we know everything about how the cell needs to be configured, e.g. if the CustomOptions cell has 3 answer choices, we can calculate the height w/ a function, add that height to the data source; the VC TV delegate method should check for custom height & set to default if one is not found.)
+    }
+    
+    var cellHeightUserInfo: [String: AnyObject]? { //dictionary containing information used by DataEntryCellTypes enum to calculate cell height for the variable, accessed externally; for cells that have VARIABLE HEIGHTS (e.g. CustomModule options cell)
+        return nil
+    }
     
     // MARK: - Data Aggregation Logic
     
@@ -153,7 +162,7 @@ class Module { //defines the behaviors that are common to all modules
         //Note - timeStamps are generated @ time of aggregation in DataEntryVC; a SINGLE time stamp is generated for IVs & another for OMs (b/c all IVs have same time stamp as other IVs, & all OMs have same time stamp as other OMs). This may vary for auto-captured data!
     }
     
-    func populateDataObjectForAutoCapturedVariable() { //OVERRIDE in subclasses; custom reporting behavior for AUTO-CAPTURED data; called by Project object containing this variable
+    func populateDataObjectForAutoCapturedVariable() { //OVERRIDE in subclasses - custom reporting behavior for AUTO-CAPTURED data; called by Project object containing this variable
         //end result is to set the 'mainDataObject' for the variable!
     }
     

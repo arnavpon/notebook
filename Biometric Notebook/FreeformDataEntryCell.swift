@@ -31,12 +31,13 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
         }
     }
     private var freeformViews: [(UIView, UITextField, UILabel)] = []
-    private var labelBeforeField: Bool = true //if TRUE, labels come before TF; if FALSE, they come after
-    private var numberOfCompletedFields: Int = 0 {
-        didSet { //adjust completion status accordingly
+    private var moduleReportObject: [String] = [] { //array reported to module
+        didSet { //adjust completion status & update module report object
+            updateModuleReportObject()
             adjustCompletionStatusForCell()
         }
     }
+    private var labelBeforeField: Bool = true //if TRUE, labels come before TF; if FALSE, they come after
     
     // MARK: - Initializers
     
@@ -83,7 +84,9 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                 textField.borderStyle = .RoundedRect
                 if let defaultText = item.2 { //check for textField default
                     textField.text = defaultText
-                    numberOfCompletedFields += 1 //add 1 completed field for each default
+                    moduleReportObject.append(defaultText) //set default value to report object
+                } else { //no default, initialize reportObject w/ empty item @ this TF's index
+                    moduleReportObject.append("") //initialize w/ empty value
                 }
                 if let textType = item.1 { //check for type (to set keyboard for numerical vals)
                     if (textType == ProtectedFreeformTypes.Int) { //numerical pad
@@ -137,16 +140,15 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
         return (level, remainder)
     }
     
-    private func adjustCompletionStatusForCell() {
-        let total = freeformViews.count
-        if (numberOfCompletedFields == total) { //cell is COMPLETE
-            configureCompletionIndicator(true)
-        } else { //cell is INCOMPLETE
-            configureCompletionIndicator(false)
-            if (numberOfCompletedFields > total) { //safety
-                print("[FreeformCell - adjustCompletionStatus] Error - # of completed cells > total!")
+    private func adjustCompletionStatusForCell() { //sets completionIndicator accordingly
+        for textValue in moduleReportObject {
+            let trimmedValue = textValue.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+            if (trimmedValue == "") { //if the textValue is empty, cell is INCOMPLETE
+                configureCompletionIndicator(false)
+                return //terminate function
             }
         }
+        configureCompletionIndicator(true) //passed checks, cell is COMPLETE
     }
     
     // MARK: - Text Field
@@ -160,9 +162,6 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                     if (string.characters.count > 0) { //make sure data is being ENTERED (not removed)
                         guard let _ = Int(string) else { //make sure input is an Int
                             return false
-                        }
-                        if (string == "0") && (textField.text?.characters.count == 0) { //block LEADING 0s
-                            return false //**need to use bounds purely instead of this as a block, but how do we stop leading 0s then?
                         }
                     }
                 case .Decimal:
@@ -182,7 +181,7 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                 let trimmedString = string.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
                 let completeString = (trimmedText as NSString).stringByReplacingCharactersInRange(range, withString: trimmedString)
                 
-                //(1) Safety checks - make sure entry does not exceed lower/upper bound or charLimit:
+                //Safety checks - make sure entry does not exceed lower/upper bound or charLimit:
                 let count = trimmedText.characters.count + trimmedString.characters.count - range.length
                 if let limit = configObject[tag].3 { //character limit is set
                     if (count > limit) { //EXCEEDS LIMIT
@@ -201,19 +200,7 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                         }
                     }
                 }
-                
-                //Adjust completion status for textField modification:
-                let originalTextCount = trimmedText.characters.count
-                if (originalTextCount == 0) { //originally textField was EMPTY
-                    if (trimmedString.characters.count - range.length) > 0 { //adding non-whitespace txt
-                        numberOfCompletedFields += 1 //increase # completed by 1
-                    }
-                } else { //textField originally has some entered data
-                    if (originalTextCount + string.characters.count - range.length) == 0 { //cleared field
-                        numberOfCompletedFields -= 1 //reduce # completed by 1
-                    }
-                }
-                updateModuleReportObject() //adjust reportObject
+                moduleReportObject[tag] = completeString //IFF cell passes all checks, update reportObj
             }
         }
         return true
@@ -223,16 +210,11 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
     
     override func updateModuleReportObject() { //updates the Module dataSource's report object
         if let mod = self.module {
-            var reportObject: [String] = []
-            for (_, field, _) in freeformViews { //construct array w/ all TF values in order
-                if let text = field.text {
-                    reportObject.append(text)
-                } else {
-                    print("[updateModuleReportObject] Error - textField text is NIL!")
-                    reportObject.append("") //add empty string to counts remain accurate
-                }
+            if let convertedValue = mod.performConversionOnUserEnteredData(moduleReportObject) {
+                mod.mainDataObject = convertedValue //update w/ converted value
+            } else { //no conversion necessary
+                mod.mainDataObject = moduleReportObject //update w/ textField values
             }
-            mod.mainDataObject = reportObject //update w/ textField values
         }
     }
     

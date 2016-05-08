@@ -113,6 +113,7 @@ let BMN_ModuleTitleKey = "module_title_key" //key to obtain var's Module type
 let BMN_VariableIsOutcomeMeasureKey = "variable_is_outcome_measure_key" //indicator if var is an OM
 let BMN_VariableIsAutomaticallyCapturedKey = "variable_is_automatically_captured_key" //manual vs. auto
 let BMN_VariableTypeKey = "variable_type_key" //key to obtain var's behavior/computation
+let BMN_DataEntry_MainLabelPromptKey = "DE_main_label_prompt_key" //alternate mainLbl title for DataEntry
 
 // MARK: - [MODULE] Data Entry Keys
 
@@ -143,7 +144,6 @@ let BMN_ControlComparison_ComparisonKey = "ControlComparison_comparison_key"
 
 //[Configuration KEYS]:
 let BMN_CustomModule_OptionsKey = "CM_options_key"
-let BMN_CustomModule_CustomOptionsPromptKey = "CM_custom_options_prompt_key"
 let BMN_CustomModule_CustomOptionsMultipleSelectionAllowedKey = "CM_custom_options_multiple_selection_allowed_key"
 let BMN_CustomModule_RangeScaleMinimumKey = "CM_range_scale_min_key"
 let BMN_CustomModule_RangeScaleMaximumKey = "CM_range_scale_max_key"

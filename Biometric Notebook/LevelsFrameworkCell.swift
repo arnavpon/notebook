@@ -149,9 +149,9 @@ class LevelsFrameworkCell: UITableViewCell {
     
     internal func accessModuleProperties() { //configures DataEntry cell's visuals
         if let mod = module, selection = mod.selectedFunctionality { //update mainLabel
-            if let customMod = mod as? CustomModule, prompt = customMod.prompt { //check for PROMPT
-                mainLabel.text = prompt
-            } else { //NO prompt, default behavior
+            if let alternativeTitle = mod.cellPrompt { //check for alternative title (i.e. a prompt)
+                mainLabel.text = "[\(mod.variableName)] \(alternativeTitle)"
+            } else { //NO prompt, set default title
                 mainLabel.text = "\(mod.variableName): \(selection)"
             }
         }
