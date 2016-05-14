@@ -13,6 +13,7 @@ let IS_LOGGED_IN_KEY = "is_logged_in_key"
 let USERNAME_KEY = "username_key"
 let EMAIL_KEY = "email_key"
 let SHOW_ATTACH_DESCRIPTION = "show_attach_description_key"
+let INPUTS_TIME_STAMP = "input_variables_time_stamp_key" //for DataEntryVC
 
 // MARK: - [GENERAL] NSNotification IDs
 
@@ -174,10 +175,11 @@ let BMN_EnvironmentModule_Weather_OptionsID = "EnM_weather_options_id"
 
 //[Configuration KEYS]:
 let BMN_BiometricModule_DataSourceOptionsKey = "BM_data_source_options_key"
+let BMN_BiometricModule_HeartRateSamplingOptionKey = "BM_heart_rate_sampling_options_key"
 
 //[Configuration IDs]:
 let BMN_BiometricModule_DataSourceOptionsID = "BM_data_source_options_id"
-let BMN_BiometricModule_HeartRate_DevicesID = "BM_heart_rate_devices_id"
+let BMN_BiometricModule_HeartRateSamplingOptionsID = "BM_heart_rate_sampling_options_id"
 
 //[DataEntry Keys]:
 let BMN_DataEntry_FreeformCell_NumberOfViewsKey = "BM_DE_freeform_cell_number_of_views_key" //for height calculation

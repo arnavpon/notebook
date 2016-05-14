@@ -18,6 +18,19 @@ enum Gender: String {
     case NotSet = "Not Set"
 }
 
+enum PredicateComparators { //used for creating a filtering predicate when accessing data from store
+    case Equal
+    case LessThan
+    case LessThanOrEqual
+    case GreaterThan
+    case GreaterThanOrEqual
+}
+
+enum HealthKitProperties { //the item in the data store against which to perform the fetch
+    case EndDate
+    case StartDate
+}
+
 class HealthKitConnection: DataReportingErrorProtocol {
     
     private let isAvailable = HKHealthStore.isHealthDataAvailable() //checks if device has access to HK
@@ -59,24 +72,70 @@ class HealthKitConnection: DataReportingErrorProtocol {
     
     // MARK: - HKStore Interaction Logic
     
-    func getSampleQuantityFromHKStore(sampleType: HKSampleType, unit: HKUnit, completion: (Double?) -> Void) {
-        //**allow specification of predicates to filter results (e.g. based on time).
-        let query: HKSampleQuery = HKSampleQuery(sampleType: sampleType, predicate: nil, limit: 5, sortDescriptors: [timeSortDescriptor]) { (let query, let results, let error) -> Void in
+    func getSampleQuantityFromHKStore(sampleType: HKSampleType, unit: HKUnit, sampleLimit: Int?, filters: [(PredicateComparators, HealthKitProperties, AnyObject)], completion: ([Double]?) -> Void) { //'predicate' format is '(Comparator [>, <, =], Property to Search, Value for Comparison)'
+        
+        //(1) Define the sample limit (# of samples to pass through the function):
+        var limit = HKObjectQueryNoLimit
+        if let definedLimit = sampleLimit { //check if user defined a limit
+            limit = definedLimit
+        }
+        
+        //(2) Construct predicate based on 'filters' object:
+        var predicate: NSPredicate? = nil //final predicate object
+        var predicates: [NSPredicate] = [] //used to create a combined predicate
+        for filter in filters {
+            
+            let operatorType: NSPredicateOperatorType
+            switch (filter.0) { //construct the operator type
+            case .Equal:
+                operatorType = NSPredicateOperatorType.EqualToPredicateOperatorType
+            case .GreaterThan:
+                operatorType = NSPredicateOperatorType.GreaterThanPredicateOperatorType
+            case .GreaterThanOrEqual:
+                operatorType = NSPredicateOperatorType.GreaterThanOrEqualToPredicateOperatorType
+            case .LessThan:
+                operatorType = NSPredicateOperatorType.LessThanPredicateOperatorType
+            case .LessThanOrEqual:
+                operatorType = NSPredicateOperatorType.LessThanOrEqualToPredicateOperatorType
+            }
+            
+            let leftExpression: NSExpression
+            switch (filter.1) {
+            case .StartDate:
+                leftExpression = NSExpression(forKeyPath: "startDate")
+            case .EndDate:
+                leftExpression = NSExpression(forKeyPath: "endDate")
+            }
+            
+            let tempPredicate = NSComparisonPredicate.init(leftExpression: leftExpression, rightExpression: NSExpression(forConstantValue: filter.2), modifier: NSComparisonPredicateModifier.DirectPredicateModifier, type: operatorType, options: NSComparisonPredicateOptions(rawValue: 0)) //construct each predicate individually
+            predicates.append(tempPredicate) //add each predicate to array
+        }
+        
+        if !(predicates.isEmpty) { //construct combined predicate
+            predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+        }
+        
+        //(3) Execute query w/ predicate (results will be SORTED from MOST -> LEAST RECENT by 'endDate'):
+        let query: HKSampleQuery = HKSampleQuery(sampleType: sampleType, predicate: predicate, limit: limit, sortDescriptors: [timeSortDescriptor]) { (let query, let results, let error) -> Void in
             if let samples = results {
+                print("[HKSampleQuery] Returned [\(samples.count)] results...")
                 if !(samples.isEmpty) {
-                    if let quantitySample = samples.first as? HKQuantitySample {
-                        let quantityValue = quantitySample.quantity.doubleValueForUnit(unit)
-                        completion(quantityValue) //return value through completion
+                    var quantityValues: [Double] = []
+                    for sample in samples { //convert samples -> Double
+                        if let quantity = sample as? HKQuantitySample {
+                            quantityValues.append(quantity.quantity.doubleValueForUnit(unit))
+                        }
                     }
+                    completion(quantityValues) //return fetched values
                 } else {
-                    print("No samples were found in the store!")
-                    completion(nil) //return nil
-                    self.reportAccessErrorForService() //throw error
+                    print("No samples were found in the store (but NO error)!")
+                    completion([]) //return empty array
+//                    self.reportAccessErrorForService() //throw EMPTY error (not access error)!
                 }
             } else {
                 print("Failed to obtain results! Error: \(error).")
                 completion(nil) //return nil
-                self.reportAccessErrorForService() //throw error
+                self.reportAccessErrorForService() //throw access error
             }
         }
         healthStore.executeQuery(query)
@@ -134,26 +193,6 @@ class HealthKitConnection: DataReportingErrorProtocol {
     }
     
     // MARK: - Write Methods
-    
-//    func addHeartRateMeasurementToHKStore(heartRate: Int) { //obtains HR from AppleWatch & saves it -> HK
-//        let heartRateInputAuth = healthStore.authorizationStatusForType(HealthKitConnection.heartRateType).rawValue
-//        if (heartRateInputAuth == 2) { //authorized
-//            let currentDate = NSDate()
-//            let hr: Double = Double(heartRate)
-//            let bpm = HKUnit.minuteUnit().reciprocalUnit() //custom unit
-//            let heartRateQuantity = HKQuantity(unit: bpm, doubleValue: hr) //HR requires a unit of inverse time (for measurement of counts/minute)
-//            let heartRateSample = HKQuantitySample(type: HealthKitConnection.heartRateType, quantity: heartRateQuantity, startDate: currentDate, endDate: currentDate)
-//            healthStore.saveObject(heartRateSample) { (let success, let error) -> Void in
-//                if (!success) {
-//                    print("Save failed w/ error: \(error)")
-//                } else {
-//                    print("Save successful.")
-//                }
-//            }
-//        } else { //not authorized to write to HR store
-//            print("Not authorized to input. Raw value = \(heartRateInputAuth)")
-//        }
-//    }
     
 //    func addHeightMeasurementToHKStore(height: Double) { //save height data point into store
 //        //Make sure you are authorized to SHARE specific types of data before sharing them, 2 = authorized, 1 = not authorized

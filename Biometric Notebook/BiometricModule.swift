@@ -60,6 +60,8 @@ class BiometricModule: Module {
     
     //Configuration Variables (for DataEntry):
     var dataSourceOption: BiometricModule_DataSourceOptions? //source from which to obtain data
+    var heartRateSamplingOption: BiometricModule_HeartRateOptions? //HR sampling option
+    var pickerDataSource: [[Int]]? //data source for pickerView in 'DataEntryCellWithPicker'
     
     // MARK: - Initializers
     
@@ -80,8 +82,14 @@ class BiometricModule: Module {
             }
             
             switch type { //configure according to 'variableType'
-            case .Behavior_HeartRate: //unpack the linked device & measurement rates
-                break
+            case .Behavior_HeartRate: //unpack the sampling type
+                if let rawOption = dict[BMN_BiometricModule_HeartRateSamplingOptionKey] as? String, samplingOption = BiometricModule_HeartRateOptions(rawValue: rawOption) {
+                    self.heartRateSamplingOption = samplingOption
+                    
+                    if (samplingOption == BiometricModule_HeartRateOptions.ChooseSampleAtCollection) {
+                        pickerDataSource = [[0, 1, 2], [0, 15, 30, 45]] //define data source for picker in CustomTV cell
+                    }
+                }
             case .Behavior_Weight: //unpack data entry option (manual or HK extraction)
                 //If source is MANUAL entry, set the freeform cell configObject:
                 if (self.dataSourceOption == BiometricModule_DataSourceOptions.Manual) {
@@ -116,9 +124,11 @@ class BiometricModule: Module {
             switch type {
             case .Behavior_HeartRate:
                 
-                //For HR behavior, user needs to select the SUPPORTED device they will be using to measure the HR (AppleWatch, FitBit, etc.) & define the measurement parameters:
-                let options = [BiometricModule_DataSourceOptions.AppleWatch.rawValue, BiometricModule_DataSourceOptions.FitBit.rawValue]
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "Select the device you will be using to measure your heart rate: ", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_DefaultOptionsKey: options[0]])) //device options
+                //For HR behavior, user needs to select the SUPPORTED device they will be using to measure the HR (AppleWatch, FitBit, etc.) & define the sampling parameters:
+                let sourceOptions = [BiometricModule_DataSourceOptions.AppleWatch.rawValue, BiometricModule_DataSourceOptions.FitBit.rawValue]
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "Select the device you will be using to measure your heart rate: ", BMN_SelectFromOptions_OptionsKey: sourceOptions, BMN_SelectFromOptions_DefaultOptionsKey: sourceOptions[0]])) //device options
+                let sampleOptions = [BiometricModule_HeartRateOptions.MostRecent.rawValue, BiometricModule_HeartRateOptions.AverageOverAction.rawValue, BiometricModule_HeartRateOptions.ChooseSampleAtCollection.rawValue]
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_HeartRateSamplingOptionsID, BMN_LEVELS_MainLabelKey: "Choose the time period over which to sample your heart rate:", BMN_SelectFromOptions_OptionsKey: sampleOptions]))
                 
                 configurationOptionsLayoutObject = array
                 
@@ -159,27 +169,37 @@ class BiometricModule: Module {
     internal override func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [String]?) {
         //(1) Takes as INPUT the data that was entered into each config TV cell. (2) Given the variableType, matches configuration data -> properties in the Module object by accessing specific configuration cell identifiers (defined in 'HelperFx' > 'Dictionary Keys').
         if let type = variableType {
-            switch type { //only needed for sections that require configuration
-            case .Behavior_HeartRate:
-                break //*
-            case .Behavior_Weight, .Behavior_Height:
-                if let options = configurationData[BMN_BiometricModule_DataSourceOptionsID] as? [String], rawOption = options.first, selectedOption = BiometricModule_DataSourceOptions(rawValue: rawOption) {
-                    self.dataSourceOption = selectedOption
+            if let options = configurationData[BMN_BiometricModule_DataSourceOptionsID] as? [String], rawOption = options.first, selectedOption = BiometricModule_DataSourceOptions(rawValue: rawOption) { //all BiometricMod variables require a DataSource
+                self.dataSourceOption = selectedOption
+                
+                switch type { //only needed for sections that require configuration
+                case .Behavior_HeartRate:
+                    if let samplingOpts = configurationData[BMN_BiometricModule_HeartRateSamplingOptionsID] as? [String], rawOption = samplingOpts.first, selectedOption = BiometricModule_HeartRateOptions(rawValue: rawOption) { //check for HR sampling
+                        self.heartRateSamplingOption = selectedOption
+                        switch selectedOption {
+                        case .ChooseSampleAtCollection:
+                            break //NOT auto-cap - user needs to select sample size @ collection time!
+                        default: //for other options, capture is automatic
+                            self.isAutomaticallyCaptured = true
+                        }
+                        return (true, nil, nil)
+                    } else {
+                        return (false, "No sampling option was found!", nil)
+                    }
+                case .Behavior_Weight, .Behavior_Height:
                     if (selectedOption == BiometricModule_DataSourceOptions.HealthKit) {
                         self.isAutomaticallyCaptured = true //set -> auto-cap
                     }
-                    return (true, nil, nil)
-                } else {
-                    return (false, "No option was selected!", nil)
+                    return (true, nil, nil) //no further config aside from data source
+                case .Computation_BMI:
+                    break
+                default:
+                    print("[BiometricMod: matchConfigToProps] Error! Default in switch!")
+                    return (false, "Default in switch!", nil)
                 }
-            case .Computation_BMI:
-                break
-            default:
-                print("[BiometricMod: matchConfigToProps] Error! Default in switch!")
-                return (false, "Default in switch!", nil)
             }
         }
-        return (false, "No selected functionality was found!", nil)
+        return (false, "No option was selected!", nil)
     }
     
     // MARK: - Core Data Logic
@@ -190,13 +210,19 @@ class BiometricModule: Module {
         //Set the coreData dictionary ONLY with information pertaining to the 'selectedFunctionality':
         if let type = variableType {
             persistentDictionary[BMN_VariableTypeKey] = type.rawValue //save variable type
-            switch type {
+            if let source = dataSourceOption { //store selected data source option
+                persistentDictionary[BMN_BiometricModule_DataSourceOptionsKey] = source.rawValue
+            }
+            
+            switch type { //check for any other items to pack
             case .Behavior_HeartRate:
-                break //store linked device & measurement options
-            case .Behavior_Weight, .Behavior_Height:
-                if let source = dataSourceOption { //store selected data entry option
-                    persistentDictionary[BMN_BiometricModule_DataSourceOptionsKey] = source.rawValue
+                if let samplingOption = heartRateSamplingOption {
+                    persistentDictionary[BMN_BiometricModule_HeartRateSamplingOptionKey] = samplingOption.rawValue
+                    if (samplingOption == BiometricModule_HeartRateOptions.ChooseSampleAtCollection) {
+                        persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = "Choose a time span of heart rates:"
+                    }
                 }
+            case .Behavior_Weight, .Behavior_Height:
                 if (type == BiometricModuleVariableTypes.Behavior_Weight) { //add a prompt
                     persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = "Enter your current weight:"
                 } else if (type == BiometricModuleVariableTypes.Behavior_Height) { //add a prompt
@@ -217,11 +243,15 @@ class BiometricModule: Module {
     
     override func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
         if let type = self.variableType {
-            switch type { //if user chooses to enter height or weight, create cell w/ textField
-            case .Behavior_Weight:
-                return DataEntryCellTypes.Freeform
-            case .Behavior_Height:
-                return DataEntryCellTypes.Freeform
+            switch type {
+            case .Behavior_Weight, .Behavior_Height:
+                return DataEntryCellTypes.Freeform //create cell w/ textField
+            case .Behavior_HeartRate:
+                if let samplingOpt = heartRateSamplingOption {
+                    if (samplingOpt == BiometricModule_HeartRateOptions.ChooseSampleAtCollection) {
+                        return DataEntryCellTypes.Picker //create cell w/ picker
+                    }
+                }
             default:
                 return nil
             }
@@ -271,19 +301,54 @@ class BiometricModule: Module {
         if let type = variableType { //source of auto-cap data depends on varType
             switch type {
             case .Behavior_HeartRate:
-                break //get HR samples w/in defined time period
+                if let sampleOption = self.heartRateSamplingOption {
+                    switch sampleOption {
+                    case .MostRecent: //get last HR in HK store
+                        
+                    healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heartRateType, unit: HealthKitConnection.beatsPerMinuteUnit, sampleLimit: 1, filters: [], completion: { (let rates) in
+                        if let heartRates = rates, hr = heartRates.first { //get most recent HR
+                            self.mainDataObject = hr
+                        } else {
+                            print("[populateDataObject] Error - no HR found in store.")
+                        }
+                    })
+                    case .AverageOverAction: //get all recorded values during action & calculate average
+                        if let inputsTimeStamp = NSUserDefaults.standardUserDefaults().valueForKey(INPUTS_TIME_STAMP) { //obtain the date @ which the IVs were saved
+                            let currentTime = NSDate()
+                            
+                            healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heartRateType, unit: HealthKitConnection.beatsPerMinuteUnit, sampleLimit: nil, filters: [(PredicateComparators.GreaterThan, HealthKitProperties.EndDate, inputsTimeStamp), (PredicateComparators.LessThan, HealthKitProperties.EndDate, currentTime)], completion: { (let heartRates) in
+                                if let rates = heartRates {
+                                    if !(rates.isEmpty) {
+                                        var count: Double = 0
+                                        var total: Double = 0
+                                        for rate in rates {
+                                            total += rate
+                                            count += 1
+                                        }
+                                        let average: Double = (total / count) //calculate avg
+                                        self.mainDataObject = average
+                                    }
+                                }
+                            })
+                        } else {
+                            print("No time stamp available for IV!")
+                        }
+                    default:
+                        print("[populateDataObjectForAutoCap] Error - default in switch!")
+                    }
+                }
             case .Behavior_Weight: //get most recent weight from HK
-                healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.bodyMassType, unit: HKUnit.poundUnit(), completion: { (let wt) in
-                    if let weight = wt {
-                        self.mainDataObject = weight
-                    } else { //how do we handle when there are no objects in store?!? - @ this point, could throw an error to the VC that will generate a TV cell for this variable to enter its data into (error will add new item to TV data source for that session)
+                healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.bodyMassType, unit: HKUnit.poundUnit(), sampleLimit: 1, filters: [], completion: { (let weights) in
+                    if let wts = weights, wt = wts.first {
+                        self.mainDataObject = wt
+                    } else { //how do we handle when there are no objects in store?!? - @ this point, could throw an error to the VC that will generate a TV cell for this variable to enter its data into (error will add new item to TV data source for that session).
                         print("[BM - populateDataObj] Error - No Weight in HK Store!")
                     }
                 })
-            case .Behavior_Height: //get last height in HK or manually entered height
-                healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heightType, unit: HKUnit.inchUnit(), completion: { (let ht) in
-                    if let height = ht {
-                        self.mainDataObject = height
+            case .Behavior_Height: //get most recent height in HK
+                healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heightType, unit: HKUnit.inchUnit(), sampleLimit: 1, filters: [], completion: { (let heights) in
+                    if let hts = heights, ht = hts.first {
+                        self.mainDataObject = ht
                     } else { //how do we handle when there are no objects in store?!? - @ this point, could throw an error to the VC that will generate a TV cell for this variable to enter its data into.
                         print("[BM - populateDataObj] Error - No Height in HK Store!")
                     }
@@ -311,6 +376,24 @@ class BiometricModule: Module {
                 }
             default:
                 break
+            }
+        }
+    }
+    
+    // MARK: - Heart Rate Logic
+    
+    func obtainHeartRateForSelectedSample(sample: (Int, Int)) { //called by 'DataEntryCellWithPicker' class; input format is (minutes, seconds), based on user selection of sample size
+        let sampleInSeconds: Double = Double((sample.0 * 60) + sample.1) //convert sampleTime -> seconds
+        let timeInterval = NSDate(timeInterval: -sampleInSeconds, sinceDate: NSDate())
+        
+        //Obtain all HR values within the defined timeInterval from HK:
+        healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heartRateType, unit: HealthKitConnection.beatsPerMinuteUnit, sampleLimit: nil, filters: [(PredicateComparators.GreaterThanOrEqual, HealthKitProperties.EndDate, timeInterval)]) { (let rates) in
+            if let heartRates = rates {
+                if !(heartRates.isEmpty) {
+                    self.mainDataObject = heartRates
+                } else {
+                    print("[obtainHRForSelectedSample] No heart rates found!")
+                }
             }
         }
     }
@@ -354,7 +437,7 @@ enum BiometricModuleVariableTypes: String { //*match each behavior/computation -
         let subscribedServices: [ServiceTypes]
         switch self { //for each var that uses services, create list of subscribed services
         case .Behavior_HeartRate:
-            subscribedServices = [ServiceTypes.HealthKit] //*access to HK & wearables or just HK?
+            subscribedServices = [ServiceTypes.HealthKit] //depending on the selected device, this will change (e.g. FitBit will not subscribe to HK, whereas AppleWatch does); need to filter!
         default:
             subscribedServices = [ServiceTypes.HealthKit] //default service is HK for Biometric vars
         }
@@ -370,6 +453,12 @@ enum BiometricModuleVariableTypes: String { //*match each behavior/computation -
 enum BiometricModule_DataSourceOptions: String {
     case Manual = "Input manually" //manually enter data into BMN, data will be sent -> HK
     case HealthKit = "Use most recent value in HealthKit" //obtain (most recent?) value from HK
-    case AppleWatch = "Apple Watch" //?
-    case FitBit = "FitBit" //?
+    case AppleWatch = "Apple Watch"
+    case FitBit = "FitBit"
+}
+
+enum BiometricModule_HeartRateOptions: String { //sampling options for HR variable
+    case MostRecent = "Most Recent Value" //grabs last measured HR from store
+    case AverageOverAction = "Average Over Action" //**averages all HR measurements taken between IV time stamp & OM time stamp (i.e. averages values taken during action), ONLY available for OutcomeMeasures!!! (need to build in protection so selection is only enabled for OM)
+    case ChooseSampleAtCollection = "Choose Sample at Data Collection Time" //**allows user to pick a period of time over which to sample HR (provides an array of HR)
 }

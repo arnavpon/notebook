@@ -96,38 +96,37 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
     }
     
     func cellDidReportData(notification: NSNotification) { //each time a cell reports data, update the report object against its descriptor
-        print("Cell did report data...") 
         if let dict = notification.userInfo { //search through each type of cellDescriptor to get data
-            if let data = dict[BMN_CustomModule_CustomOptions_PromptID] { //PROMPT
-                reportedDataObject[BMN_CustomModule_CustomOptions_PromptID] = data
-                print("Prompt: '\(data as? String)'.")
-            } else if let data = dict[BMN_CustomModule_CustomOptions_OptionsID] { //CUSTOM OPTS
-                reportedDataObject[BMN_CustomModule_CustomOptions_OptionsID] = data
-                let dat = data as! [String]
-                for opt in dat { //**
-                    print("Option: '\(opt)'.")
+            if createdVariable is CustomModule {
+                if let data = dict[BMN_CustomModule_CustomOptions_PromptID] { //PROMPT
+                    reportedDataObject[BMN_CustomModule_CustomOptions_PromptID] = data
+                } else if let data = dict[BMN_CustomModule_CustomOptions_OptionsID] { //CUSTOM OPTS
+                    reportedDataObject[BMN_CustomModule_CustomOptions_OptionsID] = data
+                } else if let data = dict[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] { //check if multiple selection is allowed
+                    reportedDataObject[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] = data
+                } else if let data = dict[BMN_CustomModule_RangeScale_MinimumID] { //RangeScale - Min
+                    reportedDataObject[BMN_CustomModule_RangeScale_MinimumID] = data
+                } else if let data = dict[BMN_CustomModule_RangeScale_MaximumID] { //RangeScale - Max
+                    reportedDataObject[BMN_CustomModule_RangeScale_MaximumID] = data
+                } else if let data = dict[BMN_CustomModule_RangeScale_IncrementID] { //RangeScale - Inc
+                    reportedDataObject[BMN_CustomModule_RangeScale_IncrementID] = data
                 }
-            } else if let data = dict[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] { //check if multiple selection is allowed
-                print("Mult Select Allowed?: \(data as? Bool).")
-                reportedDataObject[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] = data
-            } else if let data = dict[BMN_CustomModule_RangeScale_MinimumID] { //RangeScale - Min
-                reportedDataObject[BMN_CustomModule_RangeScale_MinimumID] = data
-                print("RS Minimum: \(data as? Int).")
-            } else if let data = dict[BMN_CustomModule_RangeScale_MaximumID] { //RangeScale - Max
-                reportedDataObject[BMN_CustomModule_RangeScale_MaximumID] = data
-                print("RS Maximum: \(data as? Int).")
-            } else if let data = dict[BMN_CustomModule_RangeScale_IncrementID] { //RangeScale - Inc
-                reportedDataObject[BMN_CustomModule_RangeScale_IncrementID] = data
-                print("RS Increment: \(data as? Int).")
-            } else if let data = dict[BMN_EnvironmentModule_Weather_OptionsID] { //EnM - WeatherOptions
-                reportedDataObject[BMN_EnvironmentModule_Weather_OptionsID] = data
-                let dat = data as! [String]
-                for opt in dat { //*
-                    print("[EM-WeatherOpts] '\(opt)'.")
+            } else if createdVariable is EnvironmentModule {
+                if let data = dict[BMN_EnvironmentModule_Weather_OptionsID] { //EnM - WeatherOptions
+                    reportedDataObject[BMN_EnvironmentModule_Weather_OptionsID] = data
                 }
-            } else if let data = dict[BMN_BiometricModule_DataSourceOptionsID] { //BM - DataSourceOpts
-                reportedDataObject[BMN_BiometricModule_DataSourceOptionsID] = data
-                print("Selected data source: [\(data as? [String])].")
+            } else if createdVariable is FoodIntakeModule {
+                //
+            } else if createdVariable is ExerciseModule {
+                //
+            } else if createdVariable is BiometricModule {
+                if let data = dict[BMN_BiometricModule_DataSourceOptionsID] { //DataSource options
+                    reportedDataObject[BMN_BiometricModule_DataSourceOptionsID] = data
+                } else if let data = dict[BMN_BiometricModule_HeartRateSamplingOptionsID] { //HR sample
+                    reportedDataObject[BMN_BiometricModule_HeartRateSamplingOptionsID] = data
+                }
+            } else if createdVariable is CarbonEmissionsModule {
+                //
             }
         }
     }

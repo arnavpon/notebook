@@ -59,11 +59,19 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         registerCustomTVCells() //register ALL possible custom cell types
         getTableViewDataSource() //set data source for TV
         
-        //**Test by creating project w/ 2 weather variables & generating errors!
+        //(3) Obtain timeStamp if it exists for userDefaults (utilized by some variables):
+        if let project = selectedProject, dict = project.temporaryStorageObject, timeEntry = dict[BMN_Module_MainTimeStampKey], inputsTimeStamp = timeEntry[BMN_Module_InputsTimeStampKey] as? NSDate { //pass to user defaults
+            print("[VC] Time Stamp: \(DateTime(date: inputsTimeStamp).getFullTimeStamp()).")
+            NSUserDefaults.standardUserDefaults().setObject(inputsTimeStamp, forKey: INPUTS_TIME_STAMP)
+        } else { //clear the user defaults value for the timeStamp
+            NSUserDefaults.standardUserDefaults().setObject(nil, forKey: INPUTS_TIME_STAMP)
+        }
+        
     }
     
     func registerCustomTVCells() { //registers all possible custom cell types
         dataEntryTV.registerClass(FreeformDataEntryCell.self, forCellReuseIdentifier: NSStringFromClass(FreeformDataEntryCell))
+        dataEntryTV.registerClass(DataEntryCellWithPicker.self, forCellReuseIdentifier: NSStringFromClass(DataEntryCellWithPicker))
         dataEntryTV.registerClass(CustomWithOptionsCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithOptionsCell))
         dataEntryTV.registerClass(CustomWithCounterCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithCounterCell))
         dataEntryTV.registerClass(CustomWithRangeScaleCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithRangeScaleCell))
@@ -214,6 +222,8 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                 switch cellType {
                 case .Freeform:
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(FreeformDataEntryCell), forIndexPath: indexPath) as! FreeformDataEntryCell
+                case .Picker:
+                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(DataEntryCellWithPicker), forIndexPath: indexPath) as! DataEntryCellWithPicker
                 case .CustomWithOptions:
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithOptionsCell), forIndexPath: indexPath) as! CustomWithOptionsCell
                 case .CustomWithCounter:

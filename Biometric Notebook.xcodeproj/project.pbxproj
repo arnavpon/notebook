@@ -15,6 +15,7 @@
 		B122EAFE1CC307E000CE3D33 /* RangeScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */; };
 		B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */; };
 		B12554151CC5C5A9006C2651 /* WeatherForecastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */; };
+		B12803B51CE413420022777C /* DataEntryCellWithPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12803B41CE413420022777C /* DataEntryCellWithPicker.swift */; };
 		B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */; };
 		B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */; };
 		B1395DAE1CB76A5800DEBC91 /* BaseCreateProjectCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAD1CB76A5800DEBC91 /* BaseCreateProjectCell.swift */; };
@@ -164,6 +165,7 @@
 		B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RangeScaleView.swift; sourceTree = "<group>"; };
 		B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExperimentTypes.swift; sourceTree = "<group>"; };
 		B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherForecastService.swift; sourceTree = "<group>"; };
+		B12803B41CE413420022777C /* DataEntryCellWithPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataEntryCellWithPicker.swift; path = ../../DataEntryCellWithPicker.swift; sourceTree = "<group>"; };
 		B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectTitleCustomCell.swift; path = ../../ProjectTitleCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectHypothesisCustomCell.swift; path = ../../ProjectHypothesisCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAD1CB76A5800DEBC91 /* BaseCreateProjectCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BaseCreateProjectCell.swift; path = ../../BaseCreateProjectCell.swift; sourceTree = "<group>"; };
@@ -507,6 +509,7 @@
 				B1AA96C91CAB1CCC0009E716 /* DataEntryCellTypes.swift */,
 				B1A8C7CC1CAF663300380E99 /* BaseDataEntryCell.swift */,
 				B1DEE0481CD042B700F73F77 /* FreeformDataEntryCell.swift */,
+				B12803B41CE413420022777C /* DataEntryCellWithPicker.swift */,
 				B1A8C7CE1CAF685100380E99 /* Custom Module Cells */,
 			);
 			name = "Data Entry TV Cells";
@@ -894,6 +897,7 @@
 				B1A8C7C71CAF640300380E99 /* CustomWithRangeScaleCell.swift in Sources */,
 				B122EAFE1CC307E000CE3D33 /* RangeScaleView.swift in Sources */,
 				B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */,
+				B12803B51CE413420022777C /* DataEntryCellWithPicker.swift in Sources */,
 				B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */,
 				B1E1E1401CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift in Sources */,
 				B1A8C7CB1CAF657300380E99 /* CustomWithCounterCell.swift in Sources */,
