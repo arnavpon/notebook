@@ -34,8 +34,23 @@ class BiometricModule: Module {
     private let biometricModuleBehaviors: [BiometricModuleVariableTypes] = [BiometricModuleVariableTypes.Behavior_HeartRate, BiometricModuleVariableTypes.Behavior_Height, BiometricModuleVariableTypes.Behavior_Weight]
     override var behaviors: [String] { //object containing titles for TV cells
         var behaviorTitles: [String] = []
+        
+        //(1) Set filters (certain BM variable types are unique such as weight, height, ...):
+        var filteredTypes = Set<BiometricModuleVariableTypes>() //set containing types to be filtered
+        if let blocks = blockers { //check for defined blockers
+            if (blocks.contains(BMN_Blocker_BiometricModule_Behavior_Weight)) { //filter weight
+                filteredTypes.insert(BiometricModuleVariableTypes.Behavior_Weight)
+            }
+            if (blocks.contains(BMN_Blocker_BiometricModule_Behavior_Height)) { //filter height
+                filteredTypes.insert(BiometricModuleVariableTypes.Behavior_Height)
+            }
+        }
+        
+        //(2) Add items -> 'behaviors' array if they pass through filters:
         for behavior in biometricModuleBehaviors {
-            behaviorTitles.append(behavior.rawValue)
+            if !(filteredTypes.contains(behavior)) { //exclude filtered varTypes
+                behaviorTitles.append(behavior.rawValue)
+            }
         }
         return behaviorTitles
     }
@@ -43,8 +58,26 @@ class BiometricModule: Module {
     private let biometricModuleComputations: [BiometricModuleVariableTypes] = [BiometricModuleVariableTypes.Computation_BiologicalSex, BiometricModuleVariableTypes.Computation_Age, BiometricModuleVariableTypes.Computation_BMI]
     override var computations: [String] { //object containing titles for TV cells
         var computationTitles: [String] = []
+        
+        //(1) Set filters (certain BM variable types are unique such as age, gender, BMI, ...):
+        var filteredTypes = Set<BiometricModuleVariableTypes>() //set containing types to be filtered
+        if let blocks = blockers { //check for defined blockers
+            if (blocks.contains(BMN_Blocker_BiometricModule_Computation_Age)) { //filter age
+                filteredTypes.insert(BiometricModuleVariableTypes.Computation_Age)
+            }
+            if (blocks.contains(BMN_Blocker_BiometricModule_Computation_BMI)) { //filter BMI
+                filteredTypes.insert(BiometricModuleVariableTypes.Computation_BMI)
+            }
+            if (blocks.contains(BMN_Blocker_BiometricModule_Computation_BiologicalSex)) { //filter gender
+                filteredTypes.insert(BiometricModuleVariableTypes.Computation_BiologicalSex)
+            }
+        }
+        
+        //(2) Add items -> 'computations' array if they pass through filters:
         for computation in biometricModuleComputations {
-            computationTitles.append(computation.rawValue)
+            if !(filteredTypes.contains(computation)) { //exclude filtered varTypes
+                computationTitles.append(computation.rawValue)
+            }
         }
         return computationTitles
     }
@@ -104,11 +137,9 @@ class BiometricModule: Module {
                     FreeformCell_configurationObject!.append(("feet", ProtectedFreeformTypes.Int, nil, 1, nil)) //view 1 (for # of feet)
                     FreeformCell_configurationObject!.append(("inches", ProtectedFreeformTypes.Int, nil, 2, (0, 12))) //view 2 (for # of inches)
                 }
-            case .Computation_BiologicalSex:
-                break
-            case .Computation_Age:
-                break
             case .Computation_BMI:
+                break //if user wants it selected from HK, simply pull the last value; if user wants it computed, get the last height/weight for computation (fix this after adjust Project configuration)
+            case .Computation_BiologicalSex, .Computation_Age:
                 break
             }
         } else {
@@ -126,8 +157,13 @@ class BiometricModule: Module {
                 
                 //For HR behavior, user needs to select the SUPPORTED device they will be using to measure the HR (AppleWatch, FitBit, etc.) & define the sampling parameters:
                 let sourceOptions = [BiometricModule_DataSourceOptions.AppleWatch.rawValue, BiometricModule_DataSourceOptions.FitBit.rawValue]
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "Select the device you will be using to measure your heart rate: ", BMN_SelectFromOptions_OptionsKey: sourceOptions, BMN_SelectFromOptions_DefaultOptionsKey: sourceOptions[0]])) //device options
-                let sampleOptions = [BiometricModule_HeartRateOptions.MostRecent.rawValue, BiometricModule_HeartRateOptions.AverageOverAction.rawValue, BiometricModule_HeartRateOptions.ChooseSampleAtCollection.rawValue]
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "Select the device you will be using to measure your heart rate: ", BMN_SelectFromOptions_OptionsKey: sourceOptions, BMN_SelectFromOptions_DefaultOptionsKey: [sourceOptions[0]]])) //device options
+                
+                var sampleOptions = [BiometricModule_HeartRateOptions.MostRecent.rawValue, BiometricModule_HeartRateOptions.ChooseSampleAtCollection.rawValue]
+                if (self.locationInFlow == VariableLocations.AfterAction) { //AverageOverAction option is ONLY allowed for AfterAction variables
+                    sampleOptions.append(BiometricModule_HeartRateOptions.AverageOverAction.rawValue)
+                }
+                
                 array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_HeartRateSamplingOptionsID, BMN_LEVELS_MainLabelKey: "Choose the time period over which to sample your heart rate:", BMN_SelectFromOptions_OptionsKey: sampleOptions]))
                 
                 configurationOptionsLayoutObject = array
@@ -135,31 +171,27 @@ class BiometricModule: Module {
             case .Behavior_Height:
                 
                 let options = [BiometricModule_DataSourceOptions.Manual.rawValue, BiometricModule_DataSourceOptions.HealthKit.rawValue] //height entry options
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "How will you be obtaining your height measurements?", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_DefaultOptionsKey: options[0]])) //data entry options, default is MANUAL
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "How will you be obtaining your height measurements?", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_DefaultOptionsKey: [options[0]]])) //data entry options, default is MANUAL
                 
                 configurationOptionsLayoutObject = array
                 
             case .Behavior_Weight:
                 
                 let options = [BiometricModule_DataSourceOptions.Manual.rawValue, BiometricModule_DataSourceOptions.HealthKit.rawValue] //weight entry options
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "How will you be obtaining your weight measurements?", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_DefaultOptionsKey: options[0]])) //data entry options, default is MANUAL
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "How will you be obtaining your weight measurements?", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_DefaultOptionsKey: [options[0]]])) //data entry options, default is MANUAL
                 
                 configurationOptionsLayoutObject = array
-                
-            case .Computation_BiologicalSex:
-                
-                break //grab gender from HK
-            
-            case .Computation_Age:
-                
-                break //grab DOB from HK
                 
             case .Computation_BMI:
                 
-                let options = ["Manually Input Weight & Height", "Use Most Recent Value From HealthKit"] //BMI weight/height options
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: "", BMN_LEVELS_MainLabelKey: "From where should the system obtain your weight & height?", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_DefaultOptionsKey: options[0]])) //data entry options
+                let options = [BiometricModule_DataSourceOptions.Calculate.rawValue, BiometricModule_DataSourceOptions.HealthKit.rawValue]
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "How will you be obtaining your BMI computations?", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_DefaultOptionsKey: [options[0]]])) //data entry options, default is CALCULATION
                 
                 configurationOptionsLayoutObject = array
+            
+            case .Computation_BiologicalSex, .Computation_Age:
+                configurationOptionsLayoutObject = nil //no further config needed
+                self.isAutomaticallyCaptured = true //vars are auto-captured from HK store
             }
         } else { //no selection, set configOptionsObj -> nil
             configurationOptionsLayoutObject = nil
@@ -192,7 +224,8 @@ class BiometricModule: Module {
                     }
                     return (true, nil, nil) //no further config aside from data source
                 case .Computation_BMI:
-                    break
+                    self.isAutomaticallyCaptured = true //always set -> auto-cap
+                    return (true, nil, nil) //no further config aside from data source
                 default:
                     print("[BiometricMod: matchConfigToProps] Error! Default in switch!")
                     return (false, "Default in switch!", nil)
@@ -353,17 +386,30 @@ class BiometricModule: Module {
                         print("[BM - populateDataObj] Error - No Height in HK Store!")
                     }
                 })
-            case .Computation_BiologicalSex:
-                break //pull sex from HK
             case .Computation_BMI:
-                break //compute BMI from last height & weight
+                //compute BMI from last height & weight - if there is a weight or height variable in the current project, wait until that reports before obtaining the value. If not, grab the last value in the HK store for that value.
+                healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heightType, unit: HKUnit.meterUnit(), sampleLimit: 1, filters: [], completion: { (let heights) in
+                    if let hts = heights, height = hts.first {
+                        self.healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.bodyMassType, unit: HKUnit.gramUnitWithMetricPrefix(HKMetricPrefix.Kilo), sampleLimit: 1, filters: [], completion: { (let weights) in
+                            if let wts = weights, weight = wts.first { //(weight in kg) / (ht ^ 2)
+                                self.mainDataObject = weight / (height * height)
+                            }
+                        })
+                    }
+                })
+            case .Computation_BiologicalSex:
+                if let gender = healthKitConnection.getGenderFromHKStore() {
+                    mainDataObject = gender.rawValue
+                } else {
+                    print("[BM - populateDataObj] Error - Could not obtain Gender from HK Store!")
+                }
             case .Computation_Age:
-                break //pull age from HK
+                mainDataObject = healthKitConnection.getCurrentAgeFromHKStore()
             }
         }
     }
     
-    func writeManualDataToHKStore() { //called by Project class during aggregation - instructs the manually entered variable to report its data to HK if it is of Biometric Class**
+    func writeManualDataToHKStore() { //called by Project class during aggregation - instructs the manually entered variable to report its data to HK if it is of Biometric Class
         if let type = variableType {
             switch type {
             case .Behavior_Weight:
@@ -373,6 +419,10 @@ class BiometricModule: Module {
             case .Behavior_Height:
                 if let height = self.mainDataObject as? Double { //height is expressed in INCHES
                     healthKitConnection.writeSampleQuantityToHKStore(HealthKitConnection.heightType, quantity: height, unit: HKUnit.inchUnit())
+                }
+            case .Computation_BMI: //problem is that Project only calls this method for manual variables, which makes sense - if we are obtaining from Hk, we wouldn't want to write to it. This changes a bit for BMI. What happens if the BMI is already available in HK? User should be able to access directly from store w/o computation.
+                if let bmi = self.mainDataObject as? Double { //BMI is in kg/m2
+                    healthKitConnection.writeSampleQuantityToHKStore(HealthKitConnection.bmiType, quantity: bmi, unit: HealthKitConnection.bmiUnit)
                 }
             default:
                 break
@@ -408,9 +458,9 @@ enum BiometricModuleVariableTypes: String { //*match each behavior/computation -
     case Behavior_Weight = "Weight" //access last available weight from HK; if none exists, allow the user to input the weight.
     
     //Available Computations:
-    case Computation_BiologicalSex = "Biological Sex" //pull from HK (ask user to enter if no gender is set, don't know if you can set a characteristic externally).
-    case Computation_Age = "Current Age" //calculate from DOB -> current time
-    case Computation_BMI = "BMI" //computes BMI using last weight & height in HK store. Asks user to input if none are found. How to get the most recent value in a project where user has a variable for height & weight (don't want to pull last value when the user is inputting even more recent data on each run cycle).
+    case Computation_BiologicalSex = "Biological Sex" //pull from HK (cannot set a characteristic externally, so value MUST exist in store); STORE in DB in its own table (so it can be correlated against any & all projects)
+    case Computation_Age = "Current Age" //calculate from DOB -> current time; STORE in DB in its own table (so it can be correlated against any & all projects)
+    case Computation_BMI = "BMI" //computes BMI using most recent weight & height available
     
     //**how do we deal w/ static pieces of data like DOB? We could pull it from HK; the difference is these variables WON'T be measured on each run of dataEntry mode. Constant data like DOB, gender, etc. will only need to be accessed 1x from HK for a given project (at project set-up time). How do we store these PERMANENT variables & analyze them w/in the context of the project. How does the user configure one of these variables - they will be 'auto-cap' - for now, we can 1:1 map them into the DB w/ all of the other variables (take the values from HK whenever needed).
     
@@ -453,6 +503,7 @@ enum BiometricModuleVariableTypes: String { //*match each behavior/computation -
 enum BiometricModule_DataSourceOptions: String {
     case Manual = "Input manually" //manually enter data into BMN, data will be sent -> HK
     case HealthKit = "Use most recent value in HealthKit" //obtain (most recent?) value from HK
+    case Calculate = "Calculate dynamically" //calculates value (for computations)
     case AppleWatch = "Apple Watch"
     case FitBit = "FitBit"
 }

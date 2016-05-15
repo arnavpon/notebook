@@ -108,6 +108,12 @@ let BMN_SelectFromOptions_IsBooleanKey = "SelectFromOptions_is_boolean_key"
 
 let BMN_Blocker_CustomModule_Computation_TimeDifference = "BL_CM_computation_time_difference"
 
+let BMN_Blocker_BiometricModule_Behavior_Weight = "BL_BM_behavior_weight"
+let BMN_Blocker_BiometricModule_Behavior_Height = "BL_BM_behavior_height"
+let BMN_Blocker_BiometricModule_Computation_Age = "BL_BM_computation_age"
+let BMN_Blocker_BiometricModule_Computation_BMI = "BL_BM_computation_bmi"
+let BMN_Blocker_BiometricModule_Computation_BiologicalSex = "BL_BM_computation_biological_sex"
+
 // MARK: - [MODULE] Core Data Keys
 
 let BMN_ModuleTitleKey = "module_title_key" //key to obtain var's Module type

@@ -288,6 +288,16 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                         if let index = moduleBlockers.indexOf(BMN_Blocker_CustomModule_Computation_TimeDifference) {
                             moduleBlockers.removeAtIndex(index)
                         }
+                    } else if (deletedVar.selectedFunctionality == BiometricModuleVariableTypes.Behavior_Weight.rawValue) { //Weight was deleted, remove blocker
+                        print("Deleted variable was weight! Removing blocker...")
+                        if let index = moduleBlockers.indexOf(BMN_Blocker_BiometricModule_Behavior_Weight) {
+                            moduleBlockers.removeAtIndex(index)
+                        }
+                    } else if (deletedVar.selectedFunctionality == BiometricModuleVariableTypes.Behavior_Height.rawValue) { //Height was deleted, remove blocker
+                        print("Deleted variable was height! Removing blocker...")
+                        if let index = moduleBlockers.indexOf(BMN_Blocker_BiometricModule_Behavior_Height) {
+                            moduleBlockers.removeAtIndex(index)
+                        }
                     }
                 }
             }
@@ -808,10 +818,16 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         
         if let variable = createdVariable { //add the incoming variable -> appropriate TV
             
+            //(1) Check ID of the added variable & add blockers to array accordingly:
             if (variable.selectedFunctionality == CustomModuleVariableTypes.Computation_TimeDifference.rawValue) { //***check if added var is a TimeDifference computation
                 self.moduleBlockers.append(BMN_Blocker_CustomModule_Computation_TimeDifference) //allow only 1 TimeDifference computation per project
+            } else if (variable.selectedFunctionality == BiometricModuleVariableTypes.Behavior_Weight.rawValue) { //***check if added var is a BM_Weight behavior
+                self.moduleBlockers.append(BMN_Blocker_BiometricModule_Behavior_Weight) //unique
+            } else if (variable.selectedFunctionality == BiometricModuleVariableTypes.Behavior_Height.rawValue) { //***check if added var is a BM_Height behavior
+                self.moduleBlockers.append(BMN_Blocker_BiometricModule_Behavior_Height) //unique
             }
             
+            //(2) Add the new variable to the correct TV:
             if (variableLocation == VariableLocations.BeforeAction) { //beforeAction var
                 if (projectType == .InputOutput) { //add -> IO data source
                     if let _ = inputVariablesDict[BMN_InputOutput_InputVariablesKey] {

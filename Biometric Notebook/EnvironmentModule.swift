@@ -114,7 +114,6 @@ class EnvironmentModule: Module {
                 let options = [EnvironmentModule_WeatherOptions.Temperature.rawValue, EnvironmentModule_WeatherOptions.ApparentTemperature.rawValue, EnvironmentModule_WeatherOptions.Humidity.rawValue, EnvironmentModule_WeatherOptions.WindSpeed.rawValue, EnvironmentModule_WeatherOptions.Ozone.rawValue, EnvironmentModule_WeatherOptions.BarometricPressure.rawValue, EnvironmentModule_WeatherOptions.CloudCover.rawValue, EnvironmentModule_WeatherOptions.SunriseTime.rawValue, EnvironmentModule_WeatherOptions.SunsetTime.rawValue, EnvironmentModule_WeatherOptions.WeatherCondition.rawValue] //enum opts
                 array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_EnvironmentModule_Weather_OptionsID, BMN_LEVELS_MainLabelKey: "Select 1 or more kinds of weather data you want to capture with this variable:", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_MultipleSelectionEnabledKey: true])) //cell that contains granular weather selection options
                 
-                self.isAutomaticallyCaptured = true //auto-cap
                 configurationOptionsLayoutObject = array
                 
             }
@@ -134,6 +133,7 @@ class EnvironmentModule: Module {
                     for option in options {
                         if let weatherOption = EnvironmentModule_WeatherOptions(rawValue: option) {
                             self.selectedWeatherOptions.append(weatherOption)
+                            self.isAutomaticallyCaptured = true //auto-cap
                         } else {
                             print("[EM - matchConfigItems] String does not match enum raw!")
                         }

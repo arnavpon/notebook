@@ -62,7 +62,7 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
             if let multipleSelection = source[BMN_SelectFromOptions_MultipleSelectionEnabledKey] as? Bool { //check if multiple selection is allowed
                 self.multipleSelectionEnabled = multipleSelection
             }
-            if let defaultOptions = source[BMN_SelectFromOptions_DefaultOptionsKey] as? [String] { //check if cell has defined defaults & set them -> report object
+            if let defaultOptions = source[BMN_SelectFromOptions_DefaultOptionsKey] as? [String] { //check if cell has defined default(s) & set them -> report object
                 self.selectedOptions = defaultOptions //set defaults
                 for option in selectedOptions { //update visuals for defaults
                     if let index = self.options.indexOf(option) { //get index (equivalent to btn tag)
