@@ -9,41 +9,69 @@ import Foundation
 
 class EnvironmentModule: Module {
     
-    override var configureModuleLayoutObject: Dictionary<String, AnyObject> {
-        get {
-            var tempObject = super.configureModuleLayoutObject //obtain superclass' dict & ADD TO IT
-            
-            var alertMessage = Dictionary<String, [String: String]>() //1st key is section name, 2nd key is behavior/computation name (using the RAW_VALUE of the ENUM object!), value is a message for the alertController
-            var messageForBehavior = Dictionary<String, String>()
-            for behavior in environmentModuleBehaviors {
-                messageForBehavior[behavior.rawValue] = behavior.getAlertMessageForVariable()
-            }
-            alertMessage[BMN_BehaviorsKey] = messageForBehavior
-            var messageForComputation = Dictionary<String, String>()
-            for computation in environmentModuleComputations {
-                messageForComputation[computation.rawValue] = computation.getAlertMessageForVariable()
-            }
-            alertMessage[BMN_ComputationsKey] = messageForComputation
-            tempObject[BMN_AlertMessageKey] = alertMessage //merge dictionaries
-            
-            return tempObject
+    override func getConfigureModuleLayoutObject() -> Dictionary<String, AnyObject> {
+        var tempObject = super.getConfigureModuleLayoutObject() //obtain superclass' dict & ADD TO IT
+        
+        var alertMessage = Dictionary<String, [String: String]>() //1st key is section name, 2nd key is behavior/computation name (using the RAW_VALUE of the ENUM object!), value is a message for the alertController
+        var messageForBehavior = Dictionary<String, String>()
+        for behavior in environmentModuleBehaviors {
+            messageForBehavior[behavior.rawValue] = behavior.getAlertMessageForVariable()
         }
+        alertMessage[BMN_BehaviorsKey] = messageForBehavior
+        var messageForComputation = Dictionary<String, String>()
+        for computation in environmentModuleComputations {
+            messageForComputation[computation.rawValue] = computation.getAlertMessageForVariable()
+        }
+        alertMessage[BMN_ComputationsKey] = messageForComputation
+        tempObject[BMN_AlertMessageKey] = alertMessage //merge dictionaries
+        
+        return tempObject
     }
     
     private let environmentModuleBehaviors: [EnvironmentModuleVariableTypes] = [EnvironmentModuleVariableTypes.Behavior_TemperatureAndHumidity, EnvironmentModuleVariableTypes.Behavior_Weather]
-    override var behaviors: [String] { //object containing titles for TV cells
+    override func setBehaviors() -> [String]? { //dynamically assigns behaviors
         var behaviorTitles: [String] = []
+        
+        //(1) Set filters (i.e. exclude certain computations based on 'blockers' & 'locationInFlow'):
+        var filteredTypes = Set<EnvironmentModuleVariableTypes>() //set containing types to be filtered
+        if let blocker = moduleBlocker {
+            let filters = blocker.getFilteredTypesForModule(Modules.EnvironmentModule)
+            for filter in filters {
+                if let enumValue = EnvironmentModuleVariableTypes(rawValue: filter) {
+                    filteredTypes.insert(enumValue)
+                }
+            }
+        }
+        
+        //(2) Add items -> 'behaviors' array if they pass through filters:
         for behavior in environmentModuleBehaviors {
-            behaviorTitles.append(behavior.rawValue)
+            if !(filteredTypes.contains(behavior)) { //exclude filtered varTypes
+                behaviorTitles.append(behavior.rawValue)
+            }
         }
         return behaviorTitles
     }
     
     private let environmentModuleComputations: [EnvironmentModuleVariableTypes] = []
-    override var computations: [String] { //object containing titles for TV cells
+    override func setComputations() -> [String]? {
         var computationTitles: [String] = []
+        
+        //(1) Set filters (i.e. exclude certain computations based on 'blockers' & 'locationInFlow'):
+        var filteredTypes = Set<EnvironmentModuleVariableTypes>() //set containing types to be filtered
+        if let blocker = moduleBlocker {
+            let filters = blocker.getFilteredTypesForModule(Modules.EnvironmentModule)
+            for filter in filters {
+                if let enumValue = EnvironmentModuleVariableTypes(rawValue: filter) {
+                    filteredTypes.insert(enumValue)
+                }
+            }
+        }
+        
+        //(2) Add items -> 'computations' array if they pass through filters:
         for computation in environmentModuleComputations {
-            computationTitles.append(computation.rawValue)
+            if !(filteredTypes.contains(computation)) { //exclude filtered varTypes
+                computationTitles.append(computation.rawValue)
+            }
         }
         return computationTitles
     }

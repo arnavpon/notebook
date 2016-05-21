@@ -148,9 +148,7 @@ class Project: NSManagedObject {
                 
                 //If variable is of BiometricModule, tell it to report data -> HK:
                 if let biometricVar = variable as? BiometricModule { //**test
-                    if !(biometricVar.isAutomaticallyCaptured) { //MANUAL vars ONLY
-                        biometricVar.writeManualDataToHKStore() //**
-                    }
+                    biometricVar.writeManualDataToHKStore() //**
                 }
             } else {
                 print("[constructDataObject] Error - no data for '\(variable.variableName)' variable!")

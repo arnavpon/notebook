@@ -11,6 +11,7 @@ enum ProtectedFreeformTypes: String { //list of protected freeform types - used 
     
     case Int = "BMN_ProtectedFreeformType_Int"
     case Decimal = "BMN_ProtectedFreeformType_Decimal"
+    case Timing = "BMN_ProtectedFreeformType_Timing"
     
 }
 
@@ -173,6 +174,8 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                             }
                         }
                     }
+                case .Timing:
+                    break //**
                 }
             }
             

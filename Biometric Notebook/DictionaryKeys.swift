@@ -104,15 +104,10 @@ let BMN_SelectFromOptions_MultipleSelectionEnabledKey = "SelectFromOptions_multi
 let BMN_SelectFromOptions_DefaultOptionsKey = "SelectFromOptions_default_options_key"
 let BMN_SelectFromOptions_IsBooleanKey = "SelectFromOptions_is_boolean_key"
 
-// MARK: - [MODULE] Configuration Blockers (indicate to Module subclasses that specific behaviors/computations should not be displayed in AttachModuleVC for selection)
+// MARK: - [MODULE] Configuration Blockers (for 'Module_ConfigurationBlocker' Class)
 
-let BMN_Blocker_CustomModule_Computation_TimeDifference = "BL_CM_computation_time_difference"
-
-let BMN_Blocker_BiometricModule_Behavior_Weight = "BL_BM_behavior_weight"
-let BMN_Blocker_BiometricModule_Behavior_Height = "BL_BM_behavior_height"
-let BMN_Blocker_BiometricModule_Computation_Age = "BL_BM_computation_age"
-let BMN_Blocker_BiometricModule_Computation_BMI = "BL_BM_computation_bmi"
-let BMN_Blocker_BiometricModule_Computation_BiologicalSex = "BL_BM_computation_biological_sex"
+let BMN_Blocker_BeforeActionVariablesKey = "BL_before_action_variables_key"
+let BMN_Blocker_AfterActionVariablesKey = "BL_after_action_variables_key"
 
 // MARK: - [MODULE] Core Data Keys
 

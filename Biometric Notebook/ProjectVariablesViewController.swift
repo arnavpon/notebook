@@ -50,6 +50,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     var variableName: String? //the name of the variable entered by the user
     var createdVariable: Module? //the completed variable created by the user
     var variableLocation: VariableLocations? //indicates whether createdVar goes before or afterAction
+    var moduleBlocker = Module_ConfigurationBlocker() //**class that handles blocking
     
     var inputVariableRows: [Module] { //data source for rows before the 'Action'
         if (projectType == .InputOutput) {
@@ -93,11 +94,6 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     private let viewCornerRadius: CGFloat = 20
     private var interactionEnabled: Bool = true //blocks view interaction if picker is visible
     private let dimmedAlpha = CGFloat(0.3) //alpha for views in dimmed mode
-    
-    //***Testing area for adjusting the displayed behaviors/computations for user dynamically (showing certain variables/computations @ certain times, blocking selection for others, etc.). Need a flexible way to define this interaction (should become more clear as it becomes needed more). This can't be defined in Module variable since it applies to the Project as a whole!
-    //LINKED TO -> 'MODULE' > blockers array
-    var moduleBlockers: [String] = []
-    //***
     
     // MARK: - View Configuration
     
@@ -253,7 +249,9 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         if !(showTutorialMode) && !(tutorialIsOn) { //normal behavior
             if (editingStyle == .Delete) { //delete row from data source
                 var varToDelete: Module? //variable that is about to be deleted
+                var location: VariableLocations? //variable location
                 if (tableView == inputVariablesTV) { //inputs TV
+                    location = VariableLocations.BeforeAction //**
                     if (projectType == .InputOutput) {
                         if let variables = inputVariablesDict[BMN_InputOutput_InputVariablesKey] {
                             varToDelete = variables[indexPath.row]
@@ -273,6 +271,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                         }
                     }
                 } else if (tableView == outcomeVariablesTV) { //outcomes TV
+                    location = VariableLocations.AfterAction //**
                     varToDelete = outcomeVariableRows[indexPath.row]
                     outcomeVariableRows.removeAtIndex(indexPath.row)
                 }
@@ -281,24 +280,9 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                     doneButton.enabled = false
                 }
                 
-                //***Check if deletion of that variable changes any of the moduleBlockers:
-                if let deletedVar = varToDelete {
-                    if (deletedVar.selectedFunctionality == CustomModuleVariableTypes.Computation_TimeDifference.rawValue) { //TD was deleted, remove blocker
-                        print("Deleted variable was time difference! Removing blocker...")
-                        if let index = moduleBlockers.indexOf(BMN_Blocker_CustomModule_Computation_TimeDifference) {
-                            moduleBlockers.removeAtIndex(index)
-                        }
-                    } else if (deletedVar.selectedFunctionality == BiometricModuleVariableTypes.Behavior_Weight.rawValue) { //Weight was deleted, remove blocker
-                        print("Deleted variable was weight! Removing blocker...")
-                        if let index = moduleBlockers.indexOf(BMN_Blocker_BiometricModule_Behavior_Weight) {
-                            moduleBlockers.removeAtIndex(index)
-                        }
-                    } else if (deletedVar.selectedFunctionality == BiometricModuleVariableTypes.Behavior_Height.rawValue) { //Height was deleted, remove blocker
-                        print("Deleted variable was height! Removing blocker...")
-                        if let index = moduleBlockers.indexOf(BMN_Blocker_BiometricModule_Behavior_Height) {
-                            moduleBlockers.removeAtIndex(index)
-                        }
-                    }
+                //Send deleted typeName to moduleBlocker variable:
+                if let deletedVar = varToDelete, functionality = deletedVar.selectedFunctionality, loc = location {
+                    moduleBlocker.variableWasDeleted(loc, typeName: functionality) //**
                 }
             }
         } else { //tutorial behavior
@@ -783,6 +767,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 performSegueWithIdentifier("unwindToCreateProject", sender: nil)
             } else if (ccNavigationState == .Comparison) { //show UI for 'control' group
                 ccNavigationState = .Control //go back to previous nav state
+                moduleBlocker.ccProjectWillSwitchState() //swap in module blocker for control group
             }
         }
     }
@@ -798,6 +783,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                     }
                 }
                 ccNavigationState = .Comparison //change nav state
+                moduleBlocker.ccProjectWillSwitchState() //swap in module blocker for comparison group
             } else if (ccNavigationState == .Comparison) { //segue -> SummaryVC
                 performSegueWithIdentifier("showSummary", sender: nil)
             }
@@ -816,18 +802,9 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             createdVariable = senderVC.createdVariable
         }
         
-        if let variable = createdVariable { //add the incoming variable -> appropriate TV
+        if let variable = createdVariable, typeName = variable.selectedFunctionality, location = variableLocation { //add the incoming variable -> appropriate TV
+            self.moduleBlocker.variableWasCreated(location, typeName: typeName) //**send blocker info
             
-            //(1) Check ID of the added variable & add blockers to array accordingly:
-            if (variable.selectedFunctionality == CustomModuleVariableTypes.Computation_TimeDifference.rawValue) { //***check if added var is a TimeDifference computation
-                self.moduleBlockers.append(BMN_Blocker_CustomModule_Computation_TimeDifference) //allow only 1 TimeDifference computation per project
-            } else if (variable.selectedFunctionality == BiometricModuleVariableTypes.Behavior_Weight.rawValue) { //***check if added var is a BM_Weight behavior
-                self.moduleBlockers.append(BMN_Blocker_BiometricModule_Behavior_Weight) //unique
-            } else if (variable.selectedFunctionality == BiometricModuleVariableTypes.Behavior_Height.rawValue) { //***check if added var is a BM_Height behavior
-                self.moduleBlockers.append(BMN_Blocker_BiometricModule_Behavior_Height) //unique
-            }
-            
-            //(2) Add the new variable to the correct TV:
             if (variableLocation == VariableLocations.BeforeAction) { //beforeAction var
                 if (projectType == .InputOutput) { //add -> IO data source
                     if let _ = inputVariablesDict[BMN_InputOutput_InputVariablesKey] {
@@ -874,10 +851,8 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             let attachModuleVC = destination.topViewController as! AttachModuleViewController
             attachModuleVC.variableName = self.variableName
             attachModuleVC.showDescriptionView = showDescription
-            
-            //***
-            attachModuleVC.moduleBlockers = self.moduleBlockers //pass all blocker indicators
-            attachModuleVC.variableLocation = self.variableLocation //pass over var location (IO vs. OM)
+            moduleBlocker.currentLocationInFlow = self.variableLocation //update location in blocker
+            attachModuleVC.moduleBlocker = self.moduleBlocker //pass over existing varTypes
             
             var currentVars: [Module] = []
             for variable in outcomeVariableRows {

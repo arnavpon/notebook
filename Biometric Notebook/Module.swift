@@ -10,71 +10,77 @@ import Foundation
 import UIKit
 
 class Module { //defines the behaviors that are common to all modules
-    static let modules: [Modules] = [Modules.CustomModule, Modules.EnvironmentModule, Modules.FoodIntakeModule, Modules.ExerciseModule, Modules.BiometricModule, Modules.CarbonEmissionsModule] //list of available modules, update whenever a new one is added
     
-    //***Testing ground for external interaction to dynamically alter the Behaviors/Computations displayed in ConfigureModuleVC for selection:
-    var blockers: [String]? //array of blocker indicators for comp/behavior display, set by ConfigVC
-    var locationInFlow: VariableLocations? //indicates whether var is input or output
-    //***
+    static let modules: [Modules] = [Modules.CustomModule, Modules.EnvironmentModule, Modules.FoodIntakeModule, Modules.ExerciseModule, Modules.BiometricModule, Modules.CarbonEmissionsModule] //list of available modules, update whenever a new one is added
     
     var isOutcomeMeasure: Bool = false //externally set to indicate that this variable is an OM
     var isAutomaticallyCaptured: Bool = false //set after functionality is selected (manual vs. auto-cap)
+    var isComputation: Bool = false //set if variable is computed from other variables **
     private let variableState: ModuleVariableStates //state of THIS instance (Configuration or Reporting)
     internal let variableName: String //the name given to the variable attached to this module
     internal var moduleTitle: String = "" //overwrite w/ <> Module enum raw value in each class
-    internal var sectionsToDisplay: [String] { //sections to display in ConfigureModuleVC
-        if !(behaviors.isEmpty) && !(computations.isEmpty) { //BOTH behaviors & comps are available
-            return [BMN_BehaviorsKey, BMN_ComputationsKey]
-        } else if !(behaviors.isEmpty) { //ONLY behaviors
-            return [BMN_BehaviorsKey]
-        } else if !(computations.isEmpty) { //ONLY computations
-            return [BMN_ComputationsKey]
+    
+    var moduleBlocker: Module_ConfigurationBlocker? { //class that handles variableType filtering
+        didSet { //after setting the blocker, assign the behaviors & computations
+            self.behaviors = setBehaviors()
+            self.computations = setComputations()
+            setSectionsForDisplay()
         }
-        return []
+    }
+    private var behaviors: [String]? //list of available behaviors for user selection during config
+    private var computations: [String]? //list of available comps for user selection during config
+    internal var sectionsToDisplay: [String]? //used by ConfigModuleVC tableView for display
+    
+    internal func setBehaviors() -> [String]? { //OVERRIDE in subclasses, sets behavior list dynamically
+        return nil //called when the moduleBlocker is set by VC
+    }
+    internal func setComputations() -> [String]? { //OVERRIDE in subclasses, sets comps list dynamically
+        return nil //called when the moduleBlocker is set by VC
+    }
+    private func setSectionsForDisplay() { //sets sections to display in ConfigModuleVC
+        //WARNING: can only be set AFTER behaviors & computations have been set!!!
+        if let behavs = behaviors, comps = computations {
+            if !(behavs.isEmpty) && !(comps.isEmpty) { //BOTH behaviors & comps available
+                sectionsToDisplay = [BMN_BehaviorsKey, BMN_ComputationsKey]
+            } else if !(behavs.isEmpty) { //ONLY behaviors
+                sectionsToDisplay = [BMN_BehaviorsKey]
+            } else if !(comps.isEmpty) { //ONLY computations
+                sectionsToDisplay = [BMN_ComputationsKey]
+            }
+        }
     }
     
-    internal var configureModuleLayoutObject: Dictionary<String, AnyObject> { //dataObject for laying out the available behaviors & computations in the ConfigureModuleVC
+    internal func getConfigureModuleLayoutObject() -> Dictionary<String, AnyObject> { //called by ConfigureModuleVC; OVERRIDE in subclasses
+        //Constructs dataObject for laying out the available behaviors & computations in the ConfigureModuleVC (called by VC):
         var tempObject = Dictionary<String, AnyObject>()
-        
-        var viewForSection = Dictionary<String, CustomTableViewHeader>()
-        for section in sectionsToDisplay { //assign headerViews to their respective sections
-            switch section { 
-            case BMN_BehaviorsKey:
-                viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Available Behaviors")
-            case BMN_ComputationsKey:
-                viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Available Computations")
-            default:
-                print("[Custom - TVLayout viewForSection] error: default switch")
+        if let sections = sectionsToDisplay {
+            var viewForSection = Dictionary<String, CustomTableViewHeader>()
+            for section in sections { //assign headerViews to their respective sections
+                switch section {
+                case BMN_BehaviorsKey:
+                    viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Available Behaviors")
+                case BMN_ComputationsKey:
+                    viewForSection[section] = CustomTableViewHeader(frame: CGRect(x: 0, y: 0, width: 0, height: 24), text: "Available Computations")
+                default:
+                    print("[Custom - TVLayout viewForSection] error: default switch")
+                }
             }
-        }
-        tempObject[BMN_ViewForSectionKey] = viewForSection
-        
-        var rowsForSection = Dictionary<String, [String]>()
-        for section in sectionsToDisplay { //assign behaviors & computations to their respective sections
-            switch section {
-            case BMN_BehaviorsKey:
-                rowsForSection[section] = behaviors
-            case BMN_ComputationsKey:
-                rowsForSection[section] = computations
-            default:
-                print("[Module - TVLayout] error: default switch")
+            tempObject[BMN_ViewForSectionKey] = viewForSection
+            
+            var rowsForSection = Dictionary<String, [String]>()
+            for section in sections { //assign behaviors & computations to their respective sections
+                switch section {
+                case BMN_BehaviorsKey:
+                    rowsForSection[section] = behaviors
+                case BMN_ComputationsKey:
+                    rowsForSection[section] = computations
+                default:
+                    print("[Module - TVLayout] error: default switch")
+                }
             }
+            tempObject[BMN_RowsForSectionKey] = rowsForSection
         }
-        tempObject[BMN_RowsForSectionKey] = rowsForSection
-        
         return tempObject
-    }
-    
-    internal var behaviors: [String] { //override w/ behaviors for each module
-        get { //can only GET, not set
-            return []
-        }
-    }
-    
-    internal var computations: [String] { //override w/ computations for each module
-        get { //can only GET, not set
-            return []
-        }
     }
     
     // MARK: - Initializers

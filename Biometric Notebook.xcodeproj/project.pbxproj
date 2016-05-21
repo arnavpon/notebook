@@ -96,6 +96,7 @@
 		B1DEE0491CD042B700F73F77 /* FreeformDataEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DEE0481CD042B700F73F77 /* FreeformDataEntryCell.swift */; };
 		B1E1E1401CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */; };
 		B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1EDACB41CA4A2560087E3B1 /* CarbonEmissionsModule.swift */; };
+		B1F5A0721CE954D100E0DC8D /* Module_ConfigurationBlocker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F5A0711CE954D100E0DC8D /* Module_ConfigurationBlocker.swift */; };
 		B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */; };
 		B1F6F3BF1C518BEE001802A7 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */; };
 /* End PBXBuildFile section */
@@ -256,6 +257,7 @@
 		B1DEE0481CD042B700F73F77 /* FreeformDataEntryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FreeformDataEntryCell.swift; sourceTree = "<group>"; };
 		B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CustomOptionsConfigurationCell.swift; path = ../../CustomOptionsConfigurationCell.swift; sourceTree = "<group>"; };
 		B1EDACB41CA4A2560087E3B1 /* CarbonEmissionsModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarbonEmissionsModule.swift; sourceTree = "<group>"; };
+		B1F5A0711CE954D100E0DC8D /* Module_ConfigurationBlocker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Module_ConfigurationBlocker.swift; path = ../../Module_ConfigurationBlocker.swift; sourceTree = "<group>"; };
 		B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTableViewHeader.swift; sourceTree = "<group>"; };
 		B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -563,7 +565,7 @@
 		B1D0B2AE1C3F246200C9438F /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				B1D868D51C3F58810026334B /* Modules.swift */,
+				B1F5A0701CE9549700E0DC8D /* Supplements */,
 				B1D0B2B91C3F25F200C9438F /* Module.swift */,
 				B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */,
 				B1B106921C59097800463612 /* EnvironmentModule.swift */,
@@ -630,6 +632,15 @@
 				B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */,
 			);
 			name = Networking;
+			sourceTree = "<group>";
+		};
+		B1F5A0701CE9549700E0DC8D /* Supplements */ = {
+			isa = PBXGroup;
+			children = (
+				B1D868D51C3F58810026334B /* Modules.swift */,
+				B1F5A0711CE954D100E0DC8D /* Module_ConfigurationBlocker.swift */,
+			);
+			name = Supplements;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -857,6 +868,7 @@
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,
 				B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */,
 				B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */,
+				B1F5A0721CE954D100E0DC8D /* Module_ConfigurationBlocker.swift in Sources */,
 				B1AA96CC1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift in Sources */,
 				B1DEE0491CD042B700F73F77 /* FreeformDataEntryCell.swift in Sources */,
 				B1AA96CA1CAB1CCC0009E716 /* DataEntryCellTypes.swift in Sources */,

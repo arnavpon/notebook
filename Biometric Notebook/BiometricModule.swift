@@ -10,39 +10,37 @@ import HealthKit
 
 class BiometricModule: Module {
     
-    override var configureModuleLayoutObject: Dictionary<String, AnyObject> {
-        get {
-            var tempObject = super.configureModuleLayoutObject //obtain superclass' dict & ADD TO IT
-            
-            var alertMessage = Dictionary<String, [String: String]>() //1st key is section name, 2nd key is behavior/computation name (using the RAW_VALUE of the ENUM object!), value is a message for the alertController
-            var messageForBehavior = Dictionary<String, String>()
-            for behavior in biometricModuleBehaviors {
-                messageForBehavior[behavior.rawValue] = behavior.getAlertMessageForVariable()
-            }
-            alertMessage[BMN_BehaviorsKey] = messageForBehavior
-            var messageForComputation = Dictionary<String, String>()
-            for computation in biometricModuleComputations {
-                messageForComputation[computation.rawValue] = computation.getAlertMessageForVariable()
-            }
-            alertMessage[BMN_ComputationsKey] = messageForComputation
-            tempObject[BMN_AlertMessageKey] = alertMessage //merge dictionaries
-            
-            return tempObject
+    override func getConfigureModuleLayoutObject() -> Dictionary<String, AnyObject> {
+        var tempObject = super.getConfigureModuleLayoutObject() //obtain superclass' dict & ADD TO IT
+        
+        var alertMessage = Dictionary<String, [String: String]>() //1st key is section name, 2nd key is behavior/computation name (using the RAW_VALUE of the ENUM object!), value is a message for the alertController
+        var messageForBehavior = Dictionary<String, String>()
+        for behavior in biometricModuleBehaviors {
+            messageForBehavior[behavior.rawValue] = behavior.getAlertMessageForVariable()
         }
+        alertMessage[BMN_BehaviorsKey] = messageForBehavior
+        var messageForComputation = Dictionary<String, String>()
+        for computation in biometricModuleComputations {
+            messageForComputation[computation.rawValue] = computation.getAlertMessageForVariable()
+        }
+        alertMessage[BMN_ComputationsKey] = messageForComputation
+        tempObject[BMN_AlertMessageKey] = alertMessage //merge dictionaries
+        
+        return tempObject
     }
     
     private let biometricModuleBehaviors: [BiometricModuleVariableTypes] = [BiometricModuleVariableTypes.Behavior_HeartRate, BiometricModuleVariableTypes.Behavior_Height, BiometricModuleVariableTypes.Behavior_Weight]
-    override var behaviors: [String] { //object containing titles for TV cells
+    override func setBehaviors() -> [String]? { //dynamically assigns behaviors to list
         var behaviorTitles: [String] = []
         
-        //(1) Set filters (certain BM variable types are unique such as weight, height, ...):
+        //(1) Set filters (i.e. exclude certain computations based on 'blockers' & 'locationInFlow'):
         var filteredTypes = Set<BiometricModuleVariableTypes>() //set containing types to be filtered
-        if let blocks = blockers { //check for defined blockers
-            if (blocks.contains(BMN_Blocker_BiometricModule_Behavior_Weight)) { //filter weight
-                filteredTypes.insert(BiometricModuleVariableTypes.Behavior_Weight)
-            }
-            if (blocks.contains(BMN_Blocker_BiometricModule_Behavior_Height)) { //filter height
-                filteredTypes.insert(BiometricModuleVariableTypes.Behavior_Height)
+        if let blocker = moduleBlocker {
+            let filters = blocker.getFilteredTypesForModule(Modules.BiometricModule)
+            for filter in filters {
+                if let enumValue = BiometricModuleVariableTypes(rawValue: filter) {
+                    filteredTypes.insert(enumValue)
+                }
             }
         }
         
@@ -56,20 +54,17 @@ class BiometricModule: Module {
     }
     
     private let biometricModuleComputations: [BiometricModuleVariableTypes] = [BiometricModuleVariableTypes.Computation_BiologicalSex, BiometricModuleVariableTypes.Computation_Age, BiometricModuleVariableTypes.Computation_BMI]
-    override var computations: [String] { //object containing titles for TV cells
+    override func setComputations() -> [String]? { //dynamically assigns comps to list
         var computationTitles: [String] = []
         
-        //(1) Set filters (certain BM variable types are unique such as age, gender, BMI, ...):
+        //(1) Set filters (i.e. exclude certain computations based on 'blockers' & 'locationInFlow'):
         var filteredTypes = Set<BiometricModuleVariableTypes>() //set containing types to be filtered
-        if let blocks = blockers { //check for defined blockers
-            if (blocks.contains(BMN_Blocker_BiometricModule_Computation_Age)) { //filter age
-                filteredTypes.insert(BiometricModuleVariableTypes.Computation_Age)
-            }
-            if (blocks.contains(BMN_Blocker_BiometricModule_Computation_BMI)) { //filter BMI
-                filteredTypes.insert(BiometricModuleVariableTypes.Computation_BMI)
-            }
-            if (blocks.contains(BMN_Blocker_BiometricModule_Computation_BiologicalSex)) { //filter gender
-                filteredTypes.insert(BiometricModuleVariableTypes.Computation_BiologicalSex)
+        if let blocker = moduleBlocker {
+            let filters = blocker.getFilteredTypesForModule(Modules.BiometricModule)
+            for filter in filters {
+                if let enumValue = BiometricModuleVariableTypes(rawValue: filter) {
+                    filteredTypes.insert(enumValue)
+                }
             }
         }
         
@@ -155,15 +150,30 @@ class BiometricModule: Module {
             switch type {
             case .Behavior_HeartRate:
                 
-                //For HR behavior, user needs to select the SUPPORTED device they will be using to measure the HR (AppleWatch, FitBit, etc.) & define the sampling parameters:
+                //(1) User needs to select the SUPPORTED device they will be using to measure the HR (AppleWatch, FitBit, etc.):
                 let sourceOptions = [BiometricModule_DataSourceOptions.AppleWatch.rawValue, BiometricModule_DataSourceOptions.FitBit.rawValue]
                 array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "Select the device you will be using to measure your heart rate: ", BMN_SelectFromOptions_OptionsKey: sourceOptions, BMN_SelectFromOptions_DefaultOptionsKey: [sourceOptions[0]]])) //device options
                 
-                var sampleOptions = [BiometricModule_HeartRateOptions.MostRecent.rawValue, BiometricModule_HeartRateOptions.ChooseSampleAtCollection.rawValue]
-                if (self.locationInFlow == VariableLocations.AfterAction) { //AverageOverAction option is ONLY allowed for AfterAction variables
-                    sampleOptions.append(BiometricModule_HeartRateOptions.AverageOverAction.rawValue)
+                //Set filters (exclude config options using ModuleBlocker class):
+                let availableOptions = [BiometricModule_HeartRateOptions.MostRecent, BiometricModule_HeartRateOptions.ChooseSampleAtCollection, BiometricModule_HeartRateOptions.AverageOverAction] //list of ALL possible opts
+                var sampleOptions: [String] = [] //used by ConfigOptions object
+        
+                var filteredTypes = Set<BiometricModule_HeartRateOptions>()
+                if let blocker = moduleBlocker {
+                    let filters = blocker.getFilteredTypesForModule(Modules.BiometricModule)
+                    for filter in filters {
+                        if let enumValue = BiometricModule_HeartRateOptions(rawValue: filter) {
+                            filteredTypes.insert(enumValue)
+                        }
+                    }
+                }
+                for option in availableOptions {
+                    if !(filteredTypes.contains(option)) { //exclude filtered varTypes
+                        sampleOptions.append(option.rawValue)
+                    }
                 }
                 
+                //(2) User must define the HR sampling parameters:
                 array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_HeartRateSamplingOptionsID, BMN_LEVELS_MainLabelKey: "Choose the time period over which to sample your heart rate:", BMN_SelectFromOptions_OptionsKey: sampleOptions]))
                 
                 configurationOptionsLayoutObject = array
@@ -414,15 +424,21 @@ class BiometricModule: Module {
             switch type {
             case .Behavior_Weight:
                 if let weight = self.mainDataObject as? Double {
-                    healthKitConnection.writeSampleQuantityToHKStore(HealthKitConnection.bodyMassType, quantity: weight, unit: HKUnit.poundUnit())
+                    if !(self.isAutomaticallyCaptured) { //only write values entered by user (i.e. don't write value to HK store when it has just been obtained from there!)
+                        healthKitConnection.writeSampleQuantityToHKStore(HealthKitConnection.bodyMassType, quantity: weight, unit: HKUnit.poundUnit())
+                    }
                 }
             case .Behavior_Height:
                 if let height = self.mainDataObject as? Double { //height is expressed in INCHES
-                    healthKitConnection.writeSampleQuantityToHKStore(HealthKitConnection.heightType, quantity: height, unit: HKUnit.inchUnit())
+                    if !(self.isAutomaticallyCaptured) {
+                        healthKitConnection.writeSampleQuantityToHKStore(HealthKitConnection.heightType, quantity: height, unit: HKUnit.inchUnit())
+                    }
                 }
-            case .Computation_BMI: //problem is that Project only calls this method for manual variables, which makes sense - if we are obtaining from Hk, we wouldn't want to write to it. This changes a bit for BMI. What happens if the BMI is already available in HK? User should be able to access directly from store w/o computation.
-                if let bmi = self.mainDataObject as? Double { //BMI is in kg/m2
-                    healthKitConnection.writeSampleQuantityToHKStore(HealthKitConnection.bmiType, quantity: bmi, unit: HealthKitConnection.bmiUnit)
+            case .Computation_BMI:
+                if let bmi = self.mainDataObject as? Double { //write bmi to store if BMN is calc'ing it
+                    if (self.dataSourceOption == BiometricModule_DataSourceOptions.Calculate) {
+                        healthKitConnection.writeSampleQuantityToHKStore(HealthKitConnection.bmiType, quantity: bmi, unit: HealthKitConnection.bmiUnit)
+                    }
                 }
             default:
                 break
@@ -463,6 +479,7 @@ enum BiometricModuleVariableTypes: String { //*match each behavior/computation -
     case Computation_BMI = "BMI" //computes BMI using most recent weight & height available
     
     //**how do we deal w/ static pieces of data like DOB? We could pull it from HK; the difference is these variables WON'T be measured on each run of dataEntry mode. Constant data like DOB, gender, etc. will only need to be accessed 1x from HK for a given project (at project set-up time). How do we store these PERMANENT variables & analyze them w/in the context of the project. How does the user configure one of these variables - they will be 'auto-cap' - for now, we can 1:1 map them into the DB w/ all of the other variables (take the values from HK whenever needed).
+    //These variables should be stored in the DB & cross-referenced against any project! In the app, they should be added to the user defaults as well.
     
     func getAlertMessageForVariable() -> String {
         var message = ""

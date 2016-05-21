@@ -23,8 +23,7 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     var selectedModule: Modules? //matches TV selection -> enum containing the defined module types
     var createdVariable: Module? //attach a type to this variable & initialize it before -> ConfigureVC
     
-    var moduleBlockers: [String]? //***allows dynamic configuration of ConfigVC
-    var variableLocation: VariableLocations? //***allows dynamic config
+    var moduleBlocker: Module_ConfigurationBlocker? //***allows dynamic config
     var currentVariables: [Module]? //list of all existing variables (for computations)
     
     // MARK: - View Configuration 
@@ -156,10 +155,10 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if (segue.identifier == "showConfigureModule") { //pass created variable over
             let destination = segue.destinationViewController as! ConfigureModuleViewController
-            destination.createdVariable = self.createdVariable
-            destination.variableLocation = self.variableLocation
-            destination.moduleBlockers = self.moduleBlockers //***pass blockers over
-            destination.currentVariables = self.currentVariables 
+            
+            createdVariable?.moduleBlocker = self.moduleBlocker //***set blocker in var
+            destination.createdVariable = self.createdVariable //pass var over
+            destination.currentVariables = self.currentVariables
         }
     }
 

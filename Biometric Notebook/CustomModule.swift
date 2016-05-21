@@ -10,36 +10,38 @@ import UIKit
 
 class CustomModule: Module {
     
-    override var configureModuleLayoutObject: Dictionary<String, AnyObject> {
-        get {
-            var tempObject = super.configureModuleLayoutObject //obtain superclass' dict & ADD TO IT
-            
-            var alertMessage = Dictionary<String, [String: String]>() //1st key is section name, 2nd key is behavior/computation name (using the RAW_VALUE of the ENUM object!), value is a message for the alertController
-            var messageForBehavior = Dictionary<String, String>()
-            for behavior in customModuleBehaviors {
-                messageForBehavior[behavior.rawValue] = behavior.getAlertMessageForVariable()
-            }
-            alertMessage[BMN_BehaviorsKey] = messageForBehavior
-            var messageForComputation = Dictionary<String, String>()
-            for computation in customModuleComputations {
-                messageForComputation[computation.rawValue] = computation.getAlertMessageForVariable()
-            }
-            alertMessage[BMN_ComputationsKey] = messageForComputation
-            tempObject[BMN_AlertMessageKey] = alertMessage //merge dictionaries
-            
-            return tempObject
+    override func getConfigureModuleLayoutObject() -> Dictionary<String, AnyObject> {
+        var tempObject = super.getConfigureModuleLayoutObject() //obtain superclass' dict & ADD TO IT
+        
+        var alertMessage = Dictionary<String, [String: String]>() //1st key is section name, 2nd key is behavior/computation name (using the RAW_VALUE of the ENUM object!), value is a message for the alertController
+        var messageForBehavior = Dictionary<String, String>()
+        for behavior in customModuleBehaviors {
+            messageForBehavior[behavior.rawValue] = behavior.getAlertMessageForVariable()
         }
+        alertMessage[BMN_BehaviorsKey] = messageForBehavior
+        var messageForComputation = Dictionary<String, String>()
+        for computation in customModuleComputations {
+            messageForComputation[computation.rawValue] = computation.getAlertMessageForVariable()
+        }
+        alertMessage[BMN_ComputationsKey] = messageForComputation
+        tempObject[BMN_AlertMessageKey] = alertMessage //merge dictionaries
+        return tempObject
     }
     
     private let customModuleBehaviors: [CustomModuleVariableTypes] = [CustomModuleVariableTypes.Behavior_CustomOptions, CustomModuleVariableTypes.Behavior_BinaryOptions, CustomModuleVariableTypes.Behavior_Counter, CustomModuleVariableTypes.Behavior_RangeScale]
-    override var behaviors: [String] { //object containing titles for TV cells
+    override func setBehaviors() -> [String]? { //dynamically assigns behaviors to list
         var behaviorTitles: [String] = []
         
-        //(1) Set filters (i.e. exclude certain behaviors based on 'blockers' & 'locationInFlow'):
-        let filteredTypes = Set<CustomModuleVariableTypes>() //set containing types to be filtered
-//        if let blocks = blockers { //check for defined blockers
-//            //define blockers
-//        }
+        //(1) Set filters (i.e. exclude certain computations based on 'blockers' & 'locationInFlow'):
+        var filteredTypes = Set<CustomModuleVariableTypes>() //set containing types to be filtered
+        if let blocker = moduleBlocker {
+            let filters = blocker.getFilteredTypesForModule(Modules.CustomModule)
+            for filter in filters {
+                if let enumValue = CustomModuleVariableTypes(rawValue: filter) {
+                    filteredTypes.insert(enumValue)
+                }
+            }
+        }
         
         //(2) Add items -> 'behaviors' array if they pass through filters:
         for behavior in customModuleBehaviors {
@@ -51,17 +53,17 @@ class CustomModule: Module {
     }
     
     private let customModuleComputations: [CustomModuleVariableTypes] = [CustomModuleVariableTypes.Computation_TimeDifference]
-    override var computations: [String] { //object containing titles for TV cells
+    override func setComputations() -> [String]? { //dynamically assigns computations to array
         var computationTitles: [String] = []
         
         //(1) Set filters (i.e. exclude certain computations based on 'blockers' & 'locationInFlow'):
         var filteredTypes = Set<CustomModuleVariableTypes>() //set containing types to be filtered
-        if let blocks = blockers { //check for defined blockers
-            if (blocks.contains(BMN_Blocker_CustomModule_Computation_TimeDifference)) { //filter TimeDiff
-                filteredTypes.insert(CustomModuleVariableTypes.Computation_TimeDifference)
-            }
-            if (self.locationInFlow == VariableLocations.BeforeAction) { //TD CANNOT be a beforeAction var
-                filteredTypes.insert(CustomModuleVariableTypes.Computation_TimeDifference)
+        if let blocker = moduleBlocker {
+            let filters = blocker.getFilteredTypesForModule(Modules.CustomModule)
+            for filter in filters {
+                if let enumValue = CustomModuleVariableTypes(rawValue: filter) {
+                    filteredTypes.insert(enumValue)
+                }
             }
         }
         
@@ -147,6 +149,7 @@ class CustomModule: Module {
     // MARK: - Variable Configuration
     
     internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the 'options' value as needed; (2) Constructs the configuration TV cells if required; (3) Sets 'isAutoCaptured' var if var is auto-captured.
+        print("Custom Module - setting configuration options for selection...")
         if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
             var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = [] //pass -> VC (CustomCellType, cell's dataSource)
             switch type {
