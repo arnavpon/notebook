@@ -127,13 +127,20 @@ class EnvironmentModule: Module {
     
     // MARK: - Variable Configuration
     
+    override func copyWithZone(zone: NSZone) -> AnyObject { //creates copy of variable
+        let copy = EnvironmentModule(name: self.variableName)
+        copy.existingVariables = self.existingVariables
+        copy.moduleBlocker = self.moduleBlocker
+        return copy
+    }
+    
     internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the 'options' value as needed; (2) Constructs the configuration TV cells if required; (3) Sets 'isAutoCaptured' var if var is auto-captured.
         if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
             var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = [] //pass -> VC (CustomCellType, cell's dataSource)
             switch type {
             case EnvironmentModuleVariableTypes.Behavior_TemperatureAndHumidity:
                 
-                self.isAutomaticallyCaptured = true //auto-cap
+                self.variableReportType = ModuleVariableReportTypes.AutoCapture //auto-cap
                 configurationOptionsLayoutObject = nil //no further config needed??
                 
             case EnvironmentModuleVariableTypes.Behavior_Weather:
@@ -161,7 +168,7 @@ class EnvironmentModule: Module {
                     for option in options {
                         if let weatherOption = EnvironmentModule_WeatherOptions(rawValue: option) {
                             self.selectedWeatherOptions.append(weatherOption)
-                            self.isAutomaticallyCaptured = true //auto-cap
+                            self.variableReportType = ModuleVariableReportTypes.AutoCapture //auto-cap
                         } else {
                             print("[EM - matchConfigItems] String does not match enum raw!")
                         }

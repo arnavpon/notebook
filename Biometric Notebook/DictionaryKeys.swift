@@ -15,6 +15,16 @@ let EMAIL_KEY = "email_key"
 let SHOW_ATTACH_DESCRIPTION = "show_attach_description_key"
 let INPUTS_TIME_STAMP = "input_variables_time_stamp_key" //for DataEntryVC
 
+// MARK: - [COMPUTATIONS] IDs
+let BMN_ComputationFramework_BM_BMI_HeightID = "CF_BM_BMI_height_id"
+let BMN_ComputationFramework_BM_BMI_WeightID = "CF_BM_BMI_weight_id"
+
+let BMN_Notification_ComputationFramework_DidCreateGhostVariable = "BMN_CF_DidCreateGhostVariable"
+let BMN_ComputationFramework_ComputationNameKey = "BMN_CF_computation_name_key"
+let BMN_ComputationFramework_GhostNameKey = "BMN_CF_ghost_name_key"
+let BMN_ComputationFramework_GhostConfigDictKey = "BMN_CF_ghost_config_dict_key"
+let BMN_ComputationFramework_GhostLocationKey = "BMN_CF_ghost_location_key"
+
 // MARK: - [GENERAL] NSNotification IDs
 
 let BMN_Notification_CompletionIndicatorDidChange = "BMN_CompletionIndicatorDidChange"
@@ -113,7 +123,8 @@ let BMN_Blocker_AfterActionVariablesKey = "BL_after_action_variables_key"
 
 let BMN_ModuleTitleKey = "module_title_key" //key to obtain var's Module type
 let BMN_VariableIsOutcomeMeasureKey = "variable_is_outcome_measure_key" //indicator if var is an OM
-let BMN_VariableIsAutomaticallyCapturedKey = "variable_is_automatically_captured_key" //manual vs. auto
+let BMN_VariableIsGhostKey = "variable_is_ghost_key" //indicator if var is a ghost
+let BMN_VariableReportTypeKey = "variable_report_type_key" //stores var's report type (auto cap, comp)
 let BMN_VariableTypeKey = "variable_type_key" //key to obtain var's behavior/computation
 let BMN_DataEntry_MainLabelPromptKey = "DE_main_label_prompt_key" //alternate mainLbl title for DataEntry
 
@@ -180,7 +191,11 @@ let BMN_BiometricModule_HeartRateSamplingOptionKey = "BM_heart_rate_sampling_opt
 
 //[Configuration IDs]:
 let BMN_BiometricModule_DataSourceOptionsID = "BM_data_source_options_id"
+let BMN_BiometricModule_DataSourceOptions2ID = "BM_data_source_options_2_id"
 let BMN_BiometricModule_HeartRateSamplingOptionsID = "BM_heart_rate_sampling_options_id"
 
 //[DataEntry Keys]:
 let BMN_DataEntry_FreeformCell_NumberOfViewsKey = "BM_DE_freeform_cell_number_of_views_key" //for height calculation
+
+//[CoreData Keys]:
+let BMN_BiometricModule_ComputationInputsKey = "BMN_BM_computation_inputs_key"

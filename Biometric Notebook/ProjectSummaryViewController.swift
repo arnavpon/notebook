@@ -22,6 +22,8 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     var inputVariables = Dictionary<String, [Module]>() //obtained from ProjectVariablesVC
     var outcomeVariables: [Module]? //obtained from ProjectVariablesVC
     
+    var ghostVariables: [String: [GhostVariable]]? //vars that feed in to computations (system-created)
+    
     // MARK: - View Configuration
     
     override func viewDidLoad() {
@@ -29,6 +31,16 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         summaryTableView.dataSource = self
         summaryTableView.delegate = self
         summaryTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "summary_cell")
+        
+        print("[SummaryVC] # of COMPUTATIONS = \(ghostVariables?.count).")
+        if let ghosts = ghostVariables {
+            for (key, objects) in ghosts {
+                print("For computation [\(key)], ghosts are: ")
+                for ghost in objects {
+                    print("[\(ghost.name)]")
+                }
+            }
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -209,22 +221,55 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     @IBAction func createProjectButtonClick(sender: AnyObject) {
         //Construct CoreData objects for the input & output variables, then construct the Project & Group objects & save -> persistent store:
         //**In the future, this project will be sent -> the web for DB configuration, cloud backup, etc.
-        
+        print("Creating project...")
         if let type = projectType, title = projectTitle, question = projectQuestion {
             let project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, endPoint: projectEndpoint?.endpointInSeconds, insertIntoManagedObjectContext: context)
+            
             if (projectType == .ControlComparison) { //for CC type, create 2 groups
                 if let controlInputs = inputVariables[BMN_ControlComparison_ControlKey], comparisonInputs = inputVariables[BMN_ControlComparison_ComparisonKey], outcomes = outcomeVariables, action = projectAction?.action.rawValue { //construct control & comparison groups
-                    let controlBeforeActionVariables = createCoreDataDictionary(controlInputs, project: project)
-                    let comparisonBeforeActionVariables = createCoreDataDictionary(comparisonInputs, project: project)
-                    let afterActionVariablesDict = createCoreDataDictionary(outcomes, project: project)
+//                    let controlBeforeActionVariables = createCoreDataDictionary(controlInputs, project: project)
+//                    let comparisonBeforeActionVariables = createCoreDataDictionary(comparisonInputs, project: project)
+//                    let afterActionVariablesDict = createCoreDataDictionary(outcomes, project: project)
+//                    let _ = Group(type: GroupTypes.Control, project: project, action: action, beforeVariables: controlBeforeActionVariables, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context) //control grp
+//                    let _ = Group(type: GroupTypes.Comparison, project: project, action: action, beforeVariables: comparisonBeforeActionVariables, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context) //comparison
+                    var controlBeforeActionVariables = createCoreDataDictionary(controlInputs, project: project)
+                    var comparisonBeforeActionVariables = createCoreDataDictionary(comparisonInputs, project: project)
+                    var afterActionVariablesDict = createCoreDataDictionary(outcomes, project: project)
+                    if let ghostDict = ghostVariables {
+                        for (_, ghosts) in ghostDict {
+                            for ghost in ghosts {
+                                if (ghost.locationInFlow == VariableLocations.BeforeAction) {
+                                    if (ghost.groupType == .Control) {
+                                        controlBeforeActionVariables.updateValue(ghost.settings, forKey: ghost.name)
+                                    } else if (ghost.groupType == .Comparison) {
+                                        comparisonBeforeActionVariables.updateValue(ghost.settings, forKey: ghost.name)
+                                    }
+                                } else if (ghost.locationInFlow == VariableLocations.BeforeAction) {
+                                    afterActionVariablesDict.updateValue(ghost.settings, forKey: ghost.name)
+                                }
+                            }
+                        }
+                    }
+                    
                     let _ = Group(type: GroupTypes.Control, project: project, action: action, beforeVariables: controlBeforeActionVariables, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context) //control grp
                     let _ = Group(type: GroupTypes.Comparison, project: project, action: action, beforeVariables: comparisonBeforeActionVariables, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context) //comparison
                 }
             } else if (projectType == .InputOutput) { //for IO type, there is only 1 group
                 if let inputs = inputVariables[BMN_InputOutput_InputVariablesKey], outputs = outcomeVariables, action = projectAction?.action.rawValue {
-                    let beforeActionVariablesDict = createCoreDataDictionary(inputs, project: project)
-                    let afterActionVariablesDict = createCoreDataDictionary(outputs, project: project)
-                    let _ = Group(type: GroupTypes.LoneGroup, project: project, action: action, beforeVariables: beforeActionVariablesDict, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context)
+                    var beforeActionVariablesDict = createCoreDataDictionary(inputs, project: project)
+                    var afterActionVariablesDict = createCoreDataDictionary(outputs, project: project)
+                    if let ghostDict = ghostVariables { //if ghosts exist, add them -> project
+                        for (_, ghosts) in ghostDict {
+                            for ghost in ghosts {
+                                if (ghost.locationInFlow == VariableLocations.BeforeAction) {
+                                    beforeActionVariablesDict.updateValue(ghost.settings, forKey: ghost.name)
+                                } else if (ghost.locationInFlow == VariableLocations.BeforeAction) {
+                                    afterActionVariablesDict.updateValue(ghost.settings, forKey: ghost.name)
+                                }
+                            }
+                        }
+                    }
+                    let _ = Group(type: GroupTypes.LoneGroup, project: project, action: action, beforeVariables: beforeActionVariablesDict, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context) //create group
                 }
             }
             saveManagedObjectContext() //save new project & group(s) -> CoreData

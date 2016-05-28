@@ -132,14 +132,42 @@ class BiometricModule: Module {
                     FreeformCell_configurationObject!.append(("feet", ProtectedFreeformTypes.Int, nil, 1, nil)) //view 1 (for # of feet)
                     FreeformCell_configurationObject!.append(("inches", ProtectedFreeformTypes.Int, nil, 2, (0, 12))) //view 2 (for # of inches)
                 }
-            case .Computation_BMI:
-                break //if user wants it selected from HK, simply pull the last value; if user wants it computed, get the last height/weight for computation (fix this after adjust Project configuration)
+            case .Computation_BMI: //access the packed computationsInput dict
+                if let inputsDict = dict[BMN_BiometricModule_ComputationInputsKey] as? [String: String] {
+                    self.computationInputs = inputsDict
+                    for (key, value) in inputsDict {
+                        print("Reconstruct BMI var - KEY: [\(key)]. VALUE: [\(value)].")
+                    }
+                }
             case .Computation_BiologicalSex, .Computation_Age:
                 break
             }
         } else {
             print("[EnvironModule > CoreData initializer] Error! Could not find a type for the object.")
         }
+    }
+    
+    init(ghostName: String, type: BiometricModuleVariableTypes) { //GHOST init
+        super.init(name: ghostName)
+        self.moduleTitle = Modules.BiometricModule.rawValue //set title
+        
+        self.isGhost = true //mark as ghost
+        self.variableReportType = .AutoCapture //mark as auto-captured from API
+        switch type { //set appropriate variable type
+        case .Behavior_Height:
+            self.selectedFunctionality = BiometricModuleVariableTypes.Behavior_Height.rawValue
+        case .Behavior_Weight:
+            self.selectedFunctionality = BiometricModuleVariableTypes.Behavior_Weight.rawValue
+        default:
+            break
+        }
+    }
+    
+    override func copyWithZone(zone: NSZone) -> AnyObject { //creates copy of variable (this is required to reset the settings if the user moves back in navigation!)
+        let copy = BiometricModule(name: self.variableName)
+        copy.existingVariables = self.existingVariables
+        copy.moduleBlocker = self.moduleBlocker
+        return copy
     }
     
     // MARK: - Variable Configuration
@@ -193,24 +221,97 @@ class BiometricModule: Module {
                 configurationOptionsLayoutObject = array
                 
             case .Computation_BMI:
+                self.variableReportType = ModuleVariableReportTypes.Computation //set var as comp
+                var heightOptions = [BiometricModule_DataSourceOptions.HealthKit.rawValue]
+                var weightOptions = [BiometricModule_DataSourceOptions.HealthKit.rawValue]
+                var noHeight = false
+                var noWeight = false
                 
-                let options = [BiometricModule_DataSourceOptions.Calculate.rawValue, BiometricModule_DataSourceOptions.HealthKit.rawValue]
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "How will you be obtaining your BMI computations?", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_DefaultOptionsKey: [options[0]]])) //data entry options, default is CALCULATION
+                //(1) Check if existingVars contains a height/weight var & if so add it as an option:
+                if let existingVars = existingVariables {
+                    for variable in existingVars {
+                        if (variable.variableType == BiometricModuleVariableTypes.Behavior_Height.rawValue) { //HEIGHT var exists
+                            heightOptions.append(variable.name) //add to list of options
+                        } else if (variable.variableType == BiometricModuleVariableTypes.Behavior_Weight.rawValue) { //WEIGHT var exists
+                            weightOptions.append(variable.name) //add to list of options
+                        }
+                    }
+                }
                 
-                configurationOptionsLayoutObject = array
+                //(2) Only add the height & weight TV cells to configuration if there is > 1 choice; otherwise, omit that TV cell from the layout object:
+                if (heightOptions.count > 1) { //offer 1 config cell for height source
+                    array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "How will you be obtaining your HEIGHT (used to calculate BMI)?", BMN_SelectFromOptions_OptionsKey: heightOptions, BMN_SelectFromOptions_DefaultOptionsKey: [heightOptions.last!]])) //HEIGHT options, default is HK
+                } else { //NO height vars, value will be taken from API so create GHOST
+                    noHeight = true
+                }
+                if (weightOptions.count > 1) { //offer 1 config cell for weight source
+                    array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptions2ID, BMN_LEVELS_MainLabelKey: "How will you be obtaining your WEIGHT (used to calculate BMI)?", BMN_SelectFromOptions_OptionsKey: weightOptions, BMN_SelectFromOptions_DefaultOptionsKey: [weightOptions.last!]])) //WEIGHT options, default is HK
+                } else { //NO weight vars, value will be taken from API so create ghost
+                    noWeight = true
+                }
+                
+                if (noHeight) && (noWeight) { //NEITHER var needs config, set layoutObject -> nil
+                    configurationOptionsLayoutObject = nil
+                    self.createGhostForBiometricVariable(.Behavior_Weight) //create ghosts for both vars
+                    self.createGhostForBiometricVariable(.Behavior_Height)
+                } else {
+                    configurationOptionsLayoutObject = array
+                }
             
             case .Computation_BiologicalSex, .Computation_Age:
                 configurationOptionsLayoutObject = nil //no further config needed
-                self.isAutomaticallyCaptured = true //vars are auto-captured from HK store
+                self.variableReportType = ModuleVariableReportTypes.AutoCapture //auto-cap from HK store
             }
         } else { //no selection, set configOptionsObj -> nil
             configurationOptionsLayoutObject = nil
+        }
+        print("AFTER selection of var - rawValue of report type is \(self.variableReportType.rawValue).")
+    }
+    
+    private func createGhostForBiometricVariable(type: BiometricModuleVariableTypes) { //constructs a GHOST variable of specified type, names it according to parent computation, & sends notification
+        switch type {
+        case .Behavior_Height:
+            let ghost = BiometricModule(ghostName: "\(variableName)_height_ghost", type: type)
+            self.computationInputs[BMN_ComputationFramework_BM_BMI_HeightID] = ghost.variableName
+            self.createGhostForVariable(ghost)
+        case .Behavior_Weight:
+            let ghost = BiometricModule(ghostName: "\(variableName)_weight_ghost", type: type)
+            self.computationInputs[BMN_ComputationFramework_BM_BMI_WeightID] = ghost.variableName
+            self.createGhostForVariable(ghost)
+        default:
+            break
         }
     }
     
     internal override func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [String]?) {
         //(1) Takes as INPUT the data that was entered into each config TV cell. (2) Given the variableType, matches configuration data -> properties in the Module object by accessing specific configuration cell identifiers (defined in 'HelperFx' > 'Dictionary Keys').
         if let type = variableType {
+            if (type == BiometricModuleVariableTypes.Computation_BMI) { //computation lies outside main framework
+                //Check how the height & weight were configured to be obtained:
+                if let heightOptions = configurationData[BMN_BiometricModule_DataSourceOptionsID] as? [String], heightOption = heightOptions.first {
+                    print("Selected height option: \(heightOption).")
+                    if (heightOption == BiometricModule_DataSourceOptions.HealthKit.rawValue) { //ghost
+                        self.createGhostForBiometricVariable(.Behavior_Height)
+                    } else { //set the VALUE to the input's NAME
+                        self.computationInputs[BMN_ComputationFramework_BM_BMI_HeightID] = heightOption
+                    }
+                } else { //no height config object (create ghost)
+                    self.createGhostForBiometricVariable(.Behavior_Height)
+                }
+                if let weightOptions = configurationData[BMN_BiometricModule_DataSourceOptions2ID] as? [String], weightOption = weightOptions.first {
+                    print("Selected weight option: \(weightOption).")
+                    if (weightOption == BiometricModule_DataSourceOptions.HealthKit.rawValue) { //ghost
+                        print("Creating ghost...") 
+                        self.createGhostForBiometricVariable(.Behavior_Weight)
+                    } else { //set the VALUE to the input's NAME
+                        self.computationInputs[BMN_ComputationFramework_BM_BMI_WeightID] = weightOption
+                    }
+                } else {
+                    self.createGhostForBiometricVariable(.Behavior_Weight)
+                }
+                return (true, nil, nil)
+            }
+            
             if let options = configurationData[BMN_BiometricModule_DataSourceOptionsID] as? [String], rawOption = options.first, selectedOption = BiometricModule_DataSourceOptions(rawValue: rawOption) { //all BiometricMod variables require a DataSource
                 self.dataSourceOption = selectedOption
                 
@@ -219,10 +320,10 @@ class BiometricModule: Module {
                     if let samplingOpts = configurationData[BMN_BiometricModule_HeartRateSamplingOptionsID] as? [String], rawOption = samplingOpts.first, selectedOption = BiometricModule_HeartRateOptions(rawValue: rawOption) { //check for HR sampling
                         self.heartRateSamplingOption = selectedOption
                         switch selectedOption {
-                        case .ChooseSampleAtCollection:
-                            break //NOT auto-cap - user needs to select sample size @ collection time!
+                        case .ChooseSampleAtCollection: //MANUAL var - user selects sample @ collection!
+                            self.cellPrompt = "Choose a time span of heart rates:" //set cell prompt
                         default: //for other options, capture is automatic
-                            self.isAutomaticallyCaptured = true
+                            self.variableReportType = ModuleVariableReportTypes.AutoCapture
                         }
                         return (true, nil, nil)
                     } else {
@@ -230,12 +331,17 @@ class BiometricModule: Module {
                     }
                 case .Behavior_Weight, .Behavior_Height:
                     if (selectedOption == BiometricModule_DataSourceOptions.HealthKit) {
-                        self.isAutomaticallyCaptured = true //set -> auto-cap
+                        self.variableReportType = ModuleVariableReportTypes.AutoCapture //set -> auto-cap
+                    } else if (selectedOption == .Manual) { //save prompt for MANUAL object
+                        if (type == .Behavior_Height) {
+                            self.cellPrompt = "Enter your current height:"
+                        } else if (type == .Behavior_Weight) { 
+                            self.cellPrompt = "Enter your current weight:"
+                        }
                     }
                     return (true, nil, nil) //no further config aside from data source
                 case .Computation_BMI:
-                    self.isAutomaticallyCaptured = true //always set -> auto-cap
-                    return (true, nil, nil) //no further config aside from data source
+                    break
                 default:
                     print("[BiometricMod: matchConfigToProps] Error! Default in switch!")
                     return (false, "Default in switch!", nil)
@@ -259,20 +365,11 @@ class BiometricModule: Module {
             
             switch type { //check for any other items to pack
             case .Behavior_HeartRate:
-                if let samplingOption = heartRateSamplingOption {
+                if let samplingOption = heartRateSamplingOption { //store sampling option
                     persistentDictionary[BMN_BiometricModule_HeartRateSamplingOptionKey] = samplingOption.rawValue
-                    if (samplingOption == BiometricModule_HeartRateOptions.ChooseSampleAtCollection) {
-                        persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = "Choose a time span of heart rates:"
-                    }
                 }
-            case .Behavior_Weight, .Behavior_Height:
-                if (type == BiometricModuleVariableTypes.Behavior_Weight) { //add a prompt
-                    persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = "Enter your current weight:"
-                } else if (type == BiometricModuleVariableTypes.Behavior_Height) { //add a prompt
-                    persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = "Enter your current height:"
-                }
-            case .Computation_BMI:
-                break
+            case .Computation_BMI: //store computation's inputs dict
+                persistentDictionary[BMN_BiometricModule_ComputationInputsKey] = self.computationInputs
             default:
                 break
             }
@@ -283,6 +380,10 @@ class BiometricModule: Module {
     // MARK: - Data Entry Logic
     
     lazy var healthKitConnection = HealthKitConnection() //handles interaction w/ HK
+    
+    func getTypeForVariable() -> BiometricModuleVariableTypes? { //external type access
+        return self.variableType
+    }
     
     override func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
         if let type = self.variableType {
@@ -321,6 +422,12 @@ class BiometricModule: Module {
         return false
     }
     
+    override func reportDataForVariable() -> [String: AnyObject]? { //**test
+        let reportDict = super.reportDataForVariable() //use superclass functionality, but first...
+        writeManualDataToHKStore() //before reporting, write data -> HKStore as needed
+        return reportDict
+    }
+    
     override func performConversionOnUserEnteredData(input: AnyObject) -> AnyObject? { //convert user entered data to HK-appropriate form before saving it to moduleReportObject
         if let type = variableType {
             switch type {
@@ -347,14 +454,13 @@ class BiometricModule: Module {
                 if let sampleOption = self.heartRateSamplingOption {
                     switch sampleOption {
                     case .MostRecent: //get last HR in HK store
-                        
-                    healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heartRateType, unit: HealthKitConnection.beatsPerMinuteUnit, sampleLimit: 1, filters: [], completion: { (let rates) in
-                        if let heartRates = rates, hr = heartRates.first { //get most recent HR
-                            self.mainDataObject = hr
-                        } else {
-                            print("[populateDataObject] Error - no HR found in store.")
-                        }
-                    })
+                        healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heartRateType, unit: HealthKitConnection.beatsPerMinuteUnit, sampleLimit: 1, filters: [], completion: { (let rates) in
+                                if let heartRates = rates, hr = heartRates.first { //get most recent HR
+                                    self.mainDataObject = hr
+                                } else {
+                                    print("[populateDataObject] Error - no HR found in store.")
+                            }
+                        })
                     case .AverageOverAction: //get all recorded values during action & calculate average
                         if let inputsTimeStamp = NSUserDefaults.standardUserDefaults().valueForKey(INPUTS_TIME_STAMP) { //obtain the date @ which the IVs were saved
                             let currentTime = NSDate()
@@ -381,7 +487,7 @@ class BiometricModule: Module {
                     }
                 }
             case .Behavior_Weight: //get most recent weight from HK
-                healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.bodyMassType, unit: HKUnit.poundUnit(), sampleLimit: 1, filters: [], completion: { (let weights) in
+                healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.bodyMassType, unit: measurementUnit, sampleLimit: 1, filters: [], completion: { (let weights) in
                     if let wts = weights, wt = wts.first {
                         self.mainDataObject = wt
                     } else { //how do we handle when there are no objects in store?!? - @ this point, could throw an error to the VC that will generate a TV cell for this variable to enter its data into (error will add new item to TV data source for that session).
@@ -389,24 +495,15 @@ class BiometricModule: Module {
                     }
                 })
             case .Behavior_Height: //get most recent height in HK
-                healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heightType, unit: HKUnit.inchUnit(), sampleLimit: 1, filters: [], completion: { (let heights) in
+                healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heightType, unit: measurementUnit, sampleLimit: 1, filters: [], completion: { (let heights) in
                     if let hts = heights, ht = hts.first {
                         self.mainDataObject = ht
                     } else { //how do we handle when there are no objects in store?!? - @ this point, could throw an error to the VC that will generate a TV cell for this variable to enter its data into.
                         print("[BM - populateDataObj] Error - No Height in HK Store!")
                     }
                 })
-            case .Computation_BMI:
-                //compute BMI from last height & weight - if there is a weight or height variable in the current project, wait until that reports before obtaining the value. If not, grab the last value in the HK store for that value.
-                healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.heightType, unit: HKUnit.meterUnit(), sampleLimit: 1, filters: [], completion: { (let heights) in
-                    if let hts = heights, height = hts.first {
-                        self.healthKitConnection.getSampleQuantityFromHKStore(HealthKitConnection.bodyMassType, unit: HKUnit.gramUnitWithMetricPrefix(HKMetricPrefix.Kilo), sampleLimit: 1, filters: [], completion: { (let weights) in
-                            if let wts = weights, weight = wts.first { //(weight in kg) / (ht ^ 2)
-                                self.mainDataObject = weight / (height * height)
-                            }
-                        })
-                    }
-                })
+            case .Computation_BMI: //handled by computation framework
+                print("[BM - populateDataObj] Error - calling fx for COMPUTATION!")
             case .Computation_BiologicalSex:
                 if let gender = healthKitConnection.getGenderFromHKStore() {
                     mainDataObject = gender.rawValue
@@ -419,18 +516,20 @@ class BiometricModule: Module {
         }
     }
     
+    // MARK: - HealthKit Interaction Logic
+    
     func writeManualDataToHKStore() { //called by Project class during aggregation - instructs the manually entered variable to report its data to HK if it is of Biometric Class
         if let type = variableType {
             switch type {
             case .Behavior_Weight:
                 if let weight = self.mainDataObject as? Double {
-                    if !(self.isAutomaticallyCaptured) { //only write values entered by user (i.e. don't write value to HK store when it has just been obtained from there!)
+                    if (self.variableReportType == ModuleVariableReportTypes.Default) { //only write values entered by user (i.e. don't write value to HK store when it has just been obtained from there!)
                         healthKitConnection.writeSampleQuantityToHKStore(HealthKitConnection.bodyMassType, quantity: weight, unit: HKUnit.poundUnit())
                     }
                 }
             case .Behavior_Height:
                 if let height = self.mainDataObject as? Double { //height is expressed in INCHES
-                    if !(self.isAutomaticallyCaptured) {
+                    if (self.variableReportType == ModuleVariableReportTypes.Default) {
                         healthKitConnection.writeSampleQuantityToHKStore(HealthKitConnection.heightType, quantity: height, unit: HKUnit.inchUnit())
                     }
                 }
@@ -445,8 +544,6 @@ class BiometricModule: Module {
             }
         }
     }
-    
-    // MARK: - Heart Rate Logic
     
     func obtainHeartRateForSelectedSample(sample: (Int, Int)) { //called by 'DataEntryCellWithPicker' class; input format is (minutes, seconds), based on user selection of sample size
         let sampleInSeconds: Double = Double((sample.0 * 60) + sample.1) //convert sampleTime -> seconds
@@ -463,6 +560,39 @@ class BiometricModule: Module {
             }
         }
     }
+    
+    //***unit conversions***
+    var measurementUnit: HKUnit { //unit being used for this variable
+        if let type = self.variableType {
+            switch type {
+            case .Behavior_Height:
+                return HKUnit.inchUnit()
+            case .Behavior_Weight:
+                return HKUnit.poundUnit()
+            default:
+                break
+            }
+        }
+        print("[measurementUnit] ERROR - Utilizing dummy unit...")
+        return HKUnit.countUnit() //don't want this to be optional so use this as default
+    }
+    
+    func getReportObjectInUnits(unit: HealthKitUnits) -> Double? { //**something isn't write about this setup, rewrite in a better way. Goal is to protect units such that we always know what unit the report data will be expressed in, and have a means to convert from 1 unit to another.
+        if let data = self.mainDataObject as? Double {
+            switch unit {
+            case .Kilogram: //conversion for WEIGHT unit
+                if (measurementUnit == HKUnit.poundUnit()) { //convert pounds -> kilograms
+                    return (data / 2.2)
+                }
+            case .Meter: //conversion for HEIGHT unit
+                if (measurementUnit == HKUnit.inchUnit()) { //convert inches -> meters
+                    return (data * 2.54)/100
+                }
+            }
+        }
+        return nil
+    }
+    //***
     
 }
 
@@ -529,4 +659,11 @@ enum BiometricModule_HeartRateOptions: String { //sampling options for HR variab
     case MostRecent = "Most Recent Value" //grabs last measured HR from store
     case AverageOverAction = "Average Over Action" //**averages all HR measurements taken between IV time stamp & OM time stamp (i.e. averages values taken during action), ONLY available for OutcomeMeasures!!! (need to build in protection so selection is only enabled for OM)
     case ChooseSampleAtCollection = "Choose Sample at Data Collection Time" //**allows user to pick a period of time over which to sample HR (provides an array of HR)
+}
+
+enum HealthKitUnits { //object allowing for interconversion between different kinds of HK units
+    
+    case Kilogram
+    case Meter
+    
 }

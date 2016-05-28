@@ -9,18 +9,17 @@
 import Foundation
 import UIKit
 
-class Module { //defines the behaviors that are common to all modules
+class Module: NSObject, NSCopying { //defines the behaviors that are common to all modules
     
     static let modules: [Modules] = [Modules.CustomModule, Modules.EnvironmentModule, Modules.FoodIntakeModule, Modules.ExerciseModule, Modules.BiometricModule, Modules.CarbonEmissionsModule] //list of available modules, update whenever a new one is added
     
-    var isOutcomeMeasure: Bool = false //externally set to indicate that this variable is an OM
-    var isAutomaticallyCaptured: Bool = false //set after functionality is selected (manual vs. auto-cap)
-    var isComputation: Bool = false //set if variable is computed from other variables **
-    private let variableState: ModuleVariableStates //state of THIS instance (Configuration or Reporting)
+    var isOutcomeMeasure: Bool = false //externally set to indicate that this variable is an OM**
+    var variableReportType = ModuleVariableReportTypes.Default //report type, default is 'default'
+    private var variableState: ModuleVariableStates //state of THIS instance (Configuration or Reporting)
     internal let variableName: String //the name given to the variable attached to this module
     internal var moduleTitle: String = "" //overwrite w/ <> Module enum raw value in each class
     
-    var moduleBlocker: Module_ConfigurationBlocker? { //class that handles variableType filtering
+    var moduleBlocker: Module_DynamicConfigurationFramework? { //class that handles variableType filtering
         didSet { //after setting the blocker, assign the behaviors & computations
             self.behaviors = setBehaviors()
             self.computations = setComputations()
@@ -93,12 +92,21 @@ class Module { //defines the behaviors that are common to all modules
     init(name: String, dict: [String: AnyObject]) { //initializer for variable during RECONSTRUCTION from CoreData dict
         self.variableName = name
         self.variableState = ModuleVariableStates.DataReporting
-        if let auto = dict[BMN_VariableIsAutomaticallyCapturedKey] as? Bool { //chck if auto or manual cap
-            self.isAutomaticallyCaptured = auto
-        }
         if let prompt = dict[BMN_DataEntry_MainLabelPromptKey] as? String { //check if cell has a prompt
             self.cellPrompt = prompt //set prompt (used in place of varType in mainLabel of TV cell)
         }
+        if let reportTypeRaw = dict[BMN_VariableReportTypeKey] as? Int, reportType = ModuleVariableReportTypes(rawValue: reportTypeRaw) { //reset the report type
+            print("[Module superclass init()] Report type raw = \(reportTypeRaw).")
+            self.variableReportType = reportType
+        }
+        if let ghost = dict[BMN_VariableIsGhostKey] as? Bool {
+            self.isGhost = ghost
+        }
+    }
+    
+    func copyWithZone(zone: NSZone) -> AnyObject { //OVERRIDE in subclasses
+        print("[Module superclass] ERROR - calling copyWithZone in superclass!")
+        return Module(name: self.variableName) //this should never be called
     }
     
     // MARK: - Variable Configuration
@@ -106,7 +114,6 @@ class Module { //defines the behaviors that are common to all modules
     internal var selectedFunctionality: String? { //the behavior OR computation (picked from the enum defined in each module object) that the user selected for this variable
         didSet { //set configurationOptions based on selection
             if (self.variableState == ModuleVariableStates.VariableConfiguration) { //ONLY set-up the configurationOptionsLayoutObject if the variable is being set-up
-                print("User selected behavior: '\(selectedFunctionality!)'.")
                 setConfigurationOptionsForSelection()
             }
         }
@@ -128,7 +135,16 @@ class Module { //defines the behaviors that are common to all modules
     // MARK: - Core Data Logic
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        let persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle, BMN_VariableIsOutcomeMeasureKey: self.isOutcomeMeasure, BMN_VariableIsAutomaticallyCapturedKey : self.isAutomaticallyCaptured] //'moduleTitle' matches switch case in 'Project' > 'createModuleObjectFromModuleName' func
+        var persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle, BMN_VariableReportTypeKey: self.variableReportType.rawValue]
+        if let prompt = cellPrompt { //if prompt has been set, store it
+            persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = prompt
+        }
+        if (self.isGhost) { //if var is ghost, store the indicator in the dict
+            persistentDictionary[BMN_VariableIsGhostKey] = true
+        }
+        if (self.isOutcomeMeasure) { //**
+            persistentDictionary[BMN_VariableIsOutcomeMeasureKey] = true
+        }
         return persistentDictionary
     }
     
@@ -174,6 +190,28 @@ class Module { //defines the behaviors that are common to all modules
     
     func isSubscribedToService(service: ServiceTypes) -> Bool { //OVERRIDE in subclasses (as needed); checks if variable is subscribed to the specified service (called by Project object containing this variable during re-population of data object [in event of a service failure])
         return false //default is FALSE
+    }
+    
+    // MARK: - Computation Logic
+    
+    var isGhost: Bool = false { //used by Project VC to avoid adding this variable to DB dict
+        didSet {
+            self.variableState = .Ghost //blocks setConfigLayoutObject from firing
+        }
+    }
+    lazy var computationInputs = Dictionary<String, String>() //used to define configuration for computation, KEY is the unique ID for the input, VALUE is the NAME of the input var or ghost
+    var existingVariables: [ComputationFramework_ExistingVariables]? //list of created vars
+    
+    internal func createGhostForVariable(variable: Module) { //used by computations; creates a ghost variable & sends notification -> ProjectVarsVC so ghost is added to the Project
+        print("[Module] creating ghost for variable...")
+        let settings = variable.createDictionaryForCoreDataStore()
+        let name = variable.variableName
+        if let blocker = self.moduleBlocker, location = blocker.currentLocationInFlow {
+            let locationRaw = location.rawValue
+            let info: [String: AnyObject] = [BMN_ComputationFramework_ComputationNameKey: self.variableName, BMN_ComputationFramework_GhostNameKey: name, BMN_ComputationFramework_GhostConfigDictKey: settings, BMN_ComputationFramework_GhostLocationKey: locationRaw]
+            let notification = NSNotification(name: BMN_Notification_ComputationFramework_DidCreateGhostVariable, object: nil, userInfo: info)
+            NSNotificationCenter.defaultCenter().postNotification(notification)
+        }
     }
     
 //    array.append((ConfigurationOptionCellTypes.Computation, [BMN_Configuration_CellDescriptorKey: "BMI", BMN_LEVELS_MainLabelKey: "Click and drag over 2 variable labels:", BMN_Configuration_AllowedVariableTypesForComputationKey: [CustomModuleVariableTypes.Behavior_BinaryOptions.rawValue]])) //computation default config logic

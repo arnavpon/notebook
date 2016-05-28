@@ -141,17 +141,26 @@ class Project: NSManagedObject {
         
         //(1) Obtain the data stored in ALL variables (manual + auto) that are being reported:
         var reportCount = 0
+        var deferredVariables: [Module] = []
+        var inputNames: [String] = [] //names of all computation inputs
+        var inputsReportData = Dictionary<String, [String: AnyObject]>() //data in all computation inputs
         for variable in variables { //each Module obj reports entered data -> VC to construct dict
-            if let data = variable.reportDataForVariable() { //check if data was successfully reported
-                dataObjectToDatabase[variable.variableName] = data
-                reportCount += 1 //compare report count -> full count
-                
-                //If variable is of BiometricModule, tell it to report data -> HK:
-                if let biometricVar = variable as? BiometricModule { //**test
-                    biometricVar.writeManualDataToHKStore() //**
+            if (variable.variableReportType == ModuleVariableReportTypes.Computation) {
+                deferredVariables.append(variable) //defer computations til ALL vars are reported
+                for (_, inputName) in variable.computationInputs { //grab names of inputs
+                    inputNames.append(inputName)
                 }
-            } else {
-                print("[constructDataObject] Error - no data for '\(variable.variableName)' variable!")
+            } else { //default behavior
+                if let data = variable.reportDataForVariable() { //check if data was successfully reported
+                    if !(variable.isGhost) { //add non-ghosts to DB object
+                        dataObjectToDatabase[variable.variableName] = data
+                    } else { //GHOST var (add to computation inputs object)
+                        inputsReportData[variable.variableName] = data
+                    }
+                    reportCount += 1 //compare report count -> full count
+                } else {
+                    print("[constructDataObject] Error - no data for '\(variable.variableName)' variable!")
+                }
             }
         }
         print("Report Count: \(reportCount). Full Count: \(variables.count).\n") //**block 'Done' btn press if the 2 values don't match!
@@ -163,7 +172,24 @@ class Project: NSManagedObject {
             print("\n")
         }
         
-        //(2) If IV are being reported, store data -> tempObj; if OM are reported, send data -> DB:
+        //(2) Check if any of the variables are computations & compute their values now:
+        if !(deferredVariables.isEmpty) { //COMPUTATION(S) exist
+            for name in inputNames { //*add non-ghost inputs to dict for CF AFTER all vars report*
+                inputsReportData[name] = dataObjectToDatabase[name]
+            }
+            for (key, _) in inputsReportData { //*
+                print("Input variable Name: [\(key)].")
+            }
+            let computationFramework = Module_ComputationFramework()
+            computationFramework.setReportObjectForComputations(deferredVariables, inputsReportData: inputsReportData) //load computations w/ return values
+            for computation in deferredVariables { //have computations report their values -> DB object
+                if let reportObject = computation.reportDataForVariable() {
+                    dataObjectToDatabase[computation.variableName] = reportObject
+                }
+            }
+        }
+        
+        //(3) If IV are being reported, store data -> tempObj; if OM are reported, send data -> DB:
         if let temp = self.temporaryStorageObject { //tempObject EXISTS (send combined data -> DB)
             if let timeStamps = temp[BMN_Module_MainTimeStampKey], inputsReportTime = timeStamps[BMN_Module_InputsTimeStampKey] as? NSDate { //get inputTime from dict
                 let outputsReportTime = NSDate() //get CURRENT time for outputs timeStamp

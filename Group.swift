@@ -35,14 +35,18 @@ class Group: NSManagedObject {
             variableDict = self.afterActionVariables
         }
         
-        //Check the Module obj for the auto-capture indicator before adding var -> array (variables that are AUTO-captured are NOT added, but are asked to report their data now):
+        //Check the Module obj for the reportType before adding var -> array:
         for (variable, dict) in variableDict { //'dict' = configurationDict for variable
             if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
+                print("Reconstructing variable: [\(variable)].")
                 let reconstructedVariable: Module = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
                 reconstructedVariables.append(reconstructedVariable) //add -> array for data capture
-                if !(reconstructedVariable.isAutomaticallyCaptured) { //MANUALLY captured vars
+                switch reconstructedVariable.variableReportType { //check the var's reportType
+                case .Default: //USER-ENTERED vars - add to array for display to user
+                    print("MANUAL capture var")
                     dataEntryVariablesArray.append(reconstructedVariable)
-                } else { //AUTO-captured vars
+                case .AutoCapture: //AUTO captured vars
+                    print("AUTO capture var")
                     if (reconstructedVariable.selectedFunctionality == CustomModuleVariableTypes.Computation_TimeDifference.rawValue) { //TIME DIFFERENCE
                         //Create entry in tempStorageObject indicating there is a TimeDifference var (ONLY works if TimeDiff is an OUTPUT variable):
                         self.project.temporaryStorageObject?.updateValue([BMN_CustomModule_TimeDifferenceKey: reconstructedVariable.variableName], forKey: BMN_ProjectContainsTimeDifferenceKey) //store var's name in dict
@@ -51,6 +55,9 @@ class Group: NSManagedObject {
                         reconstructedVariable.populateDataObjectForAutoCapturedVariable()
                         autoCapturedVariables.append(reconstructedVariable) //add -> array
                     }
+                case .Computation:
+                    print("COMPUTATION variable")
+                    break //should not be displayed in TV, must wait for other variables to report before obtaining information...
                 }
             }
         }

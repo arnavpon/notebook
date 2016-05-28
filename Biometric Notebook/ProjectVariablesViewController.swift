@@ -50,7 +50,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     var variableName: String? //the name of the variable entered by the user
     var createdVariable: Module? //the completed variable created by the user
     var variableLocation: VariableLocations? //indicates whether createdVar goes before or afterAction
-    var moduleBlocker = Module_ConfigurationBlocker() //**class that handles blocking
+    var moduleBlocker = Module_DynamicConfigurationFramework() //class that handles blocking
     
     var inputVariableRows: [Module] { //data source for rows before the 'Action'
         if (projectType == .InputOutput) {
@@ -134,11 +134,34 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         inputVariablesTV.delegate = self
         outcomeVariablesTV.dataSource = self
         outcomeVariablesTV.delegate = self
+        
+        //Register for ghost variable notification. When do we de-register for this (when view unloads?):
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.systemDidCreateGhostVariable(_:)), name: BMN_Notification_ComputationFramework_DidCreateGhostVariable, object: nil)
     }
     
     func configureNavigationBar(barTitle: String?, backButtonTitle: String?) {
         navBarItem.title = barTitle
         backButton.title = backButtonTitle
+    }
+    
+    var ghostVariables: [String: [GhostVariable]]? //ghosts are stored against the parent computation
+    
+    func systemDidCreateGhostVariable(notification: NSNotification) { //responds to Module object's request to create a ghost for a computation variable
+        print("[ProjectVarsVC] systemDidCreateGhost firing...")
+        if let info = notification.userInfo, sender = info[BMN_ComputationFramework_ComputationNameKey] as? String, ghostName = info[BMN_ComputationFramework_GhostNameKey] as? String, settings = info[BMN_ComputationFramework_GhostConfigDictKey] as? [String: AnyObject], locationRaw = info[BMN_ComputationFramework_GhostLocationKey] as? Int, location = VariableLocations(rawValue: locationRaw) {
+            print("Sender = [\(sender)]. Ghost name = [\(ghostName)].")
+            if (ghostVariables == nil) { //initialize array if it doesn't yet exist
+                print("Dict is NIL. Initializing ghost dictionary...")
+                ghostVariables = Dictionary<String, [GhostVariable]>()
+            }
+            if (ghostVariables![sender] == nil) { //check if entry already exists for sender computation
+                print("Initializing array for sender [\(sender)]...")
+                ghostVariables![sender] = [] //initialize an array
+            }
+            let ghost = GhostVariable(groupType: ccNavigationState, location: location, computation: sender, name: ghostName, settings: settings)
+            ghostVariables![sender]!.append(ghost)
+            print("Number of items in ghostArray for sender [\(sender)] = \(ghostVariables![sender]?.count).")
+        }
     }
     
     // MARK: - Table View
@@ -251,7 +274,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 var varToDelete: Module? //variable that is about to be deleted
                 var location: VariableLocations? //variable location
                 if (tableView == inputVariablesTV) { //inputs TV
-                    location = VariableLocations.BeforeAction //**
+                    location = VariableLocations.BeforeAction
                     if (projectType == .InputOutput) {
                         if let variables = inputVariablesDict[BMN_InputOutput_InputVariablesKey] {
                             varToDelete = variables[indexPath.row]
@@ -271,7 +294,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                         }
                     }
                 } else if (tableView == outcomeVariablesTV) { //outcomes TV
-                    location = VariableLocations.AfterAction //**
+                    location = VariableLocations.AfterAction
                     varToDelete = outcomeVariableRows[indexPath.row]
                     outcomeVariableRows.removeAtIndex(indexPath.row)
                 }
@@ -282,7 +305,11 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 
                 //Send deleted typeName to moduleBlocker variable:
                 if let deletedVar = varToDelete, functionality = deletedVar.selectedFunctionality, loc = location {
-                    moduleBlocker.variableWasDeleted(loc, typeName: functionality) //**
+                    moduleBlocker.variableWasDeleted(loc, typeName: functionality)
+                    if let _ = ghostVariables { //delete all ghosts associated w/ the variable
+                        print("Deleting ghosts for variable: [\(deletedVar.variableName)]. Number of ghosts: \(ghostVariables![deletedVar.variableName]?.count).")
+                        ghostVariables![deletedVar.variableName] = nil
+                    }
                 }
             }
         } else { //tutorial behavior
@@ -796,14 +823,15 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         //Note: requires the '@IBAction' in the beginning to enable the click & drag from a button to the VC's 'Exit' button on the top-most bar.
         if let senderVC = sender.sourceViewController as? ConfigureModuleViewController {
             //If sender is configureModuleVC, grab the input/outcome selection & module information:
-            createdVariable = senderVC.createdVariable
+//            createdVariable = senderVC.createdVariable
+            createdVariable = senderVC.copiedVariable //grab the COPIED var
         } else if let senderVC = sender.sourceViewController as? ConfigurationOptionsViewController {
             //If sender is configOptionsVC, grab the input/outcome selection & module information:
             createdVariable = senderVC.createdVariable
         }
         
         if let variable = createdVariable, typeName = variable.selectedFunctionality, location = variableLocation { //add the incoming variable -> appropriate TV
-            self.moduleBlocker.variableWasCreated(location, typeName: typeName) //**send blocker info
+            self.moduleBlocker.variableWasCreated(location, typeName: typeName) //send blocker info
             
             if (variableLocation == VariableLocations.BeforeAction) { //beforeAction var
                 if (projectType == .InputOutput) { //add -> IO data source
@@ -846,6 +874,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             destination.projectType = self.projectType
             destination.inputVariables = self.inputVariablesDict
             destination.outcomeVariables = self.outcomeVariableRows
+            destination.ghostVariables = self.ghostVariables //pass over any ghosts
         } else if (segue.identifier == "showAttachModule") { //send name of new variable
             let destination = segue.destinationViewController as! UINavigationController
             let attachModuleVC = destination.topViewController as! AttachModuleViewController
@@ -854,14 +883,20 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             moduleBlocker.currentLocationInFlow = self.variableLocation //update location in blocker
             attachModuleVC.moduleBlocker = self.moduleBlocker //pass over existing varTypes
             
-            var currentVars: [Module] = []
-            for variable in outcomeVariableRows {
-                currentVars.append(variable)
+            //Create a list of existing vars w/in the selected part of the cycle (used by Module object):
+            var existingVars: [ComputationFramework_ExistingVariables] = []
+            if (variableLocation == VariableLocations.BeforeAction) {
+                for variable in inputVariableRows {
+                    let structObject = ComputationFramework_ExistingVariables(variable: variable)
+                    existingVars.append(structObject)
+                }
+            } else if (variableLocation == VariableLocations.AfterAction) {
+                for variable in outcomeVariableRows {
+                    let structObject = ComputationFramework_ExistingVariables(variable: variable)
+                    existingVars.append(structObject)
+                }
             }
-            for variable in inputVariableRows {
-                currentVars.append(variable)
-            }
-            attachModuleVC.currentVariables = currentVars
+            attachModuleVC.existingVariables = existingVars
         }
     }
 

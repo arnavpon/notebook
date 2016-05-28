@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10838FB1C4D3FDD0023C060 /* Endpoint.swift */; };
 		B10838FE1C4D40210023C060 /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10838FD1C4D40210023C060 /* Action.swift */; };
+		B10881E61CF486930032EBBC /* ComputationFramework_ExistingVariables.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10881E51CF486930032EBBC /* ComputationFramework_ExistingVariables.swift */; };
 		B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B921E1C52D8E70079A535 /* HelperFunctions.swift */; };
 		B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B92201C52D9BE0079A535 /* CustomTextView.swift */; };
 		B122261E1CC479A600A00109 /* BaseComputationConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B122261D1CC479A500A00109 /* BaseComputationConfigurationCell.swift */; };
@@ -37,12 +38,15 @@
 		B13CF6BB1C2D93BB0019D315 /* GlanceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BA1C2D93BB0019D315 /* GlanceController.swift */; };
 		B13CF6BD1C2D93BB0019D315 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */; };
 		B13CF6BF1C2D93BB0019D315 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */; };
+		B15933241CF75CFC002C09C2 /* Module_ComputationFramework.swift in Sources */ = {isa = PBXBuildFile; fileRef = B15933231CF75CFC002C09C2 /* Module_ComputationFramework.swift */; };
+		B15933261CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift in Sources */ = {isa = PBXBuildFile; fileRef = B15933251CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift */; };
 		B16282641CC1839800096CE5 /* CellForCounterBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = B16282631CC1839800096CE5 /* CellForCounterBehavior.swift */; };
 		B16EC9801C317D650085265C /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B16EC97F1C317D650085265C /* HealthKit.framework */; };
 		B17019561CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019551CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift */; };
 		B17019591CAA2C73004CAEB8 /* BaseConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */; };
 		B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */; };
 		B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */; };
+		B19857D11CF64947000FBF05 /* GhostVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19857D01CF64947000FBF05 /* GhostVariable.swift */; };
 		B19DF36D1CC57388008F44C4 /* CoreLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */; };
 		B19DF3701CC58CAC008F44C4 /* NetworkConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555801C3068FD00C20742 /* NetworkConnection.swift */; };
 		B1A7C62E1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */; };
@@ -96,7 +100,6 @@
 		B1DEE0491CD042B700F73F77 /* FreeformDataEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DEE0481CD042B700F73F77 /* FreeformDataEntryCell.swift */; };
 		B1E1E1401CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */; };
 		B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1EDACB41CA4A2560087E3B1 /* CarbonEmissionsModule.swift */; };
-		B1F5A0721CE954D100E0DC8D /* Module_ConfigurationBlocker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F5A0711CE954D100E0DC8D /* Module_ConfigurationBlocker.swift */; };
 		B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */; };
 		B1F6F3BF1C518BEE001802A7 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */; };
 /* End PBXBuildFile section */
@@ -160,6 +163,7 @@
 /* Begin PBXFileReference section */
 		B10838FB1C4D3FDD0023C060 /* Endpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Endpoint.swift; sourceTree = "<group>"; };
 		B10838FD1C4D40210023C060 /* Action.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
+		B10881E51CF486930032EBBC /* ComputationFramework_ExistingVariables.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComputationFramework_ExistingVariables.swift; sourceTree = "<group>"; };
 		B11B921E1C52D8E70079A535 /* HelperFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		B11B92201C52D9BE0079A535 /* CustomTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
 		B122261D1CC479A500A00109 /* BaseComputationConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BaseComputationConfigurationCell.swift; path = ../../BaseComputationConfigurationCell.swift; sourceTree = "<group>"; };
@@ -197,6 +201,8 @@
 		B13CF6BC1C2D93BB0019D315 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		B13CF6BE1C2D93BB0019D315 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B13CF6C01C2D93BB0019D315 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B15933231CF75CFC002C09C2 /* Module_ComputationFramework.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Module_ComputationFramework.swift; sourceTree = "<group>"; };
+		B15933251CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Module_DynamicConfigurationFramework.swift; sourceTree = "<group>"; };
 		B16282631CC1839800096CE5 /* CellForCounterBehavior.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellForCounterBehavior.swift; sourceTree = "<group>"; };
 		B16EC97F1C317D650085265C /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		B16EC9811C317D650085265C /* Biometric Notebook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Biometric Notebook.entitlements"; sourceTree = "<group>"; };
@@ -205,6 +211,7 @@
 		B17C210D1C31B5F400B59FB0 /* HealthKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitConnection.swift; sourceTree = "<group>"; };
 		B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureModuleViewController.swift; sourceTree = "<group>"; };
 		B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSliderBackgroundView.swift; sourceTree = "<group>"; };
+		B19857D01CF64947000FBF05 /* GhostVariable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GhostVariable.swift; sourceTree = "<group>"; };
 		B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreLocationManager.swift; sourceTree = "<group>"; };
 		B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectFromOptionsConfigurationCell.swift; sourceTree = "<group>"; };
 		B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithRangeScaleCell.swift; sourceTree = "<group>"; };
@@ -257,7 +264,6 @@
 		B1DEE0481CD042B700F73F77 /* FreeformDataEntryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FreeformDataEntryCell.swift; sourceTree = "<group>"; };
 		B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CustomOptionsConfigurationCell.swift; path = ../../CustomOptionsConfigurationCell.swift; sourceTree = "<group>"; };
 		B1EDACB41CA4A2560087E3B1 /* CarbonEmissionsModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarbonEmissionsModule.swift; sourceTree = "<group>"; };
-		B1F5A0711CE954D100E0DC8D /* Module_ConfigurationBlocker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Module_ConfigurationBlocker.swift; path = ../../Module_ConfigurationBlocker.swift; sourceTree = "<group>"; };
 		B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTableViewHeader.swift; sourceTree = "<group>"; };
 		B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -638,7 +644,10 @@
 			isa = PBXGroup;
 			children = (
 				B1D868D51C3F58810026334B /* Modules.swift */,
-				B1F5A0711CE954D100E0DC8D /* Module_ConfigurationBlocker.swift */,
+				B15933251CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift */,
+				B15933231CF75CFC002C09C2 /* Module_ComputationFramework.swift */,
+				B10881E51CF486930032EBBC /* ComputationFramework_ExistingVariables.swift */,
+				B19857D01CF64947000FBF05 /* GhostVariable.swift */,
 			);
 			name = Supplements;
 			sourceTree = "<group>";
@@ -861,14 +870,15 @@
 				B10838FE1C4D40210023C060 /* Action.swift in Sources */,
 				B1D51C5E1CB2A19C00DED6B2 /* LevelsFrameworkCell.swift in Sources */,
 				B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */,
+				B19857D11CF64947000FBF05 /* GhostVariable.swift in Sources */,
 				B1D51C5A1CB29CC200DED6B2 /* ArchivedProjectsViewController.swift in Sources */,
 				B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */,
 				B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */,
 				B1C42F7A1CCFA40800F27DDF /* DataReportingErrorProtocol.swift in Sources */,
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,
 				B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */,
+				B15933261CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift in Sources */,
 				B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */,
-				B1F5A0721CE954D100E0DC8D /* Module_ConfigurationBlocker.swift in Sources */,
 				B1AA96CC1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift in Sources */,
 				B1DEE0491CD042B700F73F77 /* FreeformDataEntryCell.swift in Sources */,
 				B1AA96CA1CAB1CCC0009E716 /* DataEntryCellTypes.swift in Sources */,
@@ -907,8 +917,10 @@
 				B1B98BDA1C39920300DDACEE /* ProjectOverviewViewController.swift in Sources */,
 				B1D0B2BA1C3F25F200C9438F /* Module.swift in Sources */,
 				B1A8C7C71CAF640300380E99 /* CustomWithRangeScaleCell.swift in Sources */,
+				B10881E61CF486930032EBBC /* ComputationFramework_ExistingVariables.swift in Sources */,
 				B122EAFE1CC307E000CE3D33 /* RangeScaleView.swift in Sources */,
 				B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */,
+				B15933241CF75CFC002C09C2 /* Module_ComputationFramework.swift in Sources */,
 				B12803B51CE413420022777C /* DataEntryCellWithPicker.swift in Sources */,
 				B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */,
 				B1E1E1401CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift in Sources */,

@@ -19,9 +19,16 @@ enum Modules: String {
 enum ModuleVariableStates { //represents the state of the variable object
     case VariableConfiguration //variable that was constructed during SET-UP for configuration
     case DataReporting //variable that was reconstructed from CORE DATA for data reporting
+    case Ghost //variable that is constructed as a GHOST
 }
 
-enum VariableLocations { //indicates the location of the variable in DataEntry flow
-    case BeforeAction //beforeAction var
-    case AfterAction //afterAction var
+enum VariableLocations: Int { //indicates the location of the variable in DataEntry flow
+    case BeforeAction = 0 //beforeAction var
+    case AfterAction = 1 //afterAction var
+}
+
+enum ModuleVariableReportTypes: Int {
+    case Default = 0 //default is var whose value is entered by user
+    case AutoCapture = 1 //var that is automatically captured using API
+    case Computation = 2 //var that is computed from other variables
 }

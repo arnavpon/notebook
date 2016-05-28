@@ -103,6 +103,13 @@ class CarbonEmissionsModule: Module {
         self.moduleTitle = Modules.CarbonEmissionsModule.rawValue
     }
     
+    override func copyWithZone(zone: NSZone) -> AnyObject { //creates copy of variable
+        let copy = CarbonEmissionsModule(name: self.variableName)
+        copy.existingVariables = self.existingVariables
+        copy.moduleBlocker = self.moduleBlocker
+        return copy
+    }
+    
     // MARK: - Core Data Logic
     
     internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> {

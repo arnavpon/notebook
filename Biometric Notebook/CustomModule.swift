@@ -28,7 +28,7 @@ class CustomModule: Module {
         return tempObject
     }
     
-    private let customModuleBehaviors: [CustomModuleVariableTypes] = [CustomModuleVariableTypes.Behavior_CustomOptions, CustomModuleVariableTypes.Behavior_BinaryOptions, CustomModuleVariableTypes.Behavior_Counter, CustomModuleVariableTypes.Behavior_RangeScale]
+    private let customModuleBehaviors: [CustomModuleVariableTypes] = [CustomModuleVariableTypes.Behavior_CustomOptions, CustomModuleVariableTypes.Behavior_BinaryOptions, CustomModuleVariableTypes.Behavior_Counter, CustomModuleVariableTypes.Behavior_RangeScale, CustomModuleVariableTypes.Behavior_Timing]
     override func setBehaviors() -> [String]? { //dynamically assigns behaviors to list
         var behaviorTitles: [String] = []
         
@@ -110,31 +110,26 @@ class CustomModule: Module {
             case .Behavior_CustomOptions:
                 if let opts = dict[BMN_CustomModule_OptionsKey] as? [String] {
                     self.options = opts
-                    for opt in opts {
-                        print("[CustomOptions] Option: '\(opt)'.")
-                    }
                 }
                 if let multipleSelection = dict[BMN_CustomModule_CustomOptionsMultipleSelectionAllowedKey] as? Bool {
                     self.multipleSelectionEnabled = multipleSelection
-                    print("[CustomOptions] Multiple Selection Enabled: \(multipleSelection).")
                 }
             case .Behavior_BinaryOptions:
                 if let opts = dict[BMN_CustomModule_OptionsKey] as? [String] {
                     self.options = opts
-                    for opt in opts {
-                        print("[BinaryVariable] Option: '\(opt)'.")
-                    }
                 }
             case .Behavior_Counter: //obtain the uniqueID (for matching -> external Counter object)
                 if let id = dict[BMN_CustomModule_CounterUniqueIDKey] as? Int {
                     self.counterUniqueID = id
-                    print("[Counter] Unique ID: \(id).")
                 }
             case .Behavior_RangeScale:
                 if let min = dict[BMN_CustomModule_RangeScaleMinimumKey] as? Int, max = dict[BMN_CustomModule_RangeScaleMaximumKey] as? Int, increment = dict[BMN_CustomModule_RangeScaleIncrementKey] as? Int {
                     self.rangeScaleParameters = (min, max, increment)
-                    print("[RangeScale] Minimum: \(min). Maximum: \(max). Increment: \(increment).")
                 }
+            case .Behavior_Timing:
+                //If source is MANUAL entry, set the freeform cell configObject:
+                self.FreeformCell_configurationObject = [] //initialize
+                FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Timing, nil, 11, (0, 999))) //lone view for timing entry** enter a placeholder for the cell?
             case .Computation_TimeDifference:
                 if let indicator = dict[BMN_CustomModule_IsTimeDifferenceKey] as? Bool {
                     self.variableIsTimeDifference = indicator
@@ -144,6 +139,13 @@ class CustomModule: Module {
         } else {
             print("[CustomModule > CoreData initializer] Error! Could not find a type for the object.")
         }
+    }
+    
+    override func copyWithZone(zone: NSZone) -> AnyObject { //creates copy of variable
+        let copy = CustomModule(name: self.variableName)
+        copy.existingVariables = self.existingVariables
+        copy.moduleBlocker = self.moduleBlocker
+        return copy
     }
     
     // MARK: - Variable Configuration
@@ -180,10 +182,15 @@ class CustomModule: Module {
                 
                 configurationOptionsLayoutObject = array
                 
+            case CustomModuleVariableTypes.Behavior_Timing:
+                
+                self.cellPrompt = "Enter the timing in the format HH:MM:SS.milliseconds (e.g. 01:10:05.344):" //add prompt for cell
+                configurationOptionsLayoutObject = nil //no further config needed
+                
             case CustomModuleVariableTypes.Computation_TimeDifference:
                 
                 configurationOptionsLayoutObject = nil //no further config needed
-                self.isAutomaticallyCaptured = true //TD is auto-captured
+                self.variableReportType = ModuleVariableReportTypes.AutoCapture //TD is auto-captured
                 
             }
         } else { //no selection, set configOptionsObj -> nil
@@ -251,9 +258,6 @@ class CustomModule: Module {
             persistentDictionary[BMN_VariableTypeKey] = type.rawValue //save variable type
             switch type {
             case .Behavior_CustomOptions:
-                if let prompt = self.cellPrompt { //check if user entered a prompt
-                    persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = prompt
-                }
                 if let opts = self.options { //make sure there are options
                     persistentDictionary[BMN_CustomModule_OptionsKey] = opts
                 }
@@ -264,19 +268,21 @@ class CustomModule: Module {
                 if let opts = self.options { //make sure there are options
                     persistentDictionary[BMN_CustomModule_OptionsKey] = opts
                 }
+            case .Behavior_Counter:
+                if let id = counterUniqueID {
+                    persistentDictionary[BMN_CustomModule_CounterUniqueIDKey] = id
+                } else {
+                    print("[CustomMod-createCoreDataDict] Fatal Error - counter has no uniqueID.")
+                    abort()
+                }
             case .Behavior_RangeScale:
                 if let (min, max, increment) = self.rangeScaleParameters {
                     persistentDictionary[BMN_CustomModule_RangeScaleMinimumKey] = min
                     persistentDictionary[BMN_CustomModule_RangeScaleMaximumKey] = max
                     persistentDictionary[BMN_CustomModule_RangeScaleIncrementKey] = increment
                 }
-            case .Behavior_Counter:
-                if let id = counterUniqueID {
-                    persistentDictionary[BMN_CustomModule_CounterUniqueIDKey] = id
-                } else {
-                    print("[CustomMod createCoreDataDict] Fatal Error - counter has no uniqueID.")
-                    abort()
-                }
+            case .Behavior_Timing: //???
+                break
             case .Computation_TimeDifference: //indicate var is TimeDifference
                 persistentDictionary[BMN_CustomModule_IsTimeDifferenceKey] = variableIsTimeDifference
             }
@@ -299,6 +305,8 @@ class CustomModule: Module {
                 return DataEntryCellTypes.CustomWithCounter
             case .Behavior_RangeScale:
                 return DataEntryCellTypes.CustomWithRangeScale
+            case .Behavior_Timing:
+                return DataEntryCellTypes.Freeform
             default:
                 return nil
             }
@@ -325,6 +333,7 @@ enum CustomModuleVariableTypes: String { //*match each behavior/computation -> C
     case Behavior_BinaryOptions = "Binary Options" //automatically creates 2 options, 'Yes' & 'No'.
     case Behavior_Counter = "Counter" //creates an incrementable counter
     case Behavior_RangeScale = "Range Scale" //gives users the option to select a value on a scale from A - B, where the user selects what the lower & upper limits are when they adopt this behavior; in data entry mode, the user will then select a value from this range using a slider/picker (TBD).
+    case Behavior_Timing = "Timing" //allows users to enter a time measurement
     
     //*COMPUTATIONS*:
     case Computation_TimeDifference = "Time Difference" //automatically generates a variable which will obtain a time difference between the report time for IVs & OMs (no configuration needed). There can only be 1 per project & it is ALWAYS set as an OM (calculated just before final dataObject is constructed & sent -> DB).
@@ -340,6 +349,8 @@ enum CustomModuleVariableTypes: String { //*match each behavior/computation -> C
             message = "A counter that allows you to keep track of how many times something has occurred."
         case .Behavior_RangeScale:
             message = "A scale allows you to pick an integer value between the minimum and the maximum value that you set."
+        case .Behavior_Timing:
+            message = "Allows you to enter a timing in the format HH:MM:SS."
         case .Computation_TimeDifference:
             message = "Calculates the time difference between reporting the input variables & reporting the output variables (equivalent to the duration of the action)."
         }

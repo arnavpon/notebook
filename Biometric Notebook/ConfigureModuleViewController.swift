@@ -14,10 +14,11 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     @IBOutlet weak var configureModuleTableView: UITableView!
     
     var createdVariable: Module? //variable w/ completed configuration
+    var copiedVariable: Module? //copy of the entering variable (DO NOT DELETE)
     var cachedLayoutObject: Dictionary<String, AnyObject>? //caches the configModuleLayoutObj for the var
     var cachedSectionsDataSource: [String]? //caches 'sectionsToDisplay' for the var
     
-    var currentVariables: [Module]? //**list of available vars (for computation config)
+    var existingVariables: [ComputationFramework_ExistingVariables]? //list of available vars (computs)
     
     // MARK: - View Configuration
     
@@ -115,12 +116,13 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     }
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        if let variable = createdVariable, layoutObject = cachedLayoutObject, sectionsSource = cachedSectionsDataSource, rowsForSection = layoutObject[BMN_RowsForSectionKey] {
+        if let _ = createdVariable, layoutObject = cachedLayoutObject, sectionsSource = cachedSectionsDataSource, rowsForSection = layoutObject[BMN_RowsForSectionKey] {
             let sectionTitle = sectionsSource[indexPath.section]
             if let rows = rowsForSection[sectionTitle] as? [String] {
                 print("Selected Functionality: \(rows[indexPath.row])")
-                createdVariable?.selectedFunctionality = rows[indexPath.row] //save selection -> Module
-                if (variable.configurationOptionsLayoutObject != nil) { //-> ConfigOptions if further config is needed
+                copiedVariable = createdVariable?.copy() as? Module //create a copy of the variable so that if the user goes back, the config is NOT saved
+                copiedVariable?.selectedFunctionality = rows[indexPath.row]
+                if (copiedVariable?.configurationOptionsLayoutObject != nil) { //-> ConfigOptions if further config is needed
                     self.performSegueWithIdentifier("showConfigOptions", sender: nil)
                 } else { //otherwise, create variable & -> ProjectVariablesVC
                     self.performSegueWithIdentifier("unwindToVariablesVC", sender: nil)
@@ -134,8 +136,8 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if (segue.identifier == "showConfigOptions") { //show segue -> ConfigurationOptionsVC
             let destination = segue.destinationViewController as! ConfigurationOptionsViewController
-            destination.createdVariable = self.createdVariable
-            destination.currentVariables = self.currentVariables //*for computation cell
+            destination.createdVariable = self.copiedVariable //pass the COPIED var over
+            destination.existingVariables = self.existingVariables //for computation cell**may be obsolete
         }
     }
     

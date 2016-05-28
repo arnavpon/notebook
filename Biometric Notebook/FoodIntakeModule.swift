@@ -97,6 +97,13 @@ class FoodIntakeModule: Module {
         self.moduleTitle = Modules.FoodIntakeModule.rawValue
     }
     
+    override func copyWithZone(zone: NSZone) -> AnyObject { //creates copy of variable
+        let copy = FoodIntakeModule(name: self.variableName)
+        copy.existingVariables = self.existingVariables
+        copy.moduleBlocker = self.moduleBlocker
+        return copy
+    }
+    
     // MARK: - Core Data Logic
     
     internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> {
