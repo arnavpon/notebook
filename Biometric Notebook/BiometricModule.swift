@@ -122,22 +122,19 @@ class BiometricModule: Module {
                 //If source is MANUAL entry, set the freeform cell configObject:
                 if (self.dataSourceOption == BiometricModule_DataSourceOptions.Manual) {
                     self.FreeformCell_configurationObject = [] //initialize
-                    FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Decimal, nil, 6, (0, 999))) //lone view for weight entry
+                    FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Decimal, nil, 6, (0, 999), nil)) //lone view for weight entry
                 }
             case .Behavior_Height:
                 //If source is MANUAL entry, set the freeform cell configObject:
                 if (self.dataSourceOption == BiometricModule_DataSourceOptions.Manual) {
                     self.FreeformCell_configurationObject = [] //initialize
                     self.FreeformCell_labelBeforeField = false //label goes AFTER field
-                    FreeformCell_configurationObject!.append(("feet", ProtectedFreeformTypes.Int, nil, 1, nil)) //view 1 (for # of feet)
-                    FreeformCell_configurationObject!.append(("inches", ProtectedFreeformTypes.Int, nil, 2, (0, 12))) //view 2 (for # of inches)
+                    FreeformCell_configurationObject!.append(("feet", ProtectedFreeformTypes.Int, nil, 1, nil, nil)) //view 1 (for # of feet)
+                    FreeformCell_configurationObject!.append(("inches", ProtectedFreeformTypes.Int, nil, 2, (0, 12), nil)) //view 2 (for # of inches)
                 }
             case .Computation_BMI: //access the packed computationsInput dict
                 if let inputsDict = dict[BMN_BiometricModule_ComputationInputsKey] as? [String: String] {
                     self.computationInputs = inputsDict
-                    for (key, value) in inputsDict {
-                        print("Reconstruct BMI var - KEY: [\(key)]. VALUE: [\(value)].")
-                    }
                 }
             case .Computation_BiologicalSex, .Computation_Age:
                 break
@@ -221,7 +218,8 @@ class BiometricModule: Module {
                 configurationOptionsLayoutObject = array
                 
             case .Computation_BMI:
-                self.variableReportType = ModuleVariableReportTypes.Computation //set var as comp
+                
+                self.variableReportType = ModuleVariableReportTypes.Computation //*set var as comp*
                 var heightOptions = [BiometricModule_DataSourceOptions.HealthKit.rawValue]
                 var weightOptions = [BiometricModule_DataSourceOptions.HealthKit.rawValue]
                 var noHeight = false
@@ -238,7 +236,7 @@ class BiometricModule: Module {
                     }
                 }
                 
-                //(2) Only add the height & weight TV cells to configuration if there is > 1 choice; otherwise, omit that TV cell from the layout object:
+                //(2) ONLY add height & weight TV cells to configuration if there is > 1 choice; otherwise, omit that TV cell from the layout object:
                 if (heightOptions.count > 1) { //offer 1 config cell for height source
                     array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_DataSourceOptionsID, BMN_LEVELS_MainLabelKey: "How will you be obtaining your HEIGHT (used to calculate BMI)?", BMN_SelectFromOptions_OptionsKey: heightOptions, BMN_SelectFromOptions_DefaultOptionsKey: [heightOptions.last!]])) //HEIGHT options, default is HK
                 } else { //NO height vars, value will be taken from API so create GHOST
@@ -250,11 +248,11 @@ class BiometricModule: Module {
                     noWeight = true
                 }
                 
-                if (noHeight) && (noWeight) { //NEITHER var needs config, set layoutObject -> nil
-                    configurationOptionsLayoutObject = nil
-                    self.createGhostForBiometricVariable(.Behavior_Weight) //create ghosts for both vars
+                if (noHeight) && (noWeight) { //NEITHER var needs config
+                    configurationOptionsLayoutObject = nil //set layoutObject -> nil
+                    self.createGhostForBiometricVariable(.Behavior_Weight) //create ghosts for BOTH vars
                     self.createGhostForBiometricVariable(.Behavior_Height)
-                } else {
+                } else { //at least 1 object needs configuration - set layout object
                     configurationOptionsLayoutObject = array
                 }
             
@@ -268,7 +266,7 @@ class BiometricModule: Module {
         print("AFTER selection of var - rawValue of report type is \(self.variableReportType.rawValue).")
     }
     
-    private func createGhostForBiometricVariable(type: BiometricModuleVariableTypes) { //constructs a GHOST variable of specified type, names it according to parent computation, & sends notification
+    private func createGhostForBiometricVariable(type: BiometricModuleVariableTypes) { //constructs GHOST variable of specified type, names it according to parent computation, & sends notification -> VC
         switch type {
         case .Behavior_Height:
             let ghost = BiometricModule(ghostName: "\(variableName)_height_ghost", type: type)
@@ -286,10 +284,9 @@ class BiometricModule: Module {
     internal override func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [String]?) {
         //(1) Takes as INPUT the data that was entered into each config TV cell. (2) Given the variableType, matches configuration data -> properties in the Module object by accessing specific configuration cell identifiers (defined in 'HelperFx' > 'Dictionary Keys').
         if let type = variableType {
-            if (type == BiometricModuleVariableTypes.Computation_BMI) { //computation lies outside main framework
+            if (type == BiometricModuleVariableTypes.Computation_BMI) { //computations lie outside main framework
                 //Check how the height & weight were configured to be obtained:
                 if let heightOptions = configurationData[BMN_BiometricModule_DataSourceOptionsID] as? [String], heightOption = heightOptions.first {
-                    print("Selected height option: \(heightOption).")
                     if (heightOption == BiometricModule_DataSourceOptions.HealthKit.rawValue) { //ghost
                         self.createGhostForBiometricVariable(.Behavior_Height)
                     } else { //set the VALUE to the input's NAME
@@ -299,9 +296,7 @@ class BiometricModule: Module {
                     self.createGhostForBiometricVariable(.Behavior_Height)
                 }
                 if let weightOptions = configurationData[BMN_BiometricModule_DataSourceOptions2ID] as? [String], weightOption = weightOptions.first {
-                    print("Selected weight option: \(weightOption).")
                     if (weightOption == BiometricModule_DataSourceOptions.HealthKit.rawValue) { //ghost
-                        print("Creating ghost...") 
                         self.createGhostForBiometricVariable(.Behavior_Weight)
                     } else { //set the VALUE to the input's NAME
                         self.computationInputs[BMN_ComputationFramework_BM_BMI_WeightID] = weightOption
@@ -422,7 +417,7 @@ class BiometricModule: Module {
         return false
     }
     
-    override func reportDataForVariable() -> [String: AnyObject]? { //**test
+    override func reportDataForVariable() -> [String: AnyObject]? {
         let reportDict = super.reportDataForVariable() //use superclass functionality, but first...
         writeManualDataToHKStore() //before reporting, write data -> HKStore as needed
         return reportDict
@@ -577,7 +572,7 @@ class BiometricModule: Module {
         return HKUnit.countUnit() //don't want this to be optional so use this as default
     }
     
-    func getReportObjectInUnits(unit: HealthKitUnits) -> Double? { //**something isn't write about this setup, rewrite in a better way. Goal is to protect units such that we always know what unit the report data will be expressed in, and have a means to convert from 1 unit to another.
+    func getReportObjectInUnits(unit: HealthKitUnits) -> Double? { //**something isn't right about this setup, rewrite in a better way. Goal is to protect units such that we always know what unit the report data will be expressed in, and have a means to convert from 1 unit to another.
         if let data = self.mainDataObject as? Double {
             switch unit {
             case .Kilogram: //conversion for WEIGHT unit

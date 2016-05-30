@@ -126,10 +126,9 @@ class CustomModule: Module {
                 if let min = dict[BMN_CustomModule_RangeScaleMinimumKey] as? Int, max = dict[BMN_CustomModule_RangeScaleMaximumKey] as? Int, increment = dict[BMN_CustomModule_RangeScaleIncrementKey] as? Int {
                     self.rangeScaleParameters = (min, max, increment)
                 }
-            case .Behavior_Timing:
-                //If source is MANUAL entry, set the freeform cell configObject:
+            case .Behavior_Timing: //set the freeform cell configObject:
                 self.FreeformCell_configurationObject = [] //initialize
-                FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Timing, nil, 11, (0, 999))) //lone view for timing entry** enter a placeholder for the cell?
+                FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Timing, nil, 11, nil, "HH:MM:SS.ms")) //lone view for timing entry; no label/default/bounding (b/c of unique timing format), character limit = 11 (HH:MM:SS.ms)
             case .Computation_TimeDifference:
                 if let indicator = dict[BMN_CustomModule_IsTimeDifferenceKey] as? Bool {
                     self.variableIsTimeDifference = indicator
@@ -281,7 +280,7 @@ class CustomModule: Module {
                     persistentDictionary[BMN_CustomModule_RangeScaleMaximumKey] = max
                     persistentDictionary[BMN_CustomModule_RangeScaleIncrementKey] = increment
                 }
-            case .Behavior_Timing: //???
+            case .Behavior_Timing: //prompt is stored by superclass so nothing to store
                 break
             case .Computation_TimeDifference: //indicate var is TimeDifference
                 persistentDictionary[BMN_CustomModule_IsTimeDifferenceKey] = variableIsTimeDifference
@@ -321,6 +320,8 @@ class CustomModule: Module {
             } else {
                 return [BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey: opts.count]
             }
+        } else if let configObject = FreeformCell_configurationObject {
+            return [BMN_DataEntry_FreeformCell_NumberOfViewsKey: configObject.count]
         }
         return nil
     }

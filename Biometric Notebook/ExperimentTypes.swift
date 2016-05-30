@@ -24,16 +24,12 @@ enum ExperimentTypes: String { //string rawValues are required for notification 
 }
 
 enum GroupTypes: String { //string rawVals are needed to create unique ID for groups in a project!
-    
     case LoneGroup = "LONE_GROUP" //for projects w/ single groups
     case Control = "CONTROL"
     case Comparison = "COMPARISON"
-    
 }
 
-enum CCProjectNavigationState { //Control-Comparison project navigation states
-    
+enum CCProjectNavigationState { //Control-Comparison project navigation states (ProjectVarsVC)
     case Control
     case Comparison
-    
 }

@@ -31,16 +31,6 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         summaryTableView.dataSource = self
         summaryTableView.delegate = self
         summaryTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "summary_cell")
-        
-        print("[SummaryVC] # of COMPUTATIONS = \(ghostVariables?.count).")
-        if let ghosts = ghostVariables {
-            for (key, objects) in ghosts {
-                print("For computation [\(key)], ghosts are: ")
-                for ghost in objects {
-                    print("[\(ghost.name)]")
-                }
-            }
-        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -136,8 +126,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                         cell.textLabel?.text = variables[indexPath.row].variableName
                         cell.detailTextLabel?.text = variables[indexPath.row].moduleTitle
                     }
-                } else if (type == .ControlComparison) {
-                    //display comparison & control group side by side
+                } else if (type == .ControlComparison) { //display comparison & control group side by side
                     if (indexPath.row == 0) { //**
                         cell.textLabel?.text = "Control Group"
                     } else if (indexPath.row == 1) { //**
@@ -221,17 +210,11 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     @IBAction func createProjectButtonClick(sender: AnyObject) {
         //Construct CoreData objects for the input & output variables, then construct the Project & Group objects & save -> persistent store:
         //**In the future, this project will be sent -> the web for DB configuration, cloud backup, etc.
-        print("Creating project...")
         if let type = projectType, title = projectTitle, question = projectQuestion {
             let project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, endPoint: projectEndpoint?.endpointInSeconds, insertIntoManagedObjectContext: context)
             
             if (projectType == .ControlComparison) { //for CC type, create 2 groups
                 if let controlInputs = inputVariables[BMN_ControlComparison_ControlKey], comparisonInputs = inputVariables[BMN_ControlComparison_ComparisonKey], outcomes = outcomeVariables, action = projectAction?.action.rawValue { //construct control & comparison groups
-//                    let controlBeforeActionVariables = createCoreDataDictionary(controlInputs, project: project)
-//                    let comparisonBeforeActionVariables = createCoreDataDictionary(comparisonInputs, project: project)
-//                    let afterActionVariablesDict = createCoreDataDictionary(outcomes, project: project)
-//                    let _ = Group(type: GroupTypes.Control, project: project, action: action, beforeVariables: controlBeforeActionVariables, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context) //control grp
-//                    let _ = Group(type: GroupTypes.Comparison, project: project, action: action, beforeVariables: comparisonBeforeActionVariables, afterVariables: afterActionVariablesDict, insertIntoManagedObjectContext: context) //comparison
                     var controlBeforeActionVariables = createCoreDataDictionary(controlInputs, project: project)
                     var comparisonBeforeActionVariables = createCoreDataDictionary(comparisonInputs, project: project)
                     var afterActionVariablesDict = createCoreDataDictionary(outcomes, project: project)
@@ -244,7 +227,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                                     } else if (ghost.groupType == .Comparison) {
                                         comparisonBeforeActionVariables.updateValue(ghost.settings, forKey: ghost.name)
                                     }
-                                } else if (ghost.locationInFlow == VariableLocations.BeforeAction) {
+                                } else if (ghost.locationInFlow == VariableLocations.AfterAction) {
                                     afterActionVariablesDict.updateValue(ghost.settings, forKey: ghost.name)
                                 }
                             }

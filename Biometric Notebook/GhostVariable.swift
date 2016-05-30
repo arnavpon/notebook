@@ -21,12 +21,6 @@ struct GhostVariable {
         self.computation = computation
         self.name = name
         self.settings = settings
-        
-        if (self.locationInFlow == VariableLocations.BeforeAction) { //**tests
-            print("Ghost is BEFORE ACTION")
-        } else if (self.locationInFlow == VariableLocations.AfterAction) {
-            print("Ghost is AFTER ACTION")
-        }
     }
     
 }

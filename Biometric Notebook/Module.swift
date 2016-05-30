@@ -154,7 +154,7 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     
     // Configuration variables - used to customize DataEntry TV cells (e.g. for freeform data entry):
     var FreeformCell_labelBeforeField: Bool? //specifies whether TF lbl is before or after field
-    var FreeformCell_configurationObject: [(String?, ProtectedFreeformTypes?, String?, Int?, (Double?, Double?)?)]? //tuple specifies all config for FreeformCell - indicates # of TFs (via the array's count) + (1) label? for each TF; (2) type? of data in TF (corresponds w/ ProtectedFreeformTypes enum); (3) defaultValue?; (4) characterLimit?; (5) (if text is numerical) an upper/lower bound in format (Int? <-lower, Int? <-upper)?.
+    var FreeformCell_configurationObject: [(String?, ProtectedFreeformTypes?, String?, Int?, (Double?, Double?)?, String?)]? //tuple specifies all config for FreeformCell - indicates # of TFs (via the array's count) + (1) label? for each TF; (2) type? of data in TF (corresponds w/ ProtectedFreeformTypes enum); (3) defaultValue?; (4) characterLimit?; (5) (if text is numerical) an upper/lower bound in format (Int? <-lower, Int? <-upper)?; (6) textField placeholder?
     
     
     func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable (OVERRIDE in subclasses)

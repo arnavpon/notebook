@@ -24,7 +24,7 @@ class Group: NSManagedObject {
     
     private func reconstructProjectFromPersistentRepresentation() { //use the project's CoreData representation to reconstruct its variables (EITHER inputs OR outputs) as Module objects
         reconstructedVariables = [] //clear array
-        autoCapturedVariables = [] //**clear array
+        autoCapturedVariables = [] //clear array
         dataEntryVariablesArray = [] //clear array
         let variableDict: [String: [String: AnyObject]]
         if (self.project.temporaryStorageObject == nil) { //no temp storage => report BEFORE ACTION VARS

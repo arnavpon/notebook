@@ -89,6 +89,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             }
         }
     }
+    var ghostVariables: [String: [GhostVariable]]? //KEY = parent computation, value = [Ghost]
     
     private let viewBorderWidth: CGFloat = 5
     private let viewCornerRadius: CGFloat = 20
@@ -144,23 +145,16 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         backButton.title = backButtonTitle
     }
     
-    var ghostVariables: [String: [GhostVariable]]? //ghosts are stored against the parent computation
-    
     func systemDidCreateGhostVariable(notification: NSNotification) { //responds to Module object's request to create a ghost for a computation variable
-        print("[ProjectVarsVC] systemDidCreateGhost firing...")
         if let info = notification.userInfo, sender = info[BMN_ComputationFramework_ComputationNameKey] as? String, ghostName = info[BMN_ComputationFramework_GhostNameKey] as? String, settings = info[BMN_ComputationFramework_GhostConfigDictKey] as? [String: AnyObject], locationRaw = info[BMN_ComputationFramework_GhostLocationKey] as? Int, location = VariableLocations(rawValue: locationRaw) {
-            print("Sender = [\(sender)]. Ghost name = [\(ghostName)].")
             if (ghostVariables == nil) { //initialize array if it doesn't yet exist
-                print("Dict is NIL. Initializing ghost dictionary...")
                 ghostVariables = Dictionary<String, [GhostVariable]>()
             }
             if (ghostVariables![sender] == nil) { //check if entry already exists for sender computation
-                print("Initializing array for sender [\(sender)]...")
                 ghostVariables![sender] = [] //initialize an array
             }
             let ghost = GhostVariable(groupType: ccNavigationState, location: location, computation: sender, name: ghostName, settings: settings)
             ghostVariables![sender]!.append(ghost)
-            print("Number of items in ghostArray for sender [\(sender)] = \(ghostVariables![sender]?.count).")
         }
     }
     
@@ -823,7 +817,6 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         //Note: requires the '@IBAction' in the beginning to enable the click & drag from a button to the VC's 'Exit' button on the top-most bar.
         if let senderVC = sender.sourceViewController as? ConfigureModuleViewController {
             //If sender is configureModuleVC, grab the input/outcome selection & module information:
-//            createdVariable = senderVC.createdVariable
             createdVariable = senderVC.copiedVariable //grab the COPIED var
         } else if let senderVC = sender.sourceViewController as? ConfigurationOptionsViewController {
             //If sender is configOptionsVC, grab the input/outcome selection & module information:

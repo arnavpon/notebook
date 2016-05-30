@@ -22,7 +22,7 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
     }
     
     private var fireCounter = 0 //ensures 'createFreeformViews' fires only once
-    private var freeformViewsConfigObject: [(String?, ProtectedFreeformTypes?, String?, Int?, (Double?, Double?)?)]? { //'freeformView' = TF + lbl contained w/in a view; this tuple specifies all config for the view - indicates the # of TFs (via the array's count) + (1) label for each TF; (2) type of data in TF? (if nil, default is String); (3) defaultValue?; (4) characterLimit?; (5) (if text is numerical value) an upper/lower bound in format (Int?, Int?)?.
+    private var freeformViewsConfigObject: [(String?, ProtectedFreeformTypes?, String?, Int?, (Double?, Double?)?, String?)]? { //'freeformView' = TF + lbl contained w/in a view; this tuple specifies all config for the view - indicates the # of TFs (via the array's count) + (1) label for each TF; (2) type of data in TF? (if nil, default is String); (3) defaultValue?; (4) characterLimit?; (5) (if text is numerical value) an upper/lower bound in format (Int?, Int?)?; (6) textField placeholder?
         didSet { //make sure this fires only once!
             if (fireCounter == 0) {
                 fireCounter += 1 //block further firing
@@ -88,12 +88,17 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                     moduleReportObject.append(defaultText) //set default value to report object
                 } else { //no default, initialize reportObject w/ empty item @ this TF's index
                     moduleReportObject.append("") //initialize w/ empty value
+                    if let placeholder = item.5 { //check for placeholder
+                        textField.placeholder = placeholder
+                    }
                 }
                 if let textType = item.1 { //check for type (to set keyboard for numerical vals)
                     if (textType == ProtectedFreeformTypes.Int) { //numerical pad
                         textField.keyboardType = .NumberPad
                     } else if (textType == ProtectedFreeformTypes.Decimal) { //decimal pad
                         textField.keyboardType = .DecimalPad
+                    } else if (textType == ProtectedFreeformTypes.Timing) { //numerical pad
+                        textField.keyboardType = .DecimalPad //needs the . for milliseconds
                     }
                 }
                 

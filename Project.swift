@@ -73,6 +73,7 @@ class Project: NSManagedObject {
     //**For type II variables (sensor data), we will need to create a separate DB table b/c the entries will not be collected @ the same frequency as other data (OR SHOULD WE SET IT SO THE RATES MATCH?).
     
     func shouldDisplayGroupSelectionView() -> Bool { //accessed by DataEntryVC
+        reportingGroup = nil //clear reporting group whenever this fx fires
         if let type = self.experimentType {
             switch type {
             case .InputOutput:
@@ -172,13 +173,12 @@ class Project: NSManagedObject {
             print("\n")
         }
         
-        //(2) Check if any of the variables are computations & compute their values now:
+        //(2) Check if any of the variables are computations & (if so) compute their values now:
         if !(deferredVariables.isEmpty) { //COMPUTATION(S) exist
-            for name in inputNames { //*add non-ghost inputs to dict for CF AFTER all vars report*
-                inputsReportData[name] = dataObjectToDatabase[name]
-            }
-            for (key, _) in inputsReportData { //*
-                print("Input variable Name: [\(key)].")
+            for name in inputNames { //*add NON-GHOST inputs to dict for CF AFTER all vars report*
+                if (inputsReportData[name] == nil) { //ONLY add new entry for NON-ghost (ghosts are ALREADY present in dictionary)!
+                    inputsReportData[name] = dataObjectToDatabase[name]
+                }
             }
             let computationFramework = Module_ComputationFramework()
             computationFramework.setReportObjectForComputations(deferredVariables, inputsReportData: inputsReportData) //load computations w/ return values
