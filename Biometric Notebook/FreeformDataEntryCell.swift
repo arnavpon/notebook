@@ -157,14 +157,15 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                 configureCompletionIndicator(false)
                 return //terminate function
             }
-            if let config = freeformViewsConfigObject, type = config[counter].1 {
-                if (type == .Timing) { //TIMING objects must have > 8 characters entered to be complete
-                    if (trimmedValue.characters.count < 8) {
-                        configureCompletionIndicator(false)
-                        return
-                    }
-                }
-            }
+//            if let config = freeformViewsConfigObject, type = config[counter].1 {
+//                if (type == .Timing) { //TIMING objects must have > 8 characters entered to be complete
+//                    print("Character Count: \(trimmedValue.characters.count).")
+//                    if (trimmedValue.characters.count < 8) {
+//                        configureCompletionIndicator(false)
+//                        return
+//                    }
+//                }
+//            }
             counter += 1
         }
         configureCompletionIndicator(true) //passed checks, cell is COMPLETE
@@ -174,8 +175,6 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
     
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
         let fieldTag = textField.tag
-        var backspace = false //backspace indicator (for TIMING vars)
-        
         if let configObject = self.freeformViewsConfigObject {
             if let type = configObject[fieldTag].1 { //check for any type protections
                 switch type {
@@ -194,10 +193,8 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                             }
                         }
                     }
-                case .Timing: //check if user is hitting backspace (modifies Timing logic)
-                    if (range.length > 0) && (string.characters.count == 0) { //user hit backspace
-                        backspace = true //set indicator -> TRUE
-                    }
+                case .Timing:
+                    break //no checks @ this point
                 }
             }
             
@@ -225,40 +222,40 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                         }
                     }
                 }
-                let final = modifyReportObjectForTextField(fieldTag, newText: completeString, backSpace: backspace) //IFF cell passes all checks, update reportObj
+                let final = modifyReportObjectForTextField(fieldTag, newText: completeString) //IFF cell passes all checks, update reportObj
                 textField.text = final //update TF manually
             }
         }
         return false //textField is updated manually
     }
     
-    func modifyReportObjectForTextField(fieldTag: Int, newText: String, backSpace: Bool) -> String {
+    func modifyReportObjectForTextField(fieldTag: Int, newText: String) -> String {
         var tempString = newText //modifiable text
         if let config = freeformViewsConfigObject, type = config[fieldTag].1 { //check for 'Timing' type
             let chars = tempString.characters.count
             if (type == ProtectedFreeformTypes.Timing) {
-                if !(backSpace) { //text was ENTERED, default logic
-                    //Convert entered text into a string of numbers (remove ':' & '.'), then iterate through the numerical string & apply formatting:
-                    let noColons: NSString = (newText as NSString).stringByReplacingOccurrencesOfString(":", withString: "")
-                    let pureNumbers: NSString = noColons.stringByReplacingOccurrencesOfString(".", withString: "")
-                    var formattedString = "" //combined string
-                    var location = 0 //substring start location
-                    while location < pureNumbers.length { //loop til 1 - length to avoid range error
-                        let substring = pureNumbers.substringWithRange(NSRange.init(location: location, length: 1)) //obtain next digit in line
-                        formattedString.appendContentsOf(substring) //add it to growing formatted string
-                        location += 1
-                        if (location == 2) || (location == 4) { //add colon
-                            formattedString.appendContentsOf(":")
-                        } else if (location == 6) { //add decimal
-                            formattedString.appendContentsOf(".")
-                        }
+                //Convert entered text into a string of numbers (remove ':' & '.'), then iterate through the numerical string & apply formatting:
+                let noColons: NSString = (newText as NSString).stringByReplacingOccurrencesOfString(":", withString: "")
+                let pureNumbers: NSString = noColons.stringByReplacingOccurrencesOfString(".", withString: "")
+                var formattedString = "" //combined string
+                var location = 0 //substring start location
+                while location < pureNumbers.length { //loop til 1 - length to avoid range error
+                    if (location == 2) || (location == 4) { //prepend colon
+                        formattedString.appendContentsOf(":")
+                    } else if (location == 6) { //prepend decimal
+                        formattedString.appendContentsOf(".")
                     }
-                    
-                    if (chars >= 8) { //ONLY report -> Module if HH, MM, & SS have been reported
-                        moduleReportObject[fieldTag] = formattedString //update report object
-                    }
-                    tempString = formattedString //update fx return object
+                    let substring = pureNumbers.substringWithRange(NSRange.init(location: location, length: 1)) //obtain next digit in line...
+                    formattedString.appendContentsOf(substring) //add it to growing formatted string
+                    location += 1
                 }
+                    
+                if (chars >= 8) { //ONLY report -> Module if HH, MM, & SS have been reported
+                    moduleReportObject[fieldTag] = formattedString //update report object
+                } else { //set cell -> INCOMPLETE
+                    configureCompletionIndicator(false)
+                }
+                tempString = formattedString //update fx return object
             } else { //NON-timing objects, return the input string unmodified
                 moduleReportObject[fieldTag] = tempString //update report object
             }
