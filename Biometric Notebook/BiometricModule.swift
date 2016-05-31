@@ -116,6 +116,7 @@ class BiometricModule: Module {
                     
                     if (samplingOption == BiometricModule_HeartRateOptions.ChooseSampleAtCollection) {
                         pickerDataSource = [[0, 1, 2], [0, 15, 30, 45]] //define data source for picker in CustomTV cell
+                        self.cellPrompt = "Choose a time span of heart rates:" //set cell prompt
                     }
                 }
             case .Behavior_Weight: //unpack data entry option (manual or HK extraction)
@@ -123,6 +124,7 @@ class BiometricModule: Module {
                 if (self.dataSourceOption == BiometricModule_DataSourceOptions.Manual) {
                     self.FreeformCell_configurationObject = [] //initialize
                     FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Decimal, nil, 6, (0, 999), nil)) //lone view for weight entry
+                    self.cellPrompt = "Enter your current weight:" //mainLbl for cell
                 }
             case .Behavior_Height:
                 //If source is MANUAL entry, set the freeform cell configObject:
@@ -130,7 +132,8 @@ class BiometricModule: Module {
                     self.FreeformCell_configurationObject = [] //initialize
                     self.FreeformCell_labelBeforeField = false //label goes AFTER field
                     FreeformCell_configurationObject!.append(("feet", ProtectedFreeformTypes.Int, nil, 1, nil, nil)) //view 1 (for # of feet)
-                    FreeformCell_configurationObject!.append(("inches", ProtectedFreeformTypes.Int, nil, 2, (0, 12), nil)) //view 2 (for # of inches)
+                    FreeformCell_configurationObject!.append(("inches", ProtectedFreeformTypes.Int, nil, 2, (0, 11), nil)) //view 2 (for # of inches)
+                    self.cellPrompt = "Enter your current height:" //mainLbl for TV cell
                 }
             case .Computation_BMI: //access the packed computationsInput dict
                 if let inputsDict = dict[BMN_BiometricModule_ComputationInputsKey] as? [String: String] {
@@ -316,7 +319,7 @@ class BiometricModule: Module {
                         self.heartRateSamplingOption = selectedOption
                         switch selectedOption {
                         case .ChooseSampleAtCollection: //MANUAL var - user selects sample @ collection!
-                            self.cellPrompt = "Choose a time span of heart rates:" //set cell prompt
+                            break //leave reportType as default
                         default: //for other options, capture is automatic
                             self.variableReportType = ModuleVariableReportTypes.AutoCapture
                         }
@@ -327,12 +330,6 @@ class BiometricModule: Module {
                 case .Behavior_Weight, .Behavior_Height:
                     if (selectedOption == BiometricModule_DataSourceOptions.HealthKit) {
                         self.variableReportType = ModuleVariableReportTypes.AutoCapture //set -> auto-cap
-                    } else if (selectedOption == .Manual) { //save prompt for MANUAL object
-                        if (type == .Behavior_Height) {
-                            self.cellPrompt = "Enter your current height:"
-                        } else if (type == .Behavior_Weight) { 
-                            self.cellPrompt = "Enter your current weight:"
-                        }
                     }
                     return (true, nil, nil) //no further config aside from data source
                 case .Computation_BMI:

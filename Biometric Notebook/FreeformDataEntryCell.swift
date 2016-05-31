@@ -8,11 +8,9 @@
 import UIKit
 
 enum ProtectedFreeformTypes: String { //list of protected freeform types - used as a type check for data entered into the textField
-    
     case Int = "BMN_ProtectedFreeformType_Int"
     case Decimal = "BMN_ProtectedFreeformType_Decimal"
     case Timing = "BMN_ProtectedFreeformType_Timing"
-    
 }
 
 class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new class -> enum!
@@ -32,10 +30,15 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
         }
     }
     private var freeformViews: [(UIView, UITextField, UILabel)] = []
+    private var reportBlocker: Bool = false //blocks update of moduleReportObject
     private var moduleReportObject: [String] = [] { //array reported to module
         didSet { //adjust completion status & update module report object
-            updateModuleReportObject()
-            adjustCompletionStatusForCell()
+            if !(reportBlocker) { //check for block (set when initial values are added to array)
+                updateModuleReportObject()
+                adjustCompletionStatusForCell()
+            } else {
+                reportBlocker = false //clear blocker
+            }
         }
     }
     private var labelBeforeField: Bool = true //if TRUE, labels come before TF; if FALSE, they come after
@@ -73,7 +76,7 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                 freeformView.addSubview(textField)
                 freeformView.addSubview(label)
                 
-                if let lblText = item.0 { //set lbl's text (if nil, lbl will have no frame)
+                if let lblText = item.0 { //set lbl's text (if nil, lbl is set -> no frame)
                     label.text = lblText
                 }
                 label.adjustsFontSizeToFitWidth = true
@@ -87,18 +90,18 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                     textField.text = defaultText
                     moduleReportObject.append(defaultText) //set default value to report object
                 } else { //no default, initialize reportObject w/ empty item @ this TF's index
+                    reportBlocker = true //block firing of moduleReportObject update
                     moduleReportObject.append("") //initialize w/ empty value
-                    if let placeholder = item.5 { //check for placeholder
+                    if let placeholder = item.5 { //check for placeholder if there is NO default
                         textField.placeholder = placeholder
                     }
                 }
                 if let textType = item.1 { //check for type (to set keyboard for numerical vals)
-                    if (textType == ProtectedFreeformTypes.Int) { //numerical pad
+                    switch textType {
+                    case .Int, .Timing:
                         textField.keyboardType = .NumberPad
-                    } else if (textType == ProtectedFreeformTypes.Decimal) { //decimal pad
+                    case .Decimal:
                         textField.keyboardType = .DecimalPad
-                    } else if (textType == ProtectedFreeformTypes.Timing) { //numerical pad
-                        textField.keyboardType = .DecimalPad //needs the . for milliseconds
                     }
                 }
                 
@@ -147,12 +150,22 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
     }
     
     private func adjustCompletionStatusForCell() { //sets completionIndicator accordingly
+        var counter = 0
         for textValue in moduleReportObject {
             let trimmedValue = textValue.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
             if (trimmedValue == "") { //if the textValue is empty, cell is INCOMPLETE
                 configureCompletionIndicator(false)
                 return //terminate function
             }
+            if let config = freeformViewsConfigObject, type = config[counter].1 {
+                if (type == .Timing) { //TIMING objects must have > 8 characters entered to be complete
+                    if (trimmedValue.characters.count < 8) {
+                        configureCompletionIndicator(false)
+                        return
+                    }
+                }
+            }
+            counter += 1
         }
         configureCompletionIndicator(true) //passed checks, cell is COMPLETE
     }
@@ -160,9 +173,11 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
     // MARK: - Text Field
     
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-        let tag = textField.tag
+        let fieldTag = textField.tag
+        var backspace = false //backspace indicator (for TIMING vars)
+        
         if let configObject = self.freeformViewsConfigObject {
-            if let type = configObject[tag].1 { //check for any type protections
+            if let type = configObject[fieldTag].1 { //check for any type protections
                 switch type {
                 case .Int: //block entry of non-numerical text
                     if (string.characters.count > 0) { //make sure data is being ENTERED (not removed)
@@ -179,8 +194,10 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                             }
                         }
                     }
-                case .Timing:
-                    break //**
+                case .Timing: //check if user is hitting backspace (modifies Timing logic)
+                    if (range.length > 0) && (string.characters.count == 0) { //user hit backspace
+                        backspace = true //set indicator -> TRUE
+                    }
                 }
             }
             
@@ -191,12 +208,12 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                 
                 //Safety checks - make sure entry does not exceed lower/upper bound or charLimit:
                 let count = trimmedText.characters.count + trimmedString.characters.count - range.length
-                if let limit = configObject[tag].3 { //character limit is set
+                if let limit = configObject[fieldTag].3 { //character limit is set
                     if (count > limit) { //EXCEEDS LIMIT
                         return false //do NOT change the report object, & leave completionIndicator in its current state
                     }
                 }
-                if let valueBounds = configObject[tag].4, stringAsDouble = Double(completeString) { //bounds exist & string was able to be cast -> Double (for Int & Double types)
+                if let valueBounds = configObject[fieldTag].4, stringAsDouble = Double(completeString) { //bounds exist & string was able to be cast -> Double (for Int & Double types)
                     if let lowerBound = valueBounds.0 { //make sure val is >= lowerBound
                         if (stringAsDouble < lowerBound) {
                             return false
@@ -208,10 +225,45 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                         }
                     }
                 }
-                moduleReportObject[tag] = completeString //IFF cell passes all checks, update reportObj
+                let final = modifyReportObjectForTextField(fieldTag, newText: completeString, backSpace: backspace) //IFF cell passes all checks, update reportObj
+                textField.text = final //update TF manually
             }
         }
-        return true
+        return false //textField is updated manually
+    }
+    
+    func modifyReportObjectForTextField(fieldTag: Int, newText: String, backSpace: Bool) -> String {
+        var tempString = newText //modifiable text
+        if let config = freeformViewsConfigObject, type = config[fieldTag].1 { //check for 'Timing' type
+            let chars = tempString.characters.count
+            if (type == ProtectedFreeformTypes.Timing) {
+                if !(backSpace) { //text was ENTERED, default logic
+                    //Convert entered text into a string of numbers (remove ':' & '.'), then iterate through the numerical string & apply formatting:
+                    let noColons: NSString = (newText as NSString).stringByReplacingOccurrencesOfString(":", withString: "")
+                    let pureNumbers: NSString = noColons.stringByReplacingOccurrencesOfString(".", withString: "")
+                    var formattedString = "" //combined string
+                    var location = 0 //substring start location
+                    while location < pureNumbers.length { //loop til 1 - length to avoid range error
+                        let substring = pureNumbers.substringWithRange(NSRange.init(location: location, length: 1)) //obtain next digit in line
+                        formattedString.appendContentsOf(substring) //add it to growing formatted string
+                        location += 1
+                        if (location == 2) || (location == 4) { //add colon
+                            formattedString.appendContentsOf(":")
+                        } else if (location == 6) { //add decimal
+                            formattedString.appendContentsOf(".")
+                        }
+                    }
+                    
+                    if (chars >= 8) { //ONLY report -> Module if HH, MM, & SS have been reported
+                        moduleReportObject[fieldTag] = formattedString //update report object
+                    }
+                    tempString = formattedString //update fx return object
+                }
+            } else { //NON-timing objects, return the input string unmodified
+                moduleReportObject[fieldTag] = tempString //update report object
+            }
+        }
+        return tempString
     }
     
     // MARK: - Data Reporting

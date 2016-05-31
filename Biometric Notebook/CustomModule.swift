@@ -129,6 +129,7 @@ class CustomModule: Module {
             case .Behavior_Timing: //set the freeform cell configObject:
                 self.FreeformCell_configurationObject = [] //initialize
                 FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Timing, nil, 11, nil, "HH:MM:SS.ms")) //lone view for timing entry; no label/default/bounding (b/c of unique timing format), character limit = 11 (HH:MM:SS.ms)
+                self.cellPrompt = "Enter the timing in the format HH:MM:SS.ms (e.g. 01:10:05.344):" //add prompt for cell
             case .Computation_TimeDifference:
                 if let indicator = dict[BMN_CustomModule_IsTimeDifferenceKey] as? Bool {
                     self.variableIsTimeDifference = indicator
@@ -183,7 +184,6 @@ class CustomModule: Module {
                 
             case CustomModuleVariableTypes.Behavior_Timing:
                 
-                self.cellPrompt = "Enter the timing in the format HH:MM:SS.milliseconds (e.g. 01:10:05.344):" //add prompt for cell
                 configurationOptionsLayoutObject = nil //no further config needed
                 
             case CustomModuleVariableTypes.Computation_TimeDifference:
@@ -322,6 +322,23 @@ class CustomModule: Module {
             }
         } else if let configObject = FreeformCell_configurationObject {
             return [BMN_DataEntry_FreeformCell_NumberOfViewsKey: configObject.count]
+        }
+        return nil
+    }
+    
+    override func performConversionOnUserEnteredData(input: AnyObject) -> AnyObject? {
+        if let type = self.variableType {
+            switch type {
+            case .Behavior_Timing: //convert input value (HH:MM:SS.ms) -> # of seconds
+                if let times = input as? [NSString], timeAsString = times.first {
+                    let count = timeAsString.length
+                    if let hours = Double(timeAsString.substringWithRange(NSRange.init(location: 0, length: 2))), minutes = Double(timeAsString.substringWithRange(NSRange.init(location: 3, length: 2))), seconds = Double(timeAsString.substringWithRange(NSRange.init(location: 6, length: (count - 6)))) {
+                        return (hours * 3600 + minutes * 60 + seconds)
+                    }
+                }
+            default:
+                break
+            }
         }
         return nil
     }
