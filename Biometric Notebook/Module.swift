@@ -172,9 +172,28 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     
     // MARK: - Data Aggregation Logic
     
+    private var cellIsComplete: Bool = false //keeps track of cell's completion status for notif firing
+    
     internal var mainDataObject: AnyObject? { //main object to report -> DataEntryVC, set by TV cells
         didSet {
             print("[mainDataObjWasSet] Var: [\(variableName)]. Value: \(mainDataObject).")
+            
+            //Only fire completion notification -> VC for AUTO-CAP variables & only if status has changed (i.e. complete -> incomplete or vice versa):
+            if (self.variableReportType == ModuleVariableReportTypes.AutoCapture) {
+                if let _ = mainDataObject { //data obj was SET
+                    if !(cellIsComplete) { //cell was NOT previously complete, fire notification
+                        let notification = NSNotification(name: BMN_Notification_AutoCapVarCompletionStatusDidChange, object: nil, userInfo: [BMN_Module_AutoCapVarCompletionStatusKey: true])
+                        NSNotificationCenter.defaultCenter().postNotification(notification)
+                        cellIsComplete = true //update internal completion status -> COMPLETE
+                    }
+                } else { //data object was CLEARED
+                    if (cellIsComplete) { //cell WAS previously complete, fire notification
+                        let notification = NSNotification(name: BMN_Notification_AutoCapVarCompletionStatusDidChange, object: nil, userInfo: [BMN_Module_AutoCapVarCompletionStatusKey: false])
+                        NSNotificationCenter.defaultCenter().postNotification(notification)
+                        cellIsComplete = false //update internal status -> INCOMPLETE
+                    }
+                }
+            }
         }
     }
     

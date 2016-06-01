@@ -151,7 +151,6 @@ class CustomModule: Module {
     // MARK: - Variable Configuration
     
     internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the 'options' value as needed; (2) Constructs the configuration TV cells if required; (3) Sets 'isAutoCaptured' var if var is auto-captured.
-        print("Custom Module - setting configuration options for selection...")
         if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
             var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = [] //pass -> VC (CustomCellType, cell's dataSource)
             switch type {

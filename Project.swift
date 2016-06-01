@@ -105,17 +105,17 @@ class Project: NSManagedObject {
     func getVariablesForGroup(groupType: GroupTypes?) -> [Module]? { //input the name of the user-selected group to get the variables array (for projects w/ > 1 group) or input nil (for Project w/ 1 grp)
         if let groupObjects = self.groups.allObjects as? [Group] {
             if let group = reportingGroup { //check if there is a reporting group (CC Project OM)
-                return group.getVariablesArrayForDataEntry()
+                return group.getManualVariablesForDataEntry()
             } else if let group = groupType { //CC Project
                 for object in groupObjects { //find the group in self.groups w/ matching type
                     if (object.groupType == group.rawValue) { //check if input type matches object type
                         reportingGroup = object //set indicator (used when constructing dataObject)
-                        return object.getVariablesArrayForDataEntry()
+                        return object.getManualVariablesForDataEntry()
                     }
                 }
             } else { //IO Project
                 reportingGroup = groupObjects.first
-                return groupObjects.first?.getVariablesArrayForDataEntry()
+                return groupObjects.first?.getManualVariablesForDataEntry()
             }
         }
         return nil

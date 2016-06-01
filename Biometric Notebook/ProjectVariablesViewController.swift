@@ -822,7 +822,6 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             //If sender is configOptionsVC, grab the input/outcome selection & module information:
             createdVariable = senderVC.createdVariable
         }
-        
         if let variable = createdVariable, typeName = variable.selectedFunctionality, location = variableLocation { //add the incoming variable -> appropriate TV
             self.moduleBlocker.variableWasCreated(location, typeName: typeName) //send blocker info
             

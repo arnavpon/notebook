@@ -266,7 +266,6 @@ class BiometricModule: Module {
         } else { //no selection, set configOptionsObj -> nil
             configurationOptionsLayoutObject = nil
         }
-        print("AFTER selection of var - rawValue of report type is \(self.variableReportType.rawValue).")
     }
     
     private func createGhostForBiometricVariable(type: BiometricModuleVariableTypes) { //constructs GHOST variable of specified type, names it according to parent computation, & sends notification -> VC

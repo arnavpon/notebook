@@ -29,6 +29,7 @@ let BMN_ComputationFramework_GhostLocationKey = "BMN_CF_ghost_location_key"
 
 let BMN_Notification_CompletionIndicatorDidChange = "BMN_CompletionIndicatorDidChange"
 let BMN_Notification_CellDidReportData = "BMN_CellDidReportData"
+let BMN_Notification_AutoCapVarCompletionStatusDidChange = "BMN_AutoCapVarCompletionStatusDidChange"
 
 let BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError = "BMN_ServiceDidReportError"
 let BMN_DataReportingErrorProtocol_ServiceTypeKey = "BMN_DataReportingErrorProtocol_service_type_key"
@@ -131,6 +132,7 @@ let BMN_DataEntry_MainLabelPromptKey = "DE_main_label_prompt_key" //alternate ma
 // MARK: - [MODULE] Data Entry Keys
 
 let BMN_CurrentlyReportingGroupKey = "currently_reporting_group_key" //stores groupID in tempStorageObj
+let BMN_Module_AutoCapVarCompletionStatusKey = "module_auto_cap_var_completion_status_key" //notif key
 let BMN_Module_MainTimeStampKey = "module_main_time_stamp_key" //main (outer) key in DB object
 let BMN_Module_InputsTimeStampKey = "module_inputs_time_stamp_key" //time stamp for input vars (inner key)
 let BMN_Module_OutputsTimeStampKey = "module_outputs_time_stamp_key" //time stamp for outcomes (inner key)

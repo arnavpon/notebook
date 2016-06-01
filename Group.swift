@@ -10,22 +10,21 @@ import CoreData
 
 class Group: NSManagedObject {
 
-    private var dataEntryVariablesArray: [Module] = [] //dataSource for VC TV
     var reconstructedVariables: [Module] = [] //contains ALL variables for current measurement cycle; accessed by Project Class during data reporting
     var autoCapturedVariables: [Module] = [] //contains ONLY auto-captured variables for current measurement cycle; accessed by Project Class
+    var reportCount: Int = 0 //counts the # of variables that must be reported (accessed by VC)
     
-    func getVariablesArrayForDataEntry() -> [Module] {
-        reconstructProjectFromPersistentRepresentation() //initialize TV dataSource
-        return dataEntryVariablesArray
-        //**we need to define how the interaction works for projects that have 1 or both sections fully auto-captured (in terms of the temporary storage object, the interaction w/ the VC, & when/how data is reported).**
+    func getManualVariablesForDataEntry() -> [Module] {
+        return reconstructProjectFromPersistentRepresentation() //initialize TV dataSource
     }
     
     // MARK: - Reconstruction Logic
     
-    private func reconstructProjectFromPersistentRepresentation() { //use the project's CoreData representation to reconstruct its variables (EITHER inputs OR outputs) as Module objects
+    private func reconstructProjectFromPersistentRepresentation() -> [Module] { //use the project's CoreData representation to reconstruct its variables (EITHER inputs OR outputs) as Module objects
         reconstructedVariables = [] //clear array
         autoCapturedVariables = [] //clear array
-        dataEntryVariablesArray = [] //clear array
+        var manualEntryVariablesArray: [Module] = [] //initialize array for manual vars (for VC)
+        reportCount = 0 //reset count
         let variableDict: [String: [String: AnyObject]]
         if (self.project.temporaryStorageObject == nil) { //no temp storage => report BEFORE ACTION VARS
             print("[reconstructProjFromCD] Temp object is nil! Configuring before action vars...")
@@ -38,15 +37,17 @@ class Group: NSManagedObject {
         //Check the Module obj for the reportType before adding var -> array:
         for (variable, dict) in variableDict { //'dict' = configurationDict for variable
             if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
-                print("Reconstructing variable: [\(variable)].")
+                print("[GROUP] Reconstructing Variable: [\(variable)].")
                 let reconstructedVariable: Module = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
                 reconstructedVariables.append(reconstructedVariable) //add -> array for data capture
                 switch reconstructedVariable.variableReportType { //check the var's reportType
                 case .Default: //USER-ENTERED vars - add to array for display to user
                     print("MANUAL capture var")
-                    dataEntryVariablesArray.append(reconstructedVariable)
+                    reportCount += 1 //manual vars count towards total
+                    manualEntryVariablesArray.append(reconstructedVariable) //add MANUAL vars -> obj
                 case .AutoCapture: //AUTO captured vars
                     print("AUTO capture var")
+                    reportCount += 1 //auto cap vars count towards total
                     if (reconstructedVariable.selectedFunctionality == CustomModuleVariableTypes.Computation_TimeDifference.rawValue) { //TIME DIFFERENCE
                         //Create entry in tempStorageObject indicating there is a TimeDifference var (ONLY works if TimeDiff is an OUTPUT variable):
                         self.project.temporaryStorageObject?.updateValue([BMN_CustomModule_TimeDifferenceKey: reconstructedVariable.variableName], forKey: BMN_ProjectContainsTimeDifferenceKey) //store var's name in dict
@@ -57,11 +58,11 @@ class Group: NSManagedObject {
                     }
                 case .Computation:
                     print("COMPUTATION variable")
-                    break //should not be displayed in TV, must wait for other variables to report before obtaining information...
+                    break //should NOT be displayed in TV, must wait for other variables to report before populating report object...
                 }
             }
         }
-        //**Logic defined here may break down for projects that contain ONLY auto-captured variables in either inputs or outputs (such that there is no temp storage object defined)!
+        return manualEntryVariablesArray
     }
     
     private func createModuleObjectFromModuleName(moduleType module: Modules, variableName: String, configurationDict: [String: AnyObject]) -> Module { //init Module obj w/ its name & config dict

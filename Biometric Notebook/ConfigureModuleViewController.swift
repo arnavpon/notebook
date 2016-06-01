@@ -83,7 +83,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     }
     
     func tableView(tableView: UITableView, accessoryButtonTappedForRowWithIndexPath indexPath: NSIndexPath) {
-        if let variable = createdVariable, layoutObject = cachedLayoutObject, rowsForSection = layoutObject[BMN_RowsForSectionKey], sectionsSource = cachedSectionsDataSource {
+        if let _ = createdVariable, layoutObject = cachedLayoutObject, rowsForSection = layoutObject[BMN_RowsForSectionKey], sectionsSource = cachedSectionsDataSource {
             let sectionTitle = sectionsSource[indexPath.section]
             if let rows = rowsForSection[sectionTitle] as? [String] {
                 let selection = rows[indexPath.row]
@@ -98,9 +98,10 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
                 if let alertDict = layoutObject[BMN_AlertMessageKey] as? [String: [String: String]], alertMsg = alertDict[sectionTitle], message = alertMsg[selection] {
                     let alert = UIAlertController(title: msgTitle, message: message, preferredStyle: .Alert)
                     let select = UIAlertAction(title: "Select", style: .Default) { (let ok) -> Void in
-                        print("Selected Functionality: \(rows[indexPath.row])")
-                        variable.selectedFunctionality = selection
-                        if (variable.configurationOptionsLayoutObject != nil) { //-> ConfigOptionsVC if further config is needed
+                        print("Selected Functionality: \(selection).")
+                        self.copiedVariable = self.createdVariable?.copy() as? Module //create a COPY of the variable so that if the user goes back, the config is NOT saved
+                        self.copiedVariable?.selectedFunctionality = selection
+                        if (self.copiedVariable?.configurationOptionsLayoutObject != nil) { //-> ConfigOptions if further config is needed
                             self.performSegueWithIdentifier("showConfigOptions", sender: nil)
                         } else { //otherwise, create variable & -> ProjectVariablesVC
                             self.performSegueWithIdentifier("unwindToVariablesVC", sender: nil)
