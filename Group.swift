@@ -27,10 +27,10 @@ class Group: NSManagedObject {
         reportCount = 0 //reset count
         let variableDict: [String: [String: AnyObject]]
         if (self.project.temporaryStorageObject == nil) { //no temp storage => report BEFORE ACTION VARS
-            print("[reconstructProjFromCD] Temp object is nil! Configuring before action vars...")
+            print("[reconstructProjFromCD] Temp object is nil! Configuring BEFORE action vars...")
             variableDict = self.beforeActionVariables
         } else { //temp storage obj exists => report AFTER ACTION VARS
-            print("[reconstructProjFromCD] Temp object is NOT nil! Configuring after action vars...")
+            print("[reconstructProjFromCD] Temp object is NOT nil! Configuring AFTER action vars...")
             variableDict = self.afterActionVariables
         }
         

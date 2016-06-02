@@ -13,22 +13,19 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     @IBOutlet weak var doneButton: UIButton!
     @IBOutlet weak var dataEntryTV: UITableView!
     @IBOutlet weak var groupSelectionView: UIView!
-    @IBOutlet weak var smallActivityIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var smallAIView: UIView!
     
-    @IBOutlet weak var largeActivityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var smallAIView: UIView!
+    @IBOutlet weak var smallAIViewLabel: UILabel!
+    @IBOutlet weak var smallAIViewCheck: UIImageView!
+    @IBOutlet weak var smallActivityIndicator: UIActivityIndicatorView!
+    
     @IBOutlet weak var largeAIView: UIView!
+    @IBOutlet weak var largeAIViewLabel: UILabel!
+    @IBOutlet weak var largeAIViewCheck: UIImageView!
+    @IBOutlet weak var largeActivityIndicator: UIActivityIndicatorView!
+    
     var selectedProject: Project?
-    var variablesArray: [Module]? { //TV data source
-        didSet {
-            configureDoneButton() //if an empty array is set as dataSource, enable 'Done' btn
-            if let variables = variablesArray {
-                if (variables.isEmpty) {
-                    //hide TV & display a message to the user that vars have been auto-capped
-                }
-            }
-        }
-    }
+    var variablesArray: [Module]? //TV data source
     var numberOfConfiguredCells: Int = 0 { //controls whether 'Done' btn is enabled
         didSet {
             print("[DataEntryVC] # of configured cells: \(numberOfConfiguredCells).")
@@ -60,6 +57,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         dataEntryTV.dataSource = self
         dataEntryTV.delegate = self
         dataEntryTV.addGestureRecognizer(longPress) //add manual refresh gesture recognizer
+        self.view.addGestureRecognizer(longPress) //add gesture to main view (in case TV is hidden)
         registerCustomTVCells() //register ALL possible custom cell types
         getTableViewDataSource() //set data source for TV
         
@@ -70,7 +68,6 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         } else { //clear the user defaults value for the timeStamp
             NSUserDefaults.standardUserDefaults().setObject(nil, forKey: INPUTS_TIME_STAMP)
         }
-        
     }
     
     func registerCustomTVCells() { //registers all possible custom cell types
@@ -88,8 +85,9 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                 configureGroupSelectionView(true)
             } else { //obtain variablesArray directly from Project class
                 self.variablesArray = project.getVariablesForGroup(nil) //no groupType needed
+                dataEntryTV.hidden = false //need this in case TV was previously hidden
                 dataEntryTV.reloadData() //update UI
-                configureActivityIndicatorView(true) //display AI view if needed
+                configureActivityIndicatorView(false) //display AI view if needed
             }
         }
     }
@@ -114,8 +112,22 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
             let alert = UIAlertController(title: "Warning", message: "If you choose to refresh the cycle, it will permanently delete the data collected for the input variables during this cycle.", preferredStyle: .Alert) ////send the user a warning that data will be deleted!
             let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
             let ok = UIAlertAction(title: "I'm Sure", style: .Destructive) { (let ok) in
-                project.refreshMeasurementCycle() //refresh
-                self.getTableViewDataSource() //get TV's new dataSource
+                project.refreshMeasurementCycle() //refresh project settings 1st
+                
+                //Reset doneButton, AI view cache & visuals:
+                self.cachedView = nil
+                self.cachedBlocker = false
+                self.autoCapVarCount = nil //clear
+                self.numberOfConfiguredCells = 0 //start @ 0 again
+                self.autoCapVarReportCount = 0 //start @ 0 again
+                dispatch_async(dispatch_get_main_queue(), { //*update visuals on main thread*
+                    self.smallAIView.hidden = true
+                    self.smallActivityIndicator.stopAnimating()
+                    self.largeAIView.hidden = true
+                    self.largeActivityIndicator.stopAnimating()
+                    self.doneButton.enabled = false
+                })
+                self.getTableViewDataSource() //get TV's new dataSource @ END of fx
             }
             alert.addAction(cancel)
             alert.addAction(ok)
@@ -123,69 +135,80 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         }
     }
     
+    // MARK: - Completion Status Logic
+    
     var autoCapVarCount: Int? //# of auto-cap vars in reporting group (used for AI view display)
     var autoCapVarReportCount: Int = 0 {
         didSet {
             if let count = autoCapVarCount {
                 print("[AUTO-CAP] TOTAL: \(count). CURRENT COUNT: \(autoCapVarReportCount).")
-                if (count == autoCapVarReportCount) { //counts match, HIDE AI view
-                    print("Hiding view")
-                    configureActivityIndicatorView(false)
-                } else { //counts do NOT match, REVEAL AI view
-                    print("Revealing view")
+                if (count == autoCapVarReportCount) { //counts match, set AI view -> COMPLETE
                     configureActivityIndicatorView(true)
+                } else { //counts do NOT match, set AI view -> INCOMPLETE
+                    configureActivityIndicatorView(false)
                 }
             }
         }
     }
-    var cachedViews: (UIView, UIActivityIndicatorView)? //ensures computations only happen once
+    var cachedView: UIView? //caches AI view for currently reporting project (to save computations)
+    var cachedBlocker: Bool = false //for Project w/o auto-cap variables, blocks configAIView from firing
     
-    func configureActivityIndicatorView(reveal: Bool) {
-        print("Configuring AI view")
-        if let (AIView, indicator) = cachedViews { //views have been cached (2nd run onward)
-            print("Using cache.")
-            if (reveal) { //REVEAL
-                AIView.hidden = false
-                indicator.startAnimating()
-            } else { //HIDE
-                AIView.hidden = true
-                indicator.stopAnimating()
-            }
-        } else if let displayedVars = variablesArray, project = selectedProject, reportingGroup = project.reportingGroup {
-            print("Inside if let")
-            let totalCount = reportingGroup.reportCount
-            let manualCount = displayedVars.count
-            self.autoCapVarCount = totalCount - manualCount //set the auto-cap var count
-            if (manualCount != 0) { //MANUAL variables exist => SMALL reporting view
-                print("Manual vars exist")
-                if (displayedVars.count != totalCount) { //NOT all vars are MANUAL (AI view is needed)
-                    cachedViews = (smallAIView, smallActivityIndicator) //cache views
-                    if (reveal) { //reveal
-                        smallActivityIndicator.startAnimating()
-                        smallAIView.hidden = false
-                    } else { //hide
-                        smallActivityIndicator.stopAnimating()
-                        smallAIView.hidden = true
+    func configureActivityIndicatorView(completed: Bool) {
+        if !(cachedBlocker) { //only run if block is passed
+            if let AIView = cachedView { //views have been cached (2nd run onward)
+                setVisualsForAIView(AIView, completed: completed)
+            } else if let displayedVars = variablesArray, project = selectedProject, reportingGroup = project.reportingGroup {
+                let totalCount = reportingGroup.reportCount
+                let manualCount = displayedVars.count
+                self.autoCapVarCount = totalCount - manualCount //set the auto-cap var count
+                if (manualCount != 0) { //MANUAL variables exist => SMALL reporting view
+                    if (displayedVars.count != totalCount) { //NOT all vars are MANUAL (AI view is needed)
+                        cachedView = smallAIView //cache SMALL view
+                        setVisualsForAIView(smallAIView, completed: completed) //set visuals
+                    } else { //ALL vars are manual (cache the blocker)
+                        cachedBlocker = true //prevents fx from firing again (NO AI view for manual vars)
                     }
-                }
-            } else { //NO manual vars, check if there are auto-cap vars
-                print("NO manual vars")
-                if (totalCount > 0) { //AUTO-cap vars exist, show large AI view, hide TV
-                    print("Auto cap vars exist!!!")
-                    cachedViews = (largeAIView, largeActivityIndicator) //cache views
-                    if (reveal) { //reveal
-                        print("revealing...")
-                        dataEntryTV.hidden = true
-                        largeActivityIndicator.startAnimating()
-                        largeAIView.hidden = false
-                    } else { //hide
-                        print("hiding")
-                        largeActivityIndicator.stopAnimating()
-                        largeAIView.hidden = true
+                } else { //NO manual vars, check if there are auto-cap vars
+                    if (totalCount > 0) { //AUTO-cap vars exist, show large AI view, hide TV
+                        cachedView = largeAIView //cache LARGE view
+                        setVisualsForAIView(largeAIView, completed: completed) //set visuals
+                    } else { //ERROR (no auto cap vars OR manual vars)
+                        print("ERROR - no manual variables & no auto-captured variables!")
                     }
                 }
             }
         }
+    }
+    
+    private func setVisualsForAIView(aiView: UIView, completed: Bool) {
+        let incompleteText = "Capturing Data From APIs"
+        let completeText = "API Data Was Captured!"
+        dispatch_async(dispatch_get_main_queue(), { //*update visuals on main thread*
+            if (aiView == self.smallAIView) { //SMALL view
+                if !(completed) { //incomplete mode
+                    self.smallAIView.hidden = false
+                    self.smallAIViewLabel.text = incompleteText
+                    self.smallActivityIndicator.startAnimating() //reveal activity indicator
+                    self.smallAIViewCheck.hidden = true //hide check mark
+                } else { //complete mode
+                    self.smallAIViewLabel.text = completeText
+                    self.smallActivityIndicator.stopAnimating() //hide activity indicator
+                    self.smallAIViewCheck.hidden = false //reveal check mark
+                }
+            } else if (aiView == self.largeAIView) { //LARGE view
+                if !(completed) { //incomplete mode
+                    self.dataEntryTV.hidden = true
+                    self.largeAIView.hidden = false
+                    self.largeAIViewLabel.text = incompleteText
+                    self.largeActivityIndicator.startAnimating() //reveal activity indicator
+                    self.largeAIViewCheck.hidden = true //hide check mark
+                } else { //complete mode
+                    self.largeAIViewLabel.text = completeText
+                    self.largeActivityIndicator.stopAnimating() //hide activity indicator
+                    self.largeAIViewCheck.hidden = false //reveal check mark
+                }
+            }
+        })
     }
     
     // MARK: - Notification Handling
@@ -213,14 +236,16 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func configureDoneButton() { //handles 'Done' button enablement
-        print("Configure done button firing...")
         if let project = selectedProject, reportingGroup = project.reportingGroup {
             let total = reportingGroup.reportCount
-            print("Total # of reportable variables for project's reporting group is \(total).")
             if (self.numberOfConfiguredCells == total) { //ALL cells have been reported
-                doneButton.enabled = true
+                dispatch_async(dispatch_get_main_queue(), { //*update visuals on main thread*
+                    self.doneButton.enabled = true //enable
+                })
             } else { //some cells have NOT been reported
-                doneButton.enabled = false
+                dispatch_async(dispatch_get_main_queue(), { //*update visuals on main thread*
+                    self.doneButton.enabled = false //disable
+                })
                 if (numberOfConfiguredCells > total) { //safety check
                     print("[configureDoneButton] ERROR - # of configured cells is > than total!")
                 }
@@ -346,7 +371,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         if let project = selectedProject {
             variablesArray = project.getVariablesForGroup(group) //set dataSource
             dataEntryTV.reloadData() //update UI
-            configureActivityIndicatorView(true) //display AI view if needed
+            configureActivityIndicatorView(false) //display AI view if needed
             configureGroupSelectionView(false) //hide selectionView
         }
     }

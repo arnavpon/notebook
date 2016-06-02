@@ -44,6 +44,7 @@ class Project: NSManagedObject {
     }
     
     func refreshMeasurementCycle() { //refreshes counters & tempStorage obj (called automatically @ end of measurement cycle or manually by user)
+        self.reportingGroup = nil //clear reporting group
         self.temporaryStorageObject = nil //clear temp object
         for object in self.counters { //refresh each counter
             if let counter = object as? Counter {
@@ -142,12 +143,12 @@ class Project: NSManagedObject {
         
         //(1) Obtain the data stored in ALL variables (manual + auto) that are being reported:
         var reportCount = 0
-        var deferredVariables: [Module] = []
+        var deferredComputations: [Module] = [] //array containing computations
         var inputNames: [String] = [] //names of all computation inputs
         var inputsReportData = Dictionary<String, [String: AnyObject]>() //data in all computation inputs
         for variable in variables { //each Module obj reports entered data -> VC to construct dict
             if (variable.variableReportType == ModuleVariableReportTypes.Computation) {
-                deferredVariables.append(variable) //defer computations til ALL vars are reported
+                deferredComputations.append(variable) //defer computations til ALL vars are reported
                 for (_, inputName) in variable.computationInputs { //grab names of inputs
                     inputNames.append(inputName)
                 }
@@ -164,8 +165,6 @@ class Project: NSManagedObject {
                 }
             }
         }
-        print("Report Count: \(reportCount). Full Count: \(variables.count).\n") //**block 'Done' btn press if the 2 values don't match!
-        
         for (variableName, dict) in dataObjectToDatabase { //**
             for (key, value) in dict {
                 print("DB Object: VAR = '\(variableName)'. KEY: '\(key)'. VALUE: [\(value)].")
@@ -174,15 +173,15 @@ class Project: NSManagedObject {
         }
         
         //(2) Check if any of the variables are computations & (if so) compute their values now:
-        if !(deferredVariables.isEmpty) { //COMPUTATION(S) exist
+        if !(deferredComputations.isEmpty) { //COMPUTATION(S) exist
             for name in inputNames { //*add NON-GHOST inputs to dict for CF AFTER all vars report*
                 if (inputsReportData[name] == nil) { //ONLY add new entry for NON-ghost (ghosts are ALREADY present in dictionary)!
                     inputsReportData[name] = dataObjectToDatabase[name]
                 }
             }
             let computationFramework = Module_ComputationFramework()
-            computationFramework.setReportObjectForComputations(deferredVariables, inputsReportData: inputsReportData) //load computations w/ return values
-            for computation in deferredVariables { //have computations report their values -> DB object
+            computationFramework.setReportObjectForComputations(deferredComputations, inputsReportData: inputsReportData) //load computations w/ return values
+            for computation in deferredComputations { //have computations report their values -> DB object
                 if let reportObject = computation.reportDataForVariable() {
                     dataObjectToDatabase[computation.variableName] = reportObject
                 }
