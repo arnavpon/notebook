@@ -76,6 +76,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         dataEntryTV.registerClass(CustomWithOptionsCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithOptionsCell))
         dataEntryTV.registerClass(CustomWithCounterCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithCounterCell))
         dataEntryTV.registerClass(CustomWithRangeScaleCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithRangeScaleCell))
+        dataEntryTV.registerClass(FoodIntakeForMealItemCell.self, forCellReuseIdentifier: NSStringFromClass(FoodIntakeForMealItemCell))
     }
     
     func getTableViewDataSource() { //obtains TV dataSource array from the selectedProject
@@ -339,6 +340,8 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithCounterCell), forIndexPath: indexPath) as! CustomWithCounterCell
                 case .CustomWithRangeScale:
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithRangeScaleCell), forIndexPath: indexPath) as! CustomWithRangeScaleCell
+                case .FoodIntakeForMealItem:
+                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(FoodIntakeForMealItemCell), forIndexPath: indexPath) as! FoodIntakeForMealItemCell
                 }
             }
             cell.module = moduleForCell //assign dataSource -> cell

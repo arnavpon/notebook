@@ -652,9 +652,7 @@ enum BiometricModule_HeartRateOptions: String { //sampling options for HR variab
     case ChooseSampleAtCollection = "Choose Sample at Data Collection Time" //**allows user to pick a period of time over which to sample HR (provides an array of HR)
 }
 
-enum HealthKitUnits { //object allowing for interconversion between different kinds of HK units
-    
+enum HealthKitUnits { //object allowing for interconversion between different kinds of HK units**
     case Kilogram
     case Meter
-    
 }

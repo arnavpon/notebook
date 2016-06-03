@@ -237,7 +237,7 @@ class EnvironmentModule: Module {
     @objc func didReceiveLocationFromCLManager(notification: NSNotification) {
         if let info = notification.userInfo, latitude = info[BMN_CoreLocationManager_LatitudeKey] as? Double, longitude = info[BMN_CoreLocationManager_LongitudeKey] as? Double {
             NSNotificationCenter.defaultCenter().removeObserver(self) //remove observer after firing 1x
-            let service = ForecastService(coordinate: (latitude, longitude)) //create API network request
+            let service = WeatherForecastService(coordinate: (latitude, longitude)) //create API request
             service.getWeatherObjectFromAPI({ (let weather) in
                 if let currentWeather = weather.0, dailyWeather = weather.1 { //check for nil objects
                     var combinedDict = Dictionary<String, AnyObject>()

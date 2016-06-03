@@ -1,11 +1,13 @@
-//  WeatherForecastService.swift
+//  NutritionService.swift
 //  Biometric Notebook
-//  Created by Arnav Pondicherry  on 4/18/16.
+//  Created by Arnav Pondicherry  on 6/2/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
+
+// Defines interaction w/ USDA nutrition API - sends request to API & populates structs based on return value.
 
 import Foundation
 
-struct CurrentWeather { //object used to represent the CURRENT WEATHER for EnvironmentModule_Weather vars
+struct FoodItem { //object used to represent a single food item
     
     let temperature: Int? //ºF
     let apparentTemperature: Int? //ºF
@@ -71,65 +73,14 @@ struct CurrentWeather { //object used to represent the CURRENT WEATHER for Envir
     
 }
 
-struct DailyWeather { //object used to represent the DAILY WEATHER (used to grab potentially useful data points that are found in the 'daily' > 'data'.first dictionary)
+struct NutritionService { //creates a SPECIALIZED network connection (utilizing the 'NetworkConnection' class) w/ the USDA Nutrition API to obtain nutrition data based on the entered search term.
     
-    let sunriseTime: NSTimeInterval? //UNIX time stamp (# of seconds since Jan 1, 1970)
-    let sunsetTime: NSTimeInterval? //timeStamp
-    let temperatureMin: Int? //ºF
-    let temperatureMinTime: NSTimeInterval? //timeStamp
-    let temperatureMax: Int? //ºF
-    let temperatureMaxTime: NSTimeInterval? //timeStamp
-    let apparentTemperatureMin: Int? //ºF
-    let apparentTemperatureMinTime: NSTimeInterval? //timeStamp
-    let apparentTemperatureMax: Int? //ºF
-    let apparentTemperatureMaxTime: NSTimeInterval? //timeStamp
-    
-    // MARK: - Initializer
-    
-    init(weatherDictionary: [String: AnyObject]) { //extract info from the 'DAILY' dict, keys MUST match values specified in API!
-        sunriseTime = weatherDictionary["sunriseTime"] as? NSTimeInterval
-        sunsetTime = weatherDictionary["sunsetTime"] as? NSTimeInterval
-        temperatureMin = weatherDictionary["temperatureMin"] as? Int
-        temperatureMinTime = weatherDictionary["temperatureMinTime"] as? NSTimeInterval
-        temperatureMax = weatherDictionary["temperatureMax"] as? Int
-        temperatureMaxTime = weatherDictionary["temperatureMaxTime"] as? NSTimeInterval
-        apparentTemperatureMin = weatherDictionary["apparentTemperatureMin"] as? Int
-        apparentTemperatureMinTime = weatherDictionary["apparentTemperatureMinTime"] as? NSTimeInterval
-        apparentTemperatureMax = weatherDictionary["apparentTemperatureMax"] as? Int
-        apparentTemperatureMaxTime = weatherDictionary["apparentTemperatureMaxTime"] as? NSTimeInterval
-        
-        if let sunrise = sunriseTime, sunset = sunsetTime {
-            let rise = NSDate(timeIntervalSince1970: sunrise)
-            let set = NSDate(timeIntervalSince1970: sunset)
-            print("Sunrise: \(DateTime(date: rise).getFullTimeStamp()). Sunset: \(DateTime(date: set).getFullTimeStamp()).")
-        }
-    }
-    
-    // MARK: - Data Reporting Logic
-    
-    func reportDataForWeatherVariable(filter: [EnvironmentModule_WeatherOptions]) -> [String: AnyObject] {
-        var reportObject = Dictionary<String, AnyObject>()
-        for filterOption in filter { //for each filter option, add specified data -> reportDict
-            switch filterOption {
-            case .SunsetTime:
-                reportObject["sunsetTime"] = self.sunsetTime
-            case .SunriseTime:
-                reportObject["sunriseTime"] = self.sunriseTime
-            default:
-                break
-            }
-        }
-        return reportObject
-    }
-    
-}
-
-struct WeatherForecastService { //creates a SPECIALIZED network connection (utilizing the 'NetworkConnection' class) w/ the WeatherAPI to obtain weather data @ the user's current location. The obtained data is used to populate the 'CurrentWeather' struct.
-    
-    private let forecastAPIKey = "50d0ace7a11ac15f3f335d70512f12be"
+    private let nutritionAPIKey = "0jameHAG5KPLOnaKg6eeuoEyw4giFm3seOzkIxFg"
     private let coordinate: (latitude: Double, longitude: Double) //obtain coordinates from CL manager
-    private var forecastBaseURL: NSURL? { //base URL for the weather API
-        return NSURL(string: "https://api.forecast.io/forecast/\(forecastAPIKey)/")
+    private var apiBaseURL: NSURL? { //base URL for the weather API
+        return NSURL(string: "https://api.forecast.io/forecast/\(nutritionAPIKey)/")
+        
+//        "http://api.nal.usda.gov/ndb/search/?format=json&q=butter&sort=n&max=25&offset=0&api_key=DEMO_KEY" //search URL
     }
     
     // MARK: - Initializer
@@ -141,7 +92,7 @@ struct WeatherForecastService { //creates a SPECIALIZED network connection (util
     // MARK: - Networking Logic
     
     func getWeatherObjectFromAPI(completion: ((CurrentWeather?, DailyWeather?) -> Void)) {
-        if let forecastURL = NSURL(string: "\(coordinate.latitude),\(coordinate.longitude)", relativeToURL: forecastBaseURL) {
+        if let forecastURL = NSURL(string: "\(coordinate.latitude),\(coordinate.longitude)", relativeToURL: apiBaseURL) {
             let networkOperation = NetworkConnection(url: forecastURL)
             
             //Download JSON object from constructed URL (using API key & location coordinates):

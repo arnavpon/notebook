@@ -157,15 +157,6 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
                 configureCompletionIndicator(false)
                 return //terminate function
             }
-//            if let config = freeformViewsConfigObject, type = config[counter].1 {
-//                if (type == .Timing) { //TIMING objects must have > 8 characters entered to be complete
-//                    print("Character Count: \(trimmedValue.characters.count).")
-//                    if (trimmedValue.characters.count < 8) {
-//                        configureCompletionIndicator(false)
-//                        return
-//                    }
-//                }
-//            }
             counter += 1
         }
         configureCompletionIndicator(true) //passed checks, cell is COMPLETE

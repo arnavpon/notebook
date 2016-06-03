@@ -201,3 +201,11 @@ let BMN_DataEntry_FreeformCell_NumberOfViewsKey = "BM_DE_freeform_cell_number_of
 
 //[CoreData Keys]:
 let BMN_BiometricModule_ComputationInputsKey = "BMN_BM_computation_inputs_key"
+
+// MARK: - FoodIntakeModule [FiM]
+
+//[Configuration KEYS]:
+let BMN_FoodIntakeModule_NutritionCategoriesKey = "FiM_nutrition_categories_key"
+
+//[Configuration IDs]:
+let BMN_FoodIntakeModule_NutritionCategoriesID = "FiM_nutrition_categories_id"
