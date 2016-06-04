@@ -123,8 +123,8 @@ class FoodIntakeModule: Module {
             switch type {
             case .MealItem:
                 
-                let categories: [String] = [FoodIntakeModule_NutritionCategories.Calories.rawValue, FoodIntakeModule_NutritionCategories.Protein.rawValue, FoodIntakeModule_NutritionCategories.Carbohydrates.rawValue, FoodIntakeModule_NutritionCategories.TotalFat.rawValue] //available nutrition categories
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_FoodIntakeModule_NutritionCategoriesID, BMN_LEVELS_MainLabelKey: "Select the nutrition categories for which you want to obtain data:", BMN_SelectFromOptions_OptionsKey: categories, BMN_SelectFromOptions_DefaultOptionsKey: [categories[0]], BMN_SelectFromOptions_MultipleSelectionEnabledKey: true])) //nutrition categories, default is CALORIES
+                let categories: [String] = [FoodIntakeModule_NutritionCategories.Calories.rawValue, FoodIntakeModule_NutritionCategories.Water.rawValue, FoodIntakeModule_NutritionCategories.Protein.rawValue, FoodIntakeModule_NutritionCategories.TotalSugar.rawValue, FoodIntakeModule_NutritionCategories.DietaryFiber.rawValue, FoodIntakeModule_NutritionCategories.TotalFat.rawValue, FoodIntakeModule_NutritionCategories.SaturatedFat.rawValue, FoodIntakeModule_NutritionCategories.MonounsaturatedFat.rawValue, FoodIntakeModule_NutritionCategories.PolyunsaturatedFat.rawValue, FoodIntakeModule_NutritionCategories.Cholesterol.rawValue, FoodIntakeModule_NutritionCategories.TransFat.rawValue, FoodIntakeModule_NutritionCategories.Calcium.rawValue, FoodIntakeModule_NutritionCategories.Iron.rawValue, FoodIntakeModule_NutritionCategories.Magnesium.rawValue, FoodIntakeModule_NutritionCategories.Potassium.rawValue, FoodIntakeModule_NutritionCategories.Phosphorus.rawValue, FoodIntakeModule_NutritionCategories.Sodium.rawValue, FoodIntakeModule_NutritionCategories.Zinc.rawValue, FoodIntakeModule_NutritionCategories.VitaminB1.rawValue, FoodIntakeModule_NutritionCategories.VitaminB2.rawValue, FoodIntakeModule_NutritionCategories.VitaminB3.rawValue, FoodIntakeModule_NutritionCategories.VitaminB6.rawValue, FoodIntakeModule_NutritionCategories.Folate.rawValue, FoodIntakeModule_NutritionCategories.VitaminB12.rawValue, FoodIntakeModule_NutritionCategories.VitaminC.rawValue, FoodIntakeModule_NutritionCategories.VitaminD.rawValue, FoodIntakeModule_NutritionCategories.VitaminA.rawValue, FoodIntakeModule_NutritionCategories.VitaminK.rawValue, FoodIntakeModule_NutritionCategories.VitaminE.rawValue, FoodIntakeModule_NutritionCategories.Caffeine.rawValue] //available nutrition categories
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_FoodIntakeModule_NutritionCategoriesID, BMN_LEVELS_MainLabelKey: "Select the nutrition categories for which you want to obtain data:", BMN_SelectFromOptions_OptionsKey: categories, BMN_SelectFromOptions_DefaultOptionsKey: [FoodIntakeModule_NutritionCategories.Calories.rawValue], BMN_SelectFromOptions_MultipleSelectionEnabledKey: true])) //nutrition categories, default is CALORIES
                 
                 configurationOptionsLayoutObject = array
                 
@@ -244,8 +244,105 @@ enum FoodIntakeModuleVariableTypes: String { //*match each behavior/computation 
 }
 
 enum FoodIntakeModule_NutritionCategories: String {
+    
+    //Other:
     case Calories = "Calories"
+    case Water = "Water"
+    case Caffeine = "Caffeine"
+    
+    //Macronutrients:
     case Protein = "Protein"
-    case Carbohydrates = "Carbohydrates"
     case TotalFat = "Total Fat"
+    case SaturatedFat = "Saturated Fat"
+    case MonounsaturatedFat = "Monounsaturated Fat"
+    case PolyunsaturatedFat = "Polyunsaturated Fat"
+    case Cholesterol = "Cholesterol"
+    case TransFat = "Trans Fat"
+    case TotalSugar = "Total Sugar"
+    case DietaryFiber = "Dietary Fiber"
+    
+    //Vitamins & Minerals:
+    case Calcium = "Calcium"
+    case Iron = "Iron"
+    case Magnesium = "Magnesium"
+    case Phosphorus = "Phosphorus"
+    case Potassium = "Potassium"
+    case Sodium = "Sodium"
+    case Zinc = "Zinc"
+    case VitaminC = "Vitamin C"
+    case VitaminB1 = "Vitamin B1"
+    case VitaminB2 = "Vitamin B2"
+    case VitaminB3 = "Vitamin B3"
+    case VitaminB6 = "Vitamin B6"
+    case Folate = "Folate"
+    case VitaminB12 = "Vitamin B12"
+    case VitaminA = "Vitamin A"
+    case VitaminD = "Vitamin D"
+    case VitaminE = "Vitamin E"
+    case VitaminK = "Vitamin K"
+    
+    func matchCategoryToNutrientID() -> Int { //matches enum obj -> NutritionAPI Nutrient ID#
+        switch self {
+        case .Calories:
+            return 208
+        case .Water:
+            return 255
+        case .Protein:
+            return 203
+        case .TotalFat:
+            return 204
+        case .TotalSugar:
+            return 269
+        case .DietaryFiber:
+            return 291
+        case .Calcium:
+            return 301
+        case .Iron:
+            return 303
+        case .Magnesium:
+            return 304
+        case .Phosphorus:
+            return 305
+        case .Potassium:
+            return 306
+        case .Sodium:
+            return 307
+        case .Zinc:
+            return 309
+        case .VitaminC:
+            return 401
+        case .VitaminB1:
+            return 404
+        case .VitaminB2:
+            return 405
+        case .VitaminB3:
+            return 406
+        case .VitaminB6:
+            return 415
+        case .Folate: //unknown unit
+            return 435
+        case .VitaminB12: //?
+            return 418
+        case .VitaminA: //IU*
+            return 318
+        case .VitaminD: //IU*
+            return 324
+        case .VitaminK: //?
+            return 430
+        case .VitaminE: //?
+            return 323
+        case .SaturatedFat:
+            return 606
+        case .MonounsaturatedFat:
+            return 645
+        case .PolyunsaturatedFat:
+            return 646
+        case .TransFat:
+            return 605
+        case .Cholesterol:
+            return 601
+        case .Caffeine:
+            return 262
+        }
+    }
 }
