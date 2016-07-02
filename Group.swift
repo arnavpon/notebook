@@ -46,13 +46,14 @@ class Group: NSManagedObject {
                     reportCount += 1 //manual vars count towards total
                     manualEntryVariablesArray.append(reconstructedVariable) //add MANUAL vars -> obj
                 case .AutoCapture: //AUTO captured vars
-                    print("AUTO capture var")
-                    reportCount += 1 //auto cap vars count towards total
                     if (reconstructedVariable.selectedFunctionality == CustomModuleVariableTypes.Computation_TimeDifference.rawValue) { //TIME DIFFERENCE
                         //Create entry in tempStorageObject indicating there is a TimeDifference var (ONLY works if TimeDiff is an OUTPUT variable):
+                        print("TIME DIFFERENCE var")
                         self.project.temporaryStorageObject?.updateValue([BMN_CustomModule_TimeDifferenceKey: reconstructedVariable.variableName], forKey: BMN_ProjectContainsTimeDifferenceKey) //store var's name in dict
                         saveManagedObjectContext() //save after inputting indicator
                     } else { //instruct the remaining auto-cap variables to report their data @ this time!
+                        print("AUTO capture var")
+                        reportCount += 1 //true auto cap (non-TD) vars count towards total
                         reconstructedVariable.populateDataObjectForAutoCapturedVariable()
                         autoCapturedVariables.append(reconstructedVariable) //add -> array
                     }

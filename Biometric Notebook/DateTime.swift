@@ -14,14 +14,34 @@ class DateTime {
     private let hours: Int //current time (hours)
     private let minutes: Int //current time (minutes)
     private let seconds: Int //current time (seconds)
-    private var dateString: String {
+    private var dateString: String { //YYYY-MM-DD (matches MySQL DATE obj format)
         get {
-            return "\(month)/\(day)/\(year)"
+            var formattedMonth = "\(month)"
+            if (month < 10) { //apply formatting to single digits
+                formattedMonth = "0\(month)"
+            }
+            var formattedDay = "\(day)"
+            if (day < 10) { //apply formatting to single digits
+                formattedDay = "0\(day)"
+            }
+            return "\(year)-\(formattedMonth)-\(formattedDay)"
         }
     }
-    private var timeString: String {
+    private var timeString: String { //HH:MM:SS.milliseconds (matches MySQL TIME obj format)
         get {
-            return "\(hours):\(minutes):\(seconds)"
+            var formattedHours = "\(hours)"
+            if (hours < 10) { //apply formatting to single digits
+                formattedHours = "0\(hours)"
+            }
+            var formattedMinutes = "\(minutes)"
+            if (minutes < 10) { //apply formatting to single digits
+                formattedMinutes = "0\(minutes)"
+            }
+            var formattedSeconds = "\(seconds)"
+            if (seconds < 10) { //apply formatting to single digits
+                formattedSeconds = "0\(seconds)"
+            }
+            return "\(formattedHours):\(formattedMinutes):\(formattedSeconds)"
         }
     }
     

@@ -342,6 +342,16 @@ class CustomModule: Module {
         return nil
     }
     
+    // MARK: - Data Aggregation
+    
+    override func reportDataForVariable() -> [String : AnyObject]? {
+        var returnObject = super.reportDataForVariable() //grab superclass obj first
+        if let opts = self.options { //for vars w/ LIST{Py}/ARRAY{Sw} type mainDataObjects (custom & binary), ALL available options must be passed -> DB for table creation
+            returnObject?.updateValue(opts, forKey: BMN_Module_OptionsForListKey)
+        }
+        return returnObject
+    }
+    
 }
 
 enum CustomModuleVariableTypes: String { //*match each behavior/computation -> Configuration + DataEntry custom TV cells; for each new behavior/computation added, you must also add (1) Configuration logic, (2) Core Data storage logic (so the variable config can be preserved), (3) Unpacking logic (in the DataEntry initializer), & (4) DataEntry logic (enabling the user to report info).* 

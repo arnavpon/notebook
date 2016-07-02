@@ -194,7 +194,7 @@ class Project: NSManagedObject {
                 let outputsReportTime = NSDate() //get CURRENT time for outputs timeStamp
                     
                 //Check if project contains a TimeDifference variable:
-                if let tdInfo = temp[BMN_ProjectContainsTimeDifferenceKey], name =  tdInfo[BMN_CustomModule_TimeDifferenceKey] as? String { //calculate TD if it exists
+                if let tdInfo = temp[BMN_ProjectContainsTimeDifferenceKey], name = tdInfo[BMN_CustomModule_TimeDifferenceKey] as? String { //calculate TD if it exists
                     let difference = outputsReportTime.timeIntervalSinceReferenceDate - inputsReportTime.timeIntervalSinceReferenceDate
                     self.temporaryStorageObject![BMN_ProjectContainsTimeDifferenceKey] = nil //clear indicator in tempObject
                     dataObjectToDatabase[name] = [BMN_Module_ReportedDataKey: difference] //save time difference in var's 'reportedDataKey'
@@ -216,7 +216,9 @@ class Project: NSManagedObject {
                 }
             }
                 
-            //**send combined dict -> DB (use a closure to ensure that all other data has been obtained first)
+            //**Send combined dict -> DB (use a closure to ensure that all other data has been obtained first). Add dictionary to POST queue (in case internet connection is not available).
+            let dbConnection = DatabaseConnection(objectToDatabase: dataObjectToDatabase, projectTitle: self.title)
+            dbConnection.postObjectToDatabase()
                 
             for (variableName, dict) in dataObjectToDatabase { //**
                 for (key, value) in dict {

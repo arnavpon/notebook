@@ -63,7 +63,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         
         //(3) Obtain timeStamp if it exists for userDefaults (utilized by some variables):
         if let project = selectedProject, dict = project.temporaryStorageObject, timeEntry = dict[BMN_Module_MainTimeStampKey], inputsTimeStamp = timeEntry[BMN_Module_InputsTimeStampKey] as? NSDate { //pass to user defaults
-            print("[VC] Time Stamp: \(DateTime(date: inputsTimeStamp).getFullTimeStamp()).")
+            print("[DEVC] Inputs Time Stamp: \(DateTime(date: inputsTimeStamp).getFullTimeStamp()).")
             NSUserDefaults.standardUserDefaults().setObject(inputsTimeStamp, forKey: INPUTS_TIME_STAMP)
         } else { //clear the user defaults value for the timeStamp
             NSUserDefaults.standardUserDefaults().setObject(nil, forKey: INPUTS_TIME_STAMP)

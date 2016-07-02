@@ -136,7 +136,8 @@ let BMN_Module_AutoCapVarCompletionStatusKey = "module_auto_cap_var_completion_s
 let BMN_Module_MainTimeStampKey = "module_main_time_stamp_key" //main (outer) key in DB object
 let BMN_Module_InputsTimeStampKey = "module_inputs_time_stamp_key" //time stamp for input vars (inner key)
 let BMN_Module_OutputsTimeStampKey = "module_outputs_time_stamp_key" //time stamp for outcomes (inner key)
-let BMN_Module_ReportedDataKey = "module_main_data_key" //main data (differs depending on behavior/comp)
+let BMN_Module_ReportedDataKey = "module_main_data_key" //for var's main data (*match -> Python script*)
+let BMN_Module_OptionsForListKey = "module_options_for_list_key" //*needed for Python DB creation*
 
 let BMN_CustomModule_TimeDifferenceKey = "CM_time_difference_key" //key containing TD var's name
 let BMN_ProjectContainsTimeDifferenceKey = "project_contains_time_difference_key" //indicator

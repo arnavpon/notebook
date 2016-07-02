@@ -20,6 +20,7 @@
 		B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */; };
 		B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */; };
 		B1395DAE1CB76A5800DEBC91 /* BaseCreateProjectCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAD1CB76A5800DEBC91 /* BaseCreateProjectCell.swift */; };
+		B13B26741D23F55200006145 /* DatabaseConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13B26731D23F55200006145 /* DatabaseConnection.swift */; };
 		B13BB7381CBEDDFE0084E640 /* Group+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13BB7361CBEDDFE0084E640 /* Group+CoreDataProperties.swift */; };
 		B13BB7391CBEDDFE0084E640 /* Group.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13BB7371CBEDDFE0084E640 /* Group.swift */; };
 		B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13CF6791C2D93BA0019D315 /* AppDelegate.swift */; };
@@ -176,6 +177,7 @@
 		B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectTitleCustomCell.swift; path = ../../ProjectTitleCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectHypothesisCustomCell.swift; path = ../../ProjectHypothesisCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAD1CB76A5800DEBC91 /* BaseCreateProjectCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BaseCreateProjectCell.swift; path = ../../BaseCreateProjectCell.swift; sourceTree = "<group>"; };
+		B13B26731D23F55200006145 /* DatabaseConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseConnection.swift; sourceTree = "<group>"; };
 		B13BB7361CBEDDFE0084E640 /* Group+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Group+CoreDataProperties.swift"; path = "../Group+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		B13BB7371CBEDDFE0084E640 /* Group.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Group.swift; path = ../Group.swift; sourceTree = "<group>"; };
 		B13CF6761C2D93BA0019D315 /* Biometric Notebook.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Biometric Notebook.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -648,6 +650,7 @@
 			children = (
 				B1C42F791CCFA40800F27DDF /* DataReportingErrorProtocol.swift */,
 				B1D555801C3068FD00C20742 /* NetworkConnection.swift */,
+				B13B26731D23F55200006145 /* DatabaseConnection.swift */,
 				B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */,
 				B19262691D010EE40093590E /* NutritionService.swift */,
 			);
@@ -872,6 +875,7 @@
 				B192626A1D010EE40093590E /* NutritionService.swift in Sources */,
 				B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */,
 				B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */,
+				B13B26741D23F55200006145 /* DatabaseConnection.swift in Sources */,
 				B1D51C631CB2A34300DED6B2 /* CellWithGradientFill.swift in Sources */,
 				B1AA96CE1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift in Sources */,
 				B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */,

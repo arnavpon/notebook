@@ -648,7 +648,7 @@ enum BiometricModule_DataSourceOptions: String {
 
 enum BiometricModule_HeartRateOptions: String { //sampling options for HR variable
     case MostRecent = "Most Recent Value" //grabs last measured HR from store
-    case AverageOverAction = "Average Over Action" //**averages all HR measurements taken between IV time stamp & OM time stamp (i.e. averages values taken during action), ONLY available for OutcomeMeasures!!! (need to build in protection so selection is only enabled for OM)
+    case AverageOverAction = "Average Over Action" //averages all HR measurements taken between IV time stamp & OM time stamp (i.e. averages values taken during action), ONLY available for OMs!
     case ChooseSampleAtCollection = "Choose Sample at Data Collection Time" //**allows user to pick a period of time over which to sample HR (provides an array of HR)
 }
 
