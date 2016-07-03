@@ -60,11 +60,11 @@ class NetworkConnection: DataReportingErrorProtocol { //conforms to error report
                     }
                 default:
                     print("Get request not successful. HTTP status code: \(httpResponse.statusCode)")
-                    self.reportAccessErrorForService() //throw error
+                    self.reportAccessErrorForService(.Internet) //throw error
                 }
             } else {
                 print("Error: not a valid HTTP response (no internet connection).")
-                self.reportAccessErrorForService()
+                self.reportAccessErrorForService(.Internet)
             }
         }
         dataTask.resume() //begin task
@@ -72,8 +72,8 @@ class NetworkConnection: DataReportingErrorProtocol { //conforms to error report
     
     // MARK: - Error Handling
     
-    func reportAccessErrorForService() { //fire notification for VC
-        let notification = NSNotification(name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil, userInfo: [BMN_DataReportingErrorProtocol_ServiceTypeKey: ServiceTypes.Internet.rawValue])
+    func reportAccessErrorForService(service: ServiceTypes) { //fire notification for VC
+        let notification = NSNotification(name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil, userInfo: [BMN_DataReportingErrorProtocol_ServiceTypeKey: service.rawValue])
         NSNotificationCenter.defaultCenter().postNotification(notification)
     }
     

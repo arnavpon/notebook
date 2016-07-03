@@ -31,6 +31,8 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         summaryTableView.dataSource = self
         summaryTableView.delegate = self
         summaryTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "summary_cell")
+        
+        print("[Summary VDL] Project has \(ghostVariables?.count) ghost variables.")
     }
 
     override func didReceiveMemoryWarning() {
@@ -246,7 +248,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                             for ghost in ghosts {
                                 if (ghost.locationInFlow == VariableLocations.BeforeAction) {
                                     beforeActionVariablesDict.updateValue(ghost.settings, forKey: ghost.name)
-                                } else if (ghost.locationInFlow == VariableLocations.BeforeAction) {
+                                } else if (ghost.locationInFlow == VariableLocations.AfterAction) {
                                     afterActionVariablesDict.updateValue(ghost.settings, forKey: ghost.name)
                                 }
                             }

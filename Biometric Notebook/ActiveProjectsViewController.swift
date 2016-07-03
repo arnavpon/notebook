@@ -12,6 +12,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
 
     @IBOutlet weak var activeProjectsTableView: UITableView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var menuButton: UIButton!
     
     var activeCounters: [Counter] = [] //list of active counters (TV dataSource)
     var projects: [Project] = [] //list of activeProject objects (TV dataSource)
@@ -53,9 +54,14 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         activeProjectsTableView.reloadData() //reload UI w/ new project list (also clears highlight!)
         userJustLoggedIn = false //reset the variable
         
+        let count = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: nil, filterValue: nil).count
+        menuButton.setTitle("Menu (\(count))", forState: UIControlState.Normal)
+        
         //Reset notification observer:
         NSNotificationCenter.defaultCenter().removeObserver(self) //clear old indicators to be safe
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.serviceDidReportError(_:)), name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil) //for errors
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataTransmissionStatusDidChange(_:)), name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil)
     }
     
     func getActiveProjects() -> [Project] { //obtains ACTIVE projects from store
@@ -101,6 +107,49 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         } else { //stop animation
             activityIndicator.stopAnimating()
             activeProjectsTableView.alpha = 1 //restore alpha
+        }
+    }
+    
+    // MARK: - Notification Handling
+    
+    func serviceDidReportError(notification: NSNotification) { //unable to connect -> service
+        print("[APVC serviceDidReportError] Firing...")
+        if let info = notification.userInfo, service = info[BMN_DataReportingErrorProtocol_ServiceTypeKey] as? String, erroredService = ServiceTypes(rawValue: service) {
+            if (erroredService == ServiceTypes.Internet) { //throw an error
+                let message = "Could not obtain an internet connection. Please check your internet connection and then retry."
+                let alert = UIAlertController(title: "Connection Error", message: message, preferredStyle: .Alert)
+                let ok = UIAlertAction(title: "OK", style: .Cancel, handler: nil)
+                alert.addAction(ok)
+                dispatch_async(dispatch_get_main_queue(), { //*present alert on main thread*
+                    self.presentViewController(alert, animated: false, completion: nil)
+                })
+            } else if (erroredService == ServiceTypes.Localhost) { //***TEMPORARY error - must be deleted after DB is housed on website!
+                let message = "**Could not access the server on localhost. Make sure server is running.**"
+                let alert = UIAlertController(title: "Connection Error", message: message, preferredStyle: .Alert)
+                let ok = UIAlertAction(title: "OK", style: .Cancel, handler: nil)
+                alert.addAction(ok)
+                dispatch_async(dispatch_get_main_queue(), { //*present alert on main thread*
+                    self.presentViewController(alert, animated: false, completion: nil)
+                })
+            }
+        }
+    }
+    
+    func dataTransmissionStatusDidChange(notification: NSNotification) { //status of data push -> DB
+        if let info = notification.userInfo, success = info[BMN_DatabaseConnection_TransmissionStatusKey] as? Bool {
+            if (success) { //indicate successful completion
+                let alert = UIAlertController(title: "Success!", message: "All data was successfully pushed to the database!", preferredStyle: .Alert)
+                let ok = UIAlertAction(title: "OK", style: .Cancel, handler: { (let alert) in
+                    let count = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: nil, filterValue: nil).count
+                    dispatch_async(dispatch_get_main_queue(), { //*present alert on main thread*
+                        self.menuButton.setTitle("Menu (\(count))", forState: .Normal) //update btn title
+                    })
+                })
+                alert.addAction(ok)
+                dispatch_async(dispatch_get_main_queue(), { //*present alert on main thread*
+                    self.presentViewController(alert, animated: true, completion: nil)
+                })
+            }
         }
     }
     
@@ -204,7 +253,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         
         //**Push data in queue to DB:
         let dbConnection = DatabaseConnection()
-        dbConnection.transmitDataToDatabase(1)
+        dbConnection.transmitDataToDatabase(nil)
     }
     
     // MARK: - Login Logic

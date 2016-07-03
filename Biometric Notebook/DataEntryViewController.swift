@@ -311,6 +311,8 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                 message = "Could not obtain an internet connection. Please check your internet connection and then tap 'Retry'."
             case .HealthKit:
                 message = "App does not have permission to interact with HealthKit. Please grant the appropriate permissions and then tap 'Retry'."
+            case .Localhost:
+                message = "Localhost error - should not show here!"
             }
             
             //(2) Construct & present alertViewController:

@@ -37,7 +37,11 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Duc-LP-OK3">
-                                        <rect key="frame" x="15" y="28" width="39" height="30"/>
+                                        <rect key="frame" x="15" y="25" width="75" height="33"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="75" id="fIv-Jx-fAQ"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <state key="normal" title="Menu"/>
                                         <connections>
                                             <action selector="menuButtonClick:" destination="bA5-pz-GfD" eventType="touchUpInside" id="Mzm-9W-UAS"/>
@@ -80,6 +84,7 @@
                     <connections>
                         <outlet property="activeProjectsTableView" destination="OoM-vZ-jYA" id="EsW-MS-jn1"/>
                         <outlet property="activityIndicator" destination="07C-Kc-Zev" id="LZH-fG-vQh"/>
+                        <outlet property="menuButton" destination="Duc-LP-OK3" id="EfN-Lx-Qc7"/>
                         <segue destination="KUW-fG-PHb" kind="show" identifier="showProjectOverview" id="oMq-qS-n7d"/>
                         <segue destination="80s-Av-aib" kind="presentation" identifier="showLogin" id="8af-fA-d80"/>
                         <segue destination="ygE-bo-Iiv" kind="show" identifier="showDataEntry" id="GaI-Ih-rC1"/>

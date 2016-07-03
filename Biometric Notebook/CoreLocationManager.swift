@@ -34,11 +34,12 @@ class CoreLocationManager: NSObject, CLLocationManagerDelegate, DataReportingErr
                 locationManager.startUpdatingLocation() //begin listening for location update
                 return true
             } else {
-                print("device is NOT connected to wifi")
-                internetConnectionIssue = true //set indicator
+                print("Device is NOT connected to wifi")
+                reportAccessErrorForService(.Internet) //throw error (no internet)
+                return false
             }
         }
-        reportAccessErrorForService() //throw error (no location services &/or internet)
+        reportAccessErrorForService(.CoreLocation) //throw error (no location services &/or internet)
         return false
     }
     
@@ -55,7 +56,7 @@ class CoreLocationManager: NSObject, CLLocationManagerDelegate, DataReportingErr
         default: //access is Undetermined, Denied, or Restricted
             print("Access was DENIED for location services! Stopping updates...")
             locationManager.stopUpdatingLocation() //stop updating location (no access)
-            reportAccessErrorForService() //throw error
+            reportAccessErrorForService(.CoreLocation) //throw CL error
         }
     }
     
@@ -75,25 +76,16 @@ class CoreLocationManager: NSObject, CLLocationManagerDelegate, DataReportingErr
         }
     }
     
-    var internetConnectionIssue: Bool = false //inidicator for error function
-    
     func locationManager(manager: CLLocationManager, didFailWithError error: NSError) { //sometimes thrown when there is no internet connection
         print("[locationManager] Did fail w/ error! Error: \(error).")
-        internetConnectionIssue = true //set indicator
-        reportAccessErrorForService()
+        reportAccessErrorForService(.Internet) //internet issue
     }
     
     // MARK: - Error Handling
     
-    func reportAccessErrorForService() { //fire notification for VC
-        if !(internetConnectionIssue) { //default behavior (no access to CL)
-            let notification = NSNotification(name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil, userInfo: [BMN_DataReportingErrorProtocol_ServiceTypeKey: ServiceTypes.CoreLocation.rawValue])
-            NSNotificationCenter.defaultCenter().postNotification(notification)
-        } else { //sender was locationMgr's 'didFailWithError' method (INTERNET issue, not CL problem)
-            internetConnectionIssue = false //reset indicator
-            let notification = NSNotification(name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil, userInfo: [BMN_DataReportingErrorProtocol_ServiceTypeKey: ServiceTypes.Internet.rawValue])
-            NSNotificationCenter.defaultCenter().postNotification(notification)
-        }
+    func reportAccessErrorForService(service: ServiceTypes) { //fire notification for VC
+        let notification = NSNotification(name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil, userInfo: [BMN_DataReportingErrorProtocol_ServiceTypeKey: service.rawValue])
+        NSNotificationCenter.defaultCenter().postNotification(notification)
     }
     
 }

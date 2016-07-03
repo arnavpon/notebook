@@ -48,56 +48,41 @@ class DatabaseConnection: DataReportingErrorProtocol {
     
     // MARK: - Network Interaction
     
-    func transmitDataToDatabase(count: Int) {
-        //Make sure internet is available & that connection to localhost can be made:
-        self.serverIsAvailable { (isAvailable) in
-            if (isAvailable) { //post dataObjects 1 by 1 & (if successful) remove from CoreData store
-                if let firstObject = self.databaseQueue.first {
-                    print("Transmitting object #\(count)...")
-                    self.postDataObjectToDatabase(firstObject, success: { (completed) in
-                        if (completed) { //the operation succeeded - push next function to store
-                            self.databaseQueue.removeFirst() //drop 1st object
-                            if let objectReference = self.managedObjectReferences?.first {
-                                deleteManagedObject(objectReference) //remove object from core data store
-                                print("[transmitData] References Before: \(self.managedObjectReferences?.count).")
-                                self.managedObjectReferences?.removeFirst() //remove reference
-                                print("[transmitData] References After: \(self.managedObjectReferences?.count).")
-                                fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: nil, filterValue: nil) //**check success
-                            }
-                            self.transmitDataToDatabase((count + 1)) //call function recursively
-                        } else { //the operation failed - terminate function
-                            print("Operation failed! Terminating process...")
-                            return
-                        }
-                    })
-                } else {
-                    print("All objects have been successfully pushed to store!")
+    func transmitDataToDatabase(count: Int?) { //posts dataObjects in CD to database 1 by 1
+        if let firstObject = self.databaseQueue.first { //grab 1st item in queue
+            let counter: Int
+            if (count != nil) {
+                counter = count!
+                print("\nTransmitting object #\(count!) in queue...")
+            } else { //nil => 1st function call
+                counter = 1
+                print("\nTransmitting 1st object in queue...")
+            }
+            
+            self.postDataObjectToDatabase(firstObject, success: { (completed) in
+                if (completed) { //the operation succeeded - push next function to store
+                    self.databaseQueue.removeFirst() //drop 1st object
+                    if let objectReference = self.managedObjectReferences?.first {
+                        deleteManagedObject(objectReference) //remove object from core data store
+                        self.managedObjectReferences?.removeFirst() //remove reference
+                        self.transmitDataToDatabase((counter + 1)) //call function recursively
+                    } else { //managed references does not match DB queue
+                        print("[transmitDataToDB()] Error - no items in managedObjReferences array")
+                    }
+                } else { //the operation failed - terminate function
+                    print("[transmitDataToDB()] Operation failed! Terminating process...")
+                    
                 }
+            })
+        } else { //no items remaining in queue
+            if (count == nil) { //initial function call
+                print("There are no objects in the database queue!")
+            } else {
+                print("All objects in queue were successfully pushed to DB!")
+                let notification = NSNotification(name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil, userInfo: [BMN_DatabaseConnection_TransmissionStatusKey: true])
+                NSNotificationCenter.defaultCenter().postNotification(notification)
             }
         }
-    }
-    
-    private func serverIsAvailable(completion: (Bool) -> Void) { //checks if local server is available
-        print("\nEstablishing connection to localhost...")
-        let url = NSURL(string: "http://192.168.1.2:8000/check_connection")!
-        let request = NSURLRequest(URL: url)
-        let task = session.dataTaskWithRequest(request, completionHandler: { (data, response, error) in
-            if (error == nil) {
-                if let httpResponse = response as? NSHTTPURLResponse {
-                    switch httpResponse.statusCode {
-                    case 200:
-                        completion(true)
-                    default:
-                        print("HTTP Response: \(httpResponse.statusCode).")
-                        completion(false)
-                    }
-                }
-            } else {
-                print("Connection could not be established!\n Error - [\(error).]")
-                completion(false)
-            }
-        })
-        task.resume()
     }
     
     private func postDataObjectToDatabase(object: [String: AnyObject], success: (Bool) -> Void) {
@@ -106,7 +91,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
             let jsonData = try NSJSONSerialization.dataWithJSONObject(object, options: NSJSONWritingOptions(rawValue: 0))
             
             //Create POST request: //python3 manage.py runserver 192.168.1.2:8000
-            let url = NSURL(string: "http://192.168.1.2:8000/")!
+            let url = NSURL(string: "http://192.168.1.2:8000/")! //**
             let request = NSMutableURLRequest(URL: url)
             request.HTTPMethod = "POST"
             
@@ -120,7 +105,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
                         switch httpResponse.statusCode {
                         case 200:
                             if let responseData = data, responseAsText = NSString(data: responseData, encoding: NSUTF8StringEncoding) {
-                                print("URL Response: [\(responseAsText)].")
+                                print("[postObjToDB] URL Response: [\(responseAsText)].")
                                 switch responseAsText {
                                 case "000":
                                     print("[\(responseAsText)] Operation completed with error!")
@@ -129,31 +114,41 @@ class DatabaseConnection: DataReportingErrorProtocol {
                                     print("[\(responseAsText)] Operation was completed successfully!")
                                     success(true)
                                 default:
-                                    print("Operation was not completed successfully!")
+                                    print("[postObjToDB] Error - default in switch!")
                                     success(false)
                                 }
                             }
                         default:
-                            print("Default in switch! Code: \(httpResponse.statusCode).")
+                            print("[postObjToDB] Default in switch! Code: \(httpResponse.statusCode).")
                             success(false)
                         }
                     }
-                } else {
-                    print("Returned Error: \(error).")
+                } else { //internet/server access failure
+                    switch (error!.code) {
+                    case -1009:
+                        print("[postObjToDB] No internet access was detected.")
+                        self.reportAccessErrorForService(.Internet)
+                    case -1004:
+                        print("[postObjToDB] Error - could not connect to SERVER!")
+                        self.reportAccessErrorForService(.Localhost)
+                    default:
+                        print("[postObjToDB] Process failed w/ error: \(error).")
+                    }
                     success(false)
                 }
             })
             task.resume()
         } catch {
-            print(error)
+            print("[postObjToDB] Exception - \(error)")
             success(false)
         }
     }
     
     // MARK: - Error Handling
     
-    func reportAccessErrorForService() {
-        //need internet connection to interact w/ DB
+    func reportAccessErrorForService(service: ServiceTypes) { //throw alert to connect to internet
+        let notification = NSNotification(name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil, userInfo: [BMN_DataReportingErrorProtocol_ServiceTypeKey: service.rawValue])
+        NSNotificationCenter.defaultCenter().postNotification(notification)
     }
     
 }

@@ -10,7 +10,7 @@ import Foundation
 
 protocol DataReportingErrorProtocol { //protocol for handling service access/connection errors
     
-    func reportAccessErrorForService() //sends notification -> VC indicating the type of failed service
+    func reportAccessErrorForService(service: ServiceTypes) //sends notification -> VC indicating the type of failed service
     
 }
 
@@ -19,5 +19,7 @@ enum ServiceTypes: String { //list of all possible service types that are availa
     case Internet = "BMN_Service_Internet" //need to differentiate between cellular data & Wi-Fi?
     case CoreLocation = "BMN_Service_CoreLocation"
     case HealthKit = "BMN_Service_HealthKit" //need to get more granular (read/write access for specific items), how does the system communicate specifically which data point failed?
+    
+    case Localhost = "BMN_Service_Localhost" //**temporary until website is available
     
 }

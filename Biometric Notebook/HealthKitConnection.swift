@@ -136,7 +136,7 @@ class HealthKitConnection: DataReportingErrorProtocol {
             } else {
                 print("Failed to obtain results! Error: \(error).")
                 completion(nil) //return nil
-                self.reportAccessErrorForService() //throw access error
+                self.reportAccessErrorForService(.HealthKit) //throw access error
             }
         }
         healthStore.executeQuery(query)
@@ -158,7 +158,7 @@ class HealthKitConnection: DataReportingErrorProtocol {
             }
         } else { //interaction is NOT authorized
             print("Not authorized to input. Raw value = \(authorization).")
-            reportAccessErrorForService() //throw error** (this is called when 'Done' btn is pressed, so it will be leaving the VC, need to reconfigure this
+            reportAccessErrorForService(.HealthKit) //throw error** (this is called when 'Done' btn is pressed, so it will be leaving the VC, need to reconfigure this
         }
     }
     
@@ -274,8 +274,8 @@ class HealthKitConnection: DataReportingErrorProtocol {
     
     // MARK: - Error Handling
     
-    func reportAccessErrorForService() { //fire notification for VC
-        let notification = NSNotification(name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil, userInfo: [BMN_DataReportingErrorProtocol_ServiceTypeKey: ServiceTypes.HealthKit.rawValue])
+    func reportAccessErrorForService(service: ServiceTypes) { //fire notification for VC
+        let notification = NSNotification(name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil, userInfo: [BMN_DataReportingErrorProtocol_ServiceTypeKey: service.rawValue])
         NSNotificationCenter.defaultCenter().postNotification(notification)
     }
     
