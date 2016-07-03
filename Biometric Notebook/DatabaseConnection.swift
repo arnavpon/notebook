@@ -72,6 +72,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
                 }
             })
         } else { //no items remaining in queue
+            print("no items left")
             if (count == nil) { //initial function call
                 print("There are no objects in the database queue!")
             } else {

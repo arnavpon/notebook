@@ -7,26 +7,26 @@ import Foundation
 
 struct CurrentWeather { //object used to represent the CURRENT WEATHER for EnvironmentModule_Weather vars
     
-    let temperature: Int? //ºF
-    let apparentTemperature: Int? //ºF
+    let temperature: Double? //ºF
+    let apparentTemperature: Double? //ºF
     let relativeHumidity: Int? //0-100%
-    let windSpeed: Int? //measured in MPH
+    let windSpeed: Double? //measured in MPH
     let icon: String? //name indicates the current Weather condition (from set of possibilities)
     let precipType: String? //if precipIntensity > 0, indicates the type of precipitation (make sure it matches the icon)
-    let ozone: Int? //measured in Dobson units
-    let pressure: Int? //measured in millibars
+    let ozone: Double? //measured in Dobson units
+    let pressure: Double? //measured in millibars
     let cloudCover: Int? //0-100%, indicates % of sky occluded by clouds
     
     // MARK: - Initializer
     
     init(weatherDictionary: [String: AnyObject]) { //extract values from the 'CURRENT' dict, keys MUST match values specified in API!
-        temperature = weatherDictionary["temperature"] as? Int
-        apparentTemperature = weatherDictionary["apparentTemperature"] as? Int
-        windSpeed = weatherDictionary["windSpeed"] as? Int
+        temperature = weatherDictionary["temperature"] as? Double
+        apparentTemperature = weatherDictionary["apparentTemperature"] as? Double
+        windSpeed = weatherDictionary["windSpeed"] as? Double
         icon = weatherDictionary["icon"] as? String
         precipType = weatherDictionary["precipType"] as? String
-        ozone = weatherDictionary["ozone"] as? Int
-        pressure = weatherDictionary["pressure"] as? Int
+        ozone = weatherDictionary["ozone"] as? Double
+        pressure = weatherDictionary["pressure"] as? Double
         
         if let humidityFloat = weatherDictionary["humidity"] as? Double {
             relativeHumidity = Int(humidityFloat * 100)
@@ -75,13 +75,13 @@ struct DailyWeather { //object used to represent the DAILY WEATHER (used to grab
     
     let sunriseTime: NSTimeInterval? //UNIX time stamp (# of seconds since Jan 1, 1970)
     let sunsetTime: NSTimeInterval? //timeStamp
-    let temperatureMin: Int? //ºF
+    let temperatureMin: Double? //ºF
     let temperatureMinTime: NSTimeInterval? //timeStamp
-    let temperatureMax: Int? //ºF
+    let temperatureMax: Double? //ºF
     let temperatureMaxTime: NSTimeInterval? //timeStamp
-    let apparentTemperatureMin: Int? //ºF
+    let apparentTemperatureMin: Double? //ºF
     let apparentTemperatureMinTime: NSTimeInterval? //timeStamp
-    let apparentTemperatureMax: Int? //ºF
+    let apparentTemperatureMax: Double? //ºF
     let apparentTemperatureMaxTime: NSTimeInterval? //timeStamp
     
     // MARK: - Initializer
@@ -89,13 +89,13 @@ struct DailyWeather { //object used to represent the DAILY WEATHER (used to grab
     init(weatherDictionary: [String: AnyObject]) { //extract info from the 'DAILY' dict, keys MUST match values specified in API!
         sunriseTime = weatherDictionary["sunriseTime"] as? NSTimeInterval
         sunsetTime = weatherDictionary["sunsetTime"] as? NSTimeInterval
-        temperatureMin = weatherDictionary["temperatureMin"] as? Int
+        temperatureMin = weatherDictionary["temperatureMin"] as? Double
         temperatureMinTime = weatherDictionary["temperatureMinTime"] as? NSTimeInterval
-        temperatureMax = weatherDictionary["temperatureMax"] as? Int
+        temperatureMax = weatherDictionary["temperatureMax"] as? Double
         temperatureMaxTime = weatherDictionary["temperatureMaxTime"] as? NSTimeInterval
-        apparentTemperatureMin = weatherDictionary["apparentTemperatureMin"] as? Int
+        apparentTemperatureMin = weatherDictionary["apparentTemperatureMin"] as? Double
         apparentTemperatureMinTime = weatherDictionary["apparentTemperatureMinTime"] as? NSTimeInterval
-        apparentTemperatureMax = weatherDictionary["apparentTemperatureMax"] as? Int
+        apparentTemperatureMax = weatherDictionary["apparentTemperatureMax"] as? Double
         apparentTemperatureMaxTime = weatherDictionary["apparentTemperatureMaxTime"] as? NSTimeInterval
         
         if let sunrise = sunriseTime, sunset = sunsetTime {
