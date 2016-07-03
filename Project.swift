@@ -7,7 +7,7 @@
 
 //Each PROJECT contains 1 or more groups. Each group represents a SINGLE control or comparison group. The 'Group' class describes the input & outcome variables + action. The 'Project' class encapsulates all groups & project-specific variables (endpoint, title, question, hypothesis, etc.).
 
-import Foundation
+import UIKit
 import CoreData
 
 class Project: NSManagedObject {
@@ -216,9 +216,11 @@ class Project: NSManagedObject {
                 }
             }
                 
-            //**Send combined dict -> DB (use a closure to ensure that all other data has been obtained first). Add dictionary to POST queue (in case internet connection is not available).
-            let dbConnection = DatabaseConnection(objectToDatabase: dataObjectToDatabase, projectTitle: self.title)
-            dbConnection.postObjectToDatabase()
+            //Add dictionary to POST queue (when DB is online, we will check for internet connection & post immediately if it exists, store to queue if it doesn't):
+            let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
+            let _ = DatabaseObject(title: self.title, data: dataObjectToDatabase, insertIntoManagedObjectContext: context) //save dataObj to store
+            print("[Project] Added data to database queue.")
+            saveManagedObjectContext()
                 
             for (variableName, dict) in dataObjectToDatabase { //**
                 for (key, value) in dict {

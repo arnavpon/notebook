@@ -17,6 +17,8 @@
 		B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */; };
 		B12554151CC5C5A9006C2651 /* WeatherForecastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */; };
 		B12803B51CE413420022777C /* DataEntryCellWithPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12803B41CE413420022777C /* DataEntryCellWithPicker.swift */; };
+		B12B9D871D28B86D00B78764 /* DatabaseObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12B9D851D28B86D00B78764 /* DatabaseObject+CoreDataProperties.swift */; };
+		B12B9D881D28B86D00B78764 /* DatabaseObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12B9D861D28B86D00B78764 /* DatabaseObject.swift */; };
 		B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */; };
 		B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */; };
 		B1395DAE1CB76A5800DEBC91 /* BaseCreateProjectCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAD1CB76A5800DEBC91 /* BaseCreateProjectCell.swift */; };
@@ -174,6 +176,8 @@
 		B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExperimentTypes.swift; sourceTree = "<group>"; };
 		B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherForecastService.swift; sourceTree = "<group>"; };
 		B12803B41CE413420022777C /* DataEntryCellWithPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataEntryCellWithPicker.swift; path = ../../DataEntryCellWithPicker.swift; sourceTree = "<group>"; };
+		B12B9D851D28B86D00B78764 /* DatabaseObject+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "DatabaseObject+CoreDataProperties.swift"; path = "../DatabaseObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		B12B9D861D28B86D00B78764 /* DatabaseObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DatabaseObject.swift; path = ../DatabaseObject.swift; sourceTree = "<group>"; };
 		B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectTitleCustomCell.swift; path = ../../ProjectTitleCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectHypothesisCustomCell.swift; path = ../../ProjectHypothesisCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAD1CB76A5800DEBC91 /* BaseCreateProjectCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BaseCreateProjectCell.swift; path = ../../BaseCreateProjectCell.swift; sourceTree = "<group>"; };
@@ -565,6 +569,8 @@
 				B1B996631CBF342700E977DF /* Counter+CoreDataProperties.swift */,
 				B1BE110D1CC120C70029C80C /* UniqueIDs.swift */,
 				B1BE110C1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift */,
+				B12B9D861D28B86D00B78764 /* DatabaseObject.swift */,
+				B12B9D851D28B86D00B78764 /* DatabaseObject+CoreDataProperties.swift */,
 				B10838FD1C4D40210023C060 /* Action.swift */,
 				B10838FB1C4D3FDD0023C060 /* Endpoint.swift */,
 				B1D555861C30739C00C20742 /* DateTime.swift */,
@@ -883,6 +889,7 @@
 				B19262701D0111B40093590E /* FoodIntakeForMealItemCell.swift in Sources */,
 				B1BE110E1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift in Sources */,
 				B12554151CC5C5A9006C2651 /* WeatherForecastService.swift in Sources */,
+				B12B9D881D28B86D00B78764 /* DatabaseObject.swift in Sources */,
 				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
 				B1D51C581CB29CB500DED6B2 /* ActiveProjectsViewController.swift in Sources */,
 				B1A8C7C91CAF656500380E99 /* CustomWithOptionsCell.swift in Sources */,
@@ -895,6 +902,7 @@
 				B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */,
 				B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */,
 				B1C42F7A1CCFA40800F27DDF /* DataReportingErrorProtocol.swift in Sources */,
+				B12B9D871D28B86D00B78764 /* DatabaseObject+CoreDataProperties.swift in Sources */,
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,
 				B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */,
 				B15933261CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift in Sources */,

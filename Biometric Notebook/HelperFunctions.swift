@@ -24,6 +24,7 @@ func saveManagedObjectContext() -> Bool {
 func deleteManagedObject(object: NSManagedObject) { //deletes the specified object
     let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     context.deleteObject(object)
+    saveManagedObjectContext()
 }
 
 func fetchObjectsFromCoreDataStore(entity: String, filterProperty: String?, filterValue: [AnyObject]?) -> [AnyObject] { //fetches objects for entity & predicate options

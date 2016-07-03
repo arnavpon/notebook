@@ -12,6 +12,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     
     @IBOutlet weak var doneButton: UIButton!
     @IBOutlet weak var dataEntryTV: UITableView!
+    @IBOutlet weak var bottomConstraint: NSLayoutConstraint! //TV bottom -> bottom layout guide*
     @IBOutlet weak var groupSelectionView: UIView!
     
     @IBOutlet weak var smallAIView: UIView!
@@ -47,10 +48,19 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //(1) Register for notifications:
+        //(1) Register for general notifications:
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil) //manual var reporting
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.autoCaptureVarCompletionStatusDidChange(_:)), name: BMN_Notification_AutoCapVarCompletionStatusDidChange, object: nil) //auto cap var reporting
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.serviceDidReportError(_:)), name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil)
+        
+        //Keyboard notifications:
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardDidAppearWithFrame(_:)), name: UIKeyboardDidChangeFrameNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardWillHide(_:)), name: UIKeyboardWillHideNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardDidHide(_:)), name: UIKeyboardDidHideNotification, object: nil)
+        
+        //Add gesture recognizer for tap (to dismiss open textFields):
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(self.tableViewWasTapped))
+        dataEntryTV.addGestureRecognizer(gesture)
         
         //(2) Populate TV w/ variables:
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(self.manualMeasurementCycleRefresh))
@@ -134,6 +144,32 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
             alert.addAction(ok)
             presentViewController(alert, animated: true, completion: nil)
         }
+    }
+    
+    func tableViewWasTapped() { //dismisses keyboard when TV is tapped
+        self.view.endEditing(true)
+    }
+    
+    // MARK: - Keyboard Logic
+    
+    var blockKeyboardDidAppear: Bool = false //blocker
+    
+    func keyboardDidAppearWithFrame(notification: NSNotification) {
+        if !(blockKeyboardDidAppear) { //suppress if blocker is TRUE
+            if let dict = notification.userInfo, keyboardFrame = dict[UIKeyboardFrameEndUserInfoKey] as? NSValue {
+                let height = keyboardFrame.CGRectValue().height
+                bottomConstraint.constant = height //shift up TV to allow scrolling
+            }
+        }
+    }
+    
+    func keyboardWillHide(notification: NSNotification) { //reset bottom constraint
+        bottomConstraint.constant = 0
+        blockKeyboardDidAppear = true //block fx from firing
+    }
+    
+    func keyboardDidHide(notification: NSNotification) { //clear blocker for next cycle
+        blockKeyboardDidAppear = false //reset
     }
     
     // MARK: - Completion Status Logic

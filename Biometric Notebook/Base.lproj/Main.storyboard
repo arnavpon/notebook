@@ -468,6 +468,7 @@
                     </view>
                     <nil key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="bottomConstraint" destination="rai-24-o27" id="bce-mD-GCF"/>
                         <outlet property="dataEntryTV" destination="hiL-Rp-z2t" id="1Xv-l7-O48"/>
                         <outlet property="doneButton" destination="PbP-11-YPQ" id="V3p-5L-x2d"/>
                         <outlet property="groupSelectionView" destination="ySf-Yo-0iJ" id="sLx-nR-ywz"/>

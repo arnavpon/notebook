@@ -40,7 +40,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //Add gesture recognizer for tap (to dismiss open textFields):
+        //Add gesture recognizer for tap (to dismiss open keyboard):
         let gesture = UITapGestureRecognizer(target: self, action: #selector(self.tableViewWasTapped))
         optionsTableView.addGestureRecognizer(gesture)
         

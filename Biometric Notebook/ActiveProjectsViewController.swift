@@ -199,8 +199,12 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         presentViewController(controller, animated: true, completion: nil)
     }
     
-    @IBAction func menuButtonClick(sender: AnyObject) {
-        logout()
+    @IBAction func menuButtonClick(sender: AnyObject) { //display menu
+//        logout()
+        
+        //**Push data in queue to DB:
+        let dbConnection = DatabaseConnection()
+        dbConnection.transmitDataToDatabase(1)
     }
     
     // MARK: - Login Logic
@@ -218,7 +222,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     func didLoginSuccessfully(username: String, email: String?) { //store username/email & dismiss LoginVC
         userDefaults.setObject(username, forKey: USERNAME_KEY) //save username -> preferences
-        if (email != nil) { //**consider creating an email regex formatting class!
+        if (email != nil) { //**create an email regex formatting class!
             userDefaults.setObject(email!, forKey: EMAIL_KEY) //save email -> preferences
         }
         userDefaults.setBool(true, forKey: IS_LOGGED_IN_KEY)
