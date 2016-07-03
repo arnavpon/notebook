@@ -262,6 +262,18 @@ class EnvironmentModule: Module {
         return false
     }
     
+    // MARK: - Data Aggregation Logic
+    
+    override func reportDataForVariable() -> [String : AnyObject]? {
+        var returnObject = super.reportDataForVariable() //grab superclass obj first
+        var selections: [String] = [] //list of all selected weather options
+        for selection in selectedWeatherOptions { //for vars w/ 'dict' type mainDataObjects (weather), ALL available options must be passed -> DB for table creation
+            selections.append(selection.rawValue)
+        }
+        returnObject?.updateValue(selections, forKey: BMN_Module_OptionsForDictKey)
+        return returnObject
+    }
+    
 }
 
 enum EnvironmentModuleVariableTypes: String {//*match each behavior/computation -> Configuration + DataEntry custom TV cells; for each new behavior/comp added, you must also add (1) Configuration logic, (2) Core Data storage logic (so the variable config can be preserved), (3) Unpacking logic (in the DataEntry initializer), & (4) DataEntry logic (enabling the user to report info).* 

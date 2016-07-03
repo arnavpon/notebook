@@ -31,8 +31,6 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         summaryTableView.dataSource = self
         summaryTableView.delegate = self
         summaryTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "summary_cell")
-        
-        print("[Summary VDL] Project has \(ghostVariables?.count) ghost variables.")
     }
 
     override func didReceiveMemoryWarning() {

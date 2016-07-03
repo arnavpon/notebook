@@ -62,16 +62,13 @@ class DatabaseConnection: DataReportingErrorProtocol {
             self.postDataObjectToDatabase(firstObject, success: { (completed) in
                 if (completed) { //the operation succeeded - push next function to store
                     self.databaseQueue.removeFirst() //drop 1st object
-                    if let objectReference = self.managedObjectReferences?.first {
+                    if let objectReference = self.managedObjectReferences?.first { //managed references are only for multi-push (not single object push)
                         deleteManagedObject(objectReference) //remove object from core data store
                         self.managedObjectReferences?.removeFirst() //remove reference
                         self.transmitDataToDatabase((counter + 1)) //call function recursively
-                    } else { //managed references does not match DB queue
-                        print("[transmitDataToDB()] Error - no items in managedObjReferences array")
                     }
                 } else { //the operation failed - terminate function
                     print("[transmitDataToDB()] Operation failed! Terminating process...")
-                    
                 }
             })
         } else { //no items remaining in queue
@@ -108,7 +105,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
                                 print("[postObjToDB] URL Response: [\(responseAsText)].")
                                 switch responseAsText {
                                 case "000":
-                                    print("[\(responseAsText)] Operation completed with error!")
+                                    print("[\(responseAsText)] Operation completed with MySQL error!")
                                     success(false)
                                 case "001":
                                     print("[\(responseAsText)] Operation was completed successfully!")

@@ -138,9 +138,6 @@ class BiometricModule: Module {
             case .Computation_BMI: //access the packed computationsInput dict
                 if let inputsDict = dict[BMN_BiometricModule_ComputationInputsKey] as? [String: String] {
                     self.computationInputs = inputsDict
-                    for (key, value) in computationInputs {
-                        print("KEY = [\(key)]. Value = [\(value)]")
-                    }
                 }
             case .Computation_BiologicalSex, .Computation_Age:
                 break
