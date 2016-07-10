@@ -64,6 +64,8 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         return []
     }
     
+    var ip_was_set: Bool = false //**temp item
+    
     override func viewDidAppear(animated: Bool) { //if user is not logged in, transition -> loginVC
         //this code must be in viewDidAppear b/c view must load BEFORE transition takes place!
         if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //check if user is logged in
@@ -78,6 +80,27 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
                 NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.serviceDidReportError(_:)), name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil) //**
                 NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataTransmissionStatusDidChange(_:)), name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil) //**
+                
+                //***Temp (until IP issue is resolved) -
+                if !(self.ip_was_set) { //only fires 1x
+                    let alert = UIAlertController(title: "IP Addr", message: "Enter current IP end value", preferredStyle: UIAlertControllerStyle.Alert)
+                    let ok = UIAlertAction(title: "Enter", style: .Default, handler: { (let action) in
+                        if let text = alert.textFields?.first?.text {
+                            if !(text.isEmpty) {
+                                if let num = Int(text) {
+                                    NSUserDefaults.standardUserDefaults().setInteger(num, forKey: IP_VALUE)
+                                }
+                            }
+                            self.ip_was_set = true //set indicator to prevent further firing
+                        }
+                    })
+                    alert.addTextFieldWithConfigurationHandler({ (let textField) in
+                        textField.keyboardType = .NumberPad
+                    })
+                    alert.addAction(ok)
+                    self.presentViewController(alert, animated: false, completion: nil)
+                }
+                //***
             }
         } else {
             loggedIn = false //transition -> LoginVC
@@ -259,8 +282,10 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     @IBAction func menuButtonClick(sender: AnyObject) { //display menu
-        let dbConnection = DatabaseConnection() //**
-        dbConnection.transmitDataToDatabase(nil) //**
+        //Push Cloud backups & reported data to DB:
+        if let dbConnection = DatabaseConnection() {
+             dbConnection.pushAllDataToDatabase(0) //**
+        }
     }
     
     // MARK: - Login Logic

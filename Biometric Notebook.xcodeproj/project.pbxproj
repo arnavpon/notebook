@@ -17,7 +17,6 @@
 		B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */; };
 		B12554151CC5C5A9006C2651 /* WeatherForecastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */; };
 		B12803B51CE413420022777C /* DataEntryCellWithPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12803B41CE413420022777C /* DataEntryCellWithPicker.swift */; };
-		B12B9D871D28B86D00B78764 /* DatabaseObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12B9D851D28B86D00B78764 /* DatabaseObject+CoreDataProperties.swift */; };
 		B12B9D881D28B86D00B78764 /* DatabaseObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12B9D861D28B86D00B78764 /* DatabaseObject.swift */; };
 		B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */; };
 		B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */; };
@@ -97,13 +96,13 @@
 		B1D51C601CB2A25C00DED6B2 /* SwipeInMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C5F1CB2A25C00DED6B2 /* SwipeInMenu.swift */; };
 		B1D51C631CB2A34300DED6B2 /* CellWithGradientFill.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C621CB2A34300DED6B2 /* CellWithGradientFill.swift */; };
 		B1D51C661CB2A91A00DED6B2 /* DataEntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C651CB2A91A00DED6B2 /* DataEntryViewController.swift */; };
-		B1D52A461D31FC55005B5CFE /* CloudInteractionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D52A451D31FC55005B5CFE /* CloudInteractionHandler.swift */; };
 		B1D555871C30739C00C20742 /* DateTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555861C30739C00C20742 /* DateTime.swift */; };
 		B1D560A81CB4573600F6A7AC /* CellWithCustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D560A71CB4573600F6A7AC /* CellWithCustomSlider.swift */; };
 		B1D560AA1CB4585900F6A7AC /* ProjectQuestionCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D560A91CB4585900F6A7AC /* ProjectQuestionCustomCell.swift */; };
 		B1D560AC1CB458D700F6A7AC /* CellWithPlusButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D560AB1CB458D700F6A7AC /* CellWithPlusButton.swift */; };
 		B1D868D61C3F58810026334B /* Modules.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D868D51C3F58810026334B /* Modules.swift */; };
 		B1DD2FD01CCEFEBC00E10558 /* HealthKitConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17C210D1C31B5F400B59FB0 /* HealthKitConnection.swift */; };
+		B1DD30671D32DB4B00B2361C /* DatabaseObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DD30661D32DB4B00B2361C /* DatabaseObject+CoreDataProperties.swift */; };
 		B1DEE0491CD042B700F73F77 /* FreeformDataEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DEE0481CD042B700F73F77 /* FreeformDataEntryCell.swift */; };
 		B1E1E1401CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */; };
 		B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1EDACB41CA4A2560087E3B1 /* CarbonEmissionsModule.swift */; };
@@ -178,7 +177,6 @@
 		B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExperimentTypes.swift; sourceTree = "<group>"; };
 		B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherForecastService.swift; sourceTree = "<group>"; };
 		B12803B41CE413420022777C /* DataEntryCellWithPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataEntryCellWithPicker.swift; path = ../../DataEntryCellWithPicker.swift; sourceTree = "<group>"; };
-		B12B9D851D28B86D00B78764 /* DatabaseObject+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "DatabaseObject+CoreDataProperties.swift"; path = "../DatabaseObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		B12B9D861D28B86D00B78764 /* DatabaseObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DatabaseObject.swift; path = ../DatabaseObject.swift; sourceTree = "<group>"; };
 		B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectTitleCustomCell.swift; path = ../../ProjectTitleCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectHypothesisCustomCell.swift; path = ../../ProjectHypothesisCustomCell.swift; sourceTree = "<group>"; };
@@ -268,13 +266,13 @@
 		B1D51C5F1CB2A25C00DED6B2 /* SwipeInMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipeInMenu.swift; sourceTree = "<group>"; };
 		B1D51C621CB2A34300DED6B2 /* CellWithGradientFill.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellWithGradientFill.swift; sourceTree = "<group>"; };
 		B1D51C651CB2A91A00DED6B2 /* DataEntryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataEntryViewController.swift; sourceTree = "<group>"; };
-		B1D52A451D31FC55005B5CFE /* CloudInteractionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudInteractionHandler.swift; sourceTree = "<group>"; };
 		B1D555801C3068FD00C20742 /* NetworkConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkConnection.swift; sourceTree = "<group>"; };
 		B1D555861C30739C00C20742 /* DateTime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateTime.swift; sourceTree = "<group>"; };
 		B1D560A71CB4573600F6A7AC /* CellWithCustomSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellWithCustomSlider.swift; sourceTree = "<group>"; };
 		B1D560A91CB4585900F6A7AC /* ProjectQuestionCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectQuestionCustomCell.swift; sourceTree = "<group>"; };
 		B1D560AB1CB458D700F6A7AC /* CellWithPlusButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellWithPlusButton.swift; sourceTree = "<group>"; };
 		B1D868D51C3F58810026334B /* Modules.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Modules.swift; sourceTree = "<group>"; };
+		B1DD30661D32DB4B00B2361C /* DatabaseObject+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "DatabaseObject+CoreDataProperties.swift"; path = "../DatabaseObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		B1DEE0481CD042B700F73F77 /* FreeformDataEntryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FreeformDataEntryCell.swift; sourceTree = "<group>"; };
 		B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CustomOptionsConfigurationCell.swift; path = ../../CustomOptionsConfigurationCell.swift; sourceTree = "<group>"; };
 		B1EDACB41CA4A2560087E3B1 /* CarbonEmissionsModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarbonEmissionsModule.swift; sourceTree = "<group>"; };
@@ -551,7 +549,6 @@
 			children = (
 				B1ABBE9F1D31786B00C89A03 /* LoginHandler.swift */,
 				B13B26731D23F55200006145 /* DatabaseConnection.swift */,
-				B1D52A451D31FC55005B5CFE /* CloudInteractionHandler.swift */,
 			);
 			name = "Database Interaction";
 			sourceTree = "<group>";
@@ -594,7 +591,7 @@
 				B1BE110D1CC120C70029C80C /* UniqueIDs.swift */,
 				B1BE110C1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift */,
 				B12B9D861D28B86D00B78764 /* DatabaseObject.swift */,
-				B12B9D851D28B86D00B78764 /* DatabaseObject+CoreDataProperties.swift */,
+				B1DD30661D32DB4B00B2361C /* DatabaseObject+CoreDataProperties.swift */,
 				B10838FD1C4D40210023C060 /* Action.swift */,
 				B10838FB1C4D3FDD0023C060 /* Endpoint.swift */,
 				B1D555861C30739C00C20742 /* DateTime.swift */,
@@ -925,7 +922,6 @@
 				B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */,
 				B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */,
 				B1C42F7A1CCFA40800F27DDF /* DataReportingErrorProtocol.swift in Sources */,
-				B12B9D871D28B86D00B78764 /* DatabaseObject+CoreDataProperties.swift in Sources */,
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,
 				B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */,
 				B15933261CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift in Sources */,
@@ -935,7 +931,6 @@
 				B1AA96CA1CAB1CCC0009E716 /* DataEntryCellTypes.swift in Sources */,
 				B1D560AC1CB458D700F6A7AC /* CellWithPlusButton.swift in Sources */,
 				B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */,
-				B1D52A461D31FC55005B5CFE /* CloudInteractionHandler.swift in Sources */,
 				B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */,
 				B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */,
 				B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */,
@@ -950,6 +945,7 @@
 				B1A8C7CD1CAF663300380E99 /* BaseDataEntryCell.swift in Sources */,
 				B1B996651CBF342700E977DF /* Counter+CoreDataProperties.swift in Sources */,
 				B1B996661CBF342700E977DF /* Counter.swift in Sources */,
+				B1DD30671D32DB4B00B2361C /* DatabaseObject+CoreDataProperties.swift in Sources */,
 				B19DF3701CC58CAC008F44C4 /* NetworkConnection.swift in Sources */,
 				B122261E1CC479A600A00109 /* BaseComputationConfigurationCell.swift in Sources */,
 				B13BB7391CBEDDFE0084E640 /* Group.swift in Sources */,

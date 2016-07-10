@@ -256,11 +256,10 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
             }
             saveManagedObjectContext() //save new project & group(s) -> CoreData
             
-            //Send project -> the web for cloud backup:
-            let cloudHandler = CloudInteractionHandler()
-            cloudHandler.createCloudRepresentationForProject(project, success: { (success) in
-                //
-            })
+            //Create cloud backup for the new project & add it to queue:
+            if let dbConnection = DatabaseConnection() {
+                dbConnection.createCloudModelForProject(project) //create backup & save to CD
+            }
         }
         
         //Return to homescreen after operation is complete:

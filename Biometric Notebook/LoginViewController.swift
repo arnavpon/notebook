@@ -67,6 +67,28 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.serviceDidReportError(_:)), name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil) //errors
     }
     
+    override func viewDidAppear(animated: Bool) {
+        //***Temp (until IP issue is resolved) -
+        if (NSUserDefaults.standardUserDefaults().valueForKey(IP_VALUE) == nil) {
+            let alert = UIAlertController(title: "IP Addr", message: "Enter current IP end value", preferredStyle: UIAlertControllerStyle.Alert)
+            let ok = UIAlertAction(title: "Enter", style: .Default, handler: { (let action) in
+                if let text = alert.textFields?.first?.text {
+                    if !(text.isEmpty) {
+                        if let num = Int(text) {
+                            NSUserDefaults.standardUserDefaults().setInteger(num, forKey: IP_VALUE)
+                        }
+                    }
+                }
+            })
+            alert.addTextFieldWithConfigurationHandler({ (let textField) in
+                textField.keyboardType = .NumberPad
+            })
+            alert.addAction(ok)
+            self.presentViewController(alert, animated: false, completion: nil)
+        }
+        //***
+    }
+    
     override func viewWillDisappear(animated: Bool) { //clear notification observer
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
@@ -139,12 +161,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         if let emailRaw = emailTextField.text, passwordRaw = passwordTextField.text {
             let email = emailRaw.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
             let password = passwordRaw.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-            let loginHandler = LoginHandler(email: email, password: password, url: "http://192.168.1.10:8000/login")
+            let loginHandler = LoginHandler(email: email, password: password, type: .Login)
             loginHandler.authenticateUser({ (success, failureType) in
                 if (success) { //successful login
-                    self.view.endEditing(true) //dismiss keyboard
-                    self.delegate?.userJustLoggedIn = true
-                    self.delegate?.didLoginSuccessfully(email)
+                    dispatch_async(dispatch_get_main_queue(), { //*update delegate on main thread*
+                        self.view.endEditing(true) //*dismiss keyboard*
+                        self.delegate?.userJustLoggedIn = true
+                        self.delegate?.didLoginSuccessfully(email)
+                    })
                 } else { //failed login - check error type
                     self.updateActivityIndicatorVisuals(nil) //stop AI
                     if let type = failureType {
@@ -167,7 +191,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         if let emailRaw = emailTextField.text, passwordRaw = passwordTextField.text {
             let email = emailRaw.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
             let password = passwordRaw.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-            let loginHandler = LoginHandler(email: email, password: password, url: "http://192.168.1.10:8000/create-user")
+            let loginHandler = LoginHandler(email: email, password: password, type: .CreateUser)
             loginHandler.createNewUser({ (success, failureType) in
                 if (success) { //successful login
                     self.view.endEditing(true)

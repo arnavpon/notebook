@@ -7,6 +7,11 @@
 
 import Foundation
 
+enum LoginTypes {
+    case Login
+    case CreateUser
+}
+
 enum LoginFailureTypes {
     case DuplicateEmail
     case UnknownEmail
@@ -23,10 +28,18 @@ class LoginHandler: DataReportingErrorProtocol {
     
     // MARK: - Initializers
     
-    init(email: String, password: String, url: String) {
+    init(email: String, password: String, type: LoginTypes) {
         self.email = email
         self.password = password
-        self.url = NSURL(string: url)!
+        
+        let ip_last = NSUserDefaults.standardUserDefaults().integerForKey(IP_VALUE) //**temporary
+        
+        switch type {
+        case .Login:
+            self.url = NSURL(string: "http://192.168.1.\(ip_last):8000/login")!
+        case .CreateUser:
+            self.url = NSURL(string: "http://192.168.1.\(ip_last):8000/create-user")!
+        }
     }
     
     // MARK: - Email Formatter

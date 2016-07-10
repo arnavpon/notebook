@@ -12,7 +12,8 @@ class NetworkConnection: DataReportingErrorProtocol { //conforms to error report
     
     lazy var config: NSURLSessionConfiguration = NSURLSessionConfiguration.defaultSessionConfiguration()
     lazy var session: NSURLSession = NSURLSession(configuration: self.config)
-    let queryURL: NSURL
+    private let queryURL: NSURL
+    private let postBody: NSData? //optional POST request body
     
     // MARK: - Network Connectivity [CLASS METHOD]
     
@@ -36,6 +37,12 @@ class NetworkConnection: DataReportingErrorProtocol { //conforms to error report
     
     init(url: NSURL) { //initialize w/ the URL to which the network request is being sent
         self.queryURL = url
+        self.postBody = nil
+    }
+    
+    init(url: NSURL, postBody: NSData) { //POST request initializer
+        self.queryURL = url
+        self.postBody = postBody
     }
     
     // MARK: - Networking Logic
@@ -43,8 +50,13 @@ class NetworkConnection: DataReportingErrorProtocol { //conforms to error report
     typealias JSONDictionaryCompletion = ([String: AnyObject]?) -> Void //closure typeAlias
     
     func downloadJSONFromURL(completion: JSONDictionaryCompletion) {
-        let request: NSURLRequest = NSURLRequest(URL: queryURL)
         print("Downloading JSON From URL...")
+        let request = NSMutableURLRequest(URL: queryURL)
+        if let _ = postBody { //check if request contains JSON data to POST
+            request.HTTPMethod = "POST"
+            request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+            request.HTTPBody = postBody
+        }
         let dataTask = session.dataTaskWithRequest(request) { (let data, let response, let error) in
             if let httpResponse = response as? NSHTTPURLResponse {
                 switch httpResponse.statusCode {
@@ -63,8 +75,16 @@ class NetworkConnection: DataReportingErrorProtocol { //conforms to error report
                     self.reportAccessErrorForService(.Internet) //throw error
                 }
             } else {
-                print("Error: not a valid HTTP response (no internet connection).")
-                self.reportAccessErrorForService(.Internet)
+                switch (error!.code) {
+                case -1009:
+                    print("[downloadJSON] No internet access was detected.")
+                    self.reportAccessErrorForService(.Internet)
+                case -1004:
+                    print("[downloadJSON] Error - could not connect to SERVER!")
+                    self.reportAccessErrorForService(.Localhost)
+                default:
+                    print("[downloadJSON] Process failed w/ error: \(error).")
+                }
             }
         }
         dataTask.resume() //begin task

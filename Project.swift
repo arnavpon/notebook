@@ -7,7 +7,7 @@
 
 //Each PROJECT contains 1 or more groups. Each group represents a SINGLE control or comparison group. The 'Group' class describes the input & outcome variables + action. The 'Project' class encapsulates all groups & project-specific variables (endpoint, title, question, hypothesis, etc.).
 
-import UIKit
+import Foundation
 import CoreData
 
 class Project: NSManagedObject {
@@ -204,7 +204,6 @@ class Project: NSManagedObject {
                     
                 //Update dataObject's input & output NSDate timeStamps w/ STRING timeStamps:
                 let outputsTimeStamp = DateTime(date: outputsReportTime).getFullTimeStamp() //string
-//                dataObjectToDatabase[BMN_Module_MainTimeStampKey]?.updateValue(outputsTimeStamp, forKey: BMN_Module_OutputsTimeStampKey)
                 dataObjectToDatabase[BMN_Module_MainTimeStampKey] = [BMN_Module_OutputsTimeStampKey: outputsTimeStamp]
                 let inputsTimeStamp = DateTime(date: inputsReportTime).getFullTimeStamp() //string
                 dataObjectToDatabase[BMN_Module_MainTimeStampKey]?.updateValue(inputsTimeStamp, forKey: BMN_Module_InputsTimeStampKey)
@@ -218,20 +217,21 @@ class Project: NSManagedObject {
             }
                 
             //Add dictionary to POST queue (when DB is online, we will check for internet connection & post immediately if it exists, store to queue if it doesn't):
-            let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
-            let groupType = self.reportingGroup!.groupType //how to make this safe?
-            let _ = DatabaseObject(title: self.title, data: dataObjectToDatabase, groupType: groupType, insertIntoManagedObjectContext: context) //save dataObj to store
-            print("[Project] Added data to database queue.")
-            saveManagedObjectContext()
+            if let connection = DatabaseConnection(), groupType = self.reportingGroup?.groupType {
+                connection.createDataObjectForReportedData(self.title, reportedData: dataObjectToDatabase, groupType: groupType) //creates data object & stores it in CD
                 
-            for (variableName, dict) in dataObjectToDatabase { //**
-                for (key, value) in dict {
-                    print("DB Object: VAR = '\(variableName)'. KEY: '\(key)'. VALUE: [\(value)].")
+                for (variableName, dict) in dataObjectToDatabase { //**
+                    for (key, value) in dict {
+                        print("DB Object: VAR = '\(variableName)'. KEY: '\(key)'. VALUE: [\(value)].")
+                    }
                 }
-            }
-            print("\n") //**
+                print("\n") //**
                 
-            self.refreshMeasurementCycle() //set tempObj -> nil & refresh counters after reporting
+                self.refreshMeasurementCycle() //set tempObj -> nil & refresh counters after reporting
+            } else {
+                print("ERROR - failed to create database object for reported data!")
+            }
+            
         } else { //tempObject does NOT exist (save dict -> tempObject until outputs are reported)
             dataObjectToDatabase[BMN_Module_MainTimeStampKey] = [BMN_Module_InputsTimeStampKey: NSDate()] //set single time stamp for ALL of the IVs - *this timeStamp must initially be set as an NSDATE obj so that it can be used to calculate time differences*
             let numberOfGroups = self.groups.count
