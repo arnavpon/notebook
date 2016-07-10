@@ -26,8 +26,8 @@ class Project: NSManagedObject {
         if (self.isActive) { //ONLY perform check if project is currently active
             let currentDate = NSDate()
             if let end = endDate { //check if project has expiry date
-                print("[CURRENT] \(DateTime(date: currentDate).getFullTimeStamp())")
-                print("[END] \(DateTime(date: end).getFullTimeStamp())")
+//                print("[CURRENT] \(DateTime(date: currentDate).getFullTimeStamp())")
+//                print("[END] \(DateTime(date: end).getFullTimeStamp())")
                 if (currentDate.timeIntervalSinceReferenceDate >= end.timeIntervalSinceReferenceDate) {
                     //Project has expired - perform cleanup (delete all associated counter objects, block data reporting, etc.):
                     print("'\(self.title)' Project has expired!.")
@@ -199,11 +199,12 @@ class Project: NSManagedObject {
                     self.temporaryStorageObject![BMN_ProjectContainsTimeDifferenceKey] = nil //clear indicator in tempObject
                     dataObjectToDatabase[name] = [BMN_Module_ReportedDataKey: difference] //save time difference in var's 'reportedDataKey'
                 }
-                self.temporaryStorageObject![BMN_Module_MainTimeStampKey] = nil //clear item
+                self.temporaryStorageObject?.removeValueForKey(BMN_Module_MainTimeStampKey)
+                self.temporaryStorageObject?.removeValueForKey(BMN_CurrentlyReportingGroupKey) //remove indicator from dict before posting to DB
                     
                 //Update dataObject's input & output NSDate timeStamps w/ STRING timeStamps:
                 let outputsTimeStamp = DateTime(date: outputsReportTime).getFullTimeStamp() //string
-                dataObjectToDatabase[BMN_Module_MainTimeStampKey]?.updateValue(outputsTimeStamp, forKey: BMN_Module_OutputsTimeStampKey)
+//                dataObjectToDatabase[BMN_Module_MainTimeStampKey]?.updateValue(outputsTimeStamp, forKey: BMN_Module_OutputsTimeStampKey)
                 dataObjectToDatabase[BMN_Module_MainTimeStampKey] = [BMN_Module_OutputsTimeStampKey: outputsTimeStamp]
                 let inputsTimeStamp = DateTime(date: inputsReportTime).getFullTimeStamp() //string
                 dataObjectToDatabase[BMN_Module_MainTimeStampKey]?.updateValue(inputsTimeStamp, forKey: BMN_Module_InputsTimeStampKey)
@@ -218,7 +219,8 @@ class Project: NSManagedObject {
                 
             //Add dictionary to POST queue (when DB is online, we will check for internet connection & post immediately if it exists, store to queue if it doesn't):
             let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
-            let _ = DatabaseObject(title: self.title, data: dataObjectToDatabase, insertIntoManagedObjectContext: context) //save dataObj to store
+            let groupType = self.reportingGroup!.groupType //how to make this safe?
+            let _ = DatabaseObject(title: self.title, data: dataObjectToDatabase, groupType: groupType, insertIntoManagedObjectContext: context) //save dataObj to store
             print("[Project] Added data to database queue.")
             saveManagedObjectContext()
                 

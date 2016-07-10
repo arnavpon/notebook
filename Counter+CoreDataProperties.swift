@@ -40,7 +40,6 @@ extension Counter {
         //After the object has been inserted, simply save the MOC to make it persist.
     }
     
-    
     override func prepareForDeletion() { //when the counter is deleted from the context, transfer its uniqueID -> deactivated counters
         print("[prepareForDeletion] Decommissioning ID...")
         UniqueIDs.sharedInstance.deactivateIDForDeletedCounter(self.id as Int)

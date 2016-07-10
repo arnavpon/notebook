@@ -10,7 +10,6 @@ import UIKit
 // MARK: - User Defaults Keys
 
 let IS_LOGGED_IN_KEY = "is_logged_in_key"
-let USERNAME_KEY = "username_key"
 let EMAIL_KEY = "email_key"
 let SHOW_ATTACH_DESCRIPTION = "show_attach_description_key"
 let INPUTS_TIME_STAMP = "input_variables_time_stamp_key" //for DataEntryVC

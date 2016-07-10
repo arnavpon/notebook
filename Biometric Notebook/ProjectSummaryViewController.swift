@@ -209,7 +209,6 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     
     @IBAction func createProjectButtonClick(sender: AnyObject) {
         //Construct CoreData objects for the input & output variables, then construct the Project & Group objects & save -> persistent store:
-        //**In the future, this project will be sent -> the web for DB configuration, cloud backup, etc.
         if let type = projectType, title = projectTitle, question = projectQuestion {
             let project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, endPoint: projectEndpoint?.endpointInSeconds, insertIntoManagedObjectContext: context)
             
@@ -256,6 +255,12 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                 }
             }
             saveManagedObjectContext() //save new project & group(s) -> CoreData
+            
+            //Send project -> the web for cloud backup:
+            let cloudHandler = CloudInteractionHandler()
+            cloudHandler.createCloudRepresentationForProject(project, success: { (success) in
+                //
+            })
         }
         
         //Return to homescreen after operation is complete:

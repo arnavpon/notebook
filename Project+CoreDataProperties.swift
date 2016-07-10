@@ -22,7 +22,7 @@ extension Project {
     @NSManaged var endDate: NSDate? //end date for project (start date + endpoint)
     @NSManaged var isActive: Bool //var indicating if project is Active (TRUE) or Expired (FALSE)
     
-    convenience init(type: ExperimentTypes, title: String, question: String, hypothesis: String?, endPoint: NSTimeInterval?, insertIntoManagedObjectContext context: NSManagedObjectContext) {
+    convenience init(type: ExperimentTypes, title: String, question: String, hypothesis: String?, endPoint: NSTimeInterval?, insertIntoManagedObjectContext context: NSManagedObjectContext) { //application init
         let entity = NSEntityDescription.entityForName("Project", inManagedObjectContext: context)
         self.init(entity: entity!, insertIntoManagedObjectContext: context)
         
@@ -43,6 +43,21 @@ extension Project {
         } else { //project w/ undefined endpoint
             self.endDate = nil //set endDate -> nil
         }
+        
+        //After the object has been inserted, simply save the MOC to make it persist.
+    }
+    
+    convenience init(type: ExperimentTypes, title: String, question: String, hypothesis: String?, startDate: NSDate, endpoint: NSTimeInterval?, insertIntoManagedObjectContext context: NSManagedObjectContext) { //CLOUD init
+        let entity = NSEntityDescription.entityForName("Project", inManagedObjectContext: context)
+        self.init(entity: entity!, insertIntoManagedObjectContext: context)
+        
+        self.projectType = type.rawValue
+        self.title = title
+        self.question = question
+        self.hypothesis = hypothesis
+        self.startDate = startDate //**need compatible format w/ DB
+        self.endDate = nil //**modify
+        self.isActive = true //**project starts as ACTIVE
         
         //After the object has been inserted, simply save the MOC to make it persist.
     }

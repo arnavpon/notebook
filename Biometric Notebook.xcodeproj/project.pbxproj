@@ -63,6 +63,7 @@
 		B1AA96CA1CAB1CCC0009E716 /* DataEntryCellTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AA96C91CAB1CCC0009E716 /* DataEntryCellTypes.swift */; };
 		B1AA96CC1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AA96CB1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift */; };
 		B1AA96CE1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AA96CD1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift */; };
+		B1ABBEA01D31786B00C89A03 /* LoginHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1ABBE9F1D31786B00C89A03 /* LoginHandler.swift */; };
 		B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */; };
 		B1B106931C59097800463612 /* EnvironmentModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B106921C59097800463612 /* EnvironmentModule.swift */; };
 		B1B20A6B1C5E8576003B791B /* LabelWithPadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */; };
@@ -96,6 +97,7 @@
 		B1D51C601CB2A25C00DED6B2 /* SwipeInMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C5F1CB2A25C00DED6B2 /* SwipeInMenu.swift */; };
 		B1D51C631CB2A34300DED6B2 /* CellWithGradientFill.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C621CB2A34300DED6B2 /* CellWithGradientFill.swift */; };
 		B1D51C661CB2A91A00DED6B2 /* DataEntryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C651CB2A91A00DED6B2 /* DataEntryViewController.swift */; };
+		B1D52A461D31FC55005B5CFE /* CloudInteractionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D52A451D31FC55005B5CFE /* CloudInteractionHandler.swift */; };
 		B1D555871C30739C00C20742 /* DateTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555861C30739C00C20742 /* DateTime.swift */; };
 		B1D560A81CB4573600F6A7AC /* CellWithCustomSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D560A71CB4573600F6A7AC /* CellWithCustomSlider.swift */; };
 		B1D560AA1CB4585900F6A7AC /* ProjectQuestionCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D560A91CB4585900F6A7AC /* ProjectQuestionCustomCell.swift */; };
@@ -232,6 +234,7 @@
 		B1AA96C91CAB1CCC0009E716 /* DataEntryCellTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataEntryCellTypes.swift; sourceTree = "<group>"; };
 		B1AA96CB1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleTextConfigurationCell.swift; sourceTree = "<group>"; };
 		B1AA96CD1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleNumberConfigurationCell.swift; sourceTree = "<group>"; };
+		B1ABBE9F1D31786B00C89A03 /* LoginHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginHandler.swift; sourceTree = "<group>"; };
 		B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectVariablesViewController.swift; sourceTree = "<group>"; };
 		B1B106921C59097800463612 /* EnvironmentModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnvironmentModule.swift; sourceTree = "<group>"; };
 		B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LabelWithPadding.swift; sourceTree = "<group>"; };
@@ -265,6 +268,7 @@
 		B1D51C5F1CB2A25C00DED6B2 /* SwipeInMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipeInMenu.swift; sourceTree = "<group>"; };
 		B1D51C621CB2A34300DED6B2 /* CellWithGradientFill.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellWithGradientFill.swift; sourceTree = "<group>"; };
 		B1D51C651CB2A91A00DED6B2 /* DataEntryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataEntryViewController.swift; sourceTree = "<group>"; };
+		B1D52A451D31FC55005B5CFE /* CloudInteractionHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloudInteractionHandler.swift; sourceTree = "<group>"; };
 		B1D555801C3068FD00C20742 /* NetworkConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkConnection.swift; sourceTree = "<group>"; };
 		B1D555861C30739C00C20742 /* DateTime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateTime.swift; sourceTree = "<group>"; };
 		B1D560A71CB4573600F6A7AC /* CellWithCustomSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellWithCustomSlider.swift; sourceTree = "<group>"; };
@@ -542,6 +546,26 @@
 			name = "Data Entry TV Cells";
 			sourceTree = "<group>";
 		};
+		B1ABBEA11D31787200C89A03 /* Database Interaction */ = {
+			isa = PBXGroup;
+			children = (
+				B1ABBE9F1D31786B00C89A03 /* LoginHandler.swift */,
+				B13B26731D23F55200006145 /* DatabaseConnection.swift */,
+				B1D52A451D31FC55005B5CFE /* CloudInteractionHandler.swift */,
+			);
+			name = "Database Interaction";
+			sourceTree = "<group>";
+		};
+		B1ABBEA21D31788E00C89A03 /* API Interaction */ = {
+			isa = PBXGroup;
+			children = (
+				B1D555801C3068FD00C20742 /* NetworkConnection.swift */,
+				B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */,
+				B19262691D010EE40093590E /* NutritionService.swift */,
+			);
+			name = "API Interaction";
+			sourceTree = "<group>";
+		};
 		B1B98BD41C39915D00DDACEE /* Create Project Flow */ = {
 			isa = PBXGroup;
 			children = (
@@ -655,10 +679,8 @@
 			isa = PBXGroup;
 			children = (
 				B1C42F791CCFA40800F27DDF /* DataReportingErrorProtocol.swift */,
-				B1D555801C3068FD00C20742 /* NetworkConnection.swift */,
-				B13B26731D23F55200006145 /* DatabaseConnection.swift */,
-				B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */,
-				B19262691D010EE40093590E /* NutritionService.swift */,
+				B1ABBEA11D31787200C89A03 /* Database Interaction */,
+				B1ABBEA21D31788E00C89A03 /* API Interaction */,
 			);
 			name = Networking;
 			sourceTree = "<group>";
@@ -898,6 +920,7 @@
 				B1D51C5E1CB2A19C00DED6B2 /* LevelsFrameworkCell.swift in Sources */,
 				B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */,
 				B19857D11CF64947000FBF05 /* GhostVariable.swift in Sources */,
+				B1ABBEA01D31786B00C89A03 /* LoginHandler.swift in Sources */,
 				B1D51C5A1CB29CC200DED6B2 /* ArchivedProjectsViewController.swift in Sources */,
 				B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */,
 				B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */,
@@ -912,6 +935,7 @@
 				B1AA96CA1CAB1CCC0009E716 /* DataEntryCellTypes.swift in Sources */,
 				B1D560AC1CB458D700F6A7AC /* CellWithPlusButton.swift in Sources */,
 				B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */,
+				B1D52A461D31FC55005B5CFE /* CloudInteractionHandler.swift in Sources */,
 				B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */,
 				B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */,
 				B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */,

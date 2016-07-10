@@ -13,9 +13,9 @@ extension Group {
     @NSManaged var project: Project //relationship -> 'Project' entity (one-to-one b/c each group can only have 1 parent project)
     
     @NSManaged var groupType: String //type of group (rawValue of 'GroupTypes' enum - control vs. comp)
-    @NSManaged var afterActionVariables: Dictionary<String, [String: AnyObject]> //input vars
+    @NSManaged var beforeActionVariables: Dictionary<String, [String: AnyObject]> //input vars
     @NSManaged var action: String //action separating input variables from output variables
-    @NSManaged var beforeActionVariables: Dictionary<String, [String: AnyObject]> //output vars
+    @NSManaged var afterActionVariables: Dictionary<String, [String: AnyObject]> //output vars
     
     convenience init(type: GroupTypes, project: Project, action: String, beforeVariables: [String: [String: AnyObject]], afterVariables: [String: [String: AnyObject]], insertIntoManagedObjectContext context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entityForName("Group", inManagedObjectContext: context)

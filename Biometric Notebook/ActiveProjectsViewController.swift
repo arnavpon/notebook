@@ -24,15 +24,10 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         super.viewDidLoad()
 //        clearCoreDataStoreForEntity(entity: "Project") //*
 //        clearCoreDataStoreForEntity(entity: "Counter") //*
+//        clearCoreDataStoreForEntity(entity: "DatabaseObject") //*
         
         if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //user is logged in
-            activeCounters = fetchObjectsFromCoreDataStore("Counter", filterProperty: nil, filterValue: nil) as! [Counter] //fetch counters
-            self.projects = getActiveProjects()
-            if (self.projects.isEmpty) { //empty state, handle appropriately
-                activeProjectsTableView.hidden = true //hide TV
-            } else {
-                activeProjectsTableView.hidden = false
-            }
+            self.loggedIn = true
         }
         
         //Register TV dataSource & delegate:
@@ -45,23 +40,21 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     override func viewWillAppear(animated: Bool) { //update TV UI whenever view appears
         //**obtain projects SPECIFIC to current user when view appears - pull all projects from the cloud & store to the device (overwriting existing Projects entity)!
-        self.projects = getActiveProjects()
-        if (self.projects.isEmpty) { //empty state, handle appropriately
-            activeProjectsTableView.hidden = true
-        } else {
-            activeProjectsTableView.hidden = false
+        if (loggedIn) { //only fire if user is loggedIn
+            self.activeCounters = fetchObjectsFromCoreDataStore("Counter", filterProperty: nil, filterValue: nil) as! [Counter] //fetch counters
+            self.projects = getActiveProjects()
+            if (self.projects.isEmpty) { //empty state
+                configureActivityIndicator(true) //start spinning to indicate transition
+                activeProjectsTableView.hidden = true //hide TV until a project is present
+            } else {
+                activeProjectsTableView.hidden = false
+            }
+            activeProjectsTableView.reloadData() //reload UI w/ new project list (also clears highlight!)
+            userJustLoggedIn = false //reset the variable
+            
+            let count = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: nil, filterValue: nil).count //**temp
+            menuButton.setTitle("Menu (\(count))", forState: UIControlState.Normal) //**temp
         }
-        activeProjectsTableView.reloadData() //reload UI w/ new project list (also clears highlight!)
-        userJustLoggedIn = false //reset the variable
-        
-        let count = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: nil, filterValue: nil).count
-        menuButton.setTitle("Menu (\(count))", forState: UIControlState.Normal)
-        
-        //Reset notification observer:
-        NSNotificationCenter.defaultCenter().removeObserver(self) //clear old indicators to be safe
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.serviceDidReportError(_:)), name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil) //for errors
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataTransmissionStatusDidChange(_:)), name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil)
     }
     
     func getActiveProjects() -> [Project] { //obtains ACTIVE projects from store
@@ -72,8 +65,20 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     override func viewDidAppear(animated: Bool) { //if user is not logged in, transition -> loginVC
+        //this code must be in viewDidAppear b/c view must load BEFORE transition takes place!
         if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //check if user is logged in
             loggedIn = true //tell system that user is logged in
+            
+            if (self.projects.isEmpty) { //empty state - navigate to CreateProject Flow
+                let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
+                let controller = storyboard.instantiateInitialViewController()!
+                presentViewController(controller, animated: true, completion: nil)
+            } else { //reset notification observers
+                NSNotificationCenter.defaultCenter().removeObserver(self) //1st clear old indicators
+                NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
+                NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.serviceDidReportError(_:)), name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil) //**
+                NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataTransmissionStatusDidChange(_:)), name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil) //**
+            }
         } else {
             loggedIn = false //transition -> LoginVC
         }
@@ -112,7 +117,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     // MARK: - Notification Handling
     
-    func serviceDidReportError(notification: NSNotification) { //unable to connect -> service
+    func serviceDidReportError(notification: NSNotification) { //**temp fx until DB is online
         print("[APVC serviceDidReportError] Firing...")
         if let info = notification.userInfo, service = info[BMN_DataReportingErrorProtocol_ServiceTypeKey] as? String, erroredService = ServiceTypes(rawValue: service) {
             if (erroredService == ServiceTypes.Internet) { //throw an error
@@ -135,7 +140,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         }
     }
     
-    func dataTransmissionStatusDidChange(notification: NSNotification) { //status of data push -> DB
+    func dataTransmissionStatusDidChange(notification: NSNotification) { //temp fx
         if let info = notification.userInfo, success = info[BMN_DatabaseConnection_TransmissionStatusKey] as? Bool {
             if (success) { //indicate successful completion
                 let alert = UIAlertController(title: "Success!", message: "All data was successfully pushed to the database!", preferredStyle: .Alert)
@@ -148,6 +153,11 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 alert.addAction(ok)
                 dispatch_async(dispatch_get_main_queue(), { //*present alert on main thread*
                     self.presentViewController(alert, animated: true, completion: nil)
+                })
+            } else { //transmission failed - update UI
+                let count = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: nil, filterValue: nil).count
+                dispatch_async(dispatch_get_main_queue(), { //*present alert on main thread*
+                    self.menuButton.setTitle("Menu (\(count))", forState: .Normal) //update btn title
                 })
             }
         }
@@ -249,11 +259,8 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     @IBAction func menuButtonClick(sender: AnyObject) { //display menu
-//        logout()
-        
-        //**Push data in queue to DB:
-        let dbConnection = DatabaseConnection()
-        dbConnection.transmitDataToDatabase(nil)
+        let dbConnection = DatabaseConnection() //**
+        dbConnection.transmitDataToDatabase(nil) //**
     }
     
     // MARK: - Login Logic
@@ -269,15 +276,19 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         }
     }
     
-    func didLoginSuccessfully(username: String, email: String?) { //store username/email & dismiss LoginVC
-        userDefaults.setObject(username, forKey: USERNAME_KEY) //save username -> preferences
-        if (email != nil) { //**create an email regex formatting class!
-            userDefaults.setObject(email!, forKey: EMAIL_KEY) //save email -> preferences
-        }
+    func didLoginSuccessfully(email: String) { //store email & dismiss LoginVC
+        userDefaults.setObject(email, forKey: EMAIL_KEY) //save email -> preferences
         userDefaults.setBool(true, forKey: IS_LOGGED_IN_KEY)
+        loggedIn = true
         let success = userDefaults.synchronize() //update the store
         print("Sync successful?: \(success)")
         dismissViewControllerAnimated(true, completion: nil)
+        
+        //Pull the active projects from the DB for the current user:
+    }
+    
+    @IBAction func logoutButtonClick(sender: AnyObject) {
+        logout()
     }
     
     func logout() {
