@@ -72,9 +72,25 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             loggedIn = true //tell system that user is logged in
             
             if (self.projects.isEmpty) { //empty state - navigate to CreateProject Flow
+                //Check for active projects in the DB for the current user - we DONT want internet/localhost notifications to fire here - if accessing DB doesn't work, move to CreateProject screen.
+//                if let dbConnection = DatabaseConnection() { //call AFTER saving email -> defaults
+//                    dbConnection.retrieveProjectModelsFromCloud({ (complete) in
+//                        if (complete) {
+//                            dispatch_async(dispatch_get_main_queue(), { //update TV w/ new data
+//                                self.projects = self.getActiveProjects()
+//                                self.activeProjectsTableView.reloadData()
+//                                if (self.projects.isEmpty) { //still no projects, segue -> CreateProject
+//                                    let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
+//                                    let controller = storyboard.instantiateInitialViewController()!
+//                                    self.presentViewController(controller, animated: true, completion: nil)
+//                                }
+//                            })
+//                        }
+//                    })
+//                }
                 let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
                 let controller = storyboard.instantiateInitialViewController()!
-                presentViewController(controller, animated: true, completion: nil)
+                self.presentViewController(controller, animated: true, completion: nil)
             } else { //reset notification observers
                 NSNotificationCenter.defaultCenter().removeObserver(self) //1st clear old indicators
                 NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
@@ -282,9 +298,8 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     @IBAction func menuButtonClick(sender: AnyObject) { //display menu
-        //Push Cloud backups & reported data to DB:
-        if let dbConnection = DatabaseConnection() {
-             dbConnection.pushAllDataToDatabase(0) //**
+        if let dbConnection = DatabaseConnection() { //push Cloud backups/reported data -> DB
+            dbConnection.pushAllDataToDatabase(0) //**
         }
     }
     
@@ -307,17 +322,32 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         loggedIn = true
         let success = userDefaults.synchronize() //update the store
         print("Sync successful?: \(success)")
-        dismissViewControllerAnimated(true, completion: nil)
         
         //Pull the active projects from the DB for the current user:
+        if let dbConnection = DatabaseConnection() { //call AFTER saving email -> defaults
+            dbConnection.retrieveProjectModelsFromCloud({ (complete) in
+                if (complete) {
+                    dispatch_async(dispatch_get_main_queue(), { //update TV w/ new data
+                        self.projects = self.getActiveProjects()
+                        self.activeProjectsTableView.reloadData()
+                    })
+                }
+                dispatch_async(dispatch_get_main_queue(), { //dismiss LoginVC
+                    self.dismissViewControllerAnimated(true, completion: nil) //call LAST
+                })
+            })
+        }
     }
     
     @IBAction func logoutButtonClick(sender: AnyObject) {
         logout()
     }
     
-    func logout() {
+    func logout() { //clear CoreData store for Project, Group, Counter entities
         loggedIn = false
+        clearCoreDataStoreForEntity(entity: "Project")
+        clearCoreDataStoreForEntity(entity: "Counter")
+        clearCoreDataStoreForEntity(entity: "DatabaseObject")
     }
     
     // MARK: - Navigation

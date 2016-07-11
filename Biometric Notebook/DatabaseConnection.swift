@@ -180,17 +180,79 @@ class DatabaseConnection: DataReportingErrorProtocol {
         }
     }
     
-    func reconstructProjectsFromCloud() { //gets all active projects for the current user
+    func retrieveProjectModelsFromCloud(complete: (Bool) -> Void) { //gets all projects for current user
         let url = NSURL(string: "http://192.168.1.\(ip_last):8000/get-projects-for-user")!
         let postData: [String: String] = ["email": self.email]
         do {
             let data = try NSJSONSerialization.dataWithJSONObject(postData, options: NSJSONWritingOptions(rawValue: 0))
             let connection = NetworkConnection(url: url, postBody: data)
             connection.downloadJSONFromURL({ (returnData) in
-                print("Reconstruct Project: \(returnData).")
+                if let data = returnData {
+                    if let error = data["error"] as? String { //check for error key in returnObject
+                        switch error {
+                        case "000":
+                            print("[000] ERROR - default failure value.")
+                        case "001":
+                            print("[001] ERROR - no projects found for given user.")
+                        default:
+                            print("ERROR - \(error).")
+                        }
+                    } else { //no errors - obtain array of projectModels
+                        if let projectModels = data["project_models"] as? [[String: AnyObject]] { //all of the models are stored against the 'project_models' key
+                            print("\(projectModels.count) models were returned!\n")
+                            for model in projectModels {
+                                print("\nReconstructing model...")
+                                self.reconstructProjectFromModel(model)
+                            }
+                        }
+                    }
+                    complete(true) //call regardless of success/failure
+                }
             })
         } catch {
             print("[Reconstruct Projects from Cloud] Could not create JSON object - \(error).")
+        }
+    }
+    
+    private func reconstructProjectFromModel(projectShell: [String: AnyObject]) {
+        if let typeRaw = projectShell["type"] as? String, type = ExperimentTypes(rawValue: typeRaw), title = projectShell["title"] as? String, question = projectShell["question"] as? String, startDate = projectShell["start_date"] as? Double, groups = projectShell["groups"] as? [String: AnyObject], counters = projectShell["counters"] as? [String] {
+            var projectHypothesis: String? = nil
+            if let hypothesis = projectShell["hypothesis"] as? String { //optional value
+                projectHypothesis = hypothesis
+            }
+            var projectEndpoint: Double? = nil
+            if let endpoint = projectShell["endpoint"] as? Double { //optional value
+                projectEndpoint = endpoint
+            }
+            let project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, startDate: startDate, endpoint: projectEndpoint, insertIntoManagedObjectContext: managedObjectContext) //(1) create Project
+            
+            var counterSettings = Dictionary<String, [String: AnyObject]>() //obj w/ counter CD dicts
+            for (groupRaw, settings) in groups { //(2) create any Group objects
+                print("Reconstructing GROUP = [\(groupRaw)].")
+                if let group = GroupTypes(rawValue: groupRaw), settingsDict = settings as? [String: AnyObject], action = settingsDict["action"] as? String, beforeVars = settingsDict["beforeVars"] as? [String: [String: AnyObject]], afterVars = settingsDict["afterVars"] as? [String: [String: AnyObject]] {
+                    let _ = Group(type: group, project: project, action: action, beforeVariables: beforeVars, afterVariables: afterVars, insertIntoManagedObjectContext: managedObjectContext)
+                    
+                    //Obtain CoreData dicts for counter vars:
+                    for (variableName, dict) in beforeVars {
+                        if (counters.contains(variableName)) {
+                            print("Found counter \(variableName).")
+                            counterSettings.updateValue(dict, forKey: variableName)
+                        }
+                    }
+                    for (variableName, dict) in afterVars {
+                        if (counters.contains(variableName)) {
+                            print("Found counter \(variableName).")
+                            counterSettings.updateValue(dict, forKey: variableName)
+                        }
+                    }
+                }
+            }
+            for (counter, settings) in counterSettings { //(3) create any Counter objects
+                print("Reconstructing COUNTER = \(counter).")
+                let variable = CustomModule(name: counter, dict: settings)
+                let _ = Counter(linkedVar: variable, project: project, insertIntoManagedObjectContext: managedObjectContext)
+            }
+            saveManagedObjectContext() //save context after obtaining new items
         }
     }
     

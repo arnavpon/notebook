@@ -47,7 +47,7 @@ extension Project {
         //After the object has been inserted, simply save the MOC to make it persist.
     }
     
-    convenience init(type: ExperimentTypes, title: String, question: String, hypothesis: String?, startDate: NSDate, endpoint: NSTimeInterval?, insertIntoManagedObjectContext context: NSManagedObjectContext) { //CLOUD init
+    convenience init(type: ExperimentTypes, title: String, question: String, hypothesis: String?, startDate: Double, endpoint: Double?, insertIntoManagedObjectContext context: NSManagedObjectContext) { //CLOUD init
         let entity = NSEntityDescription.entityForName("Project", inManagedObjectContext: context)
         self.init(entity: entity!, insertIntoManagedObjectContext: context)
         
@@ -55,8 +55,10 @@ extension Project {
         self.title = title
         self.question = question
         self.hypothesis = hypothesis
-        self.startDate = startDate //**need compatible format w/ DB
-        self.endDate = nil //**modify
+        self.startDate = NSDate(timeIntervalSinceReferenceDate: startDate)
+        if let end = endpoint {
+            self.endDate = NSDate(timeInterval: end, sinceDate: self.startDate)
+        }
         self.isActive = true //**project starts as ACTIVE
         
         //After the object has been inserted, simply save the MOC to make it persist.
