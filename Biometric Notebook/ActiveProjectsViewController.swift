@@ -38,8 +38,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         activityIndicator.hidesWhenStopped = true
     }
     
-    override func viewWillAppear(animated: Bool) { //update TV UI whenever view appears
-        //**obtain projects SPECIFIC to current user when view appears - pull all projects from the cloud & store to the device (overwriting existing Projects entity)!
+    override func viewWillAppear(animated: Bool) { //update TV UI whenever view appears - the current user's projects are stored in CoreData & fetched when view appears
         if (loggedIn) { //only fire if user is loggedIn
             self.activeCounters = fetchObjectsFromCoreDataStore("Counter", filterProperty: nil, filterValue: nil) as! [Counter] //fetch counters
             self.projects = getActiveProjects()
@@ -52,8 +51,10 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             activeProjectsTableView.reloadData() //reload UI w/ new project list (also clears highlight!)
             userJustLoggedIn = false //reset the variable
             
+            //***
             let count = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: nil, filterValue: nil).count //**temp
             menuButton.setTitle("Menu (\(count))", forState: UIControlState.Normal) //**temp
+            //***
         }
     }
     
@@ -67,30 +68,15 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     var ip_was_set: Bool = false //**temp item
     
     override func viewDidAppear(animated: Bool) { //if user is not logged in, transition -> loginVC
-        //this code must be in viewDidAppear b/c view must load BEFORE transition takes place!
+        //*This code MUST be in viewDidAppear b/c view must load BEFORE transition takes place!*
         if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //check if user is logged in
             loggedIn = true //tell system that user is logged in
-            
             if (self.projects.isEmpty) { //empty state - navigate to CreateProject Flow
-                //Check for active projects in the DB for the current user - we DONT want internet/localhost notifications to fire here - if accessing DB doesn't work, move to CreateProject screen.
-//                if let dbConnection = DatabaseConnection() { //call AFTER saving email -> defaults
-//                    dbConnection.retrieveProjectModelsFromCloud({ (complete) in
-//                        if (complete) {
-//                            dispatch_async(dispatch_get_main_queue(), { //update TV w/ new data
-//                                self.projects = self.getActiveProjects()
-//                                self.activeProjectsTableView.reloadData()
-//                                if (self.projects.isEmpty) { //still no projects, segue -> CreateProject
-//                                    let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
-//                                    let controller = storyboard.instantiateInitialViewController()!
-//                                    self.presentViewController(controller, animated: true, completion: nil)
-//                                }
-//                            })
-//                        }
-//                    })
-//                }
-                let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
-                let controller = storyboard.instantiateInitialViewController()!
-                self.presentViewController(controller, animated: true, completion: nil)
+                dispatch_async(dispatch_get_main_queue(), { 
+                    let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
+                    let controller = storyboard.instantiateInitialViewController()!
+                    self.presentViewController(controller, animated: true, completion: nil)
+                })
             } else { //reset notification observers
                 NSNotificationCenter.defaultCenter().removeObserver(self) //1st clear old indicators
                 NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
@@ -98,7 +84,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataTransmissionStatusDidChange(_:)), name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil) //**
                 
                 //***Temp (until IP issue is resolved) -
-                if !(self.ip_was_set) { //only fires 1x
+                if !(self.ip_was_set) { //only fires 1x - enter current localhost IP
                     let alert = UIAlertController(title: "IP Addr", message: "Enter current IP end value", preferredStyle: UIAlertControllerStyle.Alert)
                     let ok = UIAlertAction(title: "Enter", style: .Default, handler: { (let action) in
                         if let text = alert.textFields?.first?.text {
@@ -118,7 +104,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 }
                 //***
             }
-        } else {
+        } else { //NOT logged in
             loggedIn = false //transition -> LoginVC
         }
     }

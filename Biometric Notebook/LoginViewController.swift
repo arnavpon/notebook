@@ -29,28 +29,30 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var createAccountButton: UIButton!
     @IBOutlet weak var forgotPasswordButton: UIButton!
     
-    
     var passwordIsComplete: Bool = false { //adjusts views based on completion status
         didSet {
-            if (passwordIsComplete) { //reveal completion indicator
-                passwordCompletionIndicator.hidden = false
-            } else { //remove completion indicator
-                passwordCompletionIndicator.hidden = true
+            dispatch_async(dispatch_get_main_queue()) { 
+                if (self.passwordIsComplete) { //reveal completion indicator
+                    self.passwordCompletionIndicator.hidden = false
+                } else { //remove completion indicator
+                    self.passwordCompletionIndicator.hidden = true
+                }
+                self.adjustButtonsForStatusChange()
             }
-            adjustButtonsForStatusChange()
         }
     }
     var emailIsComplete: Bool = false { //adjusts views based on completion status
         didSet {
-            if (emailIsComplete) { //reveal completion indicator
-                emailCompletionIndicator.hidden = false
-            } else { //remove completion indicator
-                emailCompletionIndicator.hidden = true
+            dispatch_async(dispatch_get_main_queue()) {
+                if (self.emailIsComplete) { //reveal completion indicator
+                    self.emailCompletionIndicator.hidden = false
+                } else { //remove completion indicator
+                    self.emailCompletionIndicator.hidden = true
+                }
+                self.adjustButtonsForStatusChange()
             }
-            adjustButtonsForStatusChange()
         }
     }
-    
     var delegate: LoginViewControllerDelegate? //delegate stored property
     
     // MARK: - View Configuration
@@ -122,6 +124,14 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     // MARK: - TextField Delegate
     
+    var beganEditing: Bool = false //indicator var
+    
+    func textFieldDidBeginEditing(textField: UITextField) {
+        if (textField == passwordTextField) {
+            beganEditing = true //set indicator that TF has just begun editing
+        }
+    }
+    
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
         if let currentText = textField.text {
             let finalString = (currentText as NSString).stringByReplacingCharactersInRange(range, withString: string)
@@ -139,7 +149,24 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                 } else {
                     passwordIsComplete = false
                 }
+                
+                if (beganEditing) && (range.length == 1) { //check for clear signal
+                    passwordIsComplete = false //indicate that pwd cell is incomplete
+                }
+                beganEditing = false //reset indicator
             }
+        }
+        displayEmailError(nil) //reset error lbls when characters are entered
+        displayPasswordError(nil) //reset
+        return true
+    }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        if (loginButton.enabled) { //loginBtn is enabled - check username & pwd
+            self.view.endEditing(true)
+            loginButtonClick(true)
+        } else { //NOT enabled - dismiss keyboard only
+            self.view.endEditing(true)
         }
         return true
     }
@@ -174,9 +201,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                     if let type = failureType {
                         switch type {
                         case .UnknownEmail:
-                            self.displayEmailError("email was not found")
+                            self.displayEmailError("unknown email")
+                            self.emailIsComplete = false
                         case .IncorrectPassword:
-                            self.displayPasswordError("email and password don't match")
+                            self.displayPasswordError("incorrect password")
+                            self.passwordIsComplete = false
                         default:
                             break
                         }
@@ -203,6 +232,7 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                         switch type {
                         case .DuplicateEmail:
                             self.displayEmailError("email already exists")
+                            self.emailIsComplete = false
                         default:
                             break
                         }

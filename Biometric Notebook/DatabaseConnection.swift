@@ -53,6 +53,8 @@ class DatabaseConnection: DataReportingErrorProtocol {
                                 self.pushAllDataToDatabase((count + 1)) //pass next
                             } else { //operation failed - terminate function
                                 print("Operation failed. Terminating process...\n")
+                                let notification = NSNotification(name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil, userInfo: [BMN_DatabaseConnection_TransmissionStatusKey: false])
+                                NSNotificationCenter.defaultCenter().postNotification(notification)
                                 return
                             }
                         })
@@ -73,6 +75,8 @@ class DatabaseConnection: DataReportingErrorProtocol {
                                 self.pushAllDataToDatabase((count + 1)) //pass next
                             } else { //the operation failed - terminate function
                                 print("Operation failed! Terminating process...\n")
+                                let notification = NSNotification(name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil, userInfo: [BMN_DatabaseConnection_TransmissionStatusKey: false])
+                                NSNotificationCenter.defaultCenter().postNotification(notification)
                                 return
                             }
                         })
@@ -145,7 +149,10 @@ class DatabaseConnection: DataReportingErrorProtocol {
                             if let responseData = data, responseAsText = NSString(data: responseData, encoding: NSUTF8StringEncoding) {
                                 switch responseAsText as String {
                                 case "000":
-                                    print("Error - process failed.")
+                                    print("[000] Error - process failed.")
+                                    success(false)
+                                case "001": //duplicate project error
+                                    print("[001] Error - duplicate project title.")
                                     success(false)
                                 case "010":
                                     print("Backup was successfully created!")

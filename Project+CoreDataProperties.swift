@@ -58,8 +58,17 @@ extension Project {
         self.startDate = NSDate(timeIntervalSinceReferenceDate: startDate)
         if let end = endpoint {
             self.endDate = NSDate(timeInterval: end, sinceDate: self.startDate)
+            print("Project END DATE = \(DateTime(date: endDate!).getFullTimeStamp()).")
+            let currentDate = NSDate()
+            let difference = currentDate.timeIntervalSinceDate(endDate!)
+            if (difference >= 0) { //current date > end date (INACTIVE)
+                self.isActive = false
+            } else { //end date > current date (ACTIVE)
+                self.isActive = true
+            }
+        } else {
+            self.isActive = true //no endpoint => ACTIVE project
         }
-        self.isActive = true //**project starts as ACTIVE
         
         //After the object has been inserted, simply save the MOC to make it persist.
     }
