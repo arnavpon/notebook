@@ -30,9 +30,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             configureDoneButton()
         }
     }
-    var customOptionsCellLevels: Int? //indicator for heightForRow() for CustomOptionsConfigCell
-    var computationCellLevels: Int? //indicator for heightForRow() for BaseComputationConfigCell
-    var selectFromOptionsCellLevels: Int? //indicator for heightForRow() for SelectFromOptsConfigCell
+    var heightForCells = Dictionary<String, Int>() //object for TV's heightForRow()
     var existingVariables: [ComputationFramework_ExistingVariables]? //list of existing vars (for computs)
     
     // MARK: - View Configuration
@@ -47,9 +45,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         //Add notification observers:
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil) //add observer for LEVELS Cell notification BEFORE configuring TV!
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellDidReportData(_:)), name: BMN_Notification_CellDidReportData, object: nil) //update report obj w/ data
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.adjustHeightForConfigurationCell(_:)), name: BMN_Notification_AddOptionButtonWasClicked, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.adjustHeightForConfigurationCell(_:)), name: BMN_Notification_AdjustHeightForComputationCell, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.adjustHeightForConfigurationCell(_:)), name: BMN_Notification_AdjustHeightForSelectFromOptionsCell, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.adjustHeightForConfigurationCell(_:)), name: BMN_Notification_AdjustHeightForConfigCell, object: nil) //updates height for specified config cell
         
         //Keyboard notifications:
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardDidAppearWithFrame(_:)), name: UIKeyboardDidChangeFrameNotification, object: nil)
@@ -115,17 +111,9 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
     }
     
     func adjustHeightForConfigurationCell(notification: NSNotification) { //adjusts ht for cell
-        if let info = notification.userInfo {
-            if let numberOfLevels = info[BMN_CustomOptionsConfigCell_NumberOfLevelsKey] as? Int { //value is for CustomOptions cell
-                customOptionsCellLevels = numberOfLevels //set indicator w/ new # of levels
-            }
-            if let levels = info[BMN_BaseComputationConfigCell_NumberOfLevelsKey] as? Int { //value is for BaseComputation cell
-                computationCellLevels = levels
-            }
-            if let levels = info[BMN_SelectFromOptionsConfigCell_NumberOfLevelsKey] as? Int { //value is for SelectFromOptions cell
-                selectFromOptionsCellLevels = levels
-            }
-            optionsTableView.reloadData() //redraw w/ new height
+        if let info = notification.userInfo, uniqueId = info[BMN_AdjustHeightForConfigCell_UniqueIDKey] as? String, numberOfLevels = info[BMN_AdjustHeightForConfigCell_NumberOfLevelsKey] as? Int { //assign the # of levels according to the cell's unique ID object
+            heightForCells.updateValue(numberOfLevels, forKey: uniqueId) //update indicator object
+            optionsTableView.reloadData() //redraw cell w/ new height
         }
     }
     
@@ -162,30 +150,11 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat { //this function is called BEFORE the cell obj is set (so we cannot query cell for height here)!
-        //Obtain cell height from ConfigurationCellTypes (enum) function:
-        let cellType = dataSource[indexPath.row].0
-        switch cellType {
-        case .CustomOptions: //modified height determination based on notification obj
-            if let levels = customOptionsCellLevels { //check if height was defined
-                return CGFloat(levels) * 40 + BMN_DefaultBottomSpacer
-            } else { //default height
-                return cellType.getHeightForConfigurationCellType()
-            }
-        case .Computation:
-            if let levels = computationCellLevels { //check if height was defined
-                return CGFloat(levels) * 40 + BMN_DefaultBottomSpacer
-            } else { //default height
-                return cellType.getHeightForConfigurationCellType()
-            }
-        case .SelectFromOptions:
-            if let levels = selectFromOptionsCellLevels { //check if height was defined
-                return CGFloat(levels) * 40 + BMN_DefaultBottomSpacer
-            } else { //default height
-                return cellType.getHeightForConfigurationCellType()
-            }
-        default:
-            return cellType.getHeightForConfigurationCellType()
+        if let cellDescriptor = dataSource[indexPath.row].1[BMN_Configuration_CellDescriptorKey] as? String, numberOfLevels = heightForCells[cellDescriptor] {
+            return CGFloat(numberOfLevels) * 40 + BMN_DefaultBottomSpacer
         }
+        let cellType = dataSource[indexPath.row].0
+        return cellType.getHeightForConfigurationCellType()
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {

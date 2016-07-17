@@ -32,6 +32,10 @@ let BMN_Notification_CompletionIndicatorDidChange = "BMN_CompletionIndicatorDidC
 let BMN_Notification_CellDidReportData = "BMN_CellDidReportData"
 let BMN_Notification_AutoCapVarCompletionStatusDidChange = "BMN_AutoCapVarCompletionStatusDidChange"
 
+let BMN_Notification_AdjustHeightForConfigCell = "BMN_AdjustHeightForConfigCell" //config cell height
+let BMN_AdjustHeightForConfigCell_UniqueIDKey = "BMN_AdjustHeightForConfigCell_unique_id_key"
+let BMN_AdjustHeightForConfigCell_NumberOfLevelsKey = "BMN_AdjustHeightForConfigCell_number_of_levels_key"
+
 let BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError = "BMN_DataReportingErrorProtocol_ServiceDidReportError"
 let BMN_DataReportingErrorProtocol_ServiceTypeKey = "BMN_DataReportingErrorProtocol_service_type_key"
 
@@ -50,18 +54,6 @@ let BMN_Notification_SliderSelectedNodeHasChanged = "BMN_SliderSelectedNodeHasCh
 let BMN_Notification_SliderCrownValueWasSet = "BMN_SliderCrownValueWasSet"
 let BMN_Notification_SliderControlIsMoving = "BMN_SliderControlIsMoving"
 let BMN_Notification_ProjectTypeDidChange = "BMN_ProjectTypeDidChange"
-
-//CustomOptionsConfigCell Notifications:
-let BMN_Notification_AddOptionButtonWasClicked = "BMN_AddOptionButtonWasClicked"
-let BMN_CustomOptionsConfigCell_NumberOfLevelsKey = "BMN_CustomOptionsConfigCell_number_of_levels_key"
-
-//SelectFromOptionsConfigCell Notifications:
-let BMN_Notification_AdjustHeightForSelectFromOptionsCell = "BMN_AdjustHeightForSelectFromOptionsCell"
-let BMN_SelectFromOptionsConfigCell_NumberOfLevelsKey = "BMN_SelectFromOptionsConfigCell_number_of_levels_key"
-
-//ComputationsCell Notifications:
-let BMN_Notification_AdjustHeightForComputationCell = "BMN_AdjustHeightForComputationCell"
-let BMN_BaseComputationConfigCell_NumberOfLevelsKey = "BMN_BaseComputationConfigCell_number_of_levels_key"
 
 //CellWithGradientFill Notifications:
 let BMN_Notification_DataEntryButtonClick = "BMN_DataEntryButtonClick"

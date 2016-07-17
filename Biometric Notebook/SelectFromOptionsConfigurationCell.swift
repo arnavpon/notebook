@@ -21,10 +21,10 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
             configureSelectionButtons() //creates btns for options (fire BEFORE updating layout!)
             setNeedsLayout() //update visuals for cell
             if (isCellBoolean) && (options.count == 2) { //BINARY cell type
-                let notification = NSNotification(name: BMN_Notification_AdjustHeightForSelectFromOptionsCell, object: nil, userInfo: [BMN_SelectFromOptionsConfigCell_NumberOfLevelsKey: 2]) //height = 2 lvls
+                let notification = NSNotification(name: BMN_Notification_AdjustHeightForConfigCell, object: nil, userInfo: [BMN_AdjustHeightForConfigCell_UniqueIDKey: self.cellDescriptor, BMN_AdjustHeightForConfigCell_NumberOfLevelsKey: 2]) //height = 2 lvls
                 NSNotificationCenter.defaultCenter().postNotification(notification)
             } else { //DEFAULT cell type
-                let notification = NSNotification(name: BMN_Notification_AdjustHeightForSelectFromOptionsCell, object: nil, userInfo: [BMN_SelectFromOptionsConfigCell_NumberOfLevelsKey: (options.count + 1)]) //tell VC to add 1 lvl for each option + 1 (for top level)
+                let notification = NSNotification(name: BMN_Notification_AdjustHeightForConfigCell, object: nil, userInfo: [BMN_AdjustHeightForConfigCell_UniqueIDKey: self.cellDescriptor, BMN_AdjustHeightForConfigCell_NumberOfLevelsKey: (options.count + 1)]) //tell VC to add 1 lvl for each option + 1 (for top lvl)
                 NSNotificationCenter.defaultCenter().postNotification(notification)
             }
         }

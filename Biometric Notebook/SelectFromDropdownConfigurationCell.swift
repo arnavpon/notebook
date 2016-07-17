@@ -12,6 +12,7 @@ class SelectFromDropdownConfigurationCell: BaseConfigurationCell, UITableViewDat
     override class var numberOfLevels: Int { //default # of levels is 1
         return 2 //2 levels (mainLabel + dropdownView)
     }
+    private var tableViewLevels: Int = 4 //# of levels to expand by when revealing TV
     
     private var options: [String] = [] { //available options for selection
         didSet {
@@ -96,18 +97,23 @@ class SelectFromDropdownConfigurationCell: BaseConfigurationCell, UITableViewDat
         dropdownImage.frame = CGRectMake((selectionLabel.frame.width + imageOffset), imageOffset, dropdownImgWidth, dropdownImgWidth) //img takes up small portion of R side of view
         dropdownButton.frame = CGRectMake(0, 0, dropdownView.frame.width, dropdownView.frame.height) //btn is same size as overall view
         
-        dropdownTableView.frame = getViewFrameForLevel(viewLevel: (3, HorizontalLevels.FullLevel, 3))
+        dropdownTableView.frame = getViewFrameForLevel(viewLevel: (3, HorizontalLevels.FullLevel, tableViewLevels))
     }
     
     // MARK: - Button Actions
     
     @IBAction func dropdownButtonWasClicked(sender: UIButton) { //reveals/hides dropdown menu
-        if (dropdownTableView.hidden) { //REVEAL TV if HIDDEN
-            dropdownTableView.hidden = false
-            //send notification -> VC to increase # of levels by # of levels the TV takes up
-        } else { //HIDE TV if VISIBLE
-            dropdownTableView.hidden = true
-            //send notification -> VC to reduce # of levels back to default (2)
+        updateTableViewVisuals((!dropdownTableView.hidden)) //reverse visual state of TV
+    }
+    
+    private func updateTableViewVisuals(hide: Bool) {
+        dropdownTableView.hidden = hide
+        if (hide) { //HIDE TV
+            let notification = NSNotification(name: BMN_Notification_AdjustHeightForConfigCell, object: nil, userInfo: [BMN_AdjustHeightForConfigCell_UniqueIDKey: self.cellDescriptor, BMN_AdjustHeightForConfigCell_NumberOfLevelsKey: SelectFromDropdownConfigurationCell.numberOfLevels]) //return height to default value
+            NSNotificationCenter.defaultCenter().postNotification(notification)
+        } else { //REVEAL TV
+            let notification = NSNotification(name: BMN_Notification_AdjustHeightForConfigCell, object: nil, userInfo: [BMN_AdjustHeightForConfigCell_UniqueIDKey: self.cellDescriptor, BMN_AdjustHeightForConfigCell_NumberOfLevelsKey: SelectFromDropdownConfigurationCell.numberOfLevels + tableViewLevels]) //height = default + TV # of levels
+            NSNotificationCenter.defaultCenter().postNotification(notification)
         }
     }
     
@@ -132,7 +138,7 @@ class SelectFromDropdownConfigurationCell: BaseConfigurationCell, UITableViewDat
             selectedOption = nil
         }
         updateLabelForSelection() //update lbl
-        tableView.hidden = true //hide TV upon click
+        updateTableViewVisuals(true) //hide TV upon click
         return false //block highlight
     }
     
