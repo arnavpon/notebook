@@ -21,11 +21,11 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell { //add new class -> e
             configureSelectionButtons() //creates btns for options (fire BEFORE updating layout!)
             setNeedsLayout() //update visuals for cell
             if (isCellBoolean) && (options.count == 2) { //BINARY cell type
-                let notification = NSNotification(name: BMN_Notification_AdjustHeightForSelectFromOptionsCell, object: nil, userInfo: [BMN_SelectFromOptionsConfigCell_NumberOfLevelsKey: 2]) //height = 2 lvls
-                NSNotificationCenter.defaultCenter().postNotification(notification)
+//                let notification = NSNotification(name: BMN_Notification_AdjustHeightForSelectFromOptionsCell, object: nil, userInfo: [BMN_SelectFromOptionsConfigCell_NumberOfLevelsKey: 2]) //height = 2 lvls
+//                NSNotificationCenter.defaultCenter().postNotification(notification)
             } else { //DEFAULT cell type
-                let notification = NSNotification(name: BMN_Notification_AdjustHeightForSelectFromOptionsCell, object: nil, userInfo: [BMN_SelectFromOptionsConfigCell_NumberOfLevelsKey: (options.count + 1)]) //tell VC to add 1 lvl for each option + 1 (for top level)
-                NSNotificationCenter.defaultCenter().postNotification(notification)
+//                let notification = NSNotification(name: BMN_Notification_AdjustHeightForSelectFromOptionsCell, object: nil, userInfo: [BMN_SelectFromOptionsConfigCell_NumberOfLevelsKey: (options.count + 1)]) //tell VC to add 1 lvl for each option + 1 (for top level)
+//                NSNotificationCenter.defaultCenter().postNotification(notification)
             }
         }
     }

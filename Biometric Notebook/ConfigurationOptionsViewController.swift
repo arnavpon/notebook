@@ -150,11 +150,11 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat { //this function is called BEFORE the cell obj is set (so we cannot query cell for height here)!
-        if let cellDescriptor = dataSource[indexPath.row].1[BMN_Configuration_CellDescriptorKey] as? String, numberOfLevels = heightForCells[cellDescriptor] {
+        if let cellDescriptor = dataSource[indexPath.row].1[BMN_Configuration_CellDescriptorKey] as? String, numberOfLevels = heightForCells[cellDescriptor] { //check for custom definition
             return CGFloat(numberOfLevels) * 40 + BMN_DefaultBottomSpacer
         }
         let cellType = dataSource[indexPath.row].0
-        return cellType.getHeightForConfigurationCellType()
+        return cellType.getHeightForConfigurationCellType() //default height definition
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {

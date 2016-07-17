@@ -200,7 +200,7 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
         ioVariablesTextField.frame = CGRectMake(horizontalSpacer, (ioThirdHeight + verticalSpacer), ioSpacedWidth, ioSpacedHeight) //line 2
         
         ioSecondLabel.frame = CGRectMake(horizontalSpacer, (ioThirdHeight * 2 + verticalSpacer), 20, ioSpacedHeight) //start line 3
-        let questionMarkWidth: CGFloat = 20 //width of ? mark lbl
+        let questionMarkWidth: CGFloat = 18 //width of ? mark lbl
         ioOutcomeTextField.frame = CGRectMake((ioSecondLabel.frame.width + horizontalSpacer * 2), (ioThirdHeight * 2 + verticalSpacer), (ioSpacedWidth - ioSecondLabel.frame.width - questionMarkWidth - 2 * horizontalSpacer), ioSpacedHeight) //middle line 3
         ioQuestionMark.frame = CGRectMake((ioSecondLabel.frame.width + ioOutcomeTextField.frame.width + 3 * horizontalSpacer), (ioThirdHeight * 2 + verticalSpacer), questionMarkWidth, ioSpacedHeight) //end line 3
         
@@ -353,11 +353,14 @@ class ProjectQuestionCustomCell: BaseCreateProjectCell, UITextFieldDelegate {
         
         if (sender == templateButtonIO) {
             ioView.hidden = false
+            ioVariablesTextField.becomeFirstResponder()
         } else if (sender == templateButtonCC) {
             ccView.hidden = false
+            ccComparisonGroupsTextField.becomeFirstResponder()
         } else if (sender == firstLevelRightButton!) { //hide BOTH views on RESET click
             ioView.hidden = true
             ccView.hidden = true
+            self.endEditing(true) //resign 1st responder
         }
     }
     
