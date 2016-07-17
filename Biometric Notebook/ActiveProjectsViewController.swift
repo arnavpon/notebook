@@ -22,10 +22,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        clearCoreDataStoreForEntity(entity: "Project") //*
-//        clearCoreDataStoreForEntity(entity: "Counter") //*
-//        clearCoreDataStoreForEntity(entity: "DatabaseObject") //*
-        
         if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //user is logged in
             self.loggedIn = true
         }
@@ -195,7 +191,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             return 1
         }
         return 2 //1 section for counters, 1 for projects
-        //eventually, we will want to organize projects using the same framework as for IA???
+        //eventually, we may want to organize projects using the same framework as for IA???
     }
     
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {

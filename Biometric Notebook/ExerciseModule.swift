@@ -3,7 +3,7 @@
 //  Created by Arnav Pondicherry  on 1/7/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Module for capturing exercise statistics such as calories burned, distance moved, etc.
+// Module for capturing Weight Training & Cardio exercise statistics such as weight lifted, calories burned, distance moved, etc.
 
 import Foundation
 
@@ -28,7 +28,7 @@ class ExerciseModule: Module {
         return tempObject
     }
     
-    private let exerciseModuleBehaviors: [ExerciseModuleVariableTypes] = [ExerciseModuleVariableTypes.Behavior_Exercise, ExerciseModuleVariableTypes.Behavior_BeforeAndAfter]
+    private let exerciseModuleBehaviors: [ExerciseModuleVariableTypes] = [ExerciseModuleVariableTypes.Behavior_Workout]
     override func setBehaviors() -> [String]? { //dynamically assigns behaviors to list
         var behaviorTitles: [String] = []
         
@@ -85,6 +85,10 @@ class ExerciseModule: Module {
         }
     }
     
+    //DataEntryCell Configuration Variables:
+    private var dayOfWeek: String?
+    private var exercises: [String]? //**
+    
     // MARK: - Initializers
     
     override init(name: String) { //set-up init
@@ -104,15 +108,64 @@ class ExerciseModule: Module {
         return copy
     }
     
+    // MARK: - Variable Configuration
+    
+    internal override func setConfigurationOptionsForSelection() {
+        if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
+            var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = [] //pass -> VC (CustomCellType, cell's dataSource)
+            switch type {
+            case .Behavior_Workout:
+                
+                //2 config cells are needed (day of week + workout configuration):
+                let dayOptions = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+                array.append((ConfigurationOptionCellTypes.SelectFromDropdown, [BMN_Configuration_CellDescriptorKey: BMN_ExerciseModule_WorkoutDayOfWeekID, BMN_LEVELS_CellIsOptionalKey: true, BMN_LEVELS_MainLabelKey: "Assign this workout to a specific day of the week (optional):", BMN_SelectFromDropdown_OptionsKey: dayOptions])) //cell to set day of week
+                array.append((ConfigurationOptionCellTypes.ExM_Workout, [BMN_Configuration_CellDescriptorKey: BMN_ExerciseModule_WorkoutExercisesID, BMN_LEVELS_MainLabelKey: "Add individual exercises to your workout in chronologic order.:"])) //cell to add exercises
+                configurationOptionsLayoutObject = array
+                
+            case .Behavior_BeforeAndAfter:
+                
+                configurationOptionsLayoutObject = nil //no further config needed
+                
+            }
+        } else { //no selection, set configOptionsObj -> nil
+            configurationOptionsLayoutObject = nil
+        }
+    }
+
+    override func matchConfigurationItemsToProperties(configurationData: [String : AnyObject]) -> (Bool, String?, [String]?) {
+        //(1) Takes as INPUT the data that was entered into each config TV cell. (2) Given the variableType, matches configuration data -> properties in the Module object by accessing specific configuration cell identifiers (defined in 'HelperFx' > 'Dictionary Keys').
+        if let type = variableType {
+            switch type { //only needed for sections that require configuration
+            case .Behavior_Workout:
+                
+                self.dayOfWeek = configurationData[BMN_ExerciseModule_WorkoutDayOfWeekID] as? String
+                print("Day of week = \(dayOfWeek).")
+                self.exercises = configurationData[BMN_ExerciseModule_WorkoutExercisesID] as? [String]
+                
+            default:
+                print("[CustomMod: matchConfigToProps] Error! Default in switch!")
+                return (false, "Default in switch!", nil)
+            }
+        }
+        return (false, "No selected functionality was found!", nil)
+    }
+    
     // MARK: - Core Data Logic
     
     internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> {
-        let persistentDictionary: [String: AnyObject] = super.createDictionaryForCoreDataStore()
+        var persistentDictionary: [String: AnyObject] = super.createDictionaryForCoreDataStore()
+        
+        //Set the coreData dictionary ONLY with information pertaining to the 'selectedFunctionality':
+        if let type = variableType {
+            persistentDictionary[BMN_VariableTypeKey] = type.rawValue //save variable type
+            switch type {
+            case .Behavior_Workout: //store the day of week + exercises/settings for each exercise
+                persistentDictionary[BMN_ExerciseModule_WorkoutDayOfWeekKey] = dayOfWeek
+            case .Behavior_BeforeAndAfter:
+                break
+            }
+        }
         return persistentDictionary
-    }
-    
-    internal override func setConfigurationOptionsForSelection() {
-        //
     }
     
     // MARK: - Data Entry Logic
@@ -120,6 +173,8 @@ class ExerciseModule: Module {
     override func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
         if let type = self.variableType {
             switch type {
+            case .Behavior_Workout:
+                return DataEntryCellTypes.Freeform
             default:
                 return nil
             }
@@ -131,7 +186,7 @@ class ExerciseModule: Module {
 
 enum ExerciseModuleVariableTypes: String { //*match each behavior/computation -> Configuration + DataEntry custom TV cells; for each new behavior/computation added, you must also add (1) Configuration logic, (2) Core Data storage logic (so the variable config can be preserved), (3) Unpacking logic (in the DataEntry initializer), & (4) DataEntry logic (enabling the user to report info).* 
     //Available Behaviors:
-    case Behavior_Exercise = "ExM_behavior_<SingleWorkout>" //'Workout' allows the user to add a single exercise to the list for tracking the # of reps, weight, & # of sets.
+    case Behavior_Workout = "Workout" //a workout variable contains the list of associated Weight Training & Cardio exercises making up the complete workout
     case Behavior_BeforeAndAfter = "ExM_behavior_BeforeAfterPicture" //'Before & After' allows user to take picture & save.
     
     //Available Computations:
@@ -139,8 +194,8 @@ enum ExerciseModuleVariableTypes: String { //*match each behavior/computation ->
     func getAlertMessageForVariable() -> String {
         var message = ""
         switch self {
-        case .Behavior_Exercise:
-            message = ""
+        case .Behavior_Workout:
+            message = "A workout variable contains a group of exercises making up a single, complete workout."
         case .Behavior_BeforeAndAfter:
             message = ""
         }

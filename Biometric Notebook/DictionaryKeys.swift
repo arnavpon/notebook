@@ -118,6 +118,7 @@ let BMN_SelectFromOptions_OptionsKey = "SelectFromOptions_options_key"
 let BMN_SelectFromOptions_MultipleSelectionEnabledKey = "SelectFromOptions_multiple_selection_enabled_key"
 let BMN_SelectFromOptions_DefaultOptionsKey = "SelectFromOptions_default_options_key"
 let BMN_SelectFromOptions_IsBooleanKey = "SelectFromOptions_is_boolean_key"
+let BMN_SelectFromDropdown_OptionsKey = "SelectFromDropdown_options_key"
 
 // MARK: - [MODULE] Configuration Blockers (for 'Module_ConfigurationBlocker' Class)
 
@@ -215,3 +216,12 @@ let BMN_FoodIntakeModule_NutritionCategoriesKey = "FiM_nutrition_categories_key"
 
 //[Configuration IDs]:
 let BMN_FoodIntakeModule_NutritionCategoriesID = "FiM_nutrition_categories_id"
+
+// MARK: - ExerciseModule [ExM]
+
+//[Configuration KEYS]:
+let BMN_ExerciseModule_WorkoutDayOfWeekKey = "ExM_workout_day_of_week_key"
+
+//[Configuration IDs]:
+let BMN_ExerciseModule_WorkoutDayOfWeekID = "ExM_workout_day_of_week_id"
+let BMN_ExerciseModule_WorkoutExercisesID = "ExM_workout_exercises_id"

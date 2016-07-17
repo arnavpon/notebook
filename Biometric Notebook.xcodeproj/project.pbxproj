@@ -53,6 +53,8 @@
 		B19857D11CF64947000FBF05 /* GhostVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19857D01CF64947000FBF05 /* GhostVariable.swift */; };
 		B19DF36D1CC57388008F44C4 /* CoreLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */; };
 		B19DF3701CC58CAC008F44C4 /* NetworkConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555801C3068FD00C20742 /* NetworkConnection.swift */; };
+		B19F16561D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19F16551D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift */; };
+		B19F16581D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19F16571D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift */; };
 		B1A7C62E1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */; };
 		B1A8C7C71CAF640300380E99 /* CustomWithRangeScaleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */; };
 		B1A8C7C91CAF656500380E99 /* CustomWithOptionsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7C81CAF656500380E99 /* CustomWithOptionsCell.swift */; };
@@ -223,6 +225,8 @@
 		B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSliderBackgroundView.swift; sourceTree = "<group>"; };
 		B19857D01CF64947000FBF05 /* GhostVariable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GhostVariable.swift; sourceTree = "<group>"; };
 		B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreLocationManager.swift; sourceTree = "<group>"; };
+		B19F16551D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExM_WorkoutConfigurationCell.swift; sourceTree = "<group>"; };
+		B19F16571D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectFromDropdownConfigurationCell.swift; sourceTree = "<group>"; };
 		B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectFromOptionsConfigurationCell.swift; sourceTree = "<group>"; };
 		B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithRangeScaleCell.swift; sourceTree = "<group>"; };
 		B1A8C7C81CAF656500380E99 /* CustomWithOptionsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithOptionsCell.swift; sourceTree = "<group>"; };
@@ -498,9 +502,11 @@
 				B1AA96CB1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift */,
 				B1AA96CD1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift */,
 				B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */,
+				B19F16571D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift */,
 				B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */,
 				B122261D1CC479A500A00109 /* BaseComputationConfigurationCell.swift */,
 				B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */,
+				B19F16551D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift */,
 			);
 			name = "Config Options TV Cells";
 			sourceTree = "<group>";
@@ -902,6 +908,7 @@
 				B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */,
 				B13B26741D23F55200006145 /* DatabaseConnection.swift in Sources */,
 				B1D51C631CB2A34300DED6B2 /* CellWithGradientFill.swift in Sources */,
+				B19F16581D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift in Sources */,
 				B1AA96CE1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift in Sources */,
 				B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */,
 				B1D51C5C1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift in Sources */,
@@ -920,6 +927,7 @@
 				B1ABBEA01D31786B00C89A03 /* LoginHandler.swift in Sources */,
 				B1D51C5A1CB29CC200DED6B2 /* ArchivedProjectsViewController.swift in Sources */,
 				B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */,
+				B19F16561D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift in Sources */,
 				B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */,
 				B1C42F7A1CCFA40800F27DDF /* DataReportingErrorProtocol.swift in Sources */,
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,

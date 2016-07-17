@@ -65,9 +65,11 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         optionsTableView.registerClass(SimpleTextConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleTextConfigurationCell)) //simple txt
         optionsTableView.registerClass(SimpleNumberConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SimpleNumberConfigurationCell)) //simple #
         optionsTableView.registerClass(SelectFromOptionsConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SelectFromOptionsConfigurationCell)) //select from available options
+        optionsTableView.registerClass(SelectFromDropdownConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SelectFromDropdownConfigurationCell)) //select from dropdown w/ options
         optionsTableView.registerClass(CustomOptionsConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(CustomOptionsConfigurationCell)) //custom options
         optionsTableView.registerClass(BaseComputationConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(BaseComputationConfigurationCell)) //computations cell
         optionsTableView.registerClass(ExampleConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(ExampleConfigurationCell)) //example
+        optionsTableView.registerClass(ExM_WorkoutConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(ExM_WorkoutConfigurationCell)) //exercise module - workout
     }
     
     override func viewWillDisappear(animated: Bool) { //remove observer befor exiting this VC
@@ -196,6 +198,8 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(SimpleTextConfigurationCell)) as! SimpleTextConfigurationCell
         case .SelectFromOptions:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(SelectFromOptionsConfigurationCell)) as! SelectFromOptionsConfigurationCell
+        case .SelectFromDropdown:
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(SelectFromDropdownConfigurationCell)) as! SelectFromDropdownConfigurationCell
         case .CustomOptions:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomOptionsConfigurationCell)) as! CustomOptionsConfigurationCell
         case .Computation:
@@ -203,6 +207,8 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             (cell as! BaseComputationConfigurationCell).availableVariables = self.existingVariables //pass all existing variables -> cell
         case .Example:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExampleConfigurationCell)) as! ExampleConfigurationCell
+        case .ExM_Workout:
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExM_WorkoutConfigurationCell)) as! ExM_WorkoutConfigurationCell
         }
         cell.dataSource = dataSource[indexPath.row].1 //set cell's dataSource
         return cell
