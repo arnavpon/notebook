@@ -87,7 +87,7 @@ class ExerciseModule: Module {
     
     //DataEntryCell Configuration Variables:
     private var dayOfWeek: String?
-    private var exercises: [String]? //**
+    private var exercises: [[String: AnyObject]]? //matches config cell return object
     
     // MARK: - Initializers
     
@@ -99,6 +99,22 @@ class ExerciseModule: Module {
     override init(name: String, dict: [String: AnyObject]) { //CoreData init
         super.init(name: name, dict: dict)
         self.moduleTitle = Modules.ExerciseModule.rawValue
+        
+        //Break down the dictionary depending on the variable's type key & reconstruct object:
+        if let typeName = dict[BMN_VariableTypeKey] as? String, type = ExerciseModuleVariableTypes(rawValue: typeName) {
+            self.selectedFunctionality = typeName //reset the variable's selectedFunctionality
+            switch type { //configure according to 'variableType'
+            case .Behavior_Workout:
+                self.dayOfWeek = dict[BMN_ExerciseModule_WorkoutDayOfWeekKey] as? String
+                self.exercises = dict[BMN_ExerciseModule_WorkoutExercisesKey] as? [[String: AnyObject]]
+                
+                self.FreeformCell_configurationObject = [] //initialize
+                FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Decimal, nil, 6, (0, 999), nil)) //for WeightTraining, ...
+                self.cellPrompt = "Fill in after completing exercise:" //mainLbl for cell
+            case .Behavior_BeforeAndAfter:
+                break
+            }
+        }
     }
     
     override func copyWithZone(zone: NSZone) -> AnyObject { //creates copy of variable
@@ -139,8 +155,11 @@ class ExerciseModule: Module {
             case .Behavior_Workout:
                 
                 self.dayOfWeek = configurationData[BMN_ExerciseModule_WorkoutDayOfWeekID] as? String
-                print("Day of week = \(dayOfWeek).")
-                self.exercises = configurationData[BMN_ExerciseModule_WorkoutExercisesID] as? [String]
+                if let exerciseList = configurationData[BMN_ExerciseModule_WorkoutExercisesID] as? [[String: AnyObject]] {
+                    print("\(exerciseList.count) exercises were added to the workout.")
+                    self.exercises = exerciseList
+                    return (true, nil, nil)
+                }
                 
             default:
                 print("[CustomMod: matchConfigToProps] Error! Default in switch!")
@@ -161,6 +180,7 @@ class ExerciseModule: Module {
             switch type {
             case .Behavior_Workout: //store the day of week + exercises/settings for each exercise
                 persistentDictionary[BMN_ExerciseModule_WorkoutDayOfWeekKey] = dayOfWeek
+                persistentDictionary[BMN_ExerciseModule_WorkoutExercisesKey] = exercises
             case .Behavior_BeforeAndAfter:
                 break
             }

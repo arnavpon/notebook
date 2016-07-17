@@ -36,6 +36,8 @@ let BMN_Notification_AdjustHeightForConfigCell = "BMN_AdjustHeightForConfigCell"
 let BMN_AdjustHeightForConfigCell_UniqueIDKey = "BMN_AdjustHeightForConfigCell_unique_id_key"
 let BMN_AdjustHeightForConfigCell_NumberOfLevelsKey = "BMN_AdjustHeightForConfigCell_number_of_levels_key"
 
+let BMN_Notification_PopupViewActionWasTriggered = "BMN_PopupViewActionWasTriggered" //popup view notif
+
 let BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError = "BMN_DataReportingErrorProtocol_ServiceDidReportError"
 let BMN_DataReportingErrorProtocol_ServiceTypeKey = "BMN_DataReportingErrorProtocol_service_type_key"
 
@@ -213,6 +215,7 @@ let BMN_FoodIntakeModule_NutritionCategoriesID = "FiM_nutrition_categories_id"
 
 //[Configuration KEYS]:
 let BMN_ExerciseModule_WorkoutDayOfWeekKey = "ExM_workout_day_of_week_key"
+let BMN_ExerciseModule_WorkoutExercisesKey = "ExM_workout_exercises_key"
 
 //[Configuration IDs]:
 let BMN_ExerciseModule_WorkoutDayOfWeekID = "ExM_workout_day_of_week_id"
