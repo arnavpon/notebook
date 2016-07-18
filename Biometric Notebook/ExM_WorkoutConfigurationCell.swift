@@ -181,13 +181,13 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
     
     // MARK: - Data Reporting
     
-    func updateDataSourceAtIndex(index: Int, withValue value: (String, String?)) { //updates dataSource w/ (name, sets); returns True (change allowed) or False (not allowed)
+    func updateDataSourceAtIndex(index: Int, withValue value: (String, String?)) { //updates dataSource w/ (name, sets) & adjust completion status accordingly
         print("Updating key [name] with value [\(value.0)] & sets w/ [\(value.1)] @ index \(index).")
         if let typeRaw = exercises[index]["type"] as? Int, type = ExerciseTypes(rawValue: typeRaw) {
             self.exercises[index].updateValue(value.0, forKey: "name")
             switch type {
             case .WeightTraining:
-                if let setsRaw = value.1 {
+                if let setsRaw = value.1 { //update 'sets' value
                     if !(setsRaw.isEmpty) { //NOT empty
                         if let sets = Int(setsRaw) {
                             self.exercises[index].updateValue(sets, forKey: "sets")
@@ -196,20 +196,44 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
                         self.exercises[index].updateValue(0, forKey: "sets")
                     }
                 }
-            case .Cardio: //no set value to update
+            case .Cardio: //no 'sets' value to update
                 break
             }
         }
-        if let name = exercises[index]["name"] as? String, sets = exercises[index]["sets"] as? Int {
-            if !(name.isEmpty) && (sets > 0) { //BOTH values are set
-                configureCompletionIndicator(true)
-                return
+//        if let name = exercises[index]["name"] as? String, sets = exercises[index]["sets"] as? Int {
+//            if !(name.isEmpty) && (sets > 0) { //BOTH values are set
+//                configureCompletionIndicator(true)
+//                return
+//            }
+//        }
+        for exercise in exercises { //make sure all items for all exercises are complete
+            if let typeRaw = exercise["type"] as? Int, type = ExerciseTypes(rawValue: typeRaw) {
+                switch type {
+                case .WeightTraining: //check for the name & # of sets
+                    if let name = exercise["name"] as? String, sets = exercise["sets"] as? Int {
+                        if !(name.isEmpty) && (sets > 0) { //BOTH values are complete
+                            continue //move to next iteration of loop
+                        } else { //1 or both values are NOT set
+                            configureCompletionIndicator(false) //set -> INCOMPLETE
+                            return //break fx
+                        }
+                    }
+                case .Cardio: //make sure name is appropriately set
+                    if let name = exercise["name"] as? String {
+                        if !(name.isEmpty) { //name is set
+                            continue //move to next iteration of loop
+                        } else { //name is NOT set
+                            configureCompletionIndicator(false) //set -> INCOMPLETE
+                            return //break fx
+                        }
+                    }
+                }
             }
         }
-        configureCompletionIndicator(false) //NOT complete -> false
+        configureCompletionIndicator(true) //ONLY if fx completes loop, set -> COMPLETE
     }
     
-    override var configurationReportObject: AnyObject? { //checks the currently highlighted button & reports TRUE for 'yes', FALSE for 'no'
+    override var configurationReportObject: AnyObject? { //reports all exercises
         //*REPORT TYPE: [[String: AnyObject]]*
         return exercises
     }

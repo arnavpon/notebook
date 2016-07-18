@@ -192,7 +192,7 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
     
     // MARK: - Data Reporting
     
-    override var configurationReportObject: AnyObject? { //checks the currently highlighted button & reports TRUE for 'yes', FALSE for 'no'
+    override var configurationReportObject: AnyObject? { //returns highlighted buttons
         //*REPORT TYPE: [String]*
         return selectedOptions
     }

@@ -53,7 +53,7 @@ class SimpleTextConfigurationCell: BaseConfigurationCell, UITextFieldDelegate { 
     
     // MARK: - Data Reporting
     
-    override var configurationReportObject: AnyObject? {
+    override var configurationReportObject: AnyObject? { //reports text in textField
         //*REPORT TYPE: String*
         if let inputText = fullString {
             return inputText

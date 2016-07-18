@@ -71,7 +71,7 @@ class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate 
     
     // MARK: - Data Reporting
     
-    override var configurationReportObject: AnyObject? { //*still reporting 1 back!
+    override var configurationReportObject: AnyObject? { //reports # in textField
         //*REPORT TYPE: Int*
         if let inputText = fullString, let inputAsInt = Int(inputText) {
             return inputAsInt

@@ -142,6 +142,8 @@ let BMN_Module_OptionsForDictKey = "module_options_for_dict_key" //*needed for P
 let BMN_CustomModule_TimeDifferenceKey = "CM_time_difference_key" //key containing TD var's name
 let BMN_ProjectContainsTimeDifferenceKey = "project_contains_time_difference_key" //indicator
 
+let BMN_DataEntry_FreeformCell_NumberOfViewsKey = "BM_DE_freeform_cell_number_of_views_key" //for height calculation
+
 // MARK: - CreateProjectVC Cell IDs
 
 let BMN_ProjectTitleID = "project_title_id"
@@ -196,9 +198,6 @@ let BMN_BiometricModule_HeartRateSamplingOptionKey = "BM_heart_rate_sampling_opt
 let BMN_BiometricModule_DataSourceOptionsID = "BM_data_source_options_id"
 let BMN_BiometricModule_DataSourceOptions2ID = "BM_data_source_options_2_id"
 let BMN_BiometricModule_HeartRateSamplingOptionsID = "BM_heart_rate_sampling_options_id"
-
-//[DataEntry Keys]:
-let BMN_DataEntry_FreeformCell_NumberOfViewsKey = "BM_DE_freeform_cell_number_of_views_key" //for height calculation
 
 //[CoreData Keys]:
 let BMN_BiometricModule_ComputationInputsKey = "BMN_BM_computation_inputs_key"
