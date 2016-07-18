@@ -29,6 +29,7 @@ enum DataEntryCellTypes: String { //REGISTER each new enum type w/ TV in DataEnt
                 } else { //less than 2 options (return only base # of levels)
                     numberOfLevels = FreeformDataEntryCell.numberOfLevels
                 }
+                print("Options = \(numberOfOptions). Number of levels = \(numberOfLevels).")
             }
         case .Picker:
             numberOfLevels = DataEntryCellWithPicker.numberOfLevels

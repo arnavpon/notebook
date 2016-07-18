@@ -118,7 +118,7 @@ class ExerciseModule: Module {
                         case .Cardio: //need fields for time, distance, & calories
                             FreeformCell_configurationObject!.append(("Time", ProtectedFreeformTypes.Timing, nil, 11, nil, "HH:MM:SS.ms")) //time cell
                             FreeformCell_configurationObject!.append(("miles", ProtectedFreeformTypes.Decimal, nil, 4, (0, 99), nil)) //distance cell
-                            FreeformCell_configurationObject!.append(("kiloCalories", ProtectedFreeformTypes.Decimal, nil, 6, (0, 1999), nil)) //calories cell
+                            FreeformCell_configurationObject!.append(("kCal", ProtectedFreeformTypes.Decimal, nil, 6, (0, 1999), nil)) //calories cell
                         }
                     }
                     self.cellPrompt = "Fill in the fields after completing each set:" //mainLbl for cell
@@ -213,6 +213,13 @@ class ExerciseModule: Module {
             default:
                 return nil
             }
+        }
+        return nil
+    }
+    
+    override var cellHeightUserInfo: [String : AnyObject]? { //provides custom height info -> DEVC
+        if let configObject = FreeformCell_configurationObject {
+            return [BMN_DataEntry_FreeformCell_NumberOfViewsKey: configObject.count]
         }
         return nil
     }
