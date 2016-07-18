@@ -109,8 +109,21 @@ class ExerciseModule: Module {
                 self.exercises = dict[BMN_ExerciseModule_WorkoutExercisesKey] as? [[String: AnyObject]]
                 
                 self.FreeformCell_configurationObject = [] //initialize
-                FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Decimal, nil, 6, (0, 999), nil)) //for WeightTraining, ...
-                self.cellPrompt = "Fill in after completing exercise:" //mainLbl for cell
+                if let first = exercises?.last { //**
+                    if let exerciseTypeRaw = first["type"] as? Int, exerciseType = ExerciseTypes(rawValue: exerciseTypeRaw) {
+                        switch exerciseType {
+                        case .WeightTraining: //need fields for weight lifted & # of reps
+                            FreeformCell_configurationObject!.append(("lbs.", ProtectedFreeformTypes.Decimal, nil, 6, (0, 999), nil)) //weight cell
+                            FreeformCell_configurationObject!.append(("Reps", ProtectedFreeformTypes.Int, nil, 2, (0, 99), nil)) //# of reps cell
+                        case .Cardio: //need fields for time, distance, & calories
+                            FreeformCell_configurationObject!.append(("Time", ProtectedFreeformTypes.Timing, nil, 11, nil, "HH:MM:SS.ms")) //time cell
+                            FreeformCell_configurationObject!.append(("miles", ProtectedFreeformTypes.Decimal, nil, 4, (0, 99), nil)) //distance cell
+                            FreeformCell_configurationObject!.append(("kiloCalories", ProtectedFreeformTypes.Decimal, nil, 6, (0, 1999), nil)) //calories cell
+                        }
+                    }
+                    self.cellPrompt = "Fill in the fields after completing each set:" //mainLbl for cell
+                    self.FreeformCell_labelBeforeField = false //lbl comes AFTER field
+                }
             case .Behavior_BeforeAndAfter:
                 break
             }
@@ -149,7 +162,6 @@ class ExerciseModule: Module {
     }
 
     override func matchConfigurationItemsToProperties(configurationData: [String : AnyObject]) -> (Bool, String?, [String]?) {
-        //(1) Takes as INPUT the data that was entered into each config TV cell. (2) Given the variableType, matches configuration data -> properties in the Module object by accessing specific configuration cell identifiers (defined in 'HelperFx' > 'Dictionary Keys').
         if let type = variableType {
             switch type { //only needed for sections that require configuration
             case .Behavior_Workout:
