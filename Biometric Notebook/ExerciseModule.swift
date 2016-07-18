@@ -135,7 +135,7 @@ class ExerciseModule: Module {
                 //2 config cells are needed (day of week + workout configuration):
                 let dayOptions = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
                 array.append((ConfigurationOptionCellTypes.SelectFromDropdown, [BMN_Configuration_CellDescriptorKey: BMN_ExerciseModule_WorkoutDayOfWeekID, BMN_LEVELS_CellIsOptionalKey: true, BMN_LEVELS_MainLabelKey: "Assign this workout to a specific day of the week (optional):", BMN_SelectFromDropdown_OptionsKey: dayOptions])) //cell to set day of week
-                array.append((ConfigurationOptionCellTypes.ExM_Workout, [BMN_Configuration_CellDescriptorKey: BMN_ExerciseModule_WorkoutExercisesID, BMN_LEVELS_MainLabelKey: "Add individual exercises to your workout in chronologic order.:"])) //cell to add exercises
+                array.append((ConfigurationOptionCellTypes.ExM_Workout, [BMN_Configuration_CellDescriptorKey: BMN_ExerciseModule_WorkoutExercisesID, BMN_LEVELS_MainLabelKey: "Add individual exercises to your workout in chronologic order:"])) //cell to add exercises
                 configurationOptionsLayoutObject = array
                 
             case .Behavior_BeforeAndAfter:
@@ -157,6 +157,9 @@ class ExerciseModule: Module {
                 self.dayOfWeek = configurationData[BMN_ExerciseModule_WorkoutDayOfWeekID] as? String
                 if let exerciseList = configurationData[BMN_ExerciseModule_WorkoutExercisesID] as? [[String: AnyObject]] {
                     print("\(exerciseList.count) exercises were added to the workout.")
+                    for item in exerciseList {
+                        print("NAME = \(item["name"]). SETS = \(item["sets"]).")
+                    }
                     self.exercises = exerciseList
                     return (true, nil, nil)
                 }

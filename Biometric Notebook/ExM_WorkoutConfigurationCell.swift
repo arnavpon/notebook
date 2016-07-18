@@ -54,8 +54,7 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
         exercisesTableView.delegate = self
         exercisesTableView.dataSource = self
         exercisesTableView.scrollEnabled = false //block scrolling
-        exercisesTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "cell")
-//        exercisesTableView.registerClass(ExerciseTableViewCell.self, forCellReuseIdentifier: NSStringFromClass(ExerciseTableViewCell))
+        exercisesTableView.registerClass(ExerciseTableViewCell.self, forCellReuseIdentifier: NSStringFromClass(ExerciseTableViewCell))
         
         //Register for notification:
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.popupViewActionWasTriggered(_:)), name: BMN_Notification_PopupViewActionWasTriggered, object: self.popupView)
@@ -86,28 +85,14 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExerciseTableViewCell)) as! ExerciseTableViewCell
-        let cell = tableView.dequeueReusableCellWithIdentifier("cell")!
+        let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExerciseTableViewCell)) as! ExerciseTableViewCell
+        print("Count = \(exercises.count)")
+        var exerciseSettings = exercises[indexPath.row]
+        print("Settings: \(exerciseSettings["name"]).")
         let count = indexPath.row + 1
-        let exerciseSettings = exercises[indexPath.row]
-        if let name = exerciseSettings["name"] as? String, typeRaw = exerciseSettings["type"] as? Int, type = ExerciseTypes(rawValue: typeRaw) {
-            let length = name.characters.count
-            var truncatedName = name
-            if (length > 15) {
-                truncatedName = (name as NSString).substringToIndex(15) + "..." //shorten name to fit
-            }
-            var typeIndicator: String
-            switch type {
-            case .WeightTraining:
-                typeIndicator = "[Weight]"
-                if let sets = exerciseSettings["sets"] as? Int {
-                    typeIndicator += " <\(sets) Sets>"
-                }
-            case .Cardio:
-                typeIndicator = "[Cardio]"
-            }
-            cell.textLabel?.text = "\(count).  \(truncatedName)  \(typeIndicator)"
-        }
+        exerciseSettings.updateValue(count, forKey: "count") //add count -> dataSource
+        cell.dataSource = exerciseSettings //set dataSource
+        cell.linkedCell = self //link to parent cell
         cell.backgroundColor = defaultBackgroundColor
         return cell
     }
@@ -122,6 +107,7 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
     }
     
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+        print("Deleting at index: \(indexPath.row).")
         exercises.removeAtIndex(indexPath.row) //update data source
         tableView.reloadData()
         
@@ -191,6 +177,34 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
     
     // MARK: - Data Reporting
     
+    func updateDataSourceAtIndex(index: Int, withValue value: (String, String?)) { //updates dataSource w/ (name, sets); returns True (change allowed) or False (not allowed)
+        print("Updating key [name] with value [\(value.0)] & sets w/ [\(value.1)] @ index \(index).")
+        if let typeRaw = exercises[index]["type"] as? Int, type = ExerciseTypes(rawValue: typeRaw) {
+            self.exercises[index].updateValue(value.0, forKey: "name")
+            switch type {
+            case .WeightTraining:
+                if let setsRaw = value.1 {
+                    if !(setsRaw.isEmpty) { //NOT empty
+                        if let sets = Int(setsRaw) {
+                            self.exercises[index].updateValue(sets, forKey: "sets")
+                        }
+                    } else { //empty value -> update w/ 0 value
+                        self.exercises[index].updateValue(0, forKey: "sets")
+                    }
+                }
+            case .Cardio: //no set value to update
+                break
+            }
+        }
+        if let name = exercises[index]["name"] as? String, sets = exercises[index]["sets"] as? Int {
+            if !(name.isEmpty) && (sets > 0) { //BOTH values are set
+                configureCompletionIndicator(true)
+                return
+            }
+        }
+        configureCompletionIndicator(false) //NOT complete -> false
+    }
+    
     override var configurationReportObject: AnyObject? { //checks the currently highlighted button & reports TRUE for 'yes', FALSE for 'no'
         //*REPORT TYPE: [[String: AnyObject]]*
         return exercises
@@ -198,217 +212,114 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
     
 }
 
-class ExerciseTableViewCell: UITableViewCell { //cell to display Exercise
+class ExerciseTableViewCell: UITableViewCell, UITextFieldDelegate { //cell to display Exercise
     
+    var fireCounter: Int = 0 //blocks dataSource firing > 1x
+    var linkedCell: ExM_WorkoutConfigurationCell?
     var dataSource: [String: AnyObject]? { //contains cell settings
         didSet {
-            if let source = dataSource {
-                setNeedsLayout()
+            if let source = dataSource, count = source["count"] as? Int, name = source["name"] as? String, typeRaw = source["type"] as? Int, type = ExerciseTypes(rawValue: typeRaw) {
+                countLabel.text = "\(count)."
+                nameTextField.text = name
+                switch type {
+                case .WeightTraining:
+                    exerciseTypeLabel.text = "[W]"
+                case .Cardio:
+                    exerciseTypeLabel.text = "[C]"
+                }
+                if let sets = source["sets"] as? Int { //check for # of sets
+                    settingsTextField.text = "\(sets)"
+                    settingsLabel.text = "Sets"
+                } else {
+                    settingsTextField.text = nil
+                    settingsLabel.text = nil
+                }
+                setNeedsLayout() //update visuals
             }
         }
     }
-    var name: String?
-    var type: ExerciseTypes?
     
-    let nameLabel = UILabel(frame: CGRectZero)
+    let countLabel = UILabel(frame: CGRectZero)
+    let nameTextField = UITextField(frame: CGRectZero)
     let exerciseTypeLabel = UILabel(frame: CGRectZero)
+    let settingsTextField = UITextField(frame: CGRectZero)
+    let settingsLabel = UILabel(frame: CGRectZero)
     
     // MARK - Initializers
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        self.addSubview(countLabel)
+        self.addSubview(nameTextField)
+        self.addSubview(exerciseTypeLabel)
+        self.addSubview(settingsTextField)
+        self.addSubview(settingsLabel)
+        
+        countLabel.textAlignment = .Center
+        nameTextField.delegate = self
+        nameTextField.textColor = UIColor.redColor()
+        nameTextField.borderStyle = .RoundedRect
+        
+        settingsTextField.delegate = self
+        settingsTextField.keyboardType = .NumberPad
+        settingsTextField.textAlignment = .Center
+        settingsTextField.borderStyle = .RoundedRect
+        settingsTextField.textColor = UIColor.redColor()
+        settingsLabel.textAlignment = .Center
+        
+        exerciseTypeLabel.font = UIFont.boldSystemFontOfSize(15)
+        exerciseTypeLabel.textColor = UIColor.blueColor()
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // MARK: - Visual Layout
-    
-    override func setNeedsLayout() {
-        //
-    }
-    
-}
-
-enum PopupTypes {
-    case AorB //select from 2 options
-    case StringInput //textField w/ String input
-    case IntegerInput //textField w/ Int input
-}
-
-class PopupView: UIView, UITextFieldDelegate {
-    
-    let type: PopupTypes
-    let topLabel = UILabel(frame: CGRectZero)
-    let mainView = UIView(frame: CGRectZero)
-    
-    //AorB Views:
-    var aButton: UIButton?
-    var bButton: UIButton?
-    var centerLabel: UILabel?
-    var selectedButton: String? //indicates selection
-    
-    //Integer/String Input Views:
-    var inputTextField: UITextField?
-    var okButton: UIButton?
-    
-    // MARK: - Initializers
-    
-    init(frame: CGRect, type: PopupTypes, settings: [String: String]) { //init w/ objectType & settings
-        self.type = type
-        super.init(frame: frame)
-        
-        self.clipsToBounds = true
-        self.backgroundColor = UIColor.whiteColor()
-        self.addSubview(topLabel)
-        topLabel.backgroundColor = UIColor(red: 0, green: 55/255, blue: 235/255, alpha: 1)
-        topLabel.textColor = UIColor.whiteColor()
-        topLabel.text = settings["prompt"]
-        topLabel.textAlignment = .Center
-        
-        switch type { //instantiate views specific to type
-        case .AorB:
-            aButton = UIButton(frame: CGRectZero)
-            aButton?.backgroundColor = UIColor.redColor()
-            aButton?.setTitle(settings["aButtonTitle"], forState: .Normal)
-            aButton?.addTarget(self, action: #selector(self.buttonAorBClick(_:)), forControlEvents: .TouchUpInside)
-            
-            bButton = UIButton(frame: CGRectZero)
-            bButton?.backgroundColor = UIColor.greenColor()
-            bButton?.setTitle(settings["bButtonTitle"], forState: .Normal)
-            bButton?.addTarget(self, action: #selector(self.buttonAorBClick(_:)), forControlEvents: .TouchUpInside)
-            
-            centerLabel = UILabel(frame: CGRectZero)
-            centerLabel?.text = "OR"
-            centerLabel?.textAlignment = .Center
-            centerLabel?.font = UIFont.boldSystemFontOfSize(18)
-            
-            self.addSubview(aButton!)
-            self.addSubview(bButton!)
-            self.addSubview(centerLabel!)
-        case .IntegerInput, .StringInput:
-            inputTextField = UITextField(frame: CGRectZero)
-            inputTextField?.textAlignment = .Center
-            inputTextField?.borderStyle = .RoundedRect
-            inputTextField?.delegate = self
-            
-            okButton = UIButton(frame: CGRectZero)
-            okButton?.backgroundColor = UIColor.lightGrayColor()
-            okButton?.setTitle("OK", forState: .Normal)
-            okButton?.addTarget(self, action: #selector(self.okButtonClick(_:)), forControlEvents: .TouchUpInside)
-            
-            if (type == .IntegerInput) { //set keyboard type for Int input
-                inputTextField?.keyboardType = .NumberPad
-            }
-            self.addSubview(inputTextField!)
-            self.addSubview(okButton!)
-        }
-        setNeedsLayout()
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-//    deinit {
-//        print("deinit")
-//        for subview in self.subviews {
-//            subview.removeFromSuperview()
-//        }
-//    }
     
     // MARK: - Visual Layout
     
     override func setNeedsLayout() {
         super.setNeedsLayout()
-        //(1) Draw topLabel:
-        let topLabelHeight: CGFloat = 25
-        topLabel.frame = CGRectMake(0, 0, self.frame.width, topLabelHeight)
-        
-        //(2) Draw mainView:
-        mainView.frame = CGRectMake(0, topLabelHeight, self.frame.width, (self.frame.height - topLabelHeight))
-        switch self.type {
-        case .AorB:
-            configureAorBVisuals()
-        case .IntegerInput, .StringInput:
-            configureTextFieldInputVisuals()
+        var showSettings: Bool = false
+        if (settingsTextField.text != "") {
+            showSettings = true
         }
-    }
-    
-    private func configureAorBVisuals() {
-        let verticalSpacer: CGFloat = 12
-        let horizontalSpacer: CGFloat = 10
-        let labelWidth: CGFloat = 30 //constant
-        let totalHeight = self.frame.height - topLabel.frame.height
-        let viewHeight: CGFloat = totalHeight - 2 * verticalSpacer //dynamic
-        let buttonWidth = (self.frame.width - labelWidth - 4 * horizontalSpacer)/2 //dynamic
-        aButton?.frame = CGRectMake(horizontalSpacer, (topLabel.frame.height + verticalSpacer), buttonWidth, viewHeight)
-        centerLabel?.frame = CGRectMake((buttonWidth + 2 * horizontalSpacer), (topLabel.frame.height + verticalSpacer), labelWidth, viewHeight)
-        bButton?.frame = CGRectMake((buttonWidth + labelWidth + 3 * horizontalSpacer), (topLabel.frame.height + verticalSpacer), buttonWidth, viewHeight)
-    }
-    
-    private func configureTextFieldInputVisuals() {
-        let verticalSpacer: CGFloat = 5
-        let totalWidth = topLabel.frame.width
-        let widthMultiplier: CGFloat = 0.70
-        let textFieldHeight: CGFloat = 35
-        inputTextField?.frame = CGRectMake((totalWidth * (1 - widthMultiplier)/2), (topLabel.frame.height + verticalSpacer), totalWidth * widthMultiplier, textFieldHeight)
-        okButton?.frame = CGRectMake((totalWidth * (1 - widthMultiplier/2)/2), (topLabel.frame.height + textFieldHeight + 2 * verticalSpacer), totalWidth * widthMultiplier/2, (self.frame.height - topLabel.frame.height - 3 * verticalSpacer - textFieldHeight))
-        inputTextField?.becomeFirstResponder() //set to 1st-R
+        //Arrange labels in order - count - name - type - settingsTF(?) - settingsLbl(?):
+        let horizontalSpacer: CGFloat = 3
+        let countLblWidth: CGFloat = 20
+        let typeLblWidth: CGFloat = 27
+        let settingsTFWidth: CGFloat = 30
+        let remainder = self.frame.width - countLblWidth - typeLblWidth - settingsTFWidth - horizontalSpacer * 4
+        exerciseTypeLabel.frame = CGRectMake(horizontalSpacer, 0, typeLblWidth, self.frame.height)
+        countLabel.frame = CGRectMake((exerciseTypeLabel.frame.maxX + horizontalSpacer), 0, countLblWidth, self.frame.height)
+        if (showSettings) { //show settings lbl & TF
+            nameTextField.frame = CGRectMake((countLabel.frame.maxX + horizontalSpacer), 0, (remainder * 0.65), self.frame.height)
+            settingsTextField.frame = CGRectMake((nameTextField.frame.maxX + horizontalSpacer), 0, settingsTFWidth, self.frame.height)
+            settingsLabel.frame = CGRectMake(settingsTextField.frame.maxX, 0, (self.frame.width - settingsTextField.frame.maxX), self.frame.height)
+        } else { //hide settings lbl & TF
+            nameTextField.frame = CGRectMake((countLabel.frame.maxX + horizontalSpacer), 0, (remainder + horizontalSpacer + settingsTFWidth), self.frame.height) //nameTF takes up 100% of remaining width
+            settingsTextField.frame = CGRectZero
+            settingsLabel.frame = CGRectZero
+        }
     }
     
     // MARK: - Text Field
     
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-        if (self.type == .IntegerInput) {
-            if let text = textField.text {
-                if let number = Int((text as NSString).stringByReplacingCharactersInRange(range, withString: string)) {
-                    if !(number > 0) {
-                        return false
-                    }
-                } else {
-                    return false
+        if let name = nameTextField.text {
+            var returnTuple: (String, String?) = (name, settingsTextField.text) //name, sets
+            if let text = textField.text, source = dataSource, count = source["count"] as? Int {
+                let finalText = (text as NSString).stringByReplacingCharactersInRange(range, withString: string).stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
+                if (textField == nameTextField) { //update 'name'
+                    returnTuple.0 = finalText
+                    self.linkedCell?.updateDataSourceAtIndex((count - 1), withValue: returnTuple)
+                } else if (textField == settingsTextField) { //update 'sets'
+                    returnTuple.1 = finalText
+                    self.linkedCell?.updateDataSourceAtIndex((count - 1), withValue: returnTuple)
                 }
             }
         }
         return true
-    }
-    
-    // MARK: - Button Actions
-    
-    @IBAction func okButtonClick(sender: UIButton) {
-        if let text = inputTextField?.text {
-            let trimmedText = text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-            if (trimmedText != "") {
-                fireNotification() //terminate view (send notification -> parent)
-            }
-        }
-    }
-    
-    @IBAction func buttonAorBClick(sender: UIButton) {
-        selectedButton = sender.titleLabel?.text
-        fireNotification() //terminate view (send notification)
-    }
-    
-    private func fireNotification() {
-        let notification = NSNotification(name: BMN_Notification_PopupViewActionWasTriggered, object: self) //only parent can see notification
-        NSNotificationCenter.defaultCenter().postNotification(notification)
-    }
-    
-    // MARK: - Data Reporting
-    
-    func getDataForPopupView() -> AnyObject? {
-        switch self.type {
-        case .AorB:
-            return selectedButton //send back which btn was clicked
-        case .IntegerInput, .StringInput:
-            if let text = inputTextField?.text {
-                return text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-            } else {
-                return nil
-            }
-        }
     }
     
 }

@@ -85,6 +85,7 @@
 		B1C623FC1C619C72006DDD13 /* AttachModuleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */; };
 		B1CCF1BF1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */; };
 		B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */; };
+		B1CFF7F41D3C2443000A782E /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CFF7F31D3C2443000A782E /* PopupView.swift */; };
 		B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */; };
 		B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B51C3F255A00C9438F /* FoodIntakeModule.swift */; };
 		B1D0B2B81C3F25BC00C9438F /* ExerciseModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */; };
@@ -257,6 +258,7 @@
 		B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleTableViewCell.swift; sourceTree = "<group>"; };
 		B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ExampleConfigurationCell.swift; path = ../../ExampleConfigurationCell.swift; sourceTree = "<group>"; };
 		B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricModule.swift; sourceTree = "<group>"; };
+		B1CFF7F31D3C2443000A782E /* PopupView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PopupView.swift; path = ../../PopupView.swift; sourceTree = "<group>"; };
 		B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomModule.swift; sourceTree = "<group>"; };
 		B1D0B2B51C3F255A00C9438F /* FoodIntakeModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodIntakeModule.swift; sourceTree = "<group>"; };
 		B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExerciseModule.swift; sourceTree = "<group>"; };
@@ -660,6 +662,7 @@
 				B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */,
 				B1D51C5D1CB2A19C00DED6B2 /* LevelsFrameworkCell.swift */,
 				B1D560AB1CB458D700F6A7AC /* CellWithPlusButton.swift */,
+				B1CFF7F31D3C2443000A782E /* PopupView.swift */,
 			);
 			name = "General Supplements";
 			sourceTree = "<group>";
@@ -902,6 +905,7 @@
 				B1F6F3BF1C518BEE001802A7 /* LoginViewController.swift in Sources */,
 				B1BC886F1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld in Sources */,
 				B1B681D81CA9E99C00D9CA71 /* DictionaryKeys.swift in Sources */,
+				B1CFF7F41D3C2443000A782E /* PopupView.swift in Sources */,
 				B1D868D61C3F58810026334B /* Modules.swift in Sources */,
 				B192626A1D010EE40093590E /* NutritionService.swift in Sources */,
 				B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */,
