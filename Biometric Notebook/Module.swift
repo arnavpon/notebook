@@ -19,6 +19,9 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     internal let variableName: String //the name given to the variable attached to this module
     internal var moduleTitle: String = "" //overwrite w/ <> Module enum raw value in each class
     
+    var reportCount: Int? //total # of times object must report to be complete (default [nil] = 1x)**
+    var currentLocationInFlow: Int? //currently reporting item**
+    
     var moduleBlocker: Module_DynamicConfigurationFramework? { //class that handles variableType filtering
         didSet { //after setting the blocker, assign the behaviors & computations
             self.behaviors = setBehaviors()

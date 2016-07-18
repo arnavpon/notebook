@@ -37,6 +37,7 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
         }
     }
     private let defaultBackgroundColor = UIColor(red: 248/255, green: 1, blue: 235/255, alpha: 1)
+    private var heartRateSource: String? //stores HR source for workout w/ multiple Cardio exercises
     
     // MARK: - Initializers
     
@@ -74,6 +75,11 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
         exercisesTableView.frame = getViewFrameForLevel(viewLevel: (2, HorizontalLevels.FullLevel, count))
     }
     
+    private func adjustHeightForCell(numberOfLevels: Int) { //adjusts # of levels for cell
+        let notification = NSNotification(name: BMN_Notification_AdjustHeightForConfigCell, object: nil, userInfo: [BMN_AdjustHeightForConfigCell_UniqueIDKey: self.cellDescriptor, BMN_AdjustHeightForConfigCell_NumberOfLevelsKey: numberOfLevels])
+        NSNotificationCenter.defaultCenter().postNotification(notification)
+    }
+    
     // MARK: - Table View
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -98,8 +104,7 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
     }
     
     func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        //enable editing of the settings (bring up popup view)
-        return false //block selection
+        return false //block cell selection
     }
     
     func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle {
@@ -107,26 +112,20 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
     }
     
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        print("Deleting at index: \(indexPath.row).")
         exercises.removeAtIndex(indexPath.row) //update data source
         tableView.reloadData()
-        
-        //Update cell height:
-        let notification = NSNotification(name: BMN_Notification_AdjustHeightForConfigCell, object: nil, userInfo: [BMN_AdjustHeightForConfigCell_UniqueIDKey: self.cellDescriptor, BMN_AdjustHeightForConfigCell_NumberOfLevelsKey: (exercises.count + 1)]) //# of levels = tableView cells + 1
-        NSNotificationCenter.defaultCenter().postNotification(notification)
+        adjustHeightForCell((exercises.count + 1)) //update cell height
     }
     
     // MARK: - Button Actions
     
     var formingObject: (String, Int?, AnyObject?)? //sequentially built exercise object
     
-    @IBAction func addExerciseButtonClick(sender: UIButton) { //configure pop-up to add exercise
-        //(1) Configure popup to enter exercise name:
+    @IBAction func addExerciseButtonClick(sender: UIButton) { //configure pop-up to add exercise name
         let popupLevels = 3 //# of levels for popupView
         let popupFrame = CGRectMake(0, 0, insetBackgroundView.frame.width, (CGFloat(popupLevels) * 40 + BMN_DefaultBottomSpacer))
         self.popupView = PopupView(frame: popupFrame, type: .StringInput, settings: ["prompt": "Enter the exercise name"])
-        let notification = NSNotification(name: BMN_Notification_AdjustHeightForConfigCell, object: nil, userInfo: [BMN_AdjustHeightForConfigCell_UniqueIDKey: self.cellDescriptor, BMN_AdjustHeightForConfigCell_NumberOfLevelsKey: popupLevels]) //when popup is active, constrain levels
-        NSNotificationCenter.defaultCenter().postNotification(notification)
+        adjustHeightForCell(popupLevels) //constrain height of cell when popup is visible
     }
     
     func popupViewActionWasTriggered(notification: NSNotification) {
@@ -144,14 +143,12 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
                     case .Cardio:
                         if let hrSource = output as? String {
                             exercises.append(["name": object.0, "type": rawType, "hrSource": hrSource])
+                            self.heartRateSource = hrSource //save source for future Cardio vars
                         }
                     }
-                    formingObject = nil //clear for next set
+                    formingObject = nil //clear for next run
                     exercisesTableView.reloadData()
-
-                    //Update cell height:
-                    let notification = NSNotification(name: BMN_Notification_AdjustHeightForConfigCell, object: nil, userInfo: [BMN_AdjustHeightForConfigCell_UniqueIDKey: self.cellDescriptor, BMN_AdjustHeightForConfigCell_NumberOfLevelsKey: (exercises.count + 1)]) //# of levels = tableView cells + 1
-                    NSNotificationCenter.defaultCenter().postNotification(notification)
+                    adjustHeightForCell((exercises.count + 1)) //update TV cell height
                 } else { //(2) incoming exercise TYPE
                     if let rawType = output as? String {
                         let type: ExerciseTypes
@@ -161,8 +158,15 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
                             self.popupView = PopupView(frame: popupFrame, type: .IntegerInput, settings: ["prompt": "Enter the number of sets"]) //get # of sets
                         } else if (rawType == "Cardio") {
                             type = .Cardio
-                            formingObject = (object.0, type.rawValue, nil)
-                            self.popupView = PopupView(frame: popupFrame, type: .AorB, settings: ["prompt": "Choose a Heart Rate Source", "aButtonTitle": "Apple Watch", "bButtonTitle": "FitBit"]) //get heart rate source
+                            if let hrSource = heartRateSource { //HR source already exists
+                                exercises.append(["name": object.0, "type": type.rawValue, "hrSource": hrSource]) //add completed item -> exercises
+                                formingObject = nil //clear for next run
+                                exercisesTableView.reloadData() //update visuals
+                                adjustHeightForCell((exercises.count + 1))
+                            } else { //source does NOT exist - configure popup
+                                formingObject = (object.0, type.rawValue, nil)
+                                self.popupView = PopupView(frame: popupFrame, type: .AorB, settings: ["prompt": "Choose a Heart Rate Source", "aButtonTitle": "Apple Watch", "bButtonTitle": "FitBit"]) //get heart rate source
+                            }
                         }
                     }
                 }
@@ -211,6 +215,7 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
     }
     
 }
+
 
 class ExerciseTableViewCell: UITableViewCell, UITextFieldDelegate { //cell to display Exercise
     

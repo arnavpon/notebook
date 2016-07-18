@@ -26,13 +26,43 @@ class Group: NSManagedObject {
         var manualEntryVariablesArray: [Module] = [] //initialize array for manual vars (for VC)
         reportCount = 0 //reset count
         let variableDict: [String: [String: AnyObject]]
-        if (self.project.temporaryStorageObject == nil) { //no temp storage => report BEFORE ACTION VARS
+        
+        //**Compare current location to total. If total is nil (default), . 
+        //Stop using tempStorageObject as indicator? If nil - automatically pull 1st item & set locationInFlow to 1. Each time data is reported, increase locationInFlow by 1 until final dataObject is constructed (when total == locationInFlow; if nil, LIF = 2 is end). If not nil - check what current locationInFlow is & adjust accordingly. LIF must be stored @ Project level in tempStorageDict.
+        //Smoothing - what happens when some variables in a given reporting section report only 1x whereas others (exerciseVars) report multiple times before being complete? Proposal - all variables show up in beforeVars, but pressing Done button moves you forward in the flow until EVERY object in the reporting section is @ the last #. Only then does pressing done either complete the dict or take you to AFTER ACTION vars. The system needs to store the intermediately reported objects each time Done btn is pressed so that the final object can be created. We need to store the LIF & the previously reported data in a temporary object.
+        //For each module var, define reportCount(?), default is nil (reports only 1x). If reportCount does not match LIF, then pressing Done will only store the temporary item.
+        
+        //-when project is created, check how many cycles are required for each variable in project to be reported. if there are differences, provide interface for user to select which aspect of the project is being reported @ the given moment (allow user to select variable to report). When does the project switch -> AfterAction vars? Project could remove variables from potential selection after entire measurement cycle is completed for that variable, leaving only the remaining variables behind.
+        
+        //Scenarios for abnormal measurement cycles - (1) correlation project where we want to analyze impact foodIntake has on ability to lift (contains combination of foodIntake var + workout var). How do we set up correlation between 1 set of foodIntake & a set of workouts for every day of the week? (2) project w/ all workouts for a week where we want to add data to each workout depending on day of week. (3) project w/ only a single workout.
+        //(1) we could break this project down by day - from 0:00 - 23:59, we could aggregate all food information & workout information for the day. When the next day starts, we begin a new measurement cycle.
+        //How to deal w/ outcome vars containing workouts???
+        //How do we incorporate vars into other vars - e.g. using a averageOverAction HR variable to gather HR during workout tracking. If cardio workout is only 1 part of the overall workout, how do we match the HR during the workout -> the appropriate variable??
+        var locationInFlow: Int = 1
+        if let tempStorageObject = self.project.temporaryStorageObject { //obj exists
+            print("[reconstructProjFromCD] Temp object is NOT nil! Checking location in flow...")
+            if let location = tempStorageObject["locationInFlow"] as? Int { //store an indicator in the tempObject to indicate that beforeVars need to continue reporting; remove indicator when all beforeVars are @ last locationInFLow
+                locationInFlow = location
+            }
+            if let indicator = tempStorageObject["indicator"] as? Bool { //indicator is set during dataReporting time - if there are more reports to go for a var, indicator will be set until all items have reported.
+                print("Indicator is present...configuring BAV")
+                variableDict = self.beforeActionVariables
+            } else {
+                print("Configuring AFTER ACTION vars...")
+                variableDict = self.afterActionVariables
+            }
+        } else { //object is NIL - use BEFORE ACTION vars
             print("[reconstructProjFromCD] Temp object is nil! Configuring BEFORE action vars...")
             variableDict = self.beforeActionVariables
-        } else { //temp storage obj exists => report AFTER ACTION VARS
-            print("[reconstructProjFromCD] Temp object is NOT nil! Configuring AFTER action vars...")
-            variableDict = self.afterActionVariables
         }
+        
+//        if (self.project.temporaryStorageObject == nil) { //no temp storage => report BEFORE ACTION VARS
+//            print("[reconstructProjFromCD] Temp object is nil! Configuring BEFORE action vars...")
+//            variableDict = self.beforeActionVariables
+//        } else { //temp storage obj exists => report AFTER ACTION VARS
+//            print("[reconstructProjFromCD] Temp object is NOT nil! Configuring AFTER action vars...")
+//            variableDict = self.afterActionVariables
+//        }
         
         //Check the Module obj for the reportType before adding var -> array:
         for (variable, dict) in variableDict { //'dict' = configurationDict for variable

@@ -109,15 +109,33 @@ class ExerciseModule: Module {
                 self.exercises = dict[BMN_ExerciseModule_WorkoutExercisesKey] as? [[String: AnyObject]]
                 
                 self.FreeformCell_configurationObject = [] //initialize
-                if let first = exercises?.last { //**
-                    if let exerciseTypeRaw = first["type"] as? Int, exerciseType = ExerciseTypes(rawValue: exerciseTypeRaw) {
+                //Based on current location in flow (starting @ 1 & incrementing for each set that is reported), find the correct item to initialize with:
+                if let location = currentLocationInFlow, storedExercises = exercises {
+                    var runningTotal: Int = 0
+                    var index: Int = 0 //index in exercises of currently reporting item
+                    for exercise in storedExercises {
+                        if let sets = exercise["sets"] as? Int { //sets exist
+                            runningTotal += sets
+                        } else { //no sets (cardio exercise)
+                            runningTotal += 1
+                        }
+                        
+                        print("Location = \(location). Total = \(runningTotal).")
+                        if (location <= runningTotal) { //loop until total exceeds location
+                            break
+                        }
+                        index += 1 //increment index
+                    }
+                    
+                    let exercise = storedExercises[index] //obtain item for reporting
+                    if let exerciseTypeRaw = exercise["type"] as? Int, exerciseType = ExerciseTypes(rawValue: exerciseTypeRaw) {
                         switch exerciseType {
                         case .WeightTraining: //need fields for weight lifted & # of reps
                             FreeformCell_configurationObject!.append(("lbs.", ProtectedFreeformTypes.Decimal, nil, 6, (0, 999), nil)) //weight cell
                             FreeformCell_configurationObject!.append(("Reps", ProtectedFreeformTypes.Int, nil, 2, (0, 99), nil)) //# of reps cell
                         case .Cardio: //need fields for time, distance, & calories
                             FreeformCell_configurationObject!.append(("Time", ProtectedFreeformTypes.Timing, nil, 11, nil, "HH:MM:SS.ms")) //time cell
-                            FreeformCell_configurationObject!.append(("miles", ProtectedFreeformTypes.Decimal, nil, 4, (0, 99), nil)) //distance cell
+                            FreeformCell_configurationObject!.append(("miles", ProtectedFreeformTypes.Decimal, nil, 5, (0, 99), nil)) //distance cell
                             FreeformCell_configurationObject!.append(("kCal", ProtectedFreeformTypes.Decimal, nil, 6, (0, 1999), nil)) //calories cell
                         }
                     }
