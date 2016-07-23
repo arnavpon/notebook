@@ -27,8 +27,6 @@ class DatabaseConnection: DataReportingErrorProtocol {
     // MARK: - Initializers
     
     init?() {
-        print("Creating Cloud representation for project...")
-            
         self.ip_last = NSUserDefaults.standardUserDefaults().integerForKey(IP_VALUE) //**TEMP
             
         if let email = NSUserDefaults.standardUserDefaults().stringForKey(EMAIL_KEY) {
@@ -261,6 +259,13 @@ class DatabaseConnection: DataReportingErrorProtocol {
             }
             saveManagedObjectContext() //save context after obtaining new items
         }
+    }
+    
+    // MARK: - Project Update Logic
+    
+    func updateTableForProject(projectTitle: String, edits: [(String, Bool)]) { //**
+        print("Updating existing table setup...")
+        //parse edits input to create the update command
     }
     
     // MARK: - Data Reporting Logic

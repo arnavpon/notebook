@@ -36,7 +36,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     @IBOutlet weak var outcomeVariablesTVButton: UIButton!
     
     let userDefaults = NSUserDefaults.standardUserDefaults() //update defaults after using tutorial
-    var showTutorialMode: Bool = true //set by CreateProjectVC, determines whether tutorial is shown
+    var showTutorialMode: Bool = false //set in VDL, determines whether tutorial is shown
     var tutorialIsOn: Bool = false //indicator that tutorial is active
     var screenNumber: Int = 1 //determines what aspect of the tutorial is visible (starts @ first screen)
     var inputsTableDummyData: [String] = ["Input Variable 1", "Input Variable 2", "Input Variable 3"]
@@ -47,12 +47,13 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     var projectHypothesis: String? //hypothesis for project (obtained from NewProjectVC)
     var projectEndpoint: Endpoint? //endpoint (obtained from NewProjectVC)
     var projectType: ExperimentTypes? //type of project (IO vs. comparison/control)
+    
     var variableName: String? //the name of the variable entered by the user
     var createdVariable: Module? //the completed variable created by the user
-    var variableLocation: VariableLocations? //indicates whether createdVar goes before or afterAction
+    var variableLocation: VariableLocations? //indicates whether createdVar goes before or after Action
     var moduleBlocker = Module_DynamicConfigurationFramework() //class that handles blocking
     
-    var inputVariableRows: [Module] { //data source for rows before the 'Action'
+    private var inputVariableRows: [Module] { //data source for rows before the 'Action'
         if (projectType == .InputOutput) {
             if let inputs = inputVariablesDict[BMN_InputOutput_InputVariablesKey] {
                 return inputs
@@ -72,7 +73,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     }
     var inputVariablesDict: [String: [Module]] = [BMN_InputOutput_InputVariablesKey: [], BMN_ControlComparison_ControlKey: [], BMN_ControlComparison_ComparisonKey: []] //data for Summary
     var outcomeVariableRows: [Module] = [] //data source for rows after the 'Action'
-    var actionPickerRowArray: [String] = ["", Actions.Eat.rawValue, Actions.Sleep.rawValue, Actions.Exercise.rawValue, "Custom"]
+    private var actionPickerRowArray: [String] = ["", Actions.Eat.rawValue, Actions.Sleep.rawValue, Actions.Exercise.rawValue, "Custom"]
     var selectedAction: Action? //captures 'action' before segue
     var ccNavigationState: CCProjectNavigationState? { //indicator for Control vs. Comparison entry
         didSet {
@@ -90,6 +91,11 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         }
     }
     var ghostVariables: [String: [GhostVariable]]? //KEY = parent computation, value = [Ghost]
+    
+    var isProjectEditingFlow: Bool = false //**only true when existing vars are being EDITED
+    var projectToEdit: Project? //project to remove from CD store (pass on segue)
+    var projectEndDate: NSDate? //EDITING flow - indicates project end date
+    var edits: [(String, Bool)]? //EDIT PROJECT flow - keeps track of changes (for DB update cmd); TRUE = added, FALSE = deleted
     
     private let viewBorderWidth: CGFloat = 5
     private let viewCornerRadius: CGFloat = 20
@@ -110,16 +116,35 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         super.viewDidLoad()
         
         //Configure tutorialView:
-        if (showTutorialMode) { //dim background if descriptionView is visible
+        let userDefaults = NSUserDefaults.standardUserDefaults()
+        if let _ = userDefaults.valueForKey(SHOW_VARIABLE_SETUP_TUTORIAL) { //do NOT show tutorial
+            if (projectType == ExperimentTypes.InputOutput) { //hide tutorialView
+                configureTutorialView(false, labelText: nil, rightButtonTitle: nil)
+            } else if (projectType == ExperimentTypes.ControlComparison) {
+                if !(isProjectEditingFlow) {
+                    configureTutorialView(true, labelText: "First, let's create a control group for your project. The action and outcome measures you set here will be reused for your comparison group.", rightButtonTitle: "Let's do it!") //reveal tutorialView for CC project
+                } else { //**??editing flow - don't show card
+                    //
+                }
+                ccNavigationState = CCProjectNavigationState.Control //set 1st state
+            }
+            if let action = self.selectedAction { //action is set
+                if (action.action == .Custom) { //Custom value
+                    addActionButton.setTitle(action.customAction, forState: .Normal)
+                } else { //default action value
+                    addActionButton.setTitle(action.action.rawValue, forState: .Normal)
+                }
+                addActionButton.userInteractionEnabled = false //block changes to action
+            }
+        } else { //does NOT exist - show tutorial, dim background if descriptionView is visible
+            print("Showing tutorial...")
+            showTutorialMode = true //set indicator
             tutorialIsOn = true //start interactive tutorial (so TV will show dummy variables)
             tutorialViewLabel.font = UIFont.systemFontOfSize(16, weight: 0.2)
             setVisualsForTutorialDescription(tutorialViewIsShowing: showTutorialMode)
             inputViewTopConstraint.constant = tutorialView.frame.height + 3 //offset TV to start
-        } else if (projectType == ExperimentTypes.InputOutput) { //hide tutorialView
-            configureTutorialView(false, labelText: nil, rightButtonTitle: nil)
-        } else if (projectType == ExperimentTypes.ControlComparison) {
-            configureTutorialView(true, labelText: "First, let's create a control group for your project. The action and outcome measures you set here will be reused for your comparison group.", rightButtonTitle: "Let's do it!") //reveal tutorialView for CC project
-            ccNavigationState = CCProjectNavigationState.Control //set 1st state
+            
+            userDefaults.setBool(false, forKey: SHOW_VARIABLE_SETUP_TUTORIAL) //block firing in future
         }
         
         //Project Type-Specific Configuration:
@@ -299,6 +324,16 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 
                 //Send deleted typeName to moduleBlocker variable:
                 if let deletedVar = varToDelete, functionality = deletedVar.selectedFunctionality, loc = location {
+                    
+                    if (isProjectEditingFlow) { //**
+                        if let _ = edits {
+                            edits?.append((deletedVar.variableName, false))
+                        } else {
+                            edits = []
+                            edits?.append((deletedVar.variableName, false))
+                        }
+                    }
+                    
                     moduleBlocker.variableWasDeleted(loc, typeName: functionality)
                     if let _ = ghostVariables { //delete all ghosts associated w/ the variable
                         print("Deleting ghosts for variable: [\(deletedVar.variableName)]. Number of ghosts: \(ghostVariables![deletedVar.variableName]?.count).")
@@ -422,7 +457,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         if (showing) { //if tutorialView card is visible, dim the view
             disableMainInterface(true)
         } else { //dismiss tutorialView & start the tutorial flow
-            showTutorialMode = false //*need this!
+            showTutorialMode = false //*do not delete!*
             inputVariablesTVButton.superview?.alpha = 1
             inputVariablesTVButton.alpha = 1
             
@@ -673,8 +708,6 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         }
     }
     
-    var showDescription: Bool = false //indicates whether to show descriptionView in attachModuleVC
-    
     func addVariable(location: VariableLocations) {
         let alert = UIAlertController(title: "New Variable", message: "Type the name of the variable you wish to add. Two variables should not have the same name.", preferredStyle: .Alert)
         alert.addTextFieldWithConfigurationHandler { (let field) -> Void in
@@ -702,12 +735,6 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 }
                 if !(error) { //make sure the variable is not a duplicate
                     self.variableName = input?.capitalizedString
-                    let show = self.userDefaults.boolForKey(SHOW_ATTACH_DESCRIPTION) //check for description show key
-                    if (show) { //**key is set to true, show description
-                        self.showDescription = true
-                    } else { //key is not set (1st time going to view), show description
-                        self.showDescription = true
-                    }
                     self.variableLocation = location //set location (TV that was clicked) before segue
                     self.performSegueWithIdentifier("showAttachModule", sender: nil)
                 }
@@ -770,7 +797,6 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             inputVariablesView.layoutSubviews() //update subview frames
             
             setVisualsForTutorialDescription(tutorialViewIsShowing: false) //start tutorial
-            userDefaults.setBool(true, forKey: "SHOW_VARS_TUTORIAL") //set 'showVars' -> false to block
         } else if (projectType == ExperimentTypes.ControlComparison) {
             if (ccNavigationState == .Control) { //allow user to configure control group
                 configureTutorialView(false, labelText: nil, rightButtonTitle: nil)
@@ -781,15 +807,21 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     }
     
     @IBAction func backButtonClick(sender: AnyObject) {
-        if (projectType == .InputOutput) { //segue -> CreateProject
-            performSegueWithIdentifier("unwindToCreateProject", sender: nil)
-        } else if (projectType == .ControlComparison) {
-            if (ccNavigationState == .Control) { //segue -> CreateProject
+        if !(isProjectEditingFlow) {
+            if (projectType == .InputOutput) { //segue -> CreateProject
                 performSegueWithIdentifier("unwindToCreateProject", sender: nil)
-            } else if (ccNavigationState == .Comparison) { //show UI for 'control' group
-                ccNavigationState = .Control //go back to previous nav state
-                moduleBlocker.ccProjectWillSwitchState() //swap in module blocker for control group
+            } else if (projectType == .ControlComparison) {
+                if (ccNavigationState == .Control) { //segue -> CreateProject
+                    performSegueWithIdentifier("unwindToCreateProject", sender: nil)
+                } else if (ccNavigationState == .Comparison) { //show UI for 'control' group
+                    ccNavigationState = .Control //go back to previous nav state
+                    moduleBlocker.ccProjectWillSwitchState() //swap in module blocker for control group
+                }
             }
+        } else { //EDIT PROJECT flow - dismiss PVVC & return -> ActiveProjects
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let controller = storyboard.instantiateInitialViewController()!
+            presentViewController(controller, animated: true, completion: nil)
         }
     }
     
@@ -846,6 +878,16 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 outcomeVariableRows.append(variable)
                 outcomeVariablesTV.reloadData()
             }
+            
+            if (isProjectEditingFlow) { //**
+                if let _ = edits { //array exists
+                    edits?.append((variable.variableName, true))
+                } else { //array does NOT exist
+                    edits = [] //initialize
+                    edits?.append((variable.variableName, true))
+                }
+            }
+            
             variableLocation = nil //reset indicator
             createdVariable = nil //reset for next run
         }
@@ -867,11 +909,14 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             destination.inputVariables = self.inputVariablesDict
             destination.outcomeVariables = self.outcomeVariableRows
             destination.ghostVariables = self.ghostVariables //pass over any ghosts
+            
+            destination.projectToEdit = self.projectToEdit //**
+            destination.endDate = self.projectEndDate //**
+            destination.edits = self.edits //**
         } else if (segue.identifier == "showAttachModule") { //send name of new variable
             let destination = segue.destinationViewController as! UINavigationController
             let attachModuleVC = destination.topViewController as! AttachModuleViewController
             attachModuleVC.variableName = self.variableName
-            attachModuleVC.showDescriptionView = showDescription
             moduleBlocker.currentLocationInFlow = self.variableLocation //update location in blocker
             attachModuleVC.moduleBlocker = self.moduleBlocker //pass over existing varTypes
             

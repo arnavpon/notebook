@@ -36,6 +36,11 @@ class CellWithGradientFill: UITableViewCell {
         reportDataButton.setTitleColor(UIColor.redColor(), forState: UIControlState.Normal)
         reportDataButton.setTitle(">", forState: UIControlState.Normal)
         reportDataButton.addTarget(self, action: #selector(self.reportDataButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
+        
+        //Gesture recognizer:**
+        let swipe = UISwipeGestureRecognizer(target: self, action: #selector(self.cellDidDetectSwipe(_:)))
+        swipe.direction = .Left
+        self.addGestureRecognizer(swipe)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -75,6 +80,15 @@ class CellWithGradientFill: UITableViewCell {
                 let notification = NSNotification(name: BMN_Notification_DataEntryButtonClick, object: nil, userInfo: [BMN_CellWithGradient_CellIndexKey: BMN_CellWithGradientFill_ErrorObject]) //send invalid index #
                 NSNotificationCenter.defaultCenter().postNotification(notification)
             }
+        }
+    }
+    
+    // MARK: - Gesture Recognizers
+    
+    func cellDidDetectSwipe(gesture: UIGestureRecognizer) {
+        if let index = cellIndex {
+            let notification = NSNotification(name: BMN_Notification_EditExistingProject, object: nil, userInfo: [BMN_CellWithGradient_CellIndexKey: index])
+            NSNotificationCenter.defaultCenter().postNotification(notification)
         }
     }
     

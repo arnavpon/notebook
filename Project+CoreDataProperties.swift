@@ -73,4 +73,30 @@ extension Project {
         //After the object has been inserted, simply save the MOC to make it persist.
     }
     
+    convenience init(type: ExperimentTypes, title: String, question: String, hypothesis: String?, startDate: NSDate, endDate: NSDate?, insertIntoManagedObjectContext context: NSManagedObjectContext) { //EDITING flow init
+        let entity = NSEntityDescription.entityForName("Project", inManagedObjectContext: context)
+        self.init(entity: entity!, insertIntoManagedObjectContext: context)
+        
+        self.projectType = type.rawValue
+        self.title = title
+        self.question = question
+        self.hypothesis = hypothesis
+        self.startDate = startDate
+        self.endDate = endDate
+        if let end = endDate {
+            print("Project END DATE = \(DateTime(date: end).getFullTimeStamp()).")
+            let currentDate = NSDate()
+            let difference = currentDate.timeIntervalSinceDate(endDate!)
+            if (difference >= 0) { //current date > end date (INACTIVE)
+                self.isActive = false
+            } else { //end date > current date (ACTIVE)
+                self.isActive = true
+            }
+        } else {
+            self.isActive = true //no endpoint => ACTIVE project
+        }
+        
+        //After the object has been inserted, simply save the MOC to make it persist.
+    }
+    
 }

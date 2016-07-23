@@ -17,7 +17,6 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     @IBOutlet weak var descriptionViewButton: UIButton!
     @IBOutlet weak var moduleTableView: UITableView!
     
-    var showDescriptionView: Bool = false //default is false
     let moduleArray: [Modules] = Module.modules
     var variableName: String? //user-entered variable name
     var selectedModule: Modules? //matches TV selection -> enum containing the defined module types
@@ -29,7 +28,7 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     // MARK: - View Configuration 
     
     override func viewWillAppear(animated: Bool) {
-        setDescriptionViewVisuals(showDescriptionView) //handle rendering of descriptionView
+        setDescriptionViewVisuals() //handle rendering of descriptionView
     }
     
     override func viewDidLoad() {
@@ -39,12 +38,9 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
         //moduleTableView.registerClass(AttachModuleTableViewCell.self, forCellReuseIdentifier: "module_cell")
     }
     
-    func setDescriptionViewVisuals(showDescription: Bool) {
-        if (showDescription) { //show view
-            createCardForView(descriptionView, color: UIColor.blackColor().CGColor, borderWidth: 3, radius: 20)
-            moduleTableView.alpha = 0.3
-            moduleTableView.userInteractionEnabled = false //disable interaction
-        } else { //hide view
+    func setDescriptionViewVisuals() { //hides or reveals description card
+        let userDefaults = NSUserDefaults.standardUserDefaults()
+        if let _ = userDefaults.valueForKey(SHOW_ATTACH_DESCRIPTION) { //EXISTS
             moduleTableView.alpha = 1
             moduleTableView.userInteractionEnabled = true //re-enable interaction
             for subview in descriptionView.subviews { //clear tutorialView from VC
@@ -56,6 +52,11 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
             descriptionViewTopConstraint.constant = 0
             descriptionViewBottomConstraint.constant = 0
             descriptionViewHeightConstraint.constant = 0 //hide view AFTER constraints are removed
+        } else { //key does NOT exist (1st run) - show view
+            createCardForView(descriptionView, color: UIColor.blackColor().CGColor, borderWidth: 3, radius: 20)
+            moduleTableView.alpha = 0.3
+            moduleTableView.userInteractionEnabled = false //disable interaction
+            userDefaults.setBool(false, forKey: SHOW_ATTACH_DESCRIPTION) //set blocker
         }
     }
 
@@ -142,12 +143,8 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     
     // MARK: - Button Actions
     
-    @IBAction func descriptionViewButtonClick(sender: AnyObject) {
-        //hide description view & set defaults:
-        showDescriptionView = false
-        setDescriptionViewVisuals(showDescriptionView)
-        let defaults = NSUserDefaults.standardUserDefaults()
-        defaults.setBool(true, forKey: "SHOW_ATTACH_DESCRIPTION")
+    @IBAction func descriptionViewButtonClick(sender: AnyObject) { //hide description view
+        setDescriptionViewVisuals()
     }
     
     // MARK: - Navigation

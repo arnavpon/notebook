@@ -103,8 +103,9 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
             print("[Module superclass init()] Report type raw = \(reportTypeRaw).")
             self.variableReportType = reportType
         }
-        if let ghost = dict[BMN_VariableIsGhostKey] as? Bool {
+        if let ghost = dict[BMN_VariableIsGhostKey] as? Bool, parent = dict[BMN_ComputationFramework_ComputationNameKey] as? String {
             self.isGhost = ghost
+            self.parentComputation = parent
         }
     }
     
@@ -143,8 +144,9 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
         if let prompt = cellPrompt { //if prompt has been set, store it
             persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = prompt
         }
-        if (self.isGhost) { //if var is ghost, store the indicator in the dict
+        if (self.isGhost) { //if var is ghost, store the indicator/computation in the dict
             persistentDictionary[BMN_VariableIsGhostKey] = true
+            persistentDictionary[BMN_ComputationFramework_ComputationNameKey] = parentComputation
         }
         if (self.isOutcomeMeasure) { //**
             persistentDictionary[BMN_VariableIsOutcomeMeasureKey] = true
@@ -222,6 +224,7 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
             self.variableState = .Ghost //blocks setConfigLayoutObject from firing
         }
     }
+    var parentComputation: String? //for ghosts, maintains reference to parent computation
     lazy var computationInputs = Dictionary<String, String>() //used to define configuration for computation, KEY is the unique ID for the input, VALUE is the NAME of the input var or ghost
     var existingVariables: [ComputationFramework_ExistingVariables]? //list of created vars
     

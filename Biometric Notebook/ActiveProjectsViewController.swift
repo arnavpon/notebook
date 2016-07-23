@@ -76,12 +76,13 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             } else { //reset notification observers
                 NSNotificationCenter.defaultCenter().removeObserver(self) //1st clear old indicators
                 NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataEntryButtonWasClicked(_:)), name: BMN_Notification_DataEntryButtonClick, object: nil)
+                NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellDidDetectSwipe(_:)), name: BMN_Notification_EditExistingProject, object: nil) //detects swipe to edit project
                 NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.serviceDidReportError(_:)), name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil) //**
                 NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.dataTransmissionStatusDidChange(_:)), name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil) //**
                 
                 //***Temp (until IP issue is resolved) -
                 if !(self.ip_was_set) { //only fires 1x - enter current localhost IP
-                    let alert = UIAlertController(title: "IP Addr", message: "Enter current IP end value", preferredStyle: UIAlertControllerStyle.Alert)
+                    let alert = UIAlertController(title: "IP Address*", message: "Enter current IP end value", preferredStyle: UIAlertControllerStyle.Alert)
                     let ok = UIAlertAction(title: "Enter", style: .Default, handler: { (let action) in
                         if let text = alert.textFields?.first?.text {
                             if !(text.isEmpty) {
@@ -113,6 +114,18 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         configureActivityIndicator(false) //stop activity animation after disappearing
     }
     
+    func configureActivityIndicator(animate: Bool) {
+        if (animate) { //start animation
+            activityIndicator.startAnimating()
+            activeProjectsTableView.alpha = 0.3 //dimmed alpha
+        } else { //stop animation
+            activityIndicator.stopAnimating()
+            activeProjectsTableView.alpha = 1 //restore alpha
+        }
+    }
+    
+    // MARK: - Notification Handling
+    
     func dataEntryButtonWasClicked(notification: NSNotification) {
         if let dict = notification.userInfo, index = dict[BMN_CellWithGradient_CellIndexKey] as? Int {
             print("Data entry button clicked by cell #\(index).")
@@ -125,18 +138,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             }
         }
     }
-    
-    func configureActivityIndicator(animate: Bool) {
-        if (animate) { //start animation
-            activityIndicator.startAnimating()
-            activeProjectsTableView.alpha = 0.3 //dimmed alpha
-        } else { //stop animation
-            activityIndicator.stopAnimating()
-            activeProjectsTableView.alpha = 1 //restore alpha
-        }
-    }
-    
-    // MARK: - Notification Handling
     
     func serviceDidReportError(notification: NSNotification) { //**temp fx until DB is online
         print("[APVC serviceDidReportError] Firing...")
@@ -184,6 +185,141 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         }
     }
     
+    func cellDidDetectSwipe(notification: NSNotification) { //segue -> EDIT PROJECT mode
+        if let info = notification.userInfo, index = info[BMN_CellWithGradient_CellIndexKey] as? Int {
+            if (index >= 0) { //allows user to modify an existing Project's variables
+                let selection = projects[index] //get the selected project
+                let projectType = ExperimentTypes(rawValue: selection.projectType)
+                let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
+                let controller = storyboard.instantiateInitialViewController() as! UINavigationController
+                let projectVarsVC = storyboard.instantiateViewControllerWithIdentifier("setupVariablesVC") as! ProjectVariablesViewController
+                
+                var inputVariables: [String: [Module]] = [BMN_InputOutput_InputVariablesKey: [], BMN_ControlComparison_ControlKey: [], BMN_ControlComparison_ComparisonKey: []]
+                var outcomeVariables: [Module] = []
+                var ghostVariables: [String: [GhostVariable]]?
+                var action: Action? = nil
+                let moduleBlocker = Module_DynamicConfigurationFramework() //needs to be sent -> PVVC in Control group state for CC projects
+                var uniqueNames = Set<String>() //avoid duplication of OM (CC project)
+                
+                var fireCounter: Int = 0 //used to switch moduleBlocker state (CC project)
+                for groupRaw in selection.groups { //handle for IO & CC projects - for each group, make variables & use to construct the action & inputs & outputs dicts for SetVariables.
+                    if let group = groupRaw as? Group, groupType = GroupTypes(rawValue: group.groupType) {
+                        var navState: CCProjectNavigationState? = nil //for ghosts
+                        if (projectType == .ControlComparison) { //set navigation state
+                            if (groupType == .Control) {
+                                navState = .Control
+                                if (fireCounter != 0) { //swap state if Control is in 2nd loop run
+                                    moduleBlocker.ccProjectWillSwitchState()
+                                }
+                            } else if (groupType == .Comparison) {
+                                navState = .Comparison
+                                moduleBlocker.ccProjectWillSwitchState() //always swap state for Comp
+                            }
+                            fireCounter += 1 //increment to indicate pass through loop
+                        }
+                        
+                        for (variable, dict) in group.beforeActionVariables { //BEFORE ACTION vars
+                            if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
+                                let inputVar = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
+                                if !(inputVar.isGhost) && (inputVar.selectedFunctionality != nil) {
+                                    if (projectType == .InputOutput) { //add -> IO data source
+                                        inputVariables[BMN_InputOutput_InputVariablesKey]!.append(inputVar)
+                                    } else if (projectType == .ControlComparison) {
+                                        if (groupType == .Control) {
+                                            inputVariables[BMN_ControlComparison_ControlKey]!.append(inputVar)
+                                        } else if (groupType == .Comparison) {
+                                            inputVariables[BMN_ControlComparison_ComparisonKey]!.append(inputVar)
+                                        }
+                                    }
+                                    moduleBlocker.variableWasCreated(.BeforeAction, typeName: inputVar.selectedFunctionality!) //update blocker
+                                } else { //GHOST - add -> ghost array
+                                    if let parent = inputVar.parentComputation {
+                                        let ghost = GhostVariable(groupType: navState, location: .BeforeAction, computation: parent, name: variable, settings: dict)
+                                        if let _ = ghostVariables { //array already exists
+                                            ghostVariables![parent]!.append(ghost)
+                                        } else { //array does NOT exist - initialize
+                                            ghostVariables = Dictionary<String, [GhostVariable]>()
+                                            ghostVariables![parent]!.append(ghost)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        for (variable, dict) in group.afterActionVariables { //AFTER ACTION vars
+                            if !(uniqueNames.contains(variable)) { //only perform for UNIQUE vars
+                                uniqueNames.insert(variable) //add var name -> set
+                                if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
+                                    let outcomeVar = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
+                                    if !(outcomeVar.isGhost) && (outcomeVar.selectedFunctionality != nil) { //NOT a ghost
+                                        outcomeVariables.append(outcomeVar)
+                                        moduleBlocker.variableWasCreated(.AfterAction, typeName: outcomeVar.selectedFunctionality!)
+                                    } else { //GHOST - add to ghost array
+                                        if let parent = outcomeVar.parentComputation {
+                                            let ghost = GhostVariable(groupType: navState, location: .AfterAction, computation: parent, name: variable, settings: dict)
+                                            if let _ = ghostVariables { //exists
+                                                ghostVariables![parent]!.append(ghost)
+                                            } else { //does NOT exist - initialize
+                                                ghostVariables = Dictionary<String, [GhostVariable]>()
+                                                ghostVariables![parent]!.append(ghost)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if let enumObj = Actions(rawValue: group.action) { //STANDARD action
+                            action = Action(action: enumObj, actionName: nil)
+                        } else { //does NOT match enum - CUSTOM action
+                            action = Action(action: .Custom, actionName: group.action)
+                        }
+                    }
+                }
+                
+                projectVarsVC.isProjectEditingFlow = true //set indicator
+                projectVarsVC.projectToEdit = selection //pass CoreData object for deletion
+                projectVarsVC.projectType = projectType
+                projectVarsVC.projectTitle = selection.title
+                projectVarsVC.projectQuestion = selection.question
+                projectVarsVC.projectHypothesis = selection.hypothesis
+                projectVarsVC.projectEndDate = selection.endDate
+                projectVarsVC.inputVariablesDict = inputVariables
+                projectVarsVC.outcomeVariableRows = outcomeVariables
+                projectVarsVC.selectedAction = action
+                projectVarsVC.ghostVariables = ghostVariables
+                projectVarsVC.moduleBlocker = moduleBlocker //**
+                if (projectVarsVC.projectType == .ControlComparison) {
+                    projectVarsVC.ccNavigationState = .Control //start w/ Control
+                }
+                
+                controller.showViewController(projectVarsVC, sender: nil) //nav directly -> PVVC
+                presentViewController(controller, animated: true, completion: nil) //show VC
+            }
+        }
+    }
+    
+    private func createModuleObjectFromModuleName(moduleType module: Modules, variableName: String, configurationDict: [String: AnyObject]) -> Module { //init Module obj w/ its name & config dict
+        var object: Module = Module(name: variableName)
+        
+        //Pass the var's name & dictionary -> specific module subclass' CoreData initializer:
+        switch module {
+        case .CustomModule:
+            object = CustomModule(name: variableName, dict: configurationDict)
+        case .EnvironmentModule:
+            object = EnvironmentModule(name: variableName, dict: configurationDict)
+        case .FoodIntakeModule:
+            object = FoodIntakeModule(name: variableName, dict: configurationDict)
+        case .ExerciseModule:
+            object = ExerciseModule(name: variableName, dict: configurationDict)
+        case .BiometricModule:
+            object = BiometricModule(name: variableName, dict: configurationDict)
+        case .CarbonEmissionsModule:
+            object = CarbonEmissionsModule(name: variableName, dict: configurationDict)
+        }
+        return object
+    }
+    
     // MARK: - TV Data Source
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
@@ -191,7 +327,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             return 1
         }
         return 2 //1 section for counters, 1 for projects
-        //eventually, we may want to organize projects using the same framework as for IA???
+        //eventually, we may want to organize projects more clearly & arrange counters w/ projects
     }
     
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -259,7 +395,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         performSegueWithIdentifier("showProjectOverview", sender: nil) //segue -> ProjectOverviewVC
     }
     
-    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle { //allow deletion of projects from here
+    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle { //allow deletion of projects from here?
         return UITableViewCellEditingStyle.None
     }
     

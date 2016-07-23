@@ -147,11 +147,12 @@ class BiometricModule: Module {
         }
     }
     
-    init(ghostName: String, type: BiometricModuleVariableTypes) { //GHOST init
+    init(ghostName: String, computation: String, type: BiometricModuleVariableTypes) { //GHOST init
         super.init(name: ghostName)
         self.moduleTitle = Modules.BiometricModule.rawValue //set title
         
         self.isGhost = true //mark as ghost
+        self.parentComputation = computation //set parent
         self.variableReportType = .AutoCapture //mark as auto-captured from API
         switch type { //set appropriate variable type
         case .Behavior_Height:
@@ -271,11 +272,11 @@ class BiometricModule: Module {
     private func createGhostForBiometricVariable(type: BiometricModuleVariableTypes) { //constructs GHOST variable of specified type, names it according to parent computation, & sends notification -> VC
         switch type {
         case .Behavior_Height:
-            let ghost = BiometricModule(ghostName: "\(variableName)_height_ghost", type: type)
+            let ghost = BiometricModule(ghostName: "\(variableName)_height_ghost", computation: self.variableName, type: type)
             self.computationInputs[BMN_ComputationFramework_BM_BMI_HeightID] = ghost.variableName
             self.createGhostForVariable(ghost)
         case .Behavior_Weight:
-            let ghost = BiometricModule(ghostName: "\(variableName)_weight_ghost", type: type)
+            let ghost = BiometricModule(ghostName: "\(variableName)_weight_ghost", computation: self.variableName, type: type)
             self.computationInputs[BMN_ComputationFramework_BM_BMI_WeightID] = ghost.variableName
             self.createGhostForVariable(ghost)
         default:

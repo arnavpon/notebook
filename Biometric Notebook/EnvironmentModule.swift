@@ -125,14 +125,14 @@ class EnvironmentModule: Module {
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
     
-    // MARK: - Variable Configuration
-    
     override func copyWithZone(zone: NSZone) -> AnyObject { //creates copy of variable
         let copy = EnvironmentModule(name: self.variableName)
         copy.existingVariables = self.existingVariables
         copy.moduleBlocker = self.moduleBlocker
         return copy
     }
+    
+    // MARK: - Variable Configuration
     
     internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the 'options' value as needed; (2) Constructs the configuration TV cells if required; (3) Sets 'isAutoCaptured' var if var is auto-captured.
         if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required

@@ -13,6 +13,7 @@ let IP_VALUE = "ip_value" //**temporary
 
 let IS_LOGGED_IN_KEY = "is_logged_in_key"
 let EMAIL_KEY = "email_key"
+let SHOW_VARIABLE_SETUP_TUTORIAL = "show_variable_setup_tutorial"
 let SHOW_ATTACH_DESCRIPTION = "show_attach_description_key"
 let INPUTS_TIME_STAMP = "input_variables_time_stamp_key" //for DataEntryVC
 
@@ -59,6 +60,7 @@ let BMN_Notification_ProjectTypeDidChange = "BMN_ProjectTypeDidChange"
 
 //CellWithGradientFill Notifications:
 let BMN_Notification_DataEntryButtonClick = "BMN_DataEntryButtonClick"
+let BMN_Notification_EditExistingProject = "BMN_EditExistingProject" //swipe to edit existing project
 let BMN_CellWithGradientFill_ErrorObject = -1 //indicates an error to VC through notification
 
 //CustomModule DataEntryCells Notifications:

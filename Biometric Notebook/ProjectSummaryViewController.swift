@@ -21,8 +21,11 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     var projectType: ExperimentTypes? //project type (obtained from ProjectVariablesVC)
     var inputVariables = Dictionary<String, [Module]>() //obtained from ProjectVariablesVC
     var outcomeVariables: [Module]? //obtained from ProjectVariablesVC
-    
     var ghostVariables: [String: [GhostVariable]]? //vars that feed in to computations (system-created)
+    
+    var projectToEdit: Project? //EDIT PROJECT flow - project to delete from CD store
+    var endDate: NSDate? //EDIT PROJECT flow - end date for project
+    var edits: [(String, Bool)]? //EDIT PROJECT flow - table containing edits
     
     // MARK: - View Configuration
     
@@ -52,7 +55,11 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         case 2:
             return "Project Hypothesis".uppercaseString
         case 3:
-            return "Endpoint".uppercaseString
+            if let _ = projectToEdit { //EDIT PROJECT flow
+                return "End Date".uppercaseString
+            } else { //DEFAULT flow
+                return "Endpoint".uppercaseString
+            }
         case 4:
             return "Input Variables".uppercaseString
         case 5:
@@ -107,17 +114,20 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         case 1:
             cell.textLabel?.text = projectQuestion
         case 2:
-            cell.textLabel?.text = projectHypothesis
+            if let hypothesis = projectHypothesis {
+                cell.textLabel?.text = hypothesis
+            } else {
+                cell.textLabel?.text = "N/A"
+            }
         case 3: //project's endpoint
             if let endpoint = projectEndpoint {
                 if let numberOfDays = endpoint.getEndpointInDays() {
                     cell.textLabel?.text = "Project ends \(numberOfDays) days from now"
-                } else { //continuous project
-                    cell.textLabel?.text = "Continuous project (indefinite length)"
                 }
-            } else {
-                print("Error - projectEndpoint is nil")
-                cell.textLabel?.text = ""
+            } else if let end = endDate {
+                cell.textLabel?.text = DateTime(date: end).getDateString()
+            } else { //continuous project
+                cell.textLabel?.text = "Continuous project (indefinite length)"
             }
         case 4: //input variables
             if let type = projectType {
@@ -209,8 +219,19 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     
     @IBAction func createProjectButtonClick(sender: AnyObject) {
         //Construct CoreData objects for the input & output variables, then construct the Project & Group objects & save -> persistent store:
+        var startDate: NSDate?
+        if let oldProject = self.projectToEdit { //EDIT PROJECT flow - delete old project from CD
+            startDate = oldProject.startDate
+            deleteManagedObject(oldProject)
+        }
+        
         if let type = projectType, title = projectTitle, question = projectQuestion {
-            let project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, endPoint: projectEndpoint?.endpointInSeconds, insertIntoManagedObjectContext: context)
+            let project: Project
+            if let end = endDate, start = startDate { //EDIT PROJECT flow - use different init
+                project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, startDate: start, endDate: end, insertIntoManagedObjectContext: context)
+            } else { //normal flow
+                project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, endPoint: projectEndpoint?.endpointInSeconds, insertIntoManagedObjectContext: context)
+            }
             
             if (projectType == .ControlComparison) { //for CC type, create 2 groups
                 if let controlInputs = inputVariables[BMN_ControlComparison_ControlKey], comparisonInputs = inputVariables[BMN_ControlComparison_ComparisonKey], outcomes = outcomeVariables, action = projectAction?.action.rawValue { //construct control & comparison groups
@@ -258,7 +279,11 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
             
             //Create cloud backup for the new project & add it to queue:
             if let dbConnection = DatabaseConnection() {
-                dbConnection.createCloudModelForProject(project) //create backup & save to CD
+                if let committedEdits = edits { //EDIT PROJECT flow - create Update command
+                    dbConnection.updateTableForProject(project.title, edits: committedEdits)
+                } else { //DEFAULT flow - create Cloud backup
+                    dbConnection.createCloudModelForProject(project) //create backup & save to CD
+                }
             }
         }
         

@@ -24,7 +24,11 @@ class Module_DynamicConfigurationFramework {
     }
     private var ccProjectCache: Dictionary<String, Int>? //for CC project - temporarily stores variables for control or comparison (whichever state the user is NOT currently on)
     
+    // MARK: - Initializers
+    
     init() { }
+    
+    // MARK: - View Controller Interface
     
     private func getKeyForLocation(location: VariableLocations) -> String { //assigns a key for location
         switch location {
@@ -34,8 +38,6 @@ class Module_DynamicConfigurationFramework {
             return BMN_Blocker_AfterActionVariablesKey
         }
     }
-    
-    // MARK: - View Controller Interface
     
     func variableWasCreated(location: VariableLocations, typeName: String) {
         let key = getKeyForLocation(location)
@@ -47,7 +49,7 @@ class Module_DynamicConfigurationFramework {
                 print("[\(typeName)] Var EXISTS! New Count: \(newCount).")
             } else { //new variable name
                 temp[typeName] = 1 //make new entry for typeName
-                print("Creating NEW entry for variable type: [\(typeName)]...")
+                print("Creating NEW entry for variable type: [\(typeName)] @ LOCATION = [\(key)]...")
             }
             existingVariables[key] = temp //update real dictionary w/ temp
         }

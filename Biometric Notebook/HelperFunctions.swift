@@ -13,15 +13,16 @@ func saveManagedObjectContext() -> Bool {
     let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     do {
         try context.save()
-        print("MOC was saved successfully.")
+        print("MOC was saved successfully.\n")
         return true
     } catch let error as NSError {
-        print("Error saving context: \(error).")
+        print("Error saving context: \(error).\n")
         return false
     }
 }
 
 func deleteManagedObject(object: NSManagedObject) { //deletes the specified object
+    print("\nDeleting managed object...")
     let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     context.deleteObject(object)
     saveManagedObjectContext()
@@ -36,10 +37,10 @@ func fetchObjectsFromCoreDataStore(entity: String, filterProperty: String?, filt
     }
     do {
         let results = try context.executeFetchRequest(request)
-        print("[fetchObjectsFromStore] Fetched \(results.count) objects for '\(entity.uppercaseString)' entity.")
+        print("[fetchObjectsFromStore] Fetched \(results.count) objects for '\(entity.uppercaseString)' entity.\n")
         return results
     } catch let error as NSError {
-        print("Error fetching stored projects: \(error)")
+        print("Error fetching stored projects: \(error).")
     }
     return []
 }

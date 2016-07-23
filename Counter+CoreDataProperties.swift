@@ -41,7 +41,7 @@ extension Counter {
     }
     
     override func prepareForDeletion() { //when the counter is deleted from the context, transfer its uniqueID -> deactivated counters
-        print("[prepareForDeletion] Decommissioning ID...")
+        print("[prepareForDeletion] Decommissioning ID #\(self.id as Int)...")
         UniqueIDs.sharedInstance.deactivateIDForDeletedCounter(self.id as Int)
         for activeID in UniqueIDs.sharedInstance.activeCounterIDs {
             print("[ACTIVE] ID: \(activeID).")

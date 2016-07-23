@@ -229,14 +229,8 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     
     // MARK: - Button Actions
     
-    var showTutorial: Bool = true //sets tutorial to ACTIVE in ProjectVarsVC
-    
     @IBAction func setupButtonClick(sender: AnyObject) { //segue -> ProjectVarsVC
         self.view.endEditing(true) //dismiss keyboard
-        let userDefaults = NSUserDefaults.standardUserDefaults()
-        if let shouldShowTutorial = userDefaults.valueForKey("SHOW_VARS_TUTORIAL") as? Bool {
-            showTutorial = shouldShowTutorial
-        }
         performSegueWithIdentifier("showVariables", sender: nil)
     }
     
@@ -256,8 +250,6 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
         //Pass the title, question, hypothesis, endpoint, & type through -> remaining flows:
         if (segue.identifier == "showVariables") {
             let destination = segue.destinationViewController as! ProjectVariablesViewController
-            destination.showTutorialMode = false //**enable/disable tutorial
-//            destination.showTutorialMode = self.showTutorial //true => show tutorial
             destination.projectTitle = self.projectTitle
             destination.projectQuestion = self.projectQuestion
             destination.projectHypothesis = self.projectHypothesis
