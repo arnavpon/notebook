@@ -10,7 +10,8 @@ import CoreData
 
 enum DatabaseConnectionDataTypes: Int {
     case CloudModel = 0
-    case ReportedData = 1
+    case EditedProjectModel = 1
+    case ReportedData = 2
 }
 
 class DatabaseConnection: DataReportingErrorProtocol {
@@ -39,13 +40,13 @@ class DatabaseConnection: DataReportingErrorProtocol {
     // MARK: - Networking Logic
     
     func pushAllDataToDatabase(count: Int) { //pushes any backups or reportedData -> DB
-        if let cloudModels = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "dataTypeRaw", filterValue: ["0"]) as? [DatabaseObject], dataObjects = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "dataTypeRaw", filterValue: ["1"]) as? [DatabaseObject] {
+        if let cloudModels = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "dataTypeRaw", filterValue: ["\(DatabaseConnectionDataTypes.CloudModel.rawValue)"]) as? [DatabaseObject], editedProjectObjects = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "dataTypeRaw", filterValue: ["\(DatabaseConnectionDataTypes.EditedProjectModel.rawValue)"]) as? [DatabaseObject], dataObjects = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "dataTypeRaw", filterValue: ["\(DatabaseConnectionDataTypes.ReportedData.rawValue)"]) as? [DatabaseObject] {
             if !(cloudModels.isEmpty) { //(1) push cloud models
                 if let cloudModel = cloudModels.first, type = DatabaseConnectionDataTypes(rawValue: cloudModel.dataTypeRaw as Int) { //grab 1st item to push
-                    print("\nTransmitting object (model) #\(count+1) in queue...")
+                    print("\nTransmitting object (Cloud model) #\(count+1) in queue...")
                     switch type { //check type of data
                     case .CloudModel: //post Cloud backup
-                        postProjectModelToCloud(cloudModel, success: { (completed) in
+                        postProjectModelToCloud(cloudModel.dataDictionary, success: { (completed) in
                             if (completed) { //operation succeeded - push next function to store
                                 deleteManagedObject(cloudModel) //remove object from CoreData store
                                 self.pushAllDataToDatabase((count + 1)) //pass next
@@ -56,16 +57,34 @@ class DatabaseConnection: DataReportingErrorProtocol {
                                 return
                             }
                         })
-                    case .ReportedData: //error
-                        print("Error - reportedData found in CloudModel area...\n")
+                    default: //error
+                        print("Error - wrong DBConnType found in CloudModel area...\n")
                     }
                 }
-            } else if !(dataObjects.isEmpty) { //(2) push reportedData
+            } else if !(editedProjectObjects.isEmpty) { //(2) push edited project models
+                if let cloudModel = cloudModels.first, type = DatabaseConnectionDataTypes(rawValue: cloudModel.dataTypeRaw as Int) { //grab 1st item to push
+                    print("\nTransmitting object (edited model) #\(count+1) in queue...")
+                    switch type { //check type of data
+                    case .EditedProjectModel: //post Edited Project model
+                        postEditedProjectModelToDatabase(cloudModel.dataDictionary, success: { (completed) in
+                            if (completed) { //operation succeeded - push next function to store
+                                deleteManagedObject(cloudModel) //remove object from CoreData store
+                                self.pushAllDataToDatabase((count + 1)) //pass next
+                            } else { //operation failed - terminate function
+                                print("Operation failed. Terminating process...\n")
+                                let notification = NSNotification(name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil, userInfo: [BMN_DatabaseConnection_TransmissionStatusKey: false])
+                                NSNotificationCenter.defaultCenter().postNotification(notification)
+                                return
+                            }
+                        })
+                    default: //error
+                        print("Error - wrong type found in EditedProjects area...\n")
+                    }
+                }
+            } else if !(dataObjects.isEmpty) { //(3) push reportedData
                 if let dataObject = dataObjects.first, type = DatabaseConnectionDataTypes(rawValue: dataObject.dataTypeRaw as Int) { //grab 1st item to push
                     print("\nTransmitting object (data) #\(count+1) in queue...")
                     switch type { //check type of data
-                    case .CloudModel: //post Cloud backup
-                        print("Error - cloudModel found in reportedData area!")
                     case .ReportedData: //post Reported Data
                         self.postDataObjectToDatabase(dataObject, success: { (completed) in
                             if (completed) { //the operation succeeded - push next function to store
@@ -78,6 +97,8 @@ class DatabaseConnection: DataReportingErrorProtocol {
                                 return
                             }
                         })
+                    default:
+                        print("Error - wrong type found in ReportedData area...\n")
                     }
                 }
             } else { //no remaining Cloud Models or dataObjects
@@ -95,14 +116,22 @@ class DatabaseConnection: DataReportingErrorProtocol {
     // MARK: - Cloud Backup Logic
     
     func createCloudModelForProject(project: Project) { //creates temporary CD backup
-        print("Creating Cloud representation for project...")
+        print("Creating Cloud representation for project [\(project.title)]...")
+        let cloudDictionary: [String: AnyObject] = constructCloudObject(project)
+        let _ = DatabaseObject(data: cloudDictionary, dataType: .CloudModel, insertIntoManagedObjectContext: managedObjectContext) //keep backup in CD store until pushed
+        saveManagedObjectContext()
+        print("Backup was created for project!\n")
+    }
+    
+    private func constructCloudObject(project: Project) -> Dictionary<String, AnyObject> { //uses the input project to construct the dict sent -> the Cloud for backup
         var body: [String: AnyObject] = ["experiment_type": project.projectType, "title": project.title, "question": project.question, "start_date": project.startDate.timeIntervalSinceReferenceDate]
+        //send outcome measure(s) -> DB as well
         if let hypothesis = project.hypothesis {
             body.updateValue(hypothesis, forKey: "hypothesis")
         }
         if let endDate = project.endDate {
             let timeDifference = endDate.timeIntervalSinceDate(project.startDate)
-            print("Time Difference btwn start & end = \(timeDifference).")
+            print("[constructCloudObj] Time Difference btwn start & end = \(timeDifference).")
             body.updateValue(timeDifference, forKey: "endpoint")
         }
         var groups = Dictionary<String, [String: AnyObject]>() //["groups": ["group1": dict, "group2": dict, ...]]
@@ -113,11 +142,11 @@ class DatabaseConnection: DataReportingErrorProtocol {
                 let beforeVars = group.beforeActionVariables
                 let afterVars = group.afterActionVariables
                 groups.updateValue(["action": action, "beforeVars": beforeVars, "afterVars": afterVars], forKey: type)
-                print("Groups Model: \(groups)")
+                print("[constructCloudObj] Groups Model: \(groups)")
             }
         }
         body.updateValue(groups, forKey: "groups")
-        var counters: [String] = [] //**
+        var counters: [String] = []
         for projectCounters in project.counters {
             if let counter = projectCounters as? Counter {
                 let variableName = counter.variableName
@@ -125,18 +154,15 @@ class DatabaseConnection: DataReportingErrorProtocol {
             }
         }
         body.updateValue(counters, forKey: "counters")
-        let cloudDictionary: [String: AnyObject] = ["BMN_EMAIL": self.email, "BMN_PROJECT_SHELL": body]
-        let _ = DatabaseObject(data: cloudDictionary, dataType: .CloudModel, insertIntoManagedObjectContext: managedObjectContext) //keep backup in CD store until pushed
-        saveManagedObjectContext()
-        print("Backup was created for project!\n")
+        return ["BMN_EMAIL": self.email, "BMN_PROJECT_SHELL": body] //final return object
     }
     
-    private func postProjectModelToCloud(model: DatabaseObject, success: (Bool) -> Void) {
+    private func postProjectModelToCloud(model: [String: AnyObject], success: (Bool) -> Void) {
         let url = NSURL(string: "http://192.168.1.\(ip_last):8000/backup-project")!
         let request = NSMutableURLRequest(URL: url)
         request.HTTPMethod = "POST"
         do { //pass dictionary representation -> Cloud
-            let data = try NSJSONSerialization.dataWithJSONObject(model.dataDictionary, options: NSJSONWritingOptions(rawValue: 0))
+            let data = try NSJSONSerialization.dataWithJSONObject(model, options: NSJSONWritingOptions(rawValue: 0))
             request.HTTPBody = data
             let task = session.dataTaskWithRequest(request, completionHandler: { (data, response, error) in
                 if (error == nil) { //no error
@@ -166,16 +192,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
                         }
                     }
                 } else { //error
-                    switch (error!.code) {
-                    case -1009:
-                        print("[postObjToDB] No internet access was detected.")
-                        self.reportAccessErrorForService(.Internet)
-                    case -1004:
-                        print("[postObjToDB] Error - could not connect to SERVER!")
-                        self.reportAccessErrorForService(.Localhost)
-                    default:
-                        print("[postObjToDB] Process failed w/ error: \(error).")
-                    }
+                    self.handleAccessError(error!)
                     success(false)
                 }
             })
@@ -263,9 +280,53 @@ class DatabaseConnection: DataReportingErrorProtocol {
     
     // MARK: - Project Update Logic
     
-    func updateTableForProject(projectTitle: String, edits: [(String, Bool)]) { //**
-        print("Updating existing table setup...")
-        //parse edits input to create the update command
+    func commitProjectEditToDatabase(project: Project) { //EDIT PROJECT flow
+        print("Creating cloud model for updated project...")
+        let cloudDictionary = constructCloudObject(project)
+        let _ = DatabaseObject(data: cloudDictionary, dataType: .EditedProjectModel, insertIntoManagedObjectContext: managedObjectContext)
+        saveManagedObjectContext()
+    }
+    
+    private func postEditedProjectModelToDatabase(model: [String: AnyObject], success: (Bool) -> Void) {
+        let url = NSURL(string: "http://192.168.1.\(ip_last):8000/edit-project")!
+        let request = NSMutableURLRequest(URL: url)
+        request.HTTPMethod = "POST"
+        do { //pass dictionary representation -> Cloud
+            let data = try NSJSONSerialization.dataWithJSONObject(model, options: NSJSONWritingOptions(rawValue: 0))
+            request.HTTPBody = data
+            let task = session.dataTaskWithRequest(request, completionHandler: { (data, response, error) in
+                if (error == nil) { //no error
+                    if let httpResponse = response as? NSHTTPURLResponse {
+                        let status = httpResponse.statusCode
+                        switch status {
+                        case 200:
+                            if let responseData = data, responseAsText = NSString(data: responseData, encoding: NSUTF8StringEncoding) {
+                                switch responseAsText as String {
+                                case "000":
+                                    print("[000] Error - process failed.")
+                                    success(false)
+                                case "010":
+                                    print("Backup was successfully created!")
+                                    success(true)
+                                default:
+                                    print("Default in switch: returned code = \(responseAsText).")
+                                    success(false)
+                                }
+                            }
+                        default:
+                            print("[CreateCloudRep] Default in switch. Code = \(status).")
+                            success(false)
+                        }
+                    }
+                } else { //error
+                    self.handleAccessError(error!)
+                    success(false)
+                }
+            })
+            task.resume()
+        } catch {
+            print("[Create Cloud Obj] Could not create data from JSON - \(error).")
+        }
     }
     
     // MARK: - Data Reporting Logic
@@ -318,16 +379,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
                         }
                     }
                 } else { //internet/server access failure
-                    switch (error!.code) {
-                    case -1009:
-                        print("[postObjToDB] No internet access was detected.")
-                        self.reportAccessErrorForService(.Internet)
-                    case -1004:
-                        print("[postObjToDB] Error - could not connect to SERVER!")
-                        self.reportAccessErrorForService(.Localhost)
-                    default:
-                        print("[postObjToDB] Process failed w/ error: \(error).")
-                    }
+                    self.handleAccessError(error!)
                     success(false)
                 }
             })
@@ -339,6 +391,19 @@ class DatabaseConnection: DataReportingErrorProtocol {
     }
     
     // MARK: - Error Handling
+    
+    private func handleAccessError(error: NSError) { //handles internet access error code appropriately
+        switch (error.code) {
+        case -1009:
+            print("[postObjToDB] No internet access was detected.")
+            self.reportAccessErrorForService(.Internet)
+        case -1004:
+            print("[postObjToDB] Error - could not connect to SERVER!")
+            self.reportAccessErrorForService(.Localhost)
+        default:
+            print("[postObjToDB] Process failed w/ error: \(error).")
+        }
+    }
     
     func reportAccessErrorForService(service: ServiceTypes) { //throw alert to connect to internet
         let notification = NSNotification(name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil, userInfo: [BMN_DataReportingErrorProtocol_ServiceTypeKey: service.rawValue])

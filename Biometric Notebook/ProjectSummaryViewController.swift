@@ -22,10 +22,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     var inputVariables = Dictionary<String, [Module]>() //obtained from ProjectVariablesVC
     var outcomeVariables: [Module]? //obtained from ProjectVariablesVC
     var ghostVariables: [String: [GhostVariable]]? //vars that feed in to computations (system-created)
-    
     var projectToEdit: Project? //EDIT PROJECT flow - project to delete from CD store
-    var endDate: NSDate? //EDIT PROJECT flow - end date for project
-    var edits: [(String, Bool)]? //EDIT PROJECT flow - table containing edits
     
     // MARK: - View Configuration
     
@@ -124,7 +121,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                 if let numberOfDays = endpoint.getEndpointInDays() {
                     cell.textLabel?.text = "Project ends \(numberOfDays) days from now"
                 }
-            } else if let end = endDate {
+            } else if let project = projectToEdit, end = project.endDate {
                 cell.textLabel?.text = DateTime(date: end).getDateString()
             } else { //continuous project
                 cell.textLabel?.text = "Continuous project (indefinite length)"
@@ -217,18 +214,21 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     
     // MARK: - Button Actions
     
-    @IBAction func createProjectButtonClick(sender: AnyObject) {
-        //Construct CoreData objects for the input & output variables, then construct the Project & Group objects & save -> persistent store:
+    @IBAction func createProjectButtonClick(sender: AnyObject) { //construct CoreData objects for the input & output variables, then construct the Project/Group objects & save -> persistent store
+        var isEditProjectFlow: Bool = false //indicator for EDIT PROJECT flow
         var startDate: NSDate?
+        var endDate: NSDate?
         if let oldProject = self.projectToEdit { //EDIT PROJECT flow - delete old project from CD
-            startDate = oldProject.startDate
-            deleteManagedObject(oldProject)
+            startDate = oldProject.startDate //must NOT be nil
+            endDate = oldProject.endDate //can be nil
+            isEditProjectFlow = true //set indicator
+            deleteManagedObject(oldProject) //remove old project
         }
         
         if let type = projectType, title = projectTitle, question = projectQuestion {
             let project: Project
-            if let end = endDate, start = startDate { //EDIT PROJECT flow - use different init
-                project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, startDate: start, endDate: end, insertIntoManagedObjectContext: context)
+            if let start = startDate { //EDIT PROJECT flow - use custom 'edit' init
+                project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, startDate: start, endDate: endDate, insertIntoManagedObjectContext: context)
             } else { //normal flow
                 project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, endPoint: projectEndpoint?.endpointInSeconds, insertIntoManagedObjectContext: context)
             }
@@ -279,8 +279,8 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
             
             //Create cloud backup for the new project & add it to queue:
             if let dbConnection = DatabaseConnection() {
-                if let committedEdits = edits { //EDIT PROJECT flow - create Update command
-                    dbConnection.updateTableForProject(project.title, edits: committedEdits)
+                if (isEditProjectFlow) { //EDIT PROJECT flow - update project's DB information
+                    dbConnection.commitProjectEditToDatabase(project)
                 } else { //DEFAULT flow - create Cloud backup
                     dbConnection.createCloudModelForProject(project) //create backup & save to CD
                 }

@@ -92,10 +92,8 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     }
     var ghostVariables: [String: [GhostVariable]]? //KEY = parent computation, value = [Ghost]
     
-    var isProjectEditingFlow: Bool = false //**only true when existing vars are being EDITED
-    var projectToEdit: Project? //project to remove from CD store (pass on segue)
-    var projectEndDate: NSDate? //EDITING flow - indicates project end date
-    var edits: [(String, Bool)]? //EDIT PROJECT flow - keeps track of changes (for DB update cmd); TRUE = added, FALSE = deleted
+    var isEditProjectFlow: Bool = false //indicator for EDIT PROJECT flow
+    var projectToEdit: Project? //EDIT PROJECT flow - project to remove from CD store (pass on segue)
     
     private let viewBorderWidth: CGFloat = 5
     private let viewCornerRadius: CGFloat = 20
@@ -121,7 +119,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             if (projectType == ExperimentTypes.InputOutput) { //hide tutorialView
                 configureTutorialView(false, labelText: nil, rightButtonTitle: nil)
             } else if (projectType == ExperimentTypes.ControlComparison) {
-                if !(isProjectEditingFlow) {
+                if !(isEditProjectFlow) {
                     configureTutorialView(true, labelText: "First, let's create a control group for your project. The action and outcome measures you set here will be reused for your comparison group.", rightButtonTitle: "Let's do it!") //reveal tutorialView for CC project
                 } else { //**??editing flow - don't show card
                     //
@@ -324,16 +322,6 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 
                 //Send deleted typeName to moduleBlocker variable:
                 if let deletedVar = varToDelete, functionality = deletedVar.selectedFunctionality, loc = location {
-                    
-                    if (isProjectEditingFlow) { //**
-                        if let _ = edits {
-                            edits?.append((deletedVar.variableName, false))
-                        } else {
-                            edits = []
-                            edits?.append((deletedVar.variableName, false))
-                        }
-                    }
-                    
                     moduleBlocker.variableWasDeleted(loc, typeName: functionality)
                     if let _ = ghostVariables { //delete all ghosts associated w/ the variable
                         print("Deleting ghosts for variable: [\(deletedVar.variableName)]. Number of ghosts: \(ghostVariables![deletedVar.variableName]?.count).")
@@ -807,7 +795,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     }
     
     @IBAction func backButtonClick(sender: AnyObject) {
-        if !(isProjectEditingFlow) {
+        if !(isEditProjectFlow) {
             if (projectType == .InputOutput) { //segue -> CreateProject
                 performSegueWithIdentifier("unwindToCreateProject", sender: nil)
             } else if (projectType == .ControlComparison) {
@@ -879,15 +867,6 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 outcomeVariablesTV.reloadData()
             }
             
-            if (isProjectEditingFlow) { //**
-                if let _ = edits { //array exists
-                    edits?.append((variable.variableName, true))
-                } else { //array does NOT exist
-                    edits = [] //initialize
-                    edits?.append((variable.variableName, true))
-                }
-            }
-            
             variableLocation = nil //reset indicator
             createdVariable = nil //reset for next run
         }
@@ -909,10 +888,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             destination.inputVariables = self.inputVariablesDict
             destination.outcomeVariables = self.outcomeVariableRows
             destination.ghostVariables = self.ghostVariables //pass over any ghosts
-            
-            destination.projectToEdit = self.projectToEdit //**
-            destination.endDate = self.projectEndDate //**
-            destination.edits = self.edits //**
+            destination.projectToEdit = self.projectToEdit //pass project to be deleted
         } else if (segue.identifier == "showAttachModule") { //send name of new variable
             let destination = segue.destinationViewController as! UINavigationController
             let attachModuleVC = destination.topViewController as! AttachModuleViewController

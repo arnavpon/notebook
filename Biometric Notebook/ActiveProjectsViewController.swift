@@ -277,13 +277,12 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                     }
                 }
                 
-                projectVarsVC.isProjectEditingFlow = true //set indicator
+                projectVarsVC.isEditProjectFlow = true //set indicator
                 projectVarsVC.projectToEdit = selection //pass CoreData object for deletion
                 projectVarsVC.projectType = projectType
                 projectVarsVC.projectTitle = selection.title
                 projectVarsVC.projectQuestion = selection.question
                 projectVarsVC.projectHypothesis = selection.hypothesis
-                projectVarsVC.projectEndDate = selection.endDate
                 projectVarsVC.inputVariablesDict = inputVariables
                 projectVarsVC.outcomeVariableRows = outcomeVariables
                 projectVarsVC.selectedAction = action
