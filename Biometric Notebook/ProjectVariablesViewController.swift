@@ -91,7 +91,6 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         }
     }
     var ghostVariables: [String: [GhostVariable]]? //KEY = parent computation, value = [Ghost]
-    
     var isEditProjectFlow: Bool = false //indicator for EDIT PROJECT flow
     var projectToEdit: Project? //EDIT PROJECT flow - project to remove from CD store (pass on segue)
     
@@ -223,6 +222,9 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 if let functionality = outcomeVariableRows[indexPath.row].selectedFunctionality {
                     cell.detailTextLabel?.text = "\(functionality)"
                 }
+                if (outcomeVariableRows[indexPath.row].isOutcomeMeasure) { //check if var is OM
+                    cell.backgroundColor = UIColor.greenColor()
+                }
                 cell.selectionStyle = .None //prevents highlighting in gray of cell on selection
             }
         }
@@ -255,6 +257,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 cell?.backgroundColor = UIColor.greenColor()
                 let module = outcomeVariableRows[indexPath.row]
                 module.isOutcomeMeasure = true //set indicator in module class
+                configureDoneButton() //adjust 'Done' btn as needed
             }
         } else { //tutorial behavior
             if (screenNumber == 3) {
@@ -270,6 +273,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 tableView.cellForRowAtIndexPath(indexPath)?.backgroundColor = UIColor.whiteColor()
                 let module = outcomeVariableRows[indexPath.row]
                 module.isOutcomeMeasure = false //nullify indicator in module class
+                configureDoneButton() //adjust 'Done' btn as needed
             }
         }
     }
@@ -316,9 +320,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                     outcomeVariableRows.removeAtIndex(indexPath.row)
                 }
                 tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-                if (inputVariableRows.isEmpty) || (outcomeVariableRows.isEmpty) {
-                    doneButton.enabled = false
-                }
+                configureDoneButton() //adjust 'Done' btn accordingly
                 
                 //Send deleted typeName to moduleBlocker variable:
                 if let deletedVar = varToDelete, functionality = deletedVar.selectedFunctionality, loc = location {
@@ -421,9 +423,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                     }
                 }
             }
-            if (self.inputVariableRows.count > 0) && (self.outcomeVariableRows.count > 0) && (self.selectedAction != nil) { //enable 'Done' button if criteria are met
-                self.doneButton.enabled = true
-            }
+            configureDoneButton() //adjust 'Done' btn accordingly
         }
     }
     
@@ -870,9 +870,21 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             variableLocation = nil //reset indicator
             createdVariable = nil //reset for next run
         }
-        
-        if (inputVariableRows.count > 0) && (outcomeVariableRows.count > 0) && (selectedAction != nil) { //enable button when 1 of each var is added & action is set
-            doneButton.enabled = true
+        configureDoneButton() //adjust 'Done' btn accordingly
+    }
+    
+    private func configureDoneButton() { //enables/disables 'Done' btn
+        var outcomeMeasureIsSet: Bool = false //at least 1 OM must be set to end setup
+        for variable in outcomeVariableRows {
+            if (variable.isOutcomeMeasure) { //var is set to OM
+                outcomeMeasureIsSet = true
+                break //end loop
+            }
+        }
+        if (outcomeMeasureIsSet) && (self.inputVariableRows.count > 0) && (self.outcomeVariableRows.count > 0) && (self.selectedAction != nil) { //enable 'Done' button if criteria are met
+            self.doneButton.enabled = true
+        } else { //setup is INCOMPLETE -> disable
+            self.doneButton.enabled = false
         }
     }
 
@@ -888,7 +900,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             destination.inputVariables = self.inputVariablesDict
             destination.outcomeVariables = self.outcomeVariableRows
             destination.ghostVariables = self.ghostVariables //pass over any ghosts
-            destination.projectToEdit = self.projectToEdit //pass project to be deleted
+            destination.projectToEdit = self.projectToEdit //EDIT PROJECT - pass project to be deleted
         } else if (segue.identifier == "showAttachModule") { //send name of new variable
             let destination = segue.destinationViewController as! UINavigationController
             let attachModuleVC = destination.topViewController as! AttachModuleViewController

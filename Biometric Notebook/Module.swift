@@ -13,7 +13,7 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     
     static let modules: [Modules] = [Modules.CustomModule, Modules.EnvironmentModule, Modules.FoodIntakeModule, Modules.ExerciseModule, Modules.BiometricModule, Modules.CarbonEmissionsModule] //list of available modules, update whenever a new one is added
     
-    var isOutcomeMeasure: Bool = false //externally set to indicate that this variable is an OM**
+    var isOutcomeMeasure: Bool = false //set by user in PVVC to indicate variable is an OM
     var variableReportType = ModuleVariableReportTypes.Default //report type, default is 'default'
     private var variableState: ModuleVariableStates //state of THIS instance (Configuration or Reporting)
     internal let variableName: String //the name given to the variable attached to this module
@@ -107,6 +107,9 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
             self.isGhost = ghost
             self.parentComputation = parent
         }
+        if let isOutcome = dict[BMN_VariableIsOutcomeMeasureKey] as? Bool { //check for OM
+            self.isOutcomeMeasure = isOutcome
+        }
     }
     
     func copyWithZone(zone: NSZone) -> AnyObject { //OVERRIDE in subclasses
@@ -148,7 +151,7 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
             persistentDictionary[BMN_VariableIsGhostKey] = true
             persistentDictionary[BMN_ComputationFramework_ComputationNameKey] = parentComputation
         }
-        if (self.isOutcomeMeasure) { //**
+        if (self.isOutcomeMeasure) { //OM indicator - needed for data analysis
             persistentDictionary[BMN_VariableIsOutcomeMeasureKey] = true
         }
         return persistentDictionary

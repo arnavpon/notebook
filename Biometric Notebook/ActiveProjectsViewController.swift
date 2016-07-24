@@ -25,6 +25,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //user is logged in
             self.loggedIn = true
         }
+//        clearCoreDataStoreForEntity(entity: "DatabaseObject")
         
         //Register TV dataSource & delegate:
         activeProjectsTableView.dataSource = self
@@ -416,6 +417,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     @IBAction func menuButtonClick(sender: AnyObject) { //display menu
         if let dbConnection = DatabaseConnection() { //push Cloud backups/reported data -> DB
+            print("Pushing data to DB...")
             dbConnection.pushAllDataToDatabase(0) //**
         }
     }

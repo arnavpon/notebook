@@ -10,6 +10,7 @@ import UIKit
 class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     @IBOutlet weak var summaryTableView: UITableView!
+    @IBOutlet weak var createButton: UIBarButtonItem!
     
     let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
     
@@ -31,6 +32,9 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         summaryTableView.dataSource = self
         summaryTableView.delegate = self
         summaryTableView.registerClass(UITableViewCell.self, forCellReuseIdentifier: "summary_cell")
+        if let _ = projectToEdit { //EDIT PROJECT flow - change 'Create' btn title -> 'Update'
+            createButton.title = "Update"
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -120,6 +124,8 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
             if let endpoint = projectEndpoint {
                 if let numberOfDays = endpoint.getEndpointInDays() {
                     cell.textLabel?.text = "Project ends \(numberOfDays) days from now"
+                } else { //continuous project
+                    cell.textLabel?.text = "Continuous project (indefinite length)"
                 }
             } else if let project = projectToEdit, end = project.endDate {
                 cell.textLabel?.text = DateTime(date: end).getDateString()

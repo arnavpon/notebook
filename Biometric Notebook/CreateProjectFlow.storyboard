@@ -749,6 +749,7 @@
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
+                        <outlet property="createButton" destination="VCd-Ya-GJv" id="n19-iH-Zwf"/>
                         <outlet property="summaryTableView" destination="7jG-Yl-lTG" id="XzW-Ev-fbG"/>
                     </connections>
                 </viewController>

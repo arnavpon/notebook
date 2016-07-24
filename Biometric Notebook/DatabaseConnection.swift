@@ -62,13 +62,13 @@ class DatabaseConnection: DataReportingErrorProtocol {
                     }
                 }
             } else if !(editedProjectObjects.isEmpty) { //(2) push edited project models
-                if let cloudModel = cloudModels.first, type = DatabaseConnectionDataTypes(rawValue: cloudModel.dataTypeRaw as Int) { //grab 1st item to push
+                if let editedModel = editedProjectObjects.first, type = DatabaseConnectionDataTypes(rawValue: editedModel.dataTypeRaw as Int) { //grab 1st item to push
                     print("\nTransmitting object (edited model) #\(count+1) in queue...")
                     switch type { //check type of data
                     case .EditedProjectModel: //post Edited Project model
-                        postEditedProjectModelToDatabase(cloudModel.dataDictionary, success: { (completed) in
+                        postEditedProjectModelToDatabase(editedModel.dataDictionary, success: { (completed) in
                             if (completed) { //operation succeeded - push next function to store
-                                deleteManagedObject(cloudModel) //remove object from CoreData store
+                                deleteManagedObject(editedModel) //remove object from CoreData store
                                 self.pushAllDataToDatabase((count + 1)) //pass next
                             } else { //operation failed - terminate function
                                 print("Operation failed. Terminating process...\n")
@@ -288,7 +288,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
     }
     
     private func postEditedProjectModelToDatabase(model: [String: AnyObject], success: (Bool) -> Void) {
-        let url = NSURL(string: "http://192.168.1.\(ip_last):8000/edit-project")!
+        let url = NSURL(string: "http://192.168.1.\(ip_last):8000/edit-project-setup")!
         let request = NSMutableURLRequest(URL: url)
         request.HTTPMethod = "POST"
         do { //pass dictionary representation -> Cloud
