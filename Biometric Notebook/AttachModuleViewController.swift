@@ -109,6 +109,8 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
             alert = UIAlertController(title: "Module Description", message: "A module that allows you to track biometric data like height and weight.", preferredStyle: .Alert)
         case .CarbonEmissionsModule:
             alert = UIAlertController(title: "Module Description", message: "A module that allows you to track your carbon emissions.", preferredStyle: .Alert)
+        default: //Recipe module - cannot be selected
+            alert = UIAlertController()
         }
         let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in
             self.selectedModule = nil //clear selection
@@ -137,6 +139,8 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
             self.createdVariable = BiometricModule(name: self.variableName!)
         case .CarbonEmissionsModule:
             self.createdVariable = CarbonEmissionsModule(name: self.variableName!)
+        default: //Recipe module - cannot be selected
+            print("[attachSelectedModule] Error - default in switch.")
         }
         self.performSegueWithIdentifier("showConfigureModule", sender: nil)
     }

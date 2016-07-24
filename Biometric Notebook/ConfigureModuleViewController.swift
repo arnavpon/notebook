@@ -134,6 +134,8 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
 
     // MARK: - Navigation
     
+    @IBAction func unwindToConfigureModuleVC(sender: UIStoryboardSegue) { }
+    
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if (segue.identifier == "showConfigOptions") { //show segue -> ConfigurationOptionsVC
             let destination = segue.destinationViewController as! ConfigurationOptionsViewController

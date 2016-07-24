@@ -14,6 +14,7 @@ enum Modules: String {
     case ExerciseModule = "Exercise"
     case BiometricModule = "Biometric"
     case CarbonEmissionsModule = "Carbon Emissions"
+    case RecipeModule = "RecipeModule"
 }
 
 enum ModuleVariableStates { //represents the state of the variable object

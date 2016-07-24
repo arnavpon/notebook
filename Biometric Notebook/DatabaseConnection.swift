@@ -59,7 +59,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
                 }
             } else if !(editedProjectModels.isEmpty) { //(2) push edited project models
                 if let editedModel = editedProjectModels.first { //grab 1st item to push
-                    print("\nTransmitting object (edited model) #\(count+1) in queue...")
+                    print("\nTransmitting object (EDITED model) #\(count+1) in queue...")
                     postEditedProjectModelToDatabase(editedModel.dataDictionary, success: { (completed) in
                         if (completed) { //operation succeeded - push next function to store
                             deleteManagedObject(editedModel) //remove object from CoreData store
@@ -73,11 +73,11 @@ class DatabaseConnection: DataReportingErrorProtocol {
                     })
                 }
             } else if !(editedProjectObjects.isEmpty) { //(3) push editedProjectData (1st transmission)
-                if let dataObject = dataObjects.first { //grab 1st item to push
-                    print("\nTransmitting object (data) #\(count+1) in queue...")
-                    self.postDataObjectToDatabase(dataObject, success: { (completed) in
+                if let initialDataObject = editedProjectObjects.first { //grab 1st item to push
+                    print("\nTransmitting object (EDITED data) #\(count+1) in queue...")
+                    self.postDataObjectToDatabase(initialDataObject, success: { (completed) in
                         if (completed) { //the operation succeeded - push next function to store
-                            deleteManagedObject(dataObject) //remove object from CoreData store
+                            deleteManagedObject(initialDataObject) //remove object from CoreData store
                             self.pushAllDataToDatabase((count + 1)) //pass next
                         } else { //the operation failed - terminate function
                             print("Operation failed! Terminating process...\n")
@@ -89,7 +89,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
                 }
             } else if !(dataObjects.isEmpty) { //(4) push reportedData
                 if let dataObject = dataObjects.first { //grab 1st item to push
-                    print("\nTransmitting object (data) #\(count+1) in queue...")
+                    print("\nTransmitting object (NORMAL data) #\(count+1) in queue...")
                     self.postDataObjectToDatabase(dataObject, success: { (completed) in
                         if (completed) { //the operation succeeded - push next function to store
                             deleteManagedObject(dataObject) //remove object from CoreData store

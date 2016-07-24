@@ -32,6 +32,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
     }
     var heightForCells = Dictionary<String, Int>() //object for TV's heightForRow()
     var existingVariables: [ComputationFramework_ExistingVariables]? //list of existing vars (for computs)
+    var isRecipeFlow: Bool = false //indicator for recipe flow
     
     // MARK: - View Configuration
     
@@ -190,7 +191,16 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         if let variable = createdVariable {
             let (success, msg, flags) = variable.matchConfigurationItemsToProperties(reportedDataObject)
             if (success) { //operation was successful
-                performSegueWithIdentifier("unwindToVariablesVC", sender: nil)
+                if !(isRecipeFlow) { //default flow
+                    performSegueWithIdentifier("unwindToVariablesVC", sender: nil)
+                } else { //recipe flow - create Project & return -> home screen
+                    if let recipe = variable as? RecipeModule {
+                        recipe.createProjectForRecipeModule() //generate project
+                        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                        let controller = storyboard.instantiateInitialViewController()!
+                        presentViewController(controller, animated: true, completion: nil)
+                    }
+                }
             } else { //unsuccessful operation, display alert
                 let alert = UIAlertController(title: "Error!", message: msg, preferredStyle: UIAlertControllerStyle.Alert)
                 let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: { (let ok) in
@@ -209,6 +219,16 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             }
         } else {
             print("[doneButtonClick] Error! Could not find a variable!")
+        }
+    }
+    
+    @IBAction func backButtonClick(sender: AnyObject) {
+        if !(isRecipeFlow) { //default
+            performSegueWithIdentifier("unwindToConfigureModule", sender: nil)
+        } else { //return to CreateProjectVC
+            let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
+            let controller = storyboard.instantiateInitialViewController()!
+            presentViewController(controller, animated: true, completion: nil)
         }
     }
 

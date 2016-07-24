@@ -4,6 +4,7 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
         <!--Create Project-->
@@ -37,16 +38,24 @@
                                 <action selector="cancelButtonClick:" destination="qTS-l6-Ram" id="1LG-xe-BJv"/>
                             </connections>
                         </barButtonItem>
-                        <barButtonItem key="rightBarButtonItem" enabled="NO" title="Setup" id="eO5-gt-PNQ">
-                            <connections>
-                                <action selector="setupButtonClick:" destination="qTS-l6-Ram" id="lPD-es-JhS"/>
-                            </connections>
-                        </barButtonItem>
+                        <rightBarButtonItems>
+                            <barButtonItem enabled="NO" title="Setup" id="eO5-gt-PNQ">
+                                <connections>
+                                    <action selector="setupButtonClick:" destination="qTS-l6-Ram" id="lPD-es-JhS"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="RE" id="ftm-dg-IaC">
+                                <connections>
+                                    <action selector="recipeButtonClick:" destination="qTS-l6-Ram" id="nhE-vF-Pip"/>
+                                </connections>
+                            </barButtonItem>
+                        </rightBarButtonItems>
                     </navigationItem>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <connections>
                         <outlet property="bottomConstraint" destination="rUD-wa-Fil" id="FCe-3v-C4P"/>
                         <outlet property="createProjectTV" destination="fHZ-kH-CGK" id="ah5-7S-vXM"/>
+                        <outlet property="recipeButton" destination="ftm-dg-IaC" id="QB3-H3-nRq"/>
                         <outlet property="setupButton" destination="eO5-gt-PNQ" id="ouq-Bt-TUA"/>
                         <segue destination="DdO-PX-bxy" kind="show" identifier="showVariables" id="1IL-hp-H34"/>
                     </connections>
@@ -239,7 +248,7 @@
         <!--Configuration Options View Controller-->
         <scene sceneID="xsL-4v-JjC">
             <objects>
-                <viewController automaticallyAdjustsScrollViewInsets="NO" id="vEx-zx-IJg" customClass="ConfigurationOptionsViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ConfigurationOptionsVC" automaticallyAdjustsScrollViewInsets="NO" id="vEx-zx-IJg" customClass="ConfigurationOptionsViewController" customModule="Biometric_Notebook" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="gYC-Op-Xt0"/>
                         <viewControllerLayoutGuide type="bottom" id="EkV-w1-rzR"/>
@@ -262,6 +271,11 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="eqz-gl-fGl">
+                        <barButtonItem key="leftBarButtonItem" title="&lt; Back" id="Adz-TJ-wvY">
+                            <connections>
+                                <action selector="backButtonClick:" destination="vEx-zx-IJg" id="S4o-Vr-x8c"/>
+                            </connections>
+                        </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" enabled="NO" style="done" systemItem="done" id="FXz-hS-UfX">
                             <connections>
                                 <action selector="doneButtonClick:" destination="vEx-zx-IJg" id="Hqy-xZ-8vy"/>
@@ -274,6 +288,7 @@
                         <outlet property="doneButton" destination="FXz-hS-UfX" id="4or-HL-64S"/>
                         <outlet property="optionsTableView" destination="VLc-ao-clr" id="DNS-V5-MKg"/>
                         <segue destination="NFP-oi-PlM" kind="unwind" identifier="unwindToVariablesVC" unwindAction="unwindToVariablesVC:" id="qXJ-R1-h5x"/>
+                        <segue destination="NFP-oi-PlM" kind="unwind" identifier="unwindToConfigureModule" unwindAction="unwindToConfigureModuleVC:" id="4N3-KO-0Xu"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xda-Jb-dCq" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -782,7 +797,7 @@
         <!--Navigation Controller-->
         <scene sceneID="guZ-fX-ECf">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="yYH-GI-7YT" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="AttachVar_NavController" automaticallyAdjustsScrollViewInsets="NO" id="yYH-GI-7YT" sceneMemberID="viewController">
                     <toolbarItems/>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <size key="freeformSize" width="600" height="600"/>

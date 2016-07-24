@@ -315,6 +315,8 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             object = BiometricModule(name: variableName, dict: configurationDict)
         case .CarbonEmissionsModule:
             object = CarbonEmissionsModule(name: variableName, dict: configurationDict)
+        case .RecipeModule:
+            break //cannot edit a Recipe Module var
         }
         return object
     }

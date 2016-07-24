@@ -222,3 +222,12 @@ let BMN_ExerciseModule_WorkoutExercisesKey = "ExM_workout_exercises_key"
 //[Configuration IDs]:
 let BMN_ExerciseModule_WorkoutDayOfWeekID = "ExM_workout_day_of_week_id"
 let BMN_ExerciseModule_WorkoutExercisesID = "ExM_workout_exercises_id"
+
+// MARK: - ExerciseModule [ExM]
+
+//[Configuration KEYS]:
+let BMN_RecipeModule_RatingCategoriesKey = "ReM_rating_categories_key"
+
+//[Configuration IDs]:
+let BMN_RecipeModule_RatingCategoriesID = "ReM_rating_categories_id"
+let BMN_RecipeModule_RecipeNameID = "ReM_recipe_name_id"

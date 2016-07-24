@@ -11,7 +11,7 @@ import UIKit
 
 class Module: NSObject, NSCopying { //defines the behaviors that are common to all modules
     
-    static let modules: [Modules] = [Modules.CustomModule, Modules.EnvironmentModule, Modules.FoodIntakeModule, Modules.ExerciseModule, Modules.BiometricModule, Modules.CarbonEmissionsModule] //list of available modules, update whenever a new one is added
+    static let modules: [Modules] = [Modules.CustomModule, Modules.EnvironmentModule, Modules.FoodIntakeModule, Modules.ExerciseModule, Modules.BiometricModule, Modules.CarbonEmissionsModule] //list of available modules to display to user
     
     var isOutcomeMeasure: Bool = false //set by user in PVVC to indicate variable is an OM
     var variableReportType = ModuleVariableReportTypes.Default //report type, default is 'default'

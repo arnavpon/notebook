@@ -10,6 +10,7 @@ import UIKit
 class CreateProjectViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var setupButton: UIBarButtonItem!
+    @IBOutlet weak var recipeButton: UIBarButtonItem!
     @IBOutlet weak var createProjectTV: UITableView!
     @IBOutlet weak var bottomConstraint: NSLayoutConstraint!
         
@@ -88,11 +89,13 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
         let total = 4 //4 total cells that need to be filled
         if (numberOfConfiguredCells != total) { //some cells haven't been configured yet
             setupButton.enabled = false
+            recipeButton.enabled = true //**
             if (numberOfConfiguredCells > total) { //error check
                 print("[configureDoneButton] Error - # of configured cells exceeds total # of cells!")
             }
         } else { //all cells have been configured
             setupButton.enabled = true
+            recipeButton.enabled = false //**
         }
     }
     
@@ -240,11 +243,20 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
         presentViewController(controller, animated: true, completion: nil)
     }
     
+    @IBAction func recipeButtonClick(sender: AnyObject) { //jumps -> ConfigurationOptionsVC
+        let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
+        let navController = storyboard.instantiateViewControllerWithIdentifier("AttachVar_NavController") as! UINavigationController
+        let configurationVC = storyboard.instantiateViewControllerWithIdentifier("ConfigurationOptionsVC") as! ConfigurationOptionsViewController
+        let recipe = RecipeModule(name: "") //init w/o name is allowable for recipe
+        configurationVC.createdVariable = recipe
+        configurationVC.isRecipeFlow = true //set indicator
+        navController.showViewController(configurationVC, sender: nil)
+        presentViewController(navController, animated: true, completion: nil)
+    }
+    
     // MARK: - Navigation
     
-    @IBAction func unwindToCreateProjectsVC(sender: UIStoryboardSegue) { //unwind segue
-        //do we need to do anything?
-    }
+    @IBAction func unwindToCreateProjectsVC(sender: UIStoryboardSegue) { }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         //Pass the title, question, hypothesis, endpoint, & type through -> remaining flows:

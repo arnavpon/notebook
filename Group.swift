@@ -113,6 +113,8 @@ class Group: NSManagedObject {
             object = BiometricModule(name: variableName, dict: configurationDict)
         case .CarbonEmissionsModule:
             object = CarbonEmissionsModule(name: variableName, dict: configurationDict)
+        case .RecipeModule:
+            object = RecipeModule(name: variableName, dict: configurationDict)
         }
         return object
     }

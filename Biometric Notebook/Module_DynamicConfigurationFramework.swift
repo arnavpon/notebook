@@ -206,6 +206,9 @@ class Module_DynamicConfigurationFramework {
             
             //(2) Block variables based on presence in project (i.e. check for uniqueness):
             //**
+            
+        default: //Recipe Module - no dynamic config needed
+            break
         }
         
         return filteredTypes
