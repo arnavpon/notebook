@@ -247,7 +247,9 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
         let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
         let navController = storyboard.instantiateViewControllerWithIdentifier("AttachVar_NavController") as! UINavigationController
         let configurationVC = storyboard.instantiateViewControllerWithIdentifier("ConfigurationOptionsVC") as! ConfigurationOptionsViewController
+        
         let recipe = RecipeModule(name: "") //init w/o name is allowable for recipe
+        recipe.selectedFunctionality = RecipeModuleVariableTypes.Recipe.rawValue //set functionality
         configurationVC.createdVariable = recipe
         configurationVC.isRecipeFlow = true //set indicator
         navController.showViewController(configurationVC, sender: nil)

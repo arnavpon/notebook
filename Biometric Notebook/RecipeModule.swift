@@ -32,7 +32,6 @@ class RecipeModule: Module {
     override init(name: String) { //set-up init
         super.init(name: name)
         self.moduleTitle = Modules.RecipeModule.rawValue
-        self.selectedFunctionality = RecipeModuleVariableTypes.Recipe.rawValue
     }
     
     override init(name: String, dict: [String: AnyObject]) { //CoreData init
@@ -56,6 +55,7 @@ class RecipeModule: Module {
                         }
                     }
                 }
+                //
             case .Recipe: //should never be set w/ CoreData init (not a true var)
                 break
             }
@@ -166,7 +166,7 @@ class RecipeModule: Module {
     override func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
         if let type = self.variableType {
             switch type {
-            case .Behavior_Ingredients: //IV - list?
+            case .Behavior_Ingredients: //IV - conjugate variable? that enables users to enter ingredients & fill in categories using a Freeform Cell
                 return nil
             case .Behavior_CookingInstructions: //IV - ?
                 return nil
