@@ -25,7 +25,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //user is logged in
             self.loggedIn = true
         }
-//        clearCoreDataStoreForEntity(entity: "DatabaseObject")
         
         //Register TV dataSource & delegate:
         activeProjectsTableView.dataSource = self
