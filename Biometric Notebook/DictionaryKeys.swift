@@ -11,11 +11,12 @@ import UIKit
 
 let IP_VALUE = "ip_value" //**temporary
 
-let IS_LOGGED_IN_KEY = "is_logged_in_key"
-let EMAIL_KEY = "email_key"
-let SHOW_VARIABLE_SETUP_TUTORIAL = "show_variable_setup_tutorial"
-let SHOW_ATTACH_DESCRIPTION = "show_attach_description_key"
-let INPUTS_TIME_STAMP = "input_variables_time_stamp_key" //for DataEntryVC
+let IS_LOGGED_IN_KEY = "UserDefaults_is_logged_in_key"
+let EMAIL_KEY = "UserDefaults_email_key"
+let EDITED_PROJECTS_KEY = "UserDefaults_edited_projects_key" //keeps track of recently edited projects
+let SHOW_VARIABLE_SETUP_TUTORIAL = "UserDefaults_show_variable_setup_tutorial"
+let SHOW_ATTACH_DESCRIPTION = "UserDefaults_show_attach_description_key"
+let INPUTS_TIME_STAMP = "UserDefaults_input_variables_time_stamp_key" //for DataEntryVC
 
 // MARK: - [COMPUTATIONS] IDs
 let BMN_ComputationFramework_BM_BMI_HeightID = "CF_BM_BMI_height_id"

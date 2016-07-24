@@ -125,16 +125,11 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                 }
                 ccNavigationState = CCProjectNavigationState.Control //set 1st state
             }
-            if let action = self.selectedAction { //action is set
-                if (action.action == .Custom) { //Custom value
-                    addActionButton.setTitle(action.customAction, forState: .Normal)
-                } else { //default action value
-                    addActionButton.setTitle(action.action.rawValue, forState: .Normal)
-                }
+            if let action = self.selectedAction { //EDIT PROJECT flow - set actionBtn
+                setActionButtonTitleForAction(action)
                 addActionButton.userInteractionEnabled = false //block changes to action
             }
         } else { //does NOT exist - show tutorial, dim background if descriptionView is visible
-            print("Showing tutorial...")
             showTutorialMode = true //set indicator
             tutorialIsOn = true //start interactive tutorial (so TV will show dummy variables)
             tutorialViewLabel.font = UIFont.systemFontOfSize(16, weight: 0.2)
@@ -251,12 +246,11 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         if !(showTutorialMode) && !(tutorialIsOn) { //normal behavior
             if (tableView == inputVariablesTV) { //inputs TV
                 //
-            } else if (tableView == outcomeVariablesTV) { //outcomes TV
-                //selecting cell sets it as an outcome measure (highlight it in green)
+            } else if (tableView == outcomeVariablesTV) && !(isEditProjectFlow) { //OM CANNOT be edited
                 let cell = tableView.cellForRowAtIndexPath(indexPath)
-                cell?.backgroundColor = UIColor.greenColor()
+                cell?.backgroundColor = UIColor.greenColor() //highlight cell in green
                 let module = outcomeVariableRows[indexPath.row]
-                module.isOutcomeMeasure = true //set indicator in module class
+                module.isOutcomeMeasure = true //set OM indicator in Module class
                 configureDoneButton() //adjust 'Done' btn as needed
             }
         } else { //tutorial behavior
@@ -269,7 +263,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     
     func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
         if !(showTutorialMode) && !(tutorialIsOn) { //normal behavior
-            if (tableView == outcomeVariablesTV) { //outcomes TV, remove OM marking
+            if (tableView == outcomeVariablesTV) && !(isEditProjectFlow) { //remove OM marking
                 tableView.cellForRowAtIndexPath(indexPath)?.backgroundColor = UIColor.whiteColor()
                 let module = outcomeVariableRows[indexPath.row]
                 module.isOutcomeMeasure = false //nullify indicator in module class
@@ -370,7 +364,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
                     let text = input.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
                     if (text != "") { //create a custom action from the input
                         self.selectedAction = Action(action: Actions.Custom, actionName: input)
-                        self.shouldShowPickerView(showPicker: false, actionName: self.selectedAction?.customAction)
+                        self.shouldShowPickerView(showPicker: false, action: self.selectedAction!)
                     } else { //incomplete entry, keep picker visible & cycle picker to start
                         self.actionPicker.selectRow(0, inComponent: 0, animated: true)
                         self.selectedAction = nil
@@ -386,7 +380,7 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         } else { //if any other action is selected, set selectedAction & hide picker
             if let action = Actions(rawValue: actionPickerRowArray[row]) {
                 selectedAction = Action(action: action, actionName: nil)
-                shouldShowPickerView(showPicker: false, actionName: selectedAction?.action.rawValue)
+                shouldShowPickerView(showPicker: false, action: selectedAction!)
             } else {
                 print("error in pickerView didSelectRow() ELSE statement")
                 self.actionPicker.selectRow(0, inComponent: 0, animated: true)
@@ -400,22 +394,21 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         }
     }
     
-    func shouldShowPickerView(showPicker show: Bool, actionName: String?) { //controls picker display
+    func shouldShowPickerView(showPicker show: Bool, action: Action?) { //controls picker display
         if (show) { //show picker
             actionPicker.hidden = false
-            interactionEnabled = false
+            interactionEnabled = false //block interaction w/ self.view
             for subview in view.subviews {
                 if (subview != actionPicker) && !(subview.isDescendantOfView(tutorialView)) {
                     subview.hidden = true
                 }
             }
         } else { //hide picker & set 'actionButton' title
-            addActionButton.setTitleColor(UIColor.blackColor(), forState: .Normal)
-            if let name = actionName { //if new name was selected, update btn w/ name
-                addActionButton.setTitle(name, forState: .Normal)
+            if let setAction = action { //check if an action was input (else leave btn as is)
+                setActionButtonTitleForAction(setAction)
             }
             actionPicker.hidden = true
-            interactionEnabled = true
+            interactionEnabled = true //re-enable interaction w/ self.view
             for subview in view.subviews {
                 if (subview != actionPicker) {
                     if (subview != tutorialView) && !(subview.isDescendantOfView(tutorialView)) {
@@ -427,9 +420,18 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         }
     }
     
+    private func setActionButtonTitleForAction(action: Action) {
+        addActionButton.setTitleColor(UIColor.blackColor(), forState: .Normal)
+        if let name = action.customAction { //CUSTOM action - update btn w/ name
+            addActionButton.setTitle(name, forState: .Normal)
+        } else { //DEFAULT action - update btn w/ name
+            addActionButton.setTitle(action.action.rawValue, forState: .Normal)
+        }
+    }
+    
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) { //if user taps on view when picker is visible, dismiss picker
         if (actionPicker.hidden == false) { //only fires when pickerView is visible
-            shouldShowPickerView(showPicker: false, actionName: nil) //dismiss picker
+            shouldShowPickerView(showPicker: false, action: nil) //dismiss picker
         }
     }
     
@@ -516,7 +518,12 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             outcomeVariablesTV.cellForRowAtIndexPath(newIndexPath)!.contentView.alpha = 1
         } else if (number == 4) { //ready view for proper use
             inputVariablesTVButton.enabled = true
-            addActionButton.enabled = true
+            if let action = selectedAction { //EDIT PROJECT flow, disable action picker & set its value
+                addActionButton.userInteractionEnabled = false //prevent editing
+                setActionButtonTitleForAction(action)
+            } else { //default
+                addActionButton.enabled = true
+            }
             outcomeVariablesTVButton.enabled = true
             resetAlphaForAllSubviews(ofView: self.view)
             
@@ -677,8 +684,8 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
         } else { //normal behavior
             if (projectType == .InputOutput) || ((projectType == .ControlComparison) && (ccNavigationState == .Control)) {
                 //ONLY enable addition of an action if the projectType is IO OR the projectType is CC & the navigation state is 'Control':
-                actionPicker.selectRow(0, inComponent: 0, animated: false)
-                shouldShowPickerView(showPicker: true, actionName: nil)
+                actionPicker.selectRow(0, inComponent: 0, animated: false) //move picker to empty value
+                shouldShowPickerView(showPicker: true, action: nil) //show picker
             }
         }
     }

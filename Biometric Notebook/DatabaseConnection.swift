@@ -11,7 +11,8 @@ import CoreData
 enum DatabaseConnectionDataTypes: Int {
     case CloudModel = 0
     case EditedProjectModel = 1
-    case ReportedData = 2
+    case EditedProjectData = 2 //1st transmission of data for edited project
+    case ReportedData = 3
 }
 
 class DatabaseConnection: DataReportingErrorProtocol {
@@ -40,66 +41,66 @@ class DatabaseConnection: DataReportingErrorProtocol {
     // MARK: - Networking Logic
     
     func pushAllDataToDatabase(count: Int) { //pushes any backups or reportedData -> DB
-        if let cloudModels = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "dataTypeRaw", filterValue: ["\(DatabaseConnectionDataTypes.CloudModel.rawValue)"]) as? [DatabaseObject], editedProjectObjects = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "dataTypeRaw", filterValue: ["\(DatabaseConnectionDataTypes.EditedProjectModel.rawValue)"]) as? [DatabaseObject], dataObjects = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "dataTypeRaw", filterValue: ["\(DatabaseConnectionDataTypes.ReportedData.rawValue)"]) as? [DatabaseObject] {
+        if let cloudModels = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "dataTypeRaw", filterValue: ["\(DatabaseConnectionDataTypes.CloudModel.rawValue)"]) as? [DatabaseObject], editedProjectModels = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "dataTypeRaw", filterValue: ["\(DatabaseConnectionDataTypes.EditedProjectModel.rawValue)"]) as? [DatabaseObject], editedProjectObjects = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "dataTypeRaw", filterValue: ["\(DatabaseConnectionDataTypes.EditedProjectData.rawValue)"]) as? [DatabaseObject], dataObjects = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "dataTypeRaw", filterValue: ["\(DatabaseConnectionDataTypes.ReportedData.rawValue)"]) as? [DatabaseObject] {
             if !(cloudModels.isEmpty) { //(1) push cloud models
-                if let cloudModel = cloudModels.first, type = DatabaseConnectionDataTypes(rawValue: cloudModel.dataTypeRaw as Int) { //grab 1st item to push
+                if let cloudModel = cloudModels.first { //grab 1st item to push
                     print("\nTransmitting object (Cloud model) #\(count+1) in queue...")
-                    switch type { //check type of data
-                    case .CloudModel: //post Cloud backup
-                        postProjectModelToCloud(cloudModel.dataDictionary, success: { (completed) in
-                            if (completed) { //operation succeeded - push next function to store
-                                deleteManagedObject(cloudModel) //remove object from CoreData store
-                                self.pushAllDataToDatabase((count + 1)) //pass next
-                            } else { //operation failed - terminate function
-                                print("Operation failed. Terminating process...\n")
-                                let notification = NSNotification(name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil, userInfo: [BMN_DatabaseConnection_TransmissionStatusKey: false])
-                                NSNotificationCenter.defaultCenter().postNotification(notification)
-                                return
-                            }
-                        })
-                    default: //error
-                        print("Error - wrong DBConnType found in CloudModel area...\n")
-                    }
+                    postProjectModelToCloud(cloudModel.dataDictionary, success: { (completed) in
+                        if (completed) { //operation succeeded - push next function to store
+                            deleteManagedObject(cloudModel) //remove object from CoreData store
+                            self.pushAllDataToDatabase((count + 1)) //pass next
+                        } else { //operation failed - terminate function
+                            print("Operation failed. Terminating process...\n")
+                            let notification = NSNotification(name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil, userInfo: [BMN_DatabaseConnection_TransmissionStatusKey: false])
+                            NSNotificationCenter.defaultCenter().postNotification(notification)
+                            return
+                        }
+                    })
                 }
-            } else if !(editedProjectObjects.isEmpty) { //(2) push edited project models
-                if let editedModel = editedProjectObjects.first, type = DatabaseConnectionDataTypes(rawValue: editedModel.dataTypeRaw as Int) { //grab 1st item to push
+            } else if !(editedProjectModels.isEmpty) { //(2) push edited project models
+                if let editedModel = editedProjectModels.first { //grab 1st item to push
                     print("\nTransmitting object (edited model) #\(count+1) in queue...")
-                    switch type { //check type of data
-                    case .EditedProjectModel: //post Edited Project model
-                        postEditedProjectModelToDatabase(editedModel.dataDictionary, success: { (completed) in
-                            if (completed) { //operation succeeded - push next function to store
-                                deleteManagedObject(editedModel) //remove object from CoreData store
-                                self.pushAllDataToDatabase((count + 1)) //pass next
-                            } else { //operation failed - terminate function
-                                print("Operation failed. Terminating process...\n")
-                                let notification = NSNotification(name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil, userInfo: [BMN_DatabaseConnection_TransmissionStatusKey: false])
-                                NSNotificationCenter.defaultCenter().postNotification(notification)
-                                return
-                            }
-                        })
-                    default: //error
-                        print("Error - wrong type found in EditedProjects area...\n")
-                    }
+                    postEditedProjectModelToDatabase(editedModel.dataDictionary, success: { (completed) in
+                        if (completed) { //operation succeeded - push next function to store
+                            deleteManagedObject(editedModel) //remove object from CoreData store
+                            self.pushAllDataToDatabase((count + 1)) //pass next
+                        } else { //operation failed - terminate function
+                            print("Operation failed. Terminating process...\n")
+                            let notification = NSNotification(name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil, userInfo: [BMN_DatabaseConnection_TransmissionStatusKey: false])
+                            NSNotificationCenter.defaultCenter().postNotification(notification)
+                            return
+                        }
+                    })
                 }
-            } else if !(dataObjects.isEmpty) { //(3) push reportedData
-                if let dataObject = dataObjects.first, type = DatabaseConnectionDataTypes(rawValue: dataObject.dataTypeRaw as Int) { //grab 1st item to push
+            } else if !(editedProjectObjects.isEmpty) { //(3) push editedProjectData (1st transmission)
+                if let dataObject = dataObjects.first { //grab 1st item to push
                     print("\nTransmitting object (data) #\(count+1) in queue...")
-                    switch type { //check type of data
-                    case .ReportedData: //post Reported Data
-                        self.postDataObjectToDatabase(dataObject, success: { (completed) in
-                            if (completed) { //the operation succeeded - push next function to store
-                                deleteManagedObject(dataObject) //remove object from CoreData store
-                                self.pushAllDataToDatabase((count + 1)) //pass next
-                            } else { //the operation failed - terminate function
-                                print("Operation failed! Terminating process...\n")
-                                let notification = NSNotification(name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil, userInfo: [BMN_DatabaseConnection_TransmissionStatusKey: false])
-                                NSNotificationCenter.defaultCenter().postNotification(notification)
-                                return
-                            }
-                        })
-                    default:
-                        print("Error - wrong type found in ReportedData area...\n")
-                    }
+                    self.postDataObjectToDatabase(dataObject, success: { (completed) in
+                        if (completed) { //the operation succeeded - push next function to store
+                            deleteManagedObject(dataObject) //remove object from CoreData store
+                            self.pushAllDataToDatabase((count + 1)) //pass next
+                        } else { //the operation failed - terminate function
+                            print("Operation failed! Terminating process...\n")
+                            let notification = NSNotification(name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil, userInfo: [BMN_DatabaseConnection_TransmissionStatusKey: false])
+                            NSNotificationCenter.defaultCenter().postNotification(notification)
+                            return
+                        }
+                    })
+                }
+            } else if !(dataObjects.isEmpty) { //(4) push reportedData
+                if let dataObject = dataObjects.first { //grab 1st item to push
+                    print("\nTransmitting object (data) #\(count+1) in queue...")
+                    self.postDataObjectToDatabase(dataObject, success: { (completed) in
+                        if (completed) { //the operation succeeded - push next function to store
+                            deleteManagedObject(dataObject) //remove object from CoreData store
+                            self.pushAllDataToDatabase((count + 1)) //pass next
+                        } else { //the operation failed - terminate function
+                            print("Operation failed! Terminating process...\n")
+                            let notification = NSNotification(name: BMN_Notification_DatabaseConnection_DataTransmissionStatusDidChange, object: nil, userInfo: [BMN_DatabaseConnection_TransmissionStatusKey: false])
+                            NSNotificationCenter.defaultCenter().postNotification(notification)
+                            return
+                        }
+                    })
                 }
             } else { //no remaining Cloud Models or dataObjects
                 if (count == 0) { //initial function call
@@ -118,14 +119,13 @@ class DatabaseConnection: DataReportingErrorProtocol {
     func createCloudModelForProject(project: Project) { //creates temporary CD backup
         print("Creating Cloud representation for project [\(project.title)]...")
         let cloudDictionary: [String: AnyObject] = constructCloudObject(project)
-        let _ = DatabaseObject(data: cloudDictionary, dataType: .CloudModel, insertIntoManagedObjectContext: managedObjectContext) //keep backup in CD store until pushed
+        let _ = DatabaseObject(title: project.title, data: cloudDictionary, dataType: .CloudModel, insertIntoManagedObjectContext: managedObjectContext) //keep backup in CD store until pushed
         saveManagedObjectContext()
         print("Backup was created for project!\n")
     }
     
     private func constructCloudObject(project: Project) -> Dictionary<String, AnyObject> { //uses the input project to construct the dict sent -> the Cloud for backup
         var body: [String: AnyObject] = ["experiment_type": project.projectType, "title": project.title, "question": project.question, "start_date": project.startDate.timeIntervalSinceReferenceDate]
-        //send outcome measure(s) -> DB as well
         if let hypothesis = project.hypothesis {
             body.updateValue(hypothesis, forKey: "hypothesis")
         }
@@ -142,7 +142,6 @@ class DatabaseConnection: DataReportingErrorProtocol {
                 let beforeVars = group.beforeActionVariables
                 let afterVars = group.afterActionVariables
                 groups.updateValue(["action": action, "beforeVars": beforeVars, "afterVars": afterVars], forKey: type)
-                print("[constructCloudObj] Groups Model: \(groups)")
             }
         }
         body.updateValue(groups, forKey: "groups")
@@ -278,13 +277,30 @@ class DatabaseConnection: DataReportingErrorProtocol {
         }
     }
     
-    // MARK: - Project Update Logic
+    // MARK: - Edit Project Flow
     
     func commitProjectEditToDatabase(project: Project) { //EDIT PROJECT flow
-        print("Creating cloud model for updated project...")
+        if let itemsForProject = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "projectTitle", filterValue: [project.title]) as? [DatabaseObject] {
+            print("[CommitProjectEdit] Will delete \(itemsForProject.count) items in DB queue for project [\(project.title)].")
+            for item in itemsForProject { //delete ALL DB objects for indicated Project in queue
+                deleteManagedObject(item)
+            }
+        }
+        
+        print("Creating new Cloud model for updated project...")
         let cloudDictionary = constructCloudObject(project)
-        let _ = DatabaseObject(data: cloudDictionary, dataType: .EditedProjectModel, insertIntoManagedObjectContext: managedObjectContext)
+        let _ = DatabaseObject(title: project.title, data: cloudDictionary, dataType: .EditedProjectModel, insertIntoManagedObjectContext: managedObjectContext)
         saveManagedObjectContext()
+        
+        if var editedProjects = NSUserDefaults.standardUserDefaults().valueForKey(EDITED_PROJECTS_KEY) as? [String] { //add this Project's title -> array
+            if !(editedProjects.contains(project.title)) { //make sure title is NOT alrdy in array
+                editedProjects.append(project.title)
+                NSUserDefaults.standardUserDefaults().setValue(editedProjects, forKey: EDITED_PROJECTS_KEY)
+            }
+        } else { //obj does not yet exist - initialize w/ this Project's title
+            let editedProjects = [project.title]
+            NSUserDefaults.standardUserDefaults().setValue(editedProjects, forKey: EDITED_PROJECTS_KEY)
+        }
     }
     
     private func postEditedProjectModelToDatabase(model: [String: AnyObject], success: (Bool) -> Void) {
@@ -306,7 +322,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
                                     print("[000] Error - process failed.")
                                     success(false)
                                 case "010":
-                                    print("Backup was successfully created!")
+                                    print("Backup was successfully updated!")
                                     success(true)
                                 default:
                                     print("Default in switch: returned code = \(responseAsText).")
@@ -314,7 +330,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
                                 }
                             }
                         default:
-                            print("[CreateCloudRep] Default in switch. Code = \(status).")
+                            print("[PostEditedModel] Default in switch. Code = \(status).")
                             success(false)
                         }
                     }
@@ -325,7 +341,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
             })
             task.resume()
         } catch {
-            print("[Create Cloud Obj] Could not create data from JSON - \(error).")
+            print("[PostEditedModel] Could not create data from JSON - \(error).")
         }
     }
     
@@ -333,13 +349,30 @@ class DatabaseConnection: DataReportingErrorProtocol {
     
     func createDataObjectForReportedData(projectTitle: String, reportedData: [String: AnyObject], groupType: String) { //for data reporting
         print("Creating dataObject for reported data...")
-        
         var dataObject = Dictionary<String, AnyObject>()
         dataObject.updateValue(email, forKey: "BMN_EMAIL") //pass email
         dataObject.updateValue(projectTitle, forKey: "BMN_PROJECT_TITLE") //pass project title
         dataObject.updateValue(reportedData, forKey: "BMN_DATABASE_OBJECT") //pass data object
         dataObject.updateValue(groupType, forKey: "BMN_GROUP_TYPE") //pass groupType
-        let _ = DatabaseObject(data: dataObject, dataType: .ReportedData, insertIntoManagedObjectContext: managedObjectContext) //hold data in CD store until it is pushed
+        
+        var isEditProjectFlow: Bool = false //indicator
+        if var editedProjects = NSUserDefaults.standardUserDefaults().valueForKey(EDITED_PROJECTS_KEY) as? [String] { //check if editedProjects contains the 'projectTitle'
+            if (editedProjects.contains(projectTitle)) { //contains title - set indicator
+                print("Edited Projects Count: \(editedProjects.count).")
+                print("[createDataObj] \(projectTitle) is in EDITED_PROJECTS! Setting indicator...")
+                isEditProjectFlow = true
+                dataObject.updateValue(true, forKey: "BMN_EDITED_PROJECT_FIRST_TRANSMISSION") //set indctr
+                if let index = editedProjects.indexOf(projectTitle) { //remove title from UserDefaults
+                    editedProjects.removeAtIndex(index)
+                }
+                print("Removed object! Edited projects count: \(editedProjects.count).")
+            }
+        }
+        if !(isEditProjectFlow) { //DEFAULT flow - dataType = .ReportedData
+            let _ = DatabaseObject(title: projectTitle, data: dataObject, dataType: .ReportedData, insertIntoManagedObjectContext: managedObjectContext) //save in CD store until pushed
+        } else { //EDIT PROJECT flow - dataType = .EditedProjectData
+            let _ = DatabaseObject(title: projectTitle, data: dataObject, dataType: .EditedProjectData, insertIntoManagedObjectContext: managedObjectContext) //save in CD store until pushed
+        }
         saveManagedObjectContext()
     }
     

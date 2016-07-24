@@ -466,6 +466,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         clearCoreDataStoreForEntity(entity: "Project")
         clearCoreDataStoreForEntity(entity: "Counter")
         clearCoreDataStoreForEntity(entity: "DatabaseObject")
+        NSUserDefaults.standardUserDefaults().removeObjectForKey(EDITED_PROJECTS_KEY) //remove edits
     }
     
     // MARK: - Navigation

@@ -10,12 +10,14 @@ import CoreData
 
 extension DatabaseObject {
     
+    @NSManaged var projectTitle: String //indicates Project being affected by DB operation
     @NSManaged var dataDictionary: [String: AnyObject] //data to push to DB
     @NSManaged var dataTypeRaw: NSNumber //rawValue for DBConnDataTypes enum (indicates type of data)
     
-    convenience init(data: [String: AnyObject], dataType: DatabaseConnectionDataTypes, insertIntoManagedObjectContext context: NSManagedObjectContext) {
+    convenience init(title: String, data: [String: AnyObject], dataType: DatabaseConnectionDataTypes, insertIntoManagedObjectContext context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entityForName("DatabaseObject", inManagedObjectContext: context)
         self.init(entity: entity!, insertIntoManagedObjectContext: context)
+        self.projectTitle = title
         self.dataDictionary = data
         self.dataTypeRaw = dataType.rawValue
         

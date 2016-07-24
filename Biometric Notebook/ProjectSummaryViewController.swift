@@ -286,7 +286,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
             //Create cloud backup for the new project & add it to queue:
             if let dbConnection = DatabaseConnection() {
                 if (isEditProjectFlow) { //EDIT PROJECT flow - update project's DB information
-                    dbConnection.commitProjectEditToDatabase(project)
+                    dbConnection.commitProjectEditToDatabase(project) //create update cmd
                 } else { //DEFAULT flow - create Cloud backup
                     dbConnection.createCloudModelForProject(project) //create backup & save to CD
                 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10171" systemVersion="15F34" minimumToolsVersion="Xcode 7.0">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10171" systemVersion="15G31" minimumToolsVersion="Xcode 7.0">
     <entity name="Counter" representedClassName=".Counter" syncable="YES">
         <attribute name="currentCount" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
@@ -9,6 +9,7 @@
     <entity name="DatabaseObject" representedClassName=".DatabaseObject" syncable="YES">
         <attribute name="dataDictionary" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="dataTypeRaw" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="projectTitle" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Group" representedClassName=".Group" syncable="YES">
         <attribute name="action" optional="YES" attributeType="String" syncable="YES"/>
@@ -35,7 +36,7 @@
     </entity>
     <elements>
         <element name="Counter" positionX="-180" positionY="36" width="128" height="105"/>
-        <element name="DatabaseObject" positionX="-180" positionY="54" width="128" height="75"/>
+        <element name="DatabaseObject" positionX="-180" positionY="54" width="128" height="90"/>
         <element name="Group" positionX="-63" positionY="-19" width="128" height="120"/>
         <element name="Project" positionX="-290" positionY="-33" width="128" height="195"/>
         <element name="UniqueIDs" positionX="-180" positionY="36" width="128" height="75"/>
