@@ -119,7 +119,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
     func createCloudModelForProject(project: Project) { //creates temporary CD backup
         print("Creating Cloud representation for project [\(project.title)]...")
         let cloudDictionary: [String: AnyObject] = constructCloudObject(project)
-        let _ = DatabaseObject(title: project.title, data: cloudDictionary, dataType: .CloudModel, insertIntoManagedObjectContext: managedObjectContext) //keep backup in CD store until pushed
+        let _ = DatabaseObject(title: project.title, data: cloudDictionary, dataType: .CloudModel, insertIntoManagedObjectContext: managedObjectContext) //keep backup in CD store
         saveManagedObjectContext()
         print("Backup was created for project!\n")
     }
@@ -281,7 +281,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
     
     func commitProjectEditToDatabase(project: Project) { //EDIT PROJECT flow
         if let itemsForProject = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "projectTitle", filterValue: [project.title]) as? [DatabaseObject] {
-            print("[CommitProjectEdit] Will delete \(itemsForProject.count) items in DB queue for project [\(project.title)].")
+            print("[CommitProjectEdit] Deleting \(itemsForProject.count) items in DB queue for project [\(project.title)].")
             for item in itemsForProject { //delete ALL DB objects for indicated Project in queue
                 deleteManagedObject(item)
             }
@@ -292,13 +292,17 @@ class DatabaseConnection: DataReportingErrorProtocol {
         let _ = DatabaseObject(title: project.title, data: cloudDictionary, dataType: .EditedProjectModel, insertIntoManagedObjectContext: managedObjectContext)
         saveManagedObjectContext()
         
-        if var editedProjects = NSUserDefaults.standardUserDefaults().valueForKey(EDITED_PROJECTS_KEY) as? [String] { //add this Project's title -> array
-            if !(editedProjects.contains(project.title)) { //make sure title is NOT alrdy in array
-                editedProjects.append(project.title)
-                NSUserDefaults.standardUserDefaults().setValue(editedProjects, forKey: EDITED_PROJECTS_KEY)
+        var groups: [String] = []
+        for groupRaw in project.groups { //construct array w/ Project's groups
+            if let group = groupRaw as? Group {
+                groups.append(group.groupType)
             }
-        } else { //obj does not yet exist - initialize w/ this Project's title
-            let editedProjects = [project.title]
+        }
+        if var editedProjects = NSUserDefaults.standardUserDefaults().valueForKey(EDITED_PROJECTS_KEY) as? [String: [String]] { //add entry for Project -> dict
+            editedProjects.updateValue(groups, forKey: project.title) //overwrite existing value
+            NSUserDefaults.standardUserDefaults().setValue(editedProjects, forKey: EDITED_PROJECTS_KEY)
+        } else { //obj does not yet exist - initialize w/ Project's groups
+            let editedProjects: [String: [String]] = [project.title: groups]
             NSUserDefaults.standardUserDefaults().setValue(editedProjects, forKey: EDITED_PROJECTS_KEY)
         }
     }
@@ -356,16 +360,21 @@ class DatabaseConnection: DataReportingErrorProtocol {
         dataObject.updateValue(groupType, forKey: "BMN_GROUP_TYPE") //pass groupType
         
         var isEditProjectFlow: Bool = false //indicator
-        if var editedProjects = NSUserDefaults.standardUserDefaults().valueForKey(EDITED_PROJECTS_KEY) as? [String] { //check if editedProjects contains the 'projectTitle'
-            if (editedProjects.contains(projectTitle)) { //contains title - set indicator
-                print("Edited Projects Count: \(editedProjects.count).")
-                print("[createDataObj] \(projectTitle) is in EDITED_PROJECTS! Setting indicator...")
-                isEditProjectFlow = true
+        if var editedProjects = NSUserDefaults.standardUserDefaults().valueForKey(EDITED_PROJECTS_KEY) as? [String: [String]] { //check if editedProjects contains 'projectTitle' & 'groupType'
+            if var editedProjectGroups = editedProjects[projectTitle], let index = editedProjectGroups.indexOf(groupType) { //UserDefaults obj contains project & group
+                print("[createDataObj] GROUP [\(groupType)] in PROJECT [\(projectTitle)] is in EDITED_PROJECTS! Setting indicator...")
                 dataObject.updateValue(true, forKey: "BMN_EDITED_PROJECT_FIRST_TRANSMISSION") //set indctr
-                if let index = editedProjects.indexOf(projectTitle) { //remove title from UserDefaults
-                    editedProjects.removeAtIndex(index)
+                editedProjectGroups.removeAtIndex(index) //remove group
+                if !(editedProjectGroups.isEmpty) { //NOT empty - add array back -> dict
+                    editedProjects.updateValue(editedProjectGroups, forKey: projectTitle)
+                    NSUserDefaults.standardUserDefaults().setValue(editedProjects, forKey: EDITED_PROJECTS_KEY) //update UserDefaults
+                    print("Removed object @ index \(index)!")
+                } else { //EMPTY - clear projectTitle from dict
+                    editedProjects.removeValueForKey(projectTitle)
+                    NSUserDefaults.standardUserDefaults().setValue(editedProjects, forKey: EDITED_PROJECTS_KEY) //update UserDefaults
+                    print("Array is empty - removed dict from UD Store.")
                 }
-                print("Removed object! Edited projects count: \(editedProjects.count).")
+                isEditProjectFlow = true //set local indicator
             }
         }
         if !(isEditProjectFlow) { //DEFAULT flow - dataType = .ReportedData

@@ -120,10 +120,11 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
             } else if (projectType == ExperimentTypes.ControlComparison) {
                 if !(isEditProjectFlow) {
                     configureTutorialView(true, labelText: "First, let's create a control group for your project. The action and outcome measures you set here will be reused for your comparison group.", rightButtonTitle: "Let's do it!") //reveal tutorialView for CC project
-                } else { //**??editing flow - don't show card
-                    //
+                } else { //EDIT PROJECT flow - don't show card
+                    configureTutorialView(false, labelText: nil, rightButtonTitle: nil)
                 }
                 ccNavigationState = CCProjectNavigationState.Control //set 1st state
+                doneButton.enabled = false //disable 'done' btn @ start
             }
             if let action = self.selectedAction { //EDIT PROJECT flow - set actionBtn
                 setActionButtonTitleForAction(action)

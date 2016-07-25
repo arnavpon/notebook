@@ -288,9 +288,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 projectVarsVC.selectedAction = action
                 projectVarsVC.ghostVariables = ghostVariables
                 projectVarsVC.moduleBlocker = moduleBlocker //**
-                if (projectVarsVC.projectType == .ControlComparison) {
-                    projectVarsVC.ccNavigationState = .Control //start w/ Control
-                }
                 
                 controller.showViewController(projectVarsVC, sender: nil) //nav directly -> PVVC
                 presentViewController(controller, animated: true, completion: nil) //show VC
