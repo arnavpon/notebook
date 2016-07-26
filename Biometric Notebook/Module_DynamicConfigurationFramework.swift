@@ -10,7 +10,16 @@ import Foundation
 class Module_DynamicConfigurationFramework {
     
     var currentLocationInFlow: VariableLocations? //before or afterAction; set by VC
-    private lazy var existingVariables: [String: [String: Int]] = [BMN_Blocker_BeforeActionVariablesKey: Dictionary<String, Int>(), BMN_Blocker_AfterActionVariablesKey: Dictionary<String, Int>()]
+    private var existingVariables: [String: [String: Int]] = [BMN_Blocker_BeforeActionVariablesKey: Dictionary<String, Int>(), BMN_Blocker_AfterActionVariablesKey: Dictionary<String, Int>()] {
+        didSet {
+            for (keyO, dict) in existingVariables {
+                for (keyI, value) in dict {
+                    print("\n[existingVars] OUTER KEY = \(keyO). INNER KEY = [\(keyI)]. VALUE = [\(value)].")
+                }
+            }
+        }
+    }
+//    private lazy var existingVariables: [String: [String: Int]] = [BMN_Blocker_BeforeActionVariablesKey: Dictionary<String, Int>(), BMN_Blocker_AfterActionVariablesKey: Dictionary<String, Int>()]
     private var allVariables: Set<(String)> {
         get {
             var temp = Set<String>()
@@ -86,8 +95,8 @@ class Module_DynamicConfigurationFramework {
         if let existingInputVars = existingVariables[BMN_Blocker_BeforeActionVariablesKey] {
             ccProjectCache = existingInputVars //set the IV -> the cache
             
-            //(3) Move the temp object's values -> the existingVars object:
-            existingVariables[BMN_Blocker_BeforeActionVariablesKey] = temp
+            //(3) Move the temp object's (beforeAction) values -> the existingVars' before_action key:
+            existingVariables[BMN_Blocker_BeforeActionVariablesKey] = temp //afterActionVars stay SAME
         }
     }
     

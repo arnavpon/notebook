@@ -199,12 +199,12 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 var ghostVariables: [String: [GhostVariable]]?
                 var action: Action? = nil
                 let moduleBlocker = Module_DynamicConfigurationFramework() //needs to be sent -> PVVC in Control group state for CC projects
-                var uniqueNames = Set<String>() //avoid duplication of OM (CC project)
+                var uniqueNames = Set<String>() //avoid duplication of OM (in CC project)
                 
                 var fireCounter: Int = 0 //used to switch moduleBlocker state (CC project)
+                var navState: CCProjectNavigationState? = nil //for ghosts/moduleBlocker
                 for groupRaw in selection.groups { //handle for IO & CC projects - for each group, make variables & use to construct the action & inputs & outputs dicts for SetVariables.
                     if let group = groupRaw as? Group, groupType = GroupTypes(rawValue: group.groupType) {
-                        var navState: CCProjectNavigationState? = nil //for ghosts
                         if (projectType == .ControlComparison) { //set navigation state
                             if (groupType == .Control) {
                                 navState = .Control
@@ -235,12 +235,14 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                                 } else { //GHOST - add -> ghost array
                                     if let parent = inputVar.parentComputation {
                                         let ghost = GhostVariable(groupType: navState, location: .BeforeAction, computation: parent, name: variable, settings: dict)
-                                        if let _ = ghostVariables { //array already exists
-                                            ghostVariables![parent]!.append(ghost)
-                                        } else { //array does NOT exist - initialize
-                                            ghostVariables = Dictionary<String, [GhostVariable]>()
-                                            ghostVariables![parent]!.append(ghost)
+                                        if let ghosts = ghostVariables, _ = ghosts[parent] { //check if array is initialized in dict against 'parent' key
+                                            //*do not delete this conditional statement*
+                                        } else if let _ = ghostVariables { //DICT exists - init array
+                                            ghostVariables?.updateValue([], forKey: parent)
+                                        } else { //dict does NOT exist - initialize dict & array
+                                            ghostVariables = [parent: []]
                                         }
+                                        ghostVariables![parent]!.append(ghost) //add ghost -> array
                                     }
                                 }
                             }
@@ -257,12 +259,14 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                                     } else { //GHOST - add to ghost array
                                         if let parent = outcomeVar.parentComputation {
                                             let ghost = GhostVariable(groupType: navState, location: .AfterAction, computation: parent, name: variable, settings: dict)
-                                            if let _ = ghostVariables { //exists
-                                                ghostVariables![parent]!.append(ghost)
-                                            } else { //does NOT exist - initialize
-                                                ghostVariables = Dictionary<String, [GhostVariable]>()
-                                                ghostVariables![parent]!.append(ghost)
+                                            if let ghosts = ghostVariables, _ = ghosts[parent] { //check if array is initialized in dict against 'parent' key
+                                                //*do not delete this conditional statement*
+                                            } else if let _ = ghostVariables { //DICT exists - init array
+                                                ghostVariables?.updateValue([], forKey: parent)
+                                            } else { //dict does NOT exist - initialize dict & array
+                                                ghostVariables = [parent: []]
                                             }
+                                            ghostVariables![parent]!.append(ghost) //add ghost -> array
                                         }
                                     }
                                 }
@@ -273,6 +277,10 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                             action = Action(action: enumObj, actionName: nil)
                         } else { //does NOT match enum - CUSTOM action
                             action = Action(action: .Custom, actionName: group.action)
+                        }
+                        
+                        if (navState == .Comparison) { //final navState is Comp - switch blocker to hold Control group variables before opening PVVC
+                            moduleBlocker.ccProjectWillSwitchState() //switch state 1 more time
                         }
                     }
                 }
@@ -287,7 +295,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 projectVarsVC.outcomeVariableRows = outcomeVariables
                 projectVarsVC.selectedAction = action
                 projectVarsVC.ghostVariables = ghostVariables
-                projectVarsVC.moduleBlocker = moduleBlocker //**
+                projectVarsVC.moduleBlocker = moduleBlocker
                 
                 controller.showViewController(projectVarsVC, sender: nil) //nav directly -> PVVC
                 presentViewController(controller, animated: true, completion: nil) //show VC

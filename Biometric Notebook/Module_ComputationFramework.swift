@@ -56,7 +56,11 @@ class Module_ComputationFramework {
                         //Compute BMI from last height & weight - convert the weight (in pounds) & the height (in inches) -> proper units before using! How do we make this safe so that we always know what units are being given to us from HK?
                         let weightInKG = weight / 2.2
                         let heightInMeters = (height * 2.54)/100
-                        return weightInKG / (heightInMeters * heightInMeters)
+                        if (heightInMeters != 0) { //default
+                            return weightInKG / (heightInMeters * heightInMeters)
+                        } else { //height = 0 - prevent infinite value
+                            return -1 //error value
+                        }
                     }
                 default:
                     print("[ComputationFramework - applyComputationRule - BMI] Error - switch default!")
