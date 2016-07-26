@@ -274,7 +274,12 @@ class ProjectVariablesViewController: UIViewController, UITableViewDataSource, U
     }
     
     func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle { //user can delete variables from TV
-        if !(showTutorialMode) && !(tutorialIsOn) { //not in tutorial, default behavior
+        if !(showTutorialMode) && !(tutorialIsOn) { //not in tutorial, DEFAULT behavior
+            if (tableView == outcomeVariablesTV) && (isEditProjectFlow) { //block deletion of OM
+                if (outcomeVariableRows[indexPath.row].isOutcomeMeasure) { //var is selected as OM
+                    return .None //block deletion
+                }
+            }
             return UITableViewCellEditingStyle.Delete
         } else { //tutorial is on, only allow swipe to register on screen #4
             if (screenNumber == 4) && (indexPath.row == 1) {
