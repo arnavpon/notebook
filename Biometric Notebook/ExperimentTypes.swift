@@ -15,9 +15,9 @@ enum ExperimentTypes: String { //string rawValues are required for notification 
     func getTypeNameForDisplay() -> String { //gives display-friendly title for TV cell
         switch self {
         case .InputOutput:
-            return "Correlation Search"
+            return "Correlations"
         case .ControlComparison:
-            return "A/B Test"
+            return "CC Project"
         }
     }
     
@@ -27,9 +27,4 @@ enum GroupTypes: String { //string rawVals are needed to create unique ID for gr
     case LoneGroup = "LONE_GROUP" //for projects w/ single groups
     case Control = "CONTROL"
     case Comparison = "COMPARISON"
-}
-
-enum CCProjectNavigationState { //Control-Comparison project navigation states (ProjectVarsVC)
-    case Control
-    case Comparison
 }

@@ -267,8 +267,8 @@ class LevelsFrameworkCell: UITableViewCell {
                 completionIndicator.image = nil //clear image, but don't show the X mark
             }
         } else { //REQUIRED configuration cell
+            reportData() //fire reportData() to update the external (VC) report object
             if (complete) { //config COMPLETE
-                reportData() //fire reportData() to update the external (VC) report object
                 if (completionIndicator.image != completeImage) { //ONLY switch images & fire notification if the current image is NOT alrdy set -> 'check'
                     completionIndicator.image = completeImage
                     let notification = NSNotification(name: BMN_Notification_CompletionIndicatorDidChange, object: nil, userInfo: [BMN_LEVELS_CompletionIndicatorStatusKey: true])

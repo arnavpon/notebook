@@ -14,7 +14,7 @@ enum Modules: String {
     case ExerciseModule = "Exercise"
     case BiometricModule = "Biometric"
     case CarbonEmissionsModule = "Carbon Emissions"
-    case RecipeModule = "RecipeModule"
+    case RecipeModule = "Recipe"
 }
 
 enum ModuleVariableStates { //represents the state of the variable object
@@ -23,13 +23,15 @@ enum ModuleVariableStates { //represents the state of the variable object
     case Ghost //variable that is constructed as a GHOST
 }
 
-enum VariableLocations: Int { //indicates the location of the variable in DataEntry flow
-    case BeforeAction = 0 //beforeAction var
-    case AfterAction = 1 //afterAction var
+enum ConfigurationTypes: String { //indicates whether variable is IV/OM (for DynamicConfig framework)
+    case Input = "Input" //default type?
+    case OutcomeMeasure = "Outcome"
+    case ActionQualifier = "Qualifier"
 }
 
 enum ModuleVariableReportTypes: Int {
     case Default = 0 //default is var whose value is entered by user
     case AutoCapture = 1 //var that is automatically captured using API
     case Computation = 2 //var that is computed from other variables
+    case TimeDifference = 3 //var that measures time difference between points in measurement cycle
 }

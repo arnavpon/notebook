@@ -71,23 +71,21 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidAppear(animated: Bool) {
         //***Temp (until IP issue is resolved) -
-        if (NSUserDefaults.standardUserDefaults().valueForKey(IP_VALUE) == nil) {
-            let alert = UIAlertController(title: "IP Addr", message: "Enter current IP end value", preferredStyle: UIAlertControllerStyle.Alert)
-            let ok = UIAlertAction(title: "Enter", style: .Default, handler: { (let action) in
-                if let text = alert.textFields?.first?.text {
-                    if !(text.isEmpty) {
-                        if let num = Int(text) {
-                            NSUserDefaults.standardUserDefaults().setInteger(num, forKey: IP_VALUE)
-                        }
+        let alert = UIAlertController(title: "IP Addr", message: "Enter current IP end value", preferredStyle: UIAlertControllerStyle.Alert)
+        let ok = UIAlertAction(title: "Enter", style: .Default, handler: { (let action) in
+            if let text = alert.textFields?.first?.text {
+                if !(text.isEmpty) {
+                    if let num = Int(text) {
+                        NSUserDefaults.standardUserDefaults().setInteger(num, forKey: IP_VALUE)
                     }
                 }
-            })
-            alert.addTextFieldWithConfigurationHandler({ (let textField) in
-                textField.keyboardType = .NumberPad
-            })
-            alert.addAction(ok)
-            self.presentViewController(alert, animated: false, completion: nil)
-        }
+            }
+        })
+        alert.addTextFieldWithConfigurationHandler({ (let textField) in
+            textField.keyboardType = .NumberPad
+        })
+        alert.addAction(ok)
+        self.presentViewController(alert, animated: false, completion: nil)
         //***
     }
     

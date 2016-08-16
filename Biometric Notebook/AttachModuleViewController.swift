@@ -22,6 +22,7 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     var selectedModule: Modules? //matches TV selection -> enum containing the defined module types
     var createdVariable: Module? //attach a type to this variable & initialize it before -> ConfigureVC
     
+    var segueSender: UIViewController? //indicates which VC called the segue
     var moduleBlocker: Module_DynamicConfigurationFramework? //allows dynamic config
     var existingVariables: [ComputationFramework_ExistingVariables]? //list of existing vars (for computs)
     
@@ -35,7 +36,6 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
         super.viewDidLoad()
         moduleTableView.dataSource = self
         moduleTableView.delegate = self
-        //moduleTableView.registerClass(AttachModuleTableViewCell.self, forCellReuseIdentifier: "module_cell")
     }
     
     func setDescriptionViewVisuals() { //hides or reveals description card
@@ -125,7 +125,7 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
         presentViewController(alert, animated: true, completion: nil)
     }
     
-    func attachSelectedModule(selectedModule: Modules) {
+    private func attachSelectedModule(selectedModule: Modules) {
         switch self.selectedModule! { //create the variable object w/ the appropriate class
         case .CustomModule:
             self.createdVariable = CustomModule(name: self.variableName!)
@@ -142,10 +142,19 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
         default: //Recipe module - cannot be selected
             print("[attachSelectedModule] Error - default in switch.")
         }
+        self.createdVariable?.configurationType = moduleBlocker?.currentVarConfigType //set type indicator
         self.performSegueWithIdentifier("showConfigureModule", sender: nil)
     }
     
     // MARK: - Button Actions
+    
+    @IBAction func cancelButtonClick(sender: AnyObject) { //return to sender VC
+        if (self.segueSender is AddActionViewController) {
+            self.performSegueWithIdentifier("unwindToAddAction", sender: nil)
+        } else if (self.segueSender is AddVariablesViewController) {
+            self.performSegueWithIdentifier("unwindToAddVariables", sender: nil)
+        }
+    }
     
     @IBAction func descriptionViewButtonClick(sender: AnyObject) { //hide description view
         setDescriptionViewVisuals()
@@ -156,11 +165,11 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if (segue.identifier == "showConfigureModule") { //pass created variable over
             let destination = segue.destinationViewController as! ConfigureModuleViewController
-            
             createdVariable?.moduleBlocker = self.moduleBlocker //FIRST, set blocker in variable...
             createdVariable?.existingVariables = self.existingVariables //NEXT, set existing vars...
             destination.createdVariable = self.createdVariable //THEN pass var over
             destination.existingVariables = self.existingVariables
+            destination.segueSender = self.segueSender
         }
     }
 

@@ -168,12 +168,17 @@ class BiometricModule: Module {
         let copy = BiometricModule(name: self.variableName)
         copy.existingVariables = self.existingVariables
         copy.moduleBlocker = self.moduleBlocker
+        copy.configurationType = self.configurationType
         return copy
     }
     
     // MARK: - Variable Configuration
     
     internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the 'options' value as needed; (2) Constructs the configuration TV cells if required; (3) Sets 'isAutoCaptured' var if var is auto-captured.
+        super.setConfigurationOptionsForSelection() //set superclass config info
+        if (configurationOptionsLayoutObject == nil) {
+            configurationOptionsLayoutObject = [] //initialize
+        }
         if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
             var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = [] //pass -> VC (CustomCellType, cell's dataSource)
             switch type {
@@ -205,7 +210,7 @@ class BiometricModule: Module {
                 //(2) User must define the HR sampling parameters:
                 array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_HeartRateSamplingOptionsID, BMN_LEVELS_MainLabelKey: "Choose the time period over which to sample your heart rate:", BMN_SelectFromOptions_OptionsKey: sampleOptions]))
                 
-                configurationOptionsLayoutObject = array
+                configurationOptionsLayoutObject!.appendContentsOf(array)
                 
             case .Behavior_Height:
                 
@@ -286,6 +291,10 @@ class BiometricModule: Module {
     
     internal override func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [String]?) {
         //(1) Takes as INPUT the data that was entered into each config TV cell. (2) Given the variableType, matches configuration data -> properties in the Module object by accessing specific configuration cell identifiers (defined in 'HelperFx' > 'Dictionary Keys').
+        let superclassReturnVal = super.matchConfigurationItemsToProperties(configurationData)
+        if (superclassReturnVal.0 == false) { //if checks are failed @ superclass lvl, return super obj
+            return superclassReturnVal
+        }
         if let type = variableType {
             if (type == BiometricModuleVariableTypes.Computation_BMI) { //computations lie outside main framework
                 //Check how the height & weight were configured to be obtained:
@@ -335,8 +344,7 @@ class BiometricModule: Module {
                 case .Computation_BMI:
                     break
                 default:
-                    print("[BiometricMod: matchConfigToProps] Error! Default in switch!")
-                    return (false, "Default in switch!", nil)
+                    return (true, nil, nil)
                 }
             }
         }

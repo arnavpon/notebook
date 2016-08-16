@@ -129,19 +129,24 @@ class EnvironmentModule: Module {
         let copy = EnvironmentModule(name: self.variableName)
         copy.existingVariables = self.existingVariables
         copy.moduleBlocker = self.moduleBlocker
+        copy.configurationType = self.configurationType
         return copy
     }
     
     // MARK: - Variable Configuration
     
     internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the 'options' value as needed; (2) Constructs the configuration TV cells if required; (3) Sets 'isAutoCaptured' var if var is auto-captured.
+        super.setConfigurationOptionsForSelection() //set superclass config info
+        if (configurationOptionsLayoutObject == nil) {
+            configurationOptionsLayoutObject = [] //initialize
+        }
         if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
             var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = [] //pass -> VC (CustomCellType, cell's dataSource)
             switch type {
             case EnvironmentModuleVariableTypes.Behavior_TemperatureAndHumidity:
                 
                 self.variableReportType = ModuleVariableReportTypes.AutoCapture //auto-cap
-                configurationOptionsLayoutObject = nil //no further config needed??
+                configurationOptionsLayoutObject!.appendContentsOf(array)
                 
             case EnvironmentModuleVariableTypes.Behavior_Weather:
                 
@@ -149,7 +154,7 @@ class EnvironmentModule: Module {
                 let options = [EnvironmentModule_WeatherOptions.Temperature.rawValue, EnvironmentModule_WeatherOptions.ApparentTemperature.rawValue, EnvironmentModule_WeatherOptions.Humidity.rawValue, EnvironmentModule_WeatherOptions.WindSpeed.rawValue, EnvironmentModule_WeatherOptions.Ozone.rawValue, EnvironmentModule_WeatherOptions.BarometricPressure.rawValue, EnvironmentModule_WeatherOptions.CloudCover.rawValue, EnvironmentModule_WeatherOptions.SunriseTime.rawValue, EnvironmentModule_WeatherOptions.SunsetTime.rawValue, EnvironmentModule_WeatherOptions.WeatherCondition.rawValue] //enum opts
                 array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_EnvironmentModule_Weather_OptionsID, BMN_LEVELS_MainLabelKey: "Select 1 or more kinds of weather data you want to capture with this variable:", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_MultipleSelectionEnabledKey: true])) //cell that contains granular weather selection options
                 
-                configurationOptionsLayoutObject = array
+                configurationOptionsLayoutObject!.appendContentsOf(array)
                 
             }
         } else { //no selection, set configOptionsObj -> nil
@@ -159,6 +164,10 @@ class EnvironmentModule: Module {
     
     internal override func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [String]?) {
         //(1) Takes as INPUT the data that was entered into each config TV cell. (2) Given the variableType, matches configuration data -> properties in the Module object by accessing specific configuration cell identifiers (defined in 'HelperFx' > 'Dictionary Keys').
+        let superclassReturnVal = super.matchConfigurationItemsToProperties(configurationData)
+        if (superclassReturnVal.0 == false) { //if checks are failed @ superclass lvl, return super obj
+            return superclassReturnVal
+        }
         if let type = variableType { //obtain config info stored against the appropriate ID
             switch type { //only needed for sections that require configuration
             case .Behavior_Weather: //incoming data - selection of subsets of weather data
@@ -180,8 +189,7 @@ class EnvironmentModule: Module {
                 }
                 
             default:
-                print("[EnvironmentMod: matchConfigToProps] Error! Default in switch!")
-                return (false, "Default in switch!", nil)
+                return (true, nil, nil)
             }
         }
         return (false, "No selected functionality was found!", nil)

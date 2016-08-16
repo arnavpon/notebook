@@ -139,9 +139,9 @@ class DatabaseConnection: DataReportingErrorProtocol {
             if let group = projectGroups as? Group {
                 let type = group.groupType
                 let action = group.action
-                let beforeVars = group.beforeActionVariables
-                let afterVars = group.afterActionVariables
-                groups.updateValue(["action": action, "beforeVars": beforeVars, "afterVars": afterVars], forKey: type)
+                let variables = group.variables
+//                groups.updateValue(["action": action, "beforeVars": beforeVars, "afterVars": afterVars], forKey: type) //OLD way - update Django script to match NEW way
+                groups.updateValue(["action": action, "variables": variables], forKey: type)
             }
         }
         body.updateValue(groups, forKey: "groups")
@@ -250,8 +250,9 @@ class DatabaseConnection: DataReportingErrorProtocol {
             var counterSettings = Dictionary<String, [String: AnyObject]>() //obj w/ counter CD dicts
             for (groupRaw, settings) in groups { //(2) create any Group objects
                 print("Reconstructing GROUP = [\(groupRaw)].")
-                if let group = GroupTypes(rawValue: groupRaw), settingsDict = settings as? [String: AnyObject], action = settingsDict["action"] as? String, beforeVars = settingsDict["beforeVars"] as? [String: [String: AnyObject]], afterVars = settingsDict["afterVars"] as? [String: [String: AnyObject]] {
-                    let _ = Group(type: group, project: project, action: action, beforeVariables: beforeVars, afterVariables: afterVars, insertIntoManagedObjectContext: managedObjectContext)
+                if let groupType = GroupTypes(rawValue: groupRaw), settingsDict = settings as? [String: AnyObject], action = settingsDict["action"] as? String, beforeVars = settingsDict["beforeVars"] as? [String: [String: AnyObject]], afterVars = settingsDict["afterVars"] as? [String: [String: AnyObject]] {
+//                    let _ = Group(type: group, project: project, action: action, beforeVariables: beforeVars, afterVariables: afterVars, insertIntoManagedObjectContext: managedObjectContext) //OLD
+//                    let _ = Group(groupName: "", groupType: groupType, project: project, action: action, variables: beforeVars, cycleLength: 10, insertIntoManagedObjectContext: managedObjectContext) //**update dynamically
                     
                     //Obtain CoreData dicts for counter vars:
                     for (variableName, dict) in beforeVars {
@@ -351,18 +352,19 @@ class DatabaseConnection: DataReportingErrorProtocol {
     
     // MARK: - Data Reporting Logic
     
-    func createDataObjectForReportedData(projectTitle: String, reportedData: [String: AnyObject], groupType: String) { //for data reporting
+    func createDataObjectForReportedData(projectTitle: String, reportedData: [String: AnyObject], group: Group) { //for data reporting
         print("Creating dataObject for reported data...")
         var dataObject = Dictionary<String, AnyObject>()
         dataObject.updateValue(email, forKey: "BMN_EMAIL") //pass email
         dataObject.updateValue(projectTitle, forKey: "BMN_PROJECT_TITLE") //pass project title
         dataObject.updateValue(reportedData, forKey: "BMN_DATABASE_OBJECT") //pass data object
-        dataObject.updateValue(groupType, forKey: "BMN_GROUP_TYPE") //pass groupType
+        dataObject.updateValue(group.groupType, forKey: "BMN_GROUP_TYPE") //pass groupType**
+        dataObject.updateValue(group.groupName, forKey: "BMN_GROUP_NAME") //pass groupName** - need to update the editedProjects script to account for groupName!!!
         
         var isEditProjectFlow: Bool = false //indicator
         if var editedProjects = NSUserDefaults.standardUserDefaults().valueForKey(EDITED_PROJECTS_KEY) as? [String: [String]] { //check if editedProjects contains 'projectTitle' & 'groupType'
-            if var editedProjectGroups = editedProjects[projectTitle], let index = editedProjectGroups.indexOf(groupType) { //UserDefaults obj contains project & group
-                print("[createDataObj] GROUP [\(groupType)] in PROJECT [\(projectTitle)] is in EDITED_PROJECTS! Setting indicator...")
+            if var editedProjectGroups = editedProjects[projectTitle], let index = editedProjectGroups.indexOf(group.groupType) { //UserDefaults obj contains project & group
+                print("[createDataObj] GROUP [\(group.groupType)] in PROJECT [\(projectTitle)] is in EDITED_PROJECTS! Setting indicator...")
                 dataObject.updateValue(true, forKey: "BMN_EDITED_PROJECT_FIRST_TRANSMISSION") //set indctr
                 editedProjectGroups.removeAtIndex(index) //remove group
                 if !(editedProjectGroups.isEmpty) { //NOT empty - add array back -> dict

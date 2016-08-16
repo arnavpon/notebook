@@ -5,33 +5,23 @@
 
 // Class that controls the visual presentation of variables to the user during project setup.
 
-import Foundation
+import UIKit
 
 class Module_DynamicConfigurationFramework {
     
-    var currentLocationInFlow: VariableLocations? //before or afterAction; set by VC
-    private var existingVariables: [String: [String: Int]] = [BMN_Blocker_BeforeActionVariablesKey: Dictionary<String, Int>(), BMN_Blocker_AfterActionVariablesKey: Dictionary<String, Int>()] {
-        didSet {
-            for (keyO, dict) in existingVariables {
-                for (keyI, value) in dict {
-                    print("\n[existingVars] OUTER KEY = \(keyO). INNER KEY = [\(keyI)]. VALUE = [\(value)].")
-                }
-            }
-        }
-    }
-//    private lazy var existingVariables: [String: [String: Int]] = [BMN_Blocker_BeforeActionVariablesKey: Dictionary<String, Int>(), BMN_Blocker_AfterActionVariablesKey: Dictionary<String, Int>()]
-    private var allVariables: Set<(String)> {
+    var currentVarConfigType: ConfigurationTypes? //input or outcome measure; set by VC
+    private var existingVariables: [String: [String: Int]] = [BMN_DynamicConfig_InputVariablesKey: Dictionary<String, Int>(), BMN_DynamicConfig_OutcomeMeasuresKey: Dictionary<String, Int>()] //sorts variableTypes according to IV vs. OM
+    private var allVariables: Set<(String)> { //master list of ALL variable types in Project
         get {
-            var temp = Set<String>()
-            for (_, type) in existingVariables {
-                for (typeName, _) in type {
-                    temp.insert(typeName)
+            var temp = Set<String>() //unique set of all var functionalities in project
+            for (_, functionalityDict) in existingVariables {
+                for (functionality, _) in functionalityDict {
+                    temp.insert(functionality)
                 }
             }
             return temp
         }
     }
-    private var ccProjectCache: Dictionary<String, Int>? //for CC project - temporarily stores variables for control or comparison (whichever state the user is NOT currently on)
     
     // MARK: - Initializers
     
@@ -39,43 +29,45 @@ class Module_DynamicConfigurationFramework {
     
     // MARK: - View Controller Interface
     
-    private func getKeyForLocation(location: VariableLocations) -> String { //assigns a key for location
-        switch location {
-        case .BeforeAction:
-            return BMN_Blocker_BeforeActionVariablesKey
-        case .AfterAction:
-            return BMN_Blocker_AfterActionVariablesKey
+    private func getKeyForConfigType(type: ConfigurationTypes) -> String { //assigns a key for location
+        switch type {
+        case .Input:
+            return BMN_DynamicConfig_InputVariablesKey
+        case .OutcomeMeasure:
+            return BMN_DynamicConfig_OutcomeMeasuresKey
+        case .ActionQualifier:
+            return "" //no location in dict (DCF is used to block certain variables from appearing)
         }
     }
     
-    func variableWasCreated(location: VariableLocations, typeName: String) {
-        let key = getKeyForLocation(location)
+    func variableWasCreated(type: ConfigurationTypes, selectedFunctionality: String) {
+        let key = getKeyForConfigType(type)
         if let typesWithCount = existingVariables[key] {
             var temp = typesWithCount //create temp obj for updating
-            if let count = typesWithCount[typeName] { //variable already exists
+            if let count = typesWithCount[selectedFunctionality] { //variable already exists
                 let newCount = count + 1 //increment count
-                temp[typeName] = newCount //update count for the existing typeName
-                print("[\(typeName)] Var EXISTS! New Count: \(newCount).")
+                temp[selectedFunctionality] = newCount //update count for the existing typeName
+                print("[\(selectedFunctionality)] Var EXISTS! New Count: \(newCount).")
             } else { //new variable name
-                temp[typeName] = 1 //make new entry for typeName
-                print("Creating NEW entry for variable type: [\(typeName)] @ LOCATION = [\(key)]...")
+                temp[selectedFunctionality] = 1 //make new entry for typeName
+                print("Creating NEW entry for variable type: [\(selectedFunctionality)] @ LOCATION = [\(key)]...")
             }
             existingVariables[key] = temp //update real dictionary w/ temp
         }
     }
     
-    func variableWasDeleted(location: VariableLocations, typeName: String) {
-        let key = getKeyForLocation(location)
+    func variableWasDeleted(type: ConfigurationTypes, selectedFunctionality: String) {
+        let key = getKeyForConfigType(type)
         if let typesWithCount = existingVariables[key] {
             var temp = typesWithCount //create temp obj for updating
-            if let count = typesWithCount[typeName] { //variable already exists
+            if let count = typesWithCount[selectedFunctionality] { //variable already exists
                 let newCount = count - 1 //increment count
                 if !(newCount == 0) { //some other variables are still present
-                    temp[typeName] = newCount //update count for the typeName
-                    print("[\(typeName)] Var Deleted! New Count: \(newCount).")
+                    temp[selectedFunctionality] = newCount //update count for the typeName
+                    print("[\(selectedFunctionality)] Var Deleted! New Count: \(newCount).")
                 } else { //count is 0, remove entry from dict
-                    temp[typeName] = nil //remove entry for that typeName
-                    print("[\(typeName)] now has a count of 0! Removing type from dict...")
+                    temp[selectedFunctionality] = nil //remove entry for that typeName
+                    print("[\(selectedFunctionality)] now has a count of 0! Removing type from dict...")
                 }
                 existingVariables[key] = temp //update real dictionary w/ temp
             } else { //error - deleted variable is not present in dictionary
@@ -84,96 +76,79 @@ class Module_DynamicConfigurationFramework {
         }
     }
     
-    func ccProjectWillSwitchState() { //for CC project - this method remembers which input variables were set for both the control & comparison group
-        //(1) If there are existing values in the cache, store them to a temp object:
-        var temp = Dictionary<String, Int>()
-        if let cache = ccProjectCache {
-            temp = cache
-        }
-        
-        //(2) Save the current flow's values to the cache:
-        if let existingInputVars = existingVariables[BMN_Blocker_BeforeActionVariablesKey] {
-            ccProjectCache = existingInputVars //set the IV -> the cache
-            
-            //(3) Move the temp object's (beforeAction) values -> the existingVars' before_action key:
-            existingVariables[BMN_Blocker_BeforeActionVariablesKey] = temp //afterActionVars stay SAME
-        }
-    }
-    
     // MARK: - Module Interface
     
-    private func doesSetupContainVariableType(typeName type: String, atLocation: VariableLocations?) -> Bool {
-        //Called by self, checks if setup contains a variable of the given typeName @ the given location (optional - if nil check for existence @ EITHER location):
-        if let location = atLocation { //location was set
-            let key = getKeyForLocation(location)
+    private func doesSetupContainFunctionality(functionality: String, forType: ConfigurationTypes?) -> Bool {
+        //Called by self, checks if setup contains a variable of the given functionality for the given varType (optional - if nil check for existence @ EITHER varType):
+        if let type = forType { //type was given as input (look @ values for that type in dict)
+            let key = getKeyForConfigType(type)
             if let existingTypes = existingVariables[key] {
                 for (existingType, _) in existingTypes {
-                    if (existingType == type) { //check if variable matches any existingType
+                    if (existingType == functionality) { //check if variable matches any existing func
                         return true
                     }
                 }
             }
-        } else { //no location set, check in allVariables
-            if (self.allVariables.contains(type)) {
+        } else { //no type was given, check in allVariables for given functionality
+            if (self.allVariables.contains(functionality)) {
                 return true
             }
         }
         return false //default is NO match
     }
     
-    func getFilteredTypesForModule(sender: Modules) -> Set<String> { //called by every module class before constructing the behaviors & computations arrays - based on the module type, current location in flow, & existing variables, this method sends back the items to filter out of the array. Since these variables are strings, they will need to be converted to the module-specific enum type before being used (handled inside module class).
+    func getFilteredTypesForModule(sender: Modules) -> Set<String> { //called by every module class before constructing the behaviors & computations arrays - based on the moduleType, variable type (IV or OM), & existing variables, this method sends back the items to filter out of the array. Since these variables are strings, they will need to be converted to the module-specific enum type before being used (handled inside module class).
         var filteredTypes = Set<String>()
         
         switch sender { //for each Module subclass, define the rules for displaying the variableTypes (based on uniqueness & position in flow)
         case .CustomModule:
             
             //(1) Block variables based on location in flow:
-            if (currentLocationInFlow == VariableLocations.BeforeAction) { //block vars that are ONLY allowed to come AFTER the action
-                filteredTypes.insert(CustomModuleVariableTypes.Computation_TimeDifference.rawValue)
-            } else if (currentLocationInFlow == VariableLocations.AfterAction) { //block vars that are ONLY allowed to come BEFORE the action
+            if (currentVarConfigType == ConfigurationTypes.ActionQualifier) {
+                filteredTypes.insert(CustomModuleVariableTypes.Computation_TimeDifference.rawValue) //cannot have TimeDifference as actionQualifier
+            } else if (currentVarConfigType == ConfigurationTypes.OutcomeMeasure) { //block vars that can't be OM
                 //
             }
             
             //(2) Block variables based on presence in project (i.e. check for uniqueness);
-            if (doesSetupContainVariableType(typeName: CustomModuleVariableTypes.Computation_TimeDifference.rawValue, atLocation: nil)) { //TD must be unique
-                filteredTypes.insert(CustomModuleVariableTypes.Computation_TimeDifference.rawValue)
+            if (doesSetupContainFunctionality(TimeDifference_VariableTypes.DistanceFromAction.rawValue, forType: nil)) { //DistanceFromAction TD var must be unique
+                filteredTypes.insert(TimeDifference_VariableTypes.DistanceFromAction.rawValue)
             }
             
         case .BiometricModule:
             
-            //(1) Block variables based on location in flow:
-            if (currentLocationInFlow == VariableLocations.BeforeAction) { //block vars that are ONLY allowed to come AFTER the action
+            //(1) Block variables based on variable type:
+            if (currentVarConfigType == .Input) {
                 filteredTypes.insert(BiometricModule_HeartRateOptions.AverageOverAction.rawValue) //**
-            } else if (currentLocationInFlow == VariableLocations.AfterAction) { //block vars that are ONLY allowed to come BEFORE the action
-                //
+            } else if (currentVarConfigType == .OutcomeMeasure) {
+                filteredTypes.insert(BiometricModule_HeartRateOptions.AverageOverAction.rawValue) //**
             }
             
             //(2) Block variables based on presence in project (i.e. check for uniqueness);
-            if (doesSetupContainVariableType(typeName: BiometricModuleVariableTypes.Computation_Age.rawValue, atLocation: nil)) { //AGE is unique @ any location
+            if (doesSetupContainFunctionality(BiometricModuleVariableTypes.Computation_Age.rawValue, forType: nil)) { //AGE is unique @ ANY point
                 filteredTypes.insert(BiometricModuleVariableTypes.Computation_Age.rawValue)
             }
-            if (doesSetupContainVariableType(typeName: BiometricModuleVariableTypes.Computation_BiologicalSex.rawValue, atLocation: nil)) { //SEX is unique @ any location
+            if (doesSetupContainFunctionality(BiometricModuleVariableTypes.Computation_BiologicalSex.rawValue, forType: nil)) { //SEX is unique @ ANY point
                 filteredTypes.insert(BiometricModuleVariableTypes.Computation_BiologicalSex.rawValue)
             }
             
             //The following are unique to IV/OM (i.e. there can only be 1 per inputs, 1 per outcomes):
-            if (doesSetupContainVariableType(typeName: BiometricModuleVariableTypes.Behavior_Height.rawValue, atLocation: currentLocationInFlow)) { //unique @ current location
+            if (doesSetupContainFunctionality(BiometricModuleVariableTypes.Behavior_Height.rawValue, forType: currentVarConfigType)) { //unique @ current location
                 filteredTypes.insert(BiometricModuleVariableTypes.Behavior_Height.rawValue)
             }
-            if (doesSetupContainVariableType(typeName: BiometricModuleVariableTypes.Behavior_Weight.rawValue, atLocation: currentLocationInFlow)) { //unique @ current location
+            if (doesSetupContainFunctionality(BiometricModuleVariableTypes.Behavior_Weight.rawValue, forType: currentVarConfigType)) { //unique @ current location
                 filteredTypes.insert(BiometricModuleVariableTypes.Behavior_Weight.rawValue)
             }
-            if (doesSetupContainVariableType(typeName: BiometricModuleVariableTypes.Computation_BMI.rawValue, atLocation: currentLocationInFlow)) { //unique @ current location
+            if (doesSetupContainFunctionality(BiometricModuleVariableTypes.Computation_BMI.rawValue, forType: currentVarConfigType)) { //unique @ current location
                 filteredTypes.insert(BiometricModuleVariableTypes.Computation_BMI.rawValue)
             }
             
-            
         case .EnvironmentModule:
             
-            //(1) Block variables based on location in flow:
-            if (currentLocationInFlow == VariableLocations.BeforeAction) { //block vars that are ONLY allowed to come AFTER the action
+            //(1) Block variables based on varType:
+            if (currentVarConfigType == .Input) { //block vars that are ONLY allowed to come AFTER the action
                 //
-            } else if (currentLocationInFlow == VariableLocations.AfterAction) { //block vars that are ONLY allowed to come BEFORE the action
+            } else if (currentVarConfigType == .OutcomeMeasure) { //block vars that are ONLY allowed to come BEFORE the action
                 //
             }
             
@@ -182,10 +157,8 @@ class Module_DynamicConfigurationFramework {
             
         case .FoodIntakeModule:
             
-            //(1) Block variables based on location in flow:
-            if (currentLocationInFlow == VariableLocations.BeforeAction) { //block vars that are ONLY allowed to come AFTER the action
-                //
-            } else if (currentLocationInFlow == VariableLocations.AfterAction) { //block vars that are ONLY allowed to come BEFORE the action
+            //(1) Block variables based on varType:
+            if (currentVarConfigType == .ActionQualifier) {
                 //
             }
             
@@ -195,28 +168,14 @@ class Module_DynamicConfigurationFramework {
         case .ExerciseModule:
             
             //(1) Block variables based on location in flow:
-            if (currentLocationInFlow == VariableLocations.BeforeAction) { //block vars that are ONLY allowed to come AFTER the action
-                //
-            } else if (currentLocationInFlow == VariableLocations.AfterAction) { //block vars that are ONLY allowed to come BEFORE the action
-                //
+            if (currentVarConfigType == .ActionQualifier) {
+                filteredTypes.insert(ExerciseModuleVariableTypes.Behavior_Workout.rawValue) //workout cannot be added to an action (messes up measurement flow)
             }
             
             //(2) Block variables based on presence in project (i.e. check for uniqueness):
             //**
             
-        case .CarbonEmissionsModule:
-            
-            //(1) Block variables based on location in flow:
-            if (currentLocationInFlow == VariableLocations.BeforeAction) { //block vars that are ONLY allowed to come AFTER the action
-                //
-            } else if (currentLocationInFlow == VariableLocations.AfterAction) { //block vars that are ONLY allowed to come BEFORE the action
-                //
-            }
-            
-            //(2) Block variables based on presence in project (i.e. check for uniqueness):
-            //**
-            
-        default: //Recipe Module - no dynamic config needed
+        default: //for modules w/ no dynamic config needed
             break
         }
         

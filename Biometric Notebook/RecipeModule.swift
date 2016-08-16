@@ -68,6 +68,7 @@ class RecipeModule: Module {
         let copy = RecipeModule(name: self.variableName)
         copy.existingVariables = self.existingVariables
         copy.moduleBlocker = self.moduleBlocker
+        copy.configurationType = self.configurationType
         return copy
     }
     
@@ -128,15 +129,15 @@ class RecipeModule: Module {
         //no endpoint (recipes are compared 1 by 1 as needed)
         //create 3 RecipeModule variables & add as inputs & outcomes...
         let rating = RecipeModule(name: "RecipeRating")
-        rating.isOutcomeMeasure = true //set as OM
+        rating.configurationType = .OutcomeMeasure //set as OM
         rating.ratingCategories = self.ratingCategories //set ratingCategories var
         //create as many ghost variables as necessary to feed in to the OM & compute the final dict
-        if let name = recipeName {
-            let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
-            let project = Project(type: .InputOutput, title: "Recipe_\(name)", question: "Which recipe works best?", hypothesis: nil, endPoint: nil, insertIntoManagedObjectContext: context)
-            let _ = Group(type: .LoneGroup, project: project, action: "Cook & Eat", beforeVariables: [:], afterVariables: [:], insertIntoManagedObjectContext: context) //always lone group
+//        if let name = recipeName {
+//            let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
+//            let project = Project(type: .InputOutput, title: "Recipe_\(name)", question: "Which recipe works best?", hypothesis: nil, endPoint: nil, insertIntoManagedObjectContext: context)
+//            let _ = Group(type: .LoneGroup, project: project, action: "Cook & Eat", beforeVariables: [:], afterVariables: [:], insertIntoManagedObjectContext: context) //always lone group
 //            saveManagedObjectContext()
-        }
+//        }
     }
     
     // MARK: - Core Data Logic

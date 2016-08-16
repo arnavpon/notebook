@@ -14,6 +14,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
     @IBOutlet weak var optionsTableView: UITableView!
     @IBOutlet weak var bottomConstraint: NSLayoutConstraint! //TV bottom -> bottom layout guide
     
+    var segueSender: UIViewController? //VC that sent segue to Config flow
     var createdVariable: Module? //variable w/ completed configuration (sent from ConfigModuleVC)
     var reportedDataObject = Dictionary<String, AnyObject>() //contains all config data
     var dataSource: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] {
@@ -64,7 +65,7 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         optionsTableView.registerClass(SelectFromOptionsConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SelectFromOptionsConfigurationCell)) //select from available options
         optionsTableView.registerClass(SelectFromDropdownConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(SelectFromDropdownConfigurationCell)) //select from dropdown w/ options
         optionsTableView.registerClass(CustomOptionsConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(CustomOptionsConfigurationCell)) //custom options
-        optionsTableView.registerClass(BaseComputationConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(BaseComputationConfigurationCell)) //computations cell
+        optionsTableView.registerClass(TimeDifferenceConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(TimeDifferenceConfigurationCell)) //computations cell
         optionsTableView.registerClass(ExampleConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(ExampleConfigurationCell)) //example
         optionsTableView.registerClass(ExM_WorkoutConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(ExM_WorkoutConfigurationCell)) //exercise module - workout
     }
@@ -172,9 +173,9 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(SelectFromDropdownConfigurationCell)) as! SelectFromDropdownConfigurationCell
         case .CustomOptions:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomOptionsConfigurationCell)) as! CustomOptionsConfigurationCell
-        case .Computation:
-            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(BaseComputationConfigurationCell)) as! BaseComputationConfigurationCell
-            (cell as! BaseComputationConfigurationCell).availableVariables = self.existingVariables //pass all existing variables -> cell
+        case .TimeDifference:
+            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(TimeDifferenceConfigurationCell)) as! TimeDifferenceConfigurationCell
+            (cell as! TimeDifferenceConfigurationCell).availableVariables = self.existingVariables //pass all existing variables -> cell** pass measurement cycle sections
         case .Example:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExampleConfigurationCell)) as! ExampleConfigurationCell
         case .ExM_Workout:
@@ -192,7 +193,11 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             let (success, msg, flags) = variable.matchConfigurationItemsToProperties(reportedDataObject)
             if (success) { //operation was successful
                 if !(isRecipeFlow) { //default flow
-                    performSegueWithIdentifier("unwindToVariablesVC", sender: nil)
+                    if (self.segueSender is AddActionViewController) {
+                        self.performSegueWithIdentifier("unwindToAddAction", sender: nil)
+                    } else if (self.segueSender is AddVariablesViewController) {
+                        self.performSegueWithIdentifier("unwindToAddVariables", sender: nil)
+                    } 
                 } else { //recipe flow - create Project & return -> home screen
                     if let recipe = variable as? RecipeModule {
                         recipe.createProjectForRecipeModule() //generate project

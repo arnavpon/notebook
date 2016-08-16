@@ -15,9 +15,10 @@ enum ConfigurationOptionCellTypes { //REGISTER each new cell class w/ TV in Conf
     case SelectFromOptions //corresponds -> SelectFromOptionsConfigurationCell type
     case SelectFromDropdown //corresponds -> SelectFromDropdownConfigurationCell type
     case CustomOptions //corresponds -> CustomOptionsConfigurationCell type
-    case Computation //corresponds -> BaseComputationConfigurationCell type
-    case Example //corresponds -> ExampleConfigurationCell type
+    case TimeDifference //corresponds -> TimeDifferenceConfigurationCell type
     case ExM_Workout //corresponds -> ExM_WorkoutConfigurationCell type
+    
+    case Example //corresponds -> ExampleConfigurationCell type**
     
     func getHeightForConfigurationCellType() -> CGFloat { //called by VC to set cell height
         let levelHeight: CGFloat = LevelsFrameworkCell.levelHeight
@@ -33,8 +34,8 @@ enum ConfigurationOptionCellTypes { //REGISTER each new cell class w/ TV in Conf
             numberOfLevels = SelectFromDropdownConfigurationCell.numberOfLevels
         case .CustomOptions:
             numberOfLevels = CustomOptionsConfigurationCell.numberOfLevels
-        case .Computation:
-            numberOfLevels = BaseComputationConfigurationCell.numberOfLevels
+        case .TimeDifference:
+            numberOfLevels = TimeDifferenceConfigurationCell.numberOfLevels
         case .Example:
             numberOfLevels = ExampleConfigurationCell.numberOfLevels
         case .ExM_Workout:

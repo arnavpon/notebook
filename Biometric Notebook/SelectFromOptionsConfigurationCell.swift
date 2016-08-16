@@ -190,6 +190,18 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
         }
     }
     
+    func resetBinaryCellToDefault() { //called externally by AddActionVC to reset cell visuals
+        if let yesButton = optionButtons.first {
+            if let selection = self.selectedOptions.first {
+                if (selection.lowercaseString == "NO".lowercaseString) { //ONLY modify if value is 'NO'
+                    self.buttonWasClicked(yesButton)
+                }
+            } else { //no value is selected - reset to default
+                self.buttonWasClicked(yesButton)
+            }
+        }
+    }
+    
     // MARK: - Data Reporting
     
     override var configurationReportObject: AnyObject? { //returns highlighted buttons

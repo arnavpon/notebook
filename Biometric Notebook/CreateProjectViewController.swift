@@ -232,9 +232,13 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     
     // MARK: - Button Actions
     
-    @IBAction func setupButtonClick(sender: AnyObject) { //segue -> ProjectVarsVC
+    @IBAction func setupButtonClick(sender: AnyObject) { //segue -> next VC in flow
         self.view.endEditing(true) //dismiss keyboard
-        performSegueWithIdentifier("showVariables", sender: nil)
+        if (projectType == .InputOutput) {
+            performSegueWithIdentifier("showVariables", sender: nil)
+        } else if (projectType == .ControlComparison) {
+            performSegueWithIdentifier("showCCSetup", sender: nil)
+        }
     }
     
     @IBAction func cancelButtonClick(sender: AnyObject) {
@@ -261,9 +265,16 @@ class CreateProjectViewController: UIViewController, UITableViewDataSource, UITa
     @IBAction func unwindToCreateProjectsVC(sender: UIStoryboardSegue) { }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        //Pass the title, question, hypothesis, endpoint, & type through -> remaining flows:
-        if (segue.identifier == "showVariables") {
-            let destination = segue.destinationViewController as! ProjectVariablesViewController
+        if (segue.identifier == "showVariables") { //pass project info -> remaining flows
+            let destination = segue.destinationViewController as! SetupVariablesViewController
+            destination.projectTitle = self.projectTitle
+            destination.projectQuestion = self.projectQuestion
+            destination.projectHypothesis = self.projectHypothesis
+            destination.projectEndpoint = self.projectEndpoint
+            destination.projectType = self.projectType
+            destination.projectGroups = [(GroupTypes.LoneGroup.rawValue, .LoneGroup)] //IO project = 1 grp
+        } else if (segue.identifier == "showCCSetup") {
+            let destination = segue.destinationViewController as! ConfigureCCProjectViewController
             destination.projectTitle = self.projectTitle
             destination.projectQuestion = self.projectQuestion
             destination.projectHypothesis = self.projectHypothesis

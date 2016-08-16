@@ -29,7 +29,7 @@ class SimpleNumberConfigurationCell: BaseConfigurationCell, UITextFieldDelegate 
     internal override func accessDataSource() { //obtain SUBCLASS-SPECIFIC info from data source
         super.accessDataSource()
         if let source = dataSource {
-            if let defaultValue = source[BMN_Configuration_DefaultNumberKey] as? Int { //check for default
+            if let defaultValue = source[BMN_SimpleNumberConfigCell_DefaultKey] as? Int { //get default
                 textEntryField.text = "\(defaultValue)"
                 fullString = "\(defaultValue)" //initialize report object
                 configureCompletionIndicator(true) //set as complete if default exists

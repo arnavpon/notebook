@@ -18,6 +18,7 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
     var cachedLayoutObject: Dictionary<String, AnyObject>? //caches the configModuleLayoutObj for the var
     var cachedSectionsDataSource: [String]? //caches 'sectionsToDisplay' for the var
     
+    var segueSender: UIViewController?
     var existingVariables: [ComputationFramework_ExistingVariables]? //list of available vars (computs)
     
     // MARK: - View Configuration
@@ -101,10 +102,14 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
                         print("Selected Functionality: \(selection).")
                         self.copiedVariable = self.createdVariable?.copy() as? Module //create a COPY of the variable so that if the user goes back, the config is NOT saved
                         self.copiedVariable?.selectedFunctionality = selection
-                        if (self.copiedVariable?.configurationOptionsLayoutObject != nil) { //-> ConfigOptions if further config is needed
+                        if (self.copiedVariable?.configurationOptionsLayoutObject != nil) && (self.copiedVariable?.configurationOptionsLayoutObject?.count != 0) { //-> ConfigOptions if further config is needed
                             self.performSegueWithIdentifier("showConfigOptions", sender: nil)
-                        } else { //otherwise, create variable & -> ProjectVariablesVC
-                            self.performSegueWithIdentifier("unwindToVariablesVC", sender: nil)
+                        } else { //otherwise, create variable & -> sender VC
+                            if (self.segueSender is AddActionViewController) {
+                                self.performSegueWithIdentifier("unwindToAddAction", sender: nil)
+                            } else if (self.segueSender is AddVariablesViewController) {
+                                self.performSegueWithIdentifier("unwindToAddVariables", sender: nil)
+                            }
                         }
                     }
                     let cancel = UIAlertAction(title: "Cancel", style: .Default) { (let cancel) -> Void in }
@@ -123,10 +128,14 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
                 print("Selected Functionality: \(rows[indexPath.row])")
                 copiedVariable = createdVariable?.copy() as? Module //create a copy of the variable so that if the user goes back, the config is NOT saved
                 copiedVariable?.selectedFunctionality = rows[indexPath.row]
-                if (copiedVariable?.configurationOptionsLayoutObject != nil) { //-> ConfigOptions if further config is needed
+                if (copiedVariable?.configurationOptionsLayoutObject != nil) && (copiedVariable?.configurationOptionsLayoutObject?.count != 0) { //-> ConfigOptions if further config is needed
                     self.performSegueWithIdentifier("showConfigOptions", sender: nil)
-                } else { //otherwise, create variable & -> ProjectVariablesVC
-                    self.performSegueWithIdentifier("unwindToVariablesVC", sender: nil)
+                } else { //otherwise, create variable & -> sender VC
+                    if (self.segueSender is AddActionViewController) {
+                        self.performSegueWithIdentifier("unwindToAddAction", sender: nil)
+                    } else if (self.segueSender is AddVariablesViewController) {
+                        self.performSegueWithIdentifier("unwindToAddVariables", sender: nil)
+                    }
                 }
             }
         }
@@ -140,7 +149,8 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         if (segue.identifier == "showConfigOptions") { //show segue -> ConfigurationOptionsVC
             let destination = segue.destinationViewController as! ConfigurationOptionsViewController
             destination.createdVariable = self.copiedVariable //pass the COPIED var over
-            destination.existingVariables = self.existingVariables //for computation cell**may be obsolete
+            destination.existingVariables = self.existingVariables //for computation cell
+            destination.segueSender = self.segueSender
         }
     }
     

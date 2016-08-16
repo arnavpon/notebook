@@ -8,11 +8,9 @@ import CoreData
 
 extension Project {
     
-    @NSManaged var groups: NSSet //relationship -> 'Group' entity (one-to-many b/c each project contains multiple groups); INVERSE of 'project' relationship in Group class (modifying one automatically adjusts the other); *one-to-many objects must be of NSSet type*
-    //Each group in the project's 'groups' relationship must have a unique identifier so that it can be told apart during data entry from other groups. 
+    @NSManaged var groups: NSSet //relationship -> 'Group' entity (one-to-many b/c each project contains multiple groups, each group msut have UNIQUE name so that it can be told apart during data entry); INVERSE of 'project' relationship in Group class (modifying one automatically adjusts the other); *one-to-many objects must be of NSSet type*
     @NSManaged var counters: NSSet //relationship -> 'Counter' entity (one-to-many)
-    
-    @NSManaged var temporaryStorageObject: [String: [String: AnyObject]]? //temporarily holds the inputsVariables data during a single measurement cycle (e.g. while the action is being performed). After the action, this temporarily held data + outputVariables are sent -> DB. || tracker to check whether input variable data has been input for this project @ the current time (used to determine whether to display IV or OM in the DataEntryTV).
+    @NSManaged var temporaryStorageObject: [String: AnyObject]? //temporarily holds the entered data as the user progresses through each measurement cycle; after the measurement cycle is complete, the temporarily held data is sent -> DB.
     
     @NSManaged var projectType: String //string representation for ExperimentTypes enum
     @NSManaged var title: String //project title

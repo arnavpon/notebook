@@ -16,7 +16,8 @@ let EMAIL_KEY = "UserDefaults_email_key"
 let EDITED_PROJECTS_KEY = "UserDefaults_edited_projects_key" //keeps track of recently edited projects
 let SHOW_VARIABLE_SETUP_TUTORIAL = "UserDefaults_show_variable_setup_tutorial"
 let SHOW_ATTACH_DESCRIPTION = "UserDefaults_show_attach_description_key"
-let INPUTS_TIME_STAMP = "UserDefaults_input_variables_time_stamp_key" //for DataEntryVC
+
+let INPUTS_TIME_STAMP = "UserDefaults_input_variables_time_stamp_key" //for DataEntryVC & AvgOverAction**use actionTimeStamp to get rid of this & get time period for action
 
 // MARK: - [COMPUTATIONS] IDs
 let BMN_ComputationFramework_BM_BMI_HeightID = "CF_BM_BMI_height_id"
@@ -26,7 +27,6 @@ let BMN_Notification_ComputationFramework_DidCreateGhostVariable = "BMN_CF_DidCr
 let BMN_ComputationFramework_ComputationNameKey = "BMN_CF_computation_name_key"
 let BMN_ComputationFramework_GhostNameKey = "BMN_CF_ghost_name_key"
 let BMN_ComputationFramework_GhostConfigDictKey = "BMN_CF_ghost_config_dict_key"
-let BMN_ComputationFramework_GhostLocationKey = "BMN_CF_ghost_location_key"
 
 // MARK: - [GENERAL] NSNotification IDs
 
@@ -39,6 +39,9 @@ let BMN_AdjustHeightForConfigCell_UniqueIDKey = "BMN_AdjustHeightForConfigCell_u
 let BMN_AdjustHeightForConfigCell_NumberOfLevelsKey = "BMN_AdjustHeightForConfigCell_number_of_levels_key"
 
 let BMN_Notification_PopupViewActionWasTriggered = "BMN_PopupViewActionWasTriggered" //popup view notif
+let BMN_Notification_MeasurementTimeline_VariableWasSelected = "BMN_MT_VariableWasSelected"
+let BMN_Notification_MeasurementTimeline_TimeDifferenceButtonWasClicked = "BMN_MT_TDButtonWasClicked"
+let BMN_Notification_DataEntry_GroupSelection_OptionWasSelected = "BMN_DE_GroupSelection_OptionWasSelected"
 
 let BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError = "BMN_DataReportingErrorProtocol_ServiceDidReportError"
 let BMN_DataReportingErrorProtocol_ServiceTypeKey = "BMN_DataReportingErrorProtocol_service_type_key"
@@ -98,10 +101,10 @@ let BMN_CellWithCustomSlider_ProjectIsCCTypeKey = "CellWithCustomSlider_project_
 // MARK: - ConfigurationOptions Data Source Keys
 
 let BMN_Configuration_CellDescriptorKey = "configuration_cell_descriptor_key" //key for the cell's descriptor (the dictionary key used to identify each unique cell for configuration reporting)
-let BMN_Configuration_DefaultNumberKey = "configuration_default_number_key" //key for a default number to assign to a SimpleNumberConfigurationCell
-let BMN_Configuration_AllowedVariableTypesForComputationKey = "configuration_allowed_variable_types_for_computation_key" //key for BaseComputationConfigCell
+let BMN_Configuration_ReportCountKey = "configuration_report_count_key" //# of times var will report
+let BMN_Configuration_ReportCountID = "configuration_report_count_id" //stores report count in CoreData
 
-// MARK: - [MODULE] General Configuration Keys
+// MARK: - [MODULE] UI Setup Keys
 
 let BMN_ViewForSectionKey = "view_for_section_key"
 let BMN_RowsForSectionKey = "rows_for_section_key"
@@ -111,21 +114,23 @@ let BMN_ComputationsKey = "computations_key"
 
 // MARK: - [GENERAL] CustomConfigurationCell Keys
 
+let BMN_SimpleNumberConfigCell_DefaultKey = "SimpleNumberConfigCell_default_key" //default value
 let BMN_SelectFromOptions_OptionsKey = "SelectFromOptions_options_key"
 let BMN_SelectFromOptions_MultipleSelectionEnabledKey = "SelectFromOptions_multiple_selection_enabled_key"
 let BMN_SelectFromOptions_DefaultOptionsKey = "SelectFromOptions_default_options_key"
 let BMN_SelectFromOptions_IsBooleanKey = "SelectFromOptions_is_boolean_key"
 let BMN_SelectFromDropdown_OptionsKey = "SelectFromDropdown_options_key"
 
-// MARK: - [MODULE] Configuration Blockers (for 'Module_ConfigurationBlocker' Class)
+// MARK: - [MODULE] Configuration Blockers (for 'Module_DynamicConfigurationFramework' class)
 
-let BMN_Blocker_BeforeActionVariablesKey = "BL_before_action_variables_key"
-let BMN_Blocker_AfterActionVariablesKey = "BL_after_action_variables_key"
+let BMN_DynamicConfig_InputVariablesKey = "DCF_input_variables_key"
+let BMN_DynamicConfig_OutcomeMeasuresKey = "DCF_outcome_measures_key"
 
 // MARK: - [MODULE] Core Data Keys
 
 let BMN_ModuleTitleKey = "module_title_key" //key to obtain var's Module type
-let BMN_VariableIsOutcomeMeasureKey = "variable_is_outcome_measure_key" //indicator if var is an OM
+let BMN_VariableReportLocationsKey = "variable_report_positions_key" //saves report locations during cycle
+let BMN_ConfigurationTypeKey = "configuration_type_key" //indicates if var is IV, OM, or AQ**
 let BMN_VariableIsGhostKey = "variable_is_ghost_key" //indicator if var is a ghost
 let BMN_VariableReportTypeKey = "variable_report_type_key" //stores var's report type (auto cap, comp)
 let BMN_VariableTypeKey = "variable_type_key" //key to obtain var's behavior/computation
@@ -133,17 +138,12 @@ let BMN_DataEntry_MainLabelPromptKey = "DE_main_label_prompt_key" //alternate ma
 
 // MARK: - [MODULE] Data Entry Keys
 
-let BMN_CurrentlyReportingGroupKey = "currently_reporting_group_key" //stores groupID in tempStorageObj
+let BMN_TSO_ReportingGroupKey = "DE_reporting_group_key" //stores ID for reporting group in tempStorageObj
+let BMN_DBO_TimeStampKey = "DE_time_stamp_key" //key in DB object for timeStamp @ each reportLocation
 let BMN_Module_AutoCapVarCompletionStatusKey = "module_auto_cap_var_completion_status_key" //notif key
-let BMN_Module_MainTimeStampKey = "module_main_time_stamp_key" //main (outer) key in DB object
-let BMN_Module_InputsTimeStampKey = "module_inputs_time_stamp_key" //time stamp for input vars (inner key)
-let BMN_Module_OutputsTimeStampKey = "module_outputs_time_stamp_key" //time stamp for outcomes (inner key)
 let BMN_Module_ReportedDataKey = "module_main_data_key" //for var's main data (*match -> Python script*)
 let BMN_Module_OptionsForListKey = "module_options_for_list_key" //*needed for Python DB creation*
 let BMN_Module_OptionsForDictKey = "module_options_for_dict_key" //*needed for Python DB creation*
-
-let BMN_CustomModule_TimeDifferenceKey = "CM_time_difference_key" //key containing TD var's name
-let BMN_ProjectContainsTimeDifferenceKey = "project_contains_time_difference_key" //indicator
 
 let BMN_DataEntry_FreeformCell_NumberOfViewsKey = "BM_DE_freeform_cell_number_of_views_key" //for height calculation
 
@@ -155,11 +155,17 @@ let BMN_ProjectTypeID = "project_type_id"
 let BMN_ProjectHypothesisID = "project_hypothesis_id"
 let BMN_ProjectEndpointID = "project_endpoint_id"
 
-// MARK: - SetupVariablesVC > "Input Variable" Dict Keys
+// MARK: - [Action] Configuration IDs & Persistence Keys
 
-let BMN_InputOutput_InputVariablesKey = "InputOutput_input_variables_key"
-let BMN_ControlComparison_ControlKey = "ControlComparison_control_key"
-let BMN_ControlComparison_ComparisonKey = "ControlComparison_comparison_key"
+let BMN_Action_ActionLocationID = "Action_action_location_id"
+let BMN_Action_ActionMeasurementRateID = "Action_action_measurement_rate_id"
+
+let BMN_Action_QualifiersKey = "Action_qualifiers_key"
+let BMN_Action_ActionTypeKey = "Action_action_type_key"
+let BMN_Action_CustomNameKey = "Action_custom_name_key"
+let BMN_Action_LocationKey = "Action_location_key"
+let BMN_Action_OccursInEachCycleKey = "Action_occurs_in_each_cycle_key"
+let BMN_Action_ActionTimeStampKey = "Action_action_time_stamp_key"
 
 // MARK: - CustomModule [CM] *(KEY = dictionary key, used for storing/unpacking config options from CoreData; ID = unique identifier, used to identify information coming from specific ConfigCells)*
 
@@ -170,7 +176,9 @@ let BMN_CustomModule_RangeScaleMinimumKey = "CM_range_scale_min_key"
 let BMN_CustomModule_RangeScaleMaximumKey = "CM_range_scale_max_key"
 let BMN_CustomModule_RangeScaleIncrementKey = "CM_range_scale_increment_key"
 let BMN_CustomModule_CounterUniqueIDKey = "CM_counter_unique_id_key"
-let BMN_CustomModule_IsTimeDifferenceKey = "CM_is_time_difference_key"
+let BMN_CustomModule_TimeDifferenceTypeKey = "CM_time_difference_type_key"
+let BMN_CustomModule_TimeDifferenceLocation1Key = "CM_time_difference_location1_key"
+let BMN_CustomModule_TimeDifferenceLocation2Key = "CM_time_difference_location2_key"
 
 //[Configuration IDs]:
 let BMN_CustomModule_CustomOptions_PromptID = "CM_custom_options_prompt_id" //identifier: CustomModule > CustomOptions [behavior] > 'prompt' configuration cell
@@ -179,6 +187,7 @@ let BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID = "CM_custom_optio
 let BMN_CustomModule_RangeScale_MinimumID = "CM_range_scale_min_id" //identifier: CustomModule > RangeScale [behavior] > 'minimum value' configuration cell
 let BMN_CustomModule_RangeScale_MaximumID = "CM_range_scale_max_id" //identifier: CustomModule > RangeScale [behavior] > 'maximum value' configuration cell
 let BMN_CustomModule_RangeScale_IncrementID = "CM_range_scale_increment_id" //identifier: CustomModule > RangeScale [behavior] > 'increment value' configuration cell
+let BMN_CustomModule_TimeDifferenceTypeID = "CM_time_difference_type_id" //CM > TD type config object
 
 //[DataEntry Keys]:
 let BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey = "DE_custom_w/_options_number_of_options_key"

@@ -12,13 +12,16 @@
 		B10881E61CF486930032EBBC /* ComputationFramework_ExistingVariables.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10881E51CF486930032EBBC /* ComputationFramework_ExistingVariables.swift */; };
 		B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B921E1C52D8E70079A535 /* HelperFunctions.swift */; };
 		B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B92201C52D9BE0079A535 /* CustomTextView.swift */; };
-		B122261E1CC479A600A00109 /* BaseComputationConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B122261D1CC479A500A00109 /* BaseComputationConfigurationCell.swift */; };
+		B120B8611D5F77F700A4098E /* TimeDifferenceConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B120B8601D5F77F700A4098E /* TimeDifferenceConfigurationCell.swift */; };
+		B120B8631D5F7E1600A4098E /* AddVariablesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B120B8621D5F7E1600A4098E /* AddVariablesViewController.swift */; };
 		B122EAFE1CC307E000CE3D33 /* RangeScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */; };
 		B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */; };
 		B12554151CC5C5A9006C2651 /* WeatherForecastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */; };
 		B12803B51CE413420022777C /* DataEntryCellWithPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12803B41CE413420022777C /* DataEntryCellWithPicker.swift */; };
 		B1288DBB1D456D190015D319 /* RecipeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1288DBA1D456D180015D319 /* RecipeModule.swift */; };
 		B12B9D881D28B86D00B78764 /* DatabaseObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12B9D861D28B86D00B78764 /* DatabaseObject.swift */; };
+		B136F9851D6253F10015A724 /* MeasurementTimeline_CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B136F9841D6253F10015A724 /* MeasurementTimeline_CollectionViewCell.swift */; };
+		B136F9871D62A0260015A724 /* GroupSelectionView_CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B136F9861D62A0260015A724 /* GroupSelectionView_CollectionViewCell.swift */; };
 		B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */; };
 		B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */; };
 		B1395DAE1CB76A5800DEBC91 /* BaseCreateProjectCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DAD1CB76A5800DEBC91 /* BaseCreateProjectCell.swift */; };
@@ -47,6 +50,7 @@
 		B16EC9801C317D650085265C /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B16EC97F1C317D650085265C /* HealthKit.framework */; };
 		B17019561CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019551CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift */; };
 		B17019591CAA2C73004CAEB8 /* BaseConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */; };
+		B181E84A1D4FF098007ED083 /* ConfigureCCProjectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B181E8491D4FF098007ED083 /* ConfigureCCProjectViewController.swift */; };
 		B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */; };
 		B192626A1D010EE40093590E /* NutritionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19262691D010EE40093590E /* NutritionService.swift */; };
 		B19262701D0111B40093590E /* FoodIntakeForMealItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B192626F1D0111B40093590E /* FoodIntakeForMealItemCell.swift */; };
@@ -66,7 +70,6 @@
 		B1AA96CC1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AA96CB1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift */; };
 		B1AA96CE1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AA96CD1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift */; };
 		B1ABBEA01D31786B00C89A03 /* LoginHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1ABBE9F1D31786B00C89A03 /* LoginHandler.swift */; };
-		B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */; };
 		B1B106931C59097800463612 /* EnvironmentModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B106921C59097800463612 /* EnvironmentModule.swift */; };
 		B1B20A6B1C5E8576003B791B /* LabelWithPadding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */; };
 		B1B20A6D1C5E9CD0003B791B /* TutorialLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B20A6C1C5E9CD0003B791B /* TutorialLayer.swift */; };
@@ -84,6 +87,7 @@
 		B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */; };
 		B1C42F7A1CCFA40800F27DDF /* DataReportingErrorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C42F791CCFA40800F27DDF /* DataReportingErrorProtocol.swift */; };
 		B1C623FC1C619C72006DDD13 /* AttachModuleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */; };
+		B1C8B58C1D5585E300C5054F /* SetupVariablesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C8B58B1D5585E300C5054F /* SetupVariablesViewController.swift */; };
 		B1CCF1BF1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */; };
 		B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */; };
 		B1CFF7F41D3C2443000A782E /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CFF7F31D3C2443000A782E /* PopupView.swift */; };
@@ -109,6 +113,7 @@
 		B1DD30671D32DB4B00B2361C /* DatabaseObject+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DD30661D32DB4B00B2361C /* DatabaseObject+CoreDataProperties.swift */; };
 		B1DEE0491CD042B700F73F77 /* FreeformDataEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DEE0481CD042B700F73F77 /* FreeformDataEntryCell.swift */; };
 		B1E1E1401CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */; };
+		B1E836561D4E9FEB00E5C039 /* AddActionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1E836551D4E9FEB00E5C039 /* AddActionViewController.swift */; };
 		B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1EDACB41CA4A2560087E3B1 /* CarbonEmissionsModule.swift */; };
 		B1F661E91C3B42050099826B /* CustomTableViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */; };
 		B1F6F3BF1C518BEE001802A7 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */; };
@@ -176,13 +181,16 @@
 		B10881E51CF486930032EBBC /* ComputationFramework_ExistingVariables.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComputationFramework_ExistingVariables.swift; sourceTree = "<group>"; };
 		B11B921E1C52D8E70079A535 /* HelperFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		B11B92201C52D9BE0079A535 /* CustomTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
-		B122261D1CC479A500A00109 /* BaseComputationConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BaseComputationConfigurationCell.swift; path = ../../BaseComputationConfigurationCell.swift; sourceTree = "<group>"; };
+		B120B8601D5F77F700A4098E /* TimeDifferenceConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TimeDifferenceConfigurationCell.swift; path = ../../TimeDifferenceConfigurationCell.swift; sourceTree = "<group>"; };
+		B120B8621D5F7E1600A4098E /* AddVariablesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AddVariablesViewController.swift; path = ../../AddVariablesViewController.swift; sourceTree = "<group>"; };
 		B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RangeScaleView.swift; sourceTree = "<group>"; };
 		B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExperimentTypes.swift; sourceTree = "<group>"; };
 		B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherForecastService.swift; sourceTree = "<group>"; };
 		B12803B41CE413420022777C /* DataEntryCellWithPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataEntryCellWithPicker.swift; path = ../../DataEntryCellWithPicker.swift; sourceTree = "<group>"; };
 		B1288DBA1D456D180015D319 /* RecipeModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeModule.swift; sourceTree = "<group>"; };
 		B12B9D861D28B86D00B78764 /* DatabaseObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DatabaseObject.swift; path = ../DatabaseObject.swift; sourceTree = "<group>"; };
+		B136F9841D6253F10015A724 /* MeasurementTimeline_CollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeasurementTimeline_CollectionViewCell.swift; sourceTree = "<group>"; };
+		B136F9861D62A0260015A724 /* GroupSelectionView_CollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupSelectionView_CollectionViewCell.swift; sourceTree = "<group>"; };
 		B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectTitleCustomCell.swift; path = ../../ProjectTitleCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAB1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectHypothesisCustomCell.swift; path = ../../ProjectHypothesisCustomCell.swift; sourceTree = "<group>"; };
 		B1395DAD1CB76A5800DEBC91 /* BaseCreateProjectCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BaseCreateProjectCell.swift; path = ../../BaseCreateProjectCell.swift; sourceTree = "<group>"; };
@@ -222,6 +230,7 @@
 		B17019551CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigurationOptionsViewController.swift; sourceTree = "<group>"; };
 		B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseConfigurationCell.swift; sourceTree = "<group>"; };
 		B17C210D1C31B5F400B59FB0 /* HealthKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitConnection.swift; sourceTree = "<group>"; };
+		B181E8491D4FF098007ED083 /* ConfigureCCProjectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureCCProjectViewController.swift; sourceTree = "<group>"; };
 		B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureModuleViewController.swift; sourceTree = "<group>"; };
 		B19262691D010EE40093590E /* NutritionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NutritionService.swift; sourceTree = "<group>"; };
 		B192626F1D0111B40093590E /* FoodIntakeForMealItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodIntakeForMealItemCell.swift; sourceTree = "<group>"; };
@@ -240,7 +249,6 @@
 		B1AA96CB1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleTextConfigurationCell.swift; sourceTree = "<group>"; };
 		B1AA96CD1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleNumberConfigurationCell.swift; sourceTree = "<group>"; };
 		B1ABBE9F1D31786B00C89A03 /* LoginHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginHandler.swift; sourceTree = "<group>"; };
-		B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectVariablesViewController.swift; sourceTree = "<group>"; };
 		B1B106921C59097800463612 /* EnvironmentModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnvironmentModule.swift; sourceTree = "<group>"; };
 		B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LabelWithPadding.swift; sourceTree = "<group>"; };
 		B1B20A6C1C5E9CD0003B791B /* TutorialLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TutorialLayer.swift; sourceTree = "<group>"; };
@@ -258,6 +266,7 @@
 		B1C403361C3976A700AF4BB9 /* ProjectSummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProjectSummaryViewController.swift; sourceTree = "<group>"; };
 		B1C42F791CCFA40800F27DDF /* DataReportingErrorProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataReportingErrorProtocol.swift; sourceTree = "<group>"; };
 		B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttachModuleTableViewCell.swift; sourceTree = "<group>"; };
+		B1C8B58B1D5585E300C5054F /* SetupVariablesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetupVariablesViewController.swift; sourceTree = "<group>"; };
 		B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ExampleConfigurationCell.swift; path = ../../ExampleConfigurationCell.swift; sourceTree = "<group>"; };
 		B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricModule.swift; sourceTree = "<group>"; };
 		B1CFF7F31D3C2443000A782E /* PopupView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PopupView.swift; path = ../../PopupView.swift; sourceTree = "<group>"; };
@@ -283,6 +292,7 @@
 		B1DD30661D32DB4B00B2361C /* DatabaseObject+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "DatabaseObject+CoreDataProperties.swift"; path = "../DatabaseObject+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		B1DEE0481CD042B700F73F77 /* FreeformDataEntryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FreeformDataEntryCell.swift; sourceTree = "<group>"; };
 		B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CustomOptionsConfigurationCell.swift; path = ../../CustomOptionsConfigurationCell.swift; sourceTree = "<group>"; };
+		B1E836551D4E9FEB00E5C039 /* AddActionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddActionViewController.swift; sourceTree = "<group>"; };
 		B1EDACB41CA4A2560087E3B1 /* CarbonEmissionsModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CarbonEmissionsModule.swift; sourceTree = "<group>"; };
 		B1F661E81C3B42050099826B /* CustomTableViewHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTableViewHeader.swift; sourceTree = "<group>"; };
 		B1F6F3BE1C518BEE001802A7 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
@@ -325,6 +335,7 @@
 			isa = PBXGroup;
 			children = (
 				B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */,
+				B136F9861D62A0260015A724 /* GroupSelectionView_CollectionViewCell.swift */,
 			);
 			name = Supplements;
 			sourceTree = "<group>";
@@ -508,9 +519,9 @@
 				B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */,
 				B19F16571D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift */,
 				B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */,
-				B122261D1CC479A500A00109 /* BaseComputationConfigurationCell.swift */,
-				B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */,
+				B120B8601D5F77F700A4098E /* TimeDifferenceConfigurationCell.swift */,
 				B19F16551D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift */,
+				B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */,
 			);
 			name = "Config Options TV Cells";
 			sourceTree = "<group>";
@@ -578,7 +589,10 @@
 			children = (
 				B1D51C691CB2B10100DED6B2 /* Supplements */,
 				B1B98BD51C3991B800DDACEE /* CreateProjectViewController.swift */,
-				B1AF921A1C51D5A40001F603 /* ProjectVariablesViewController.swift */,
+				B181E8491D4FF098007ED083 /* ConfigureCCProjectViewController.swift */,
+				B1C8B58B1D5585E300C5054F /* SetupVariablesViewController.swift */,
+				B1E836551D4E9FEB00E5C039 /* AddActionViewController.swift */,
+				B120B8621D5F7E1600A4098E /* AddVariablesViewController.swift */,
 				B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */,
 				B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */,
 				B17019571CAA0717004CAEB8 /* Config Options TV Cells */,
@@ -680,6 +694,7 @@
 				B1B20A6C1C5E9CD0003B791B /* TutorialLayer.swift */,
 				B1395DAF1CB76AAD00DEBC91 /* Create Project Cells */,
 				B1C623FB1C619C72006DDD13 /* AttachModuleTableViewCell.swift */,
+				B136F9841D6253F10015A724 /* MeasurementTimeline_CollectionViewCell.swift */,
 			);
 			name = Supplements;
 			sourceTree = "<group>";
@@ -914,11 +929,13 @@
 				B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */,
 				B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */,
 				B13B26741D23F55200006145 /* DatabaseConnection.swift in Sources */,
+				B136F9851D6253F10015A724 /* MeasurementTimeline_CollectionViewCell.swift in Sources */,
 				B1D51C631CB2A34300DED6B2 /* CellWithGradientFill.swift in Sources */,
 				B19F16581D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift in Sources */,
 				B1AA96CE1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift in Sources */,
 				B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */,
 				B1D51C5C1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift in Sources */,
+				B120B8611D5F77F700A4098E /* TimeDifferenceConfigurationCell.swift in Sources */,
 				B19262701D0111B40093590E /* FoodIntakeForMealItemCell.swift in Sources */,
 				B1BE110E1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift in Sources */,
 				B12554151CC5C5A9006C2651 /* WeatherForecastService.swift in Sources */,
@@ -931,19 +948,22 @@
 				B1D51C5E1CB2A19C00DED6B2 /* LevelsFrameworkCell.swift in Sources */,
 				B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */,
 				B19857D11CF64947000FBF05 /* GhostVariable.swift in Sources */,
+				B1E836561D4E9FEB00E5C039 /* AddActionViewController.swift in Sources */,
 				B1ABBEA01D31786B00C89A03 /* LoginHandler.swift in Sources */,
 				B1D51C5A1CB29CC200DED6B2 /* ArchivedProjectsViewController.swift in Sources */,
 				B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */,
 				B19F16561D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift in Sources */,
-				B1AF921B1C51D5A40001F603 /* ProjectVariablesViewController.swift in Sources */,
 				B1C42F7A1CCFA40800F27DDF /* DataReportingErrorProtocol.swift in Sources */,
+				B120B8631D5F7E1600A4098E /* AddVariablesViewController.swift in Sources */,
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,
 				B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */,
 				B15933261CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift in Sources */,
 				B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */,
+				B181E84A1D4FF098007ED083 /* ConfigureCCProjectViewController.swift in Sources */,
 				B1AA96CC1CAB27DF0009E716 /* SimpleTextConfigurationCell.swift in Sources */,
 				B1DEE0491CD042B700F73F77 /* FreeformDataEntryCell.swift in Sources */,
 				B1AA96CA1CAB1CCC0009E716 /* DataEntryCellTypes.swift in Sources */,
+				B1C8B58C1D5585E300C5054F /* SetupVariablesViewController.swift in Sources */,
 				B1D560AC1CB458D700F6A7AC /* CellWithPlusButton.swift in Sources */,
 				B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */,
 				B1395DAC1CB7676700DEBC91 /* ProjectHypothesisCustomCell.swift in Sources */,
@@ -962,7 +982,6 @@
 				B1B996661CBF342700E977DF /* Counter.swift in Sources */,
 				B1DD30671D32DB4B00B2361C /* DatabaseObject+CoreDataProperties.swift in Sources */,
 				B19DF3701CC58CAC008F44C4 /* NetworkConnection.swift in Sources */,
-				B122261E1CC479A600A00109 /* BaseComputationConfigurationCell.swift in Sources */,
 				B13BB7391CBEDDFE0084E640 /* Group.swift in Sources */,
 				B1395DAE1CB76A5800DEBC91 /* BaseCreateProjectCell.swift in Sources */,
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
@@ -986,6 +1005,7 @@
 				B15933241CF75CFC002C09C2 /* Module_ComputationFramework.swift in Sources */,
 				B12803B51CE413420022777C /* DataEntryCellWithPicker.swift in Sources */,
 				B10838FC1C4D3FDE0023C060 /* Endpoint.swift in Sources */,
+				B136F9871D62A0260015A724 /* GroupSelectionView_CollectionViewCell.swift in Sources */,
 				B1E1E1401CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift in Sources */,
 				B1A8C7CB1CAF657300380E99 /* CustomWithCounterCell.swift in Sources */,
 				B1288DBB1D456D190015D319 /* RecipeModule.swift in Sources */,

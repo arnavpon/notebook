@@ -8,12 +8,14 @@
 import UIKit
 import CoreData
 
-class DataEntryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class DataEntryViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     @IBOutlet weak var doneButton: UIButton!
     @IBOutlet weak var dataEntryTV: UITableView!
     @IBOutlet weak var bottomConstraint: NSLayoutConstraint! //TV bottom -> bottom layout guide*
+    @IBOutlet weak var collectionView: UICollectionView! //view for selecting from options list
     @IBOutlet weak var groupSelectionView: UIView!
+    @IBOutlet weak var groupSelectionViewLabel: UILabel!
     
     @IBOutlet weak var smallAIView: UIView!
     @IBOutlet weak var smallAIViewLabel: UILabel!
@@ -71,13 +73,18 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         registerCustomTVCells() //register ALL possible custom cell types
         getTableViewDataSource() //set data source for TV
         
-        //(3) Obtain timeStamp if it exists for userDefaults (utilized by some variables):
-        if let project = selectedProject, dict = project.temporaryStorageObject, timeEntry = dict[BMN_Module_MainTimeStampKey], inputsTimeStamp = timeEntry[BMN_Module_InputsTimeStampKey] as? NSDate { //pass to user defaults
-            print("[DEVC] Inputs Time Stamp: \(DateTime(date: inputsTimeStamp).getFullTimeStamp()).")
-            NSUserDefaults.standardUserDefaults().setObject(inputsTimeStamp, forKey: INPUTS_TIME_STAMP)
-        } else { //clear the user defaults value for the timeStamp
-            NSUserDefaults.standardUserDefaults().setObject(nil, forKey: INPUTS_TIME_STAMP)
-        }
+        //(3) Configure collectionView:
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.groupSelectionViewOptionWasSelected(_:)), name: BMN_Notification_DataEntry_GroupSelection_OptionWasSelected, object: nil)
+        
+//        //(3) Obtain timeStamp if it exists for userDefaults (utilized by some variables):
+//        if let project = selectedProject, dict = project.temporaryStorageObject, timeEntry = dict[BMN_Module_MainTimeStampKey], inputsTimeStamp = timeEntry[BMN_Module_InputsTimeStampKey] as? NSDate { //pass to user defaults
+//            print("[DEVC] Inputs Time Stamp: \(DateTime(date: inputsTimeStamp).getFullTimeStamp()).")
+//            NSUserDefaults.standardUserDefaults().setObject(inputsTimeStamp, forKey: INPUTS_TIME_STAMP)
+//        } else { //clear the user defaults value for the timeStamp
+//            NSUserDefaults.standardUserDefaults().setObject(nil, forKey: INPUTS_TIME_STAMP)
+//        }
     }
     
     func registerCustomTVCells() { //registers all possible custom cell types
@@ -87,25 +94,6 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         dataEntryTV.registerClass(CustomWithCounterCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithCounterCell))
         dataEntryTV.registerClass(CustomWithRangeScaleCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithRangeScaleCell))
         dataEntryTV.registerClass(FoodIntakeForMealItemCell.self, forCellReuseIdentifier: NSStringFromClass(FoodIntakeForMealItemCell))
-    }
-    
-    func getTableViewDataSource() { //obtains TV dataSource array from the selectedProject
-        //First, check how many groups the selectedProject contains (> 1 => user must select which one they are filling data for):
-        if let project = selectedProject {
-            if (project.shouldDisplayGroupSelectionView()) { //show groupSelectionView
-                configureGroupSelectionView(true)
-            } else { //obtain variablesArray directly from Project class
-                self.variablesArray = project.getVariablesForGroup(nil) //no groupType needed
-                dataEntryTV.hidden = false //need this in case TV was previously hidden
-                dataEntryTV.reloadData() //update UI
-                configureActivityIndicatorView(false) //display AI view if needed
-            }
-        }
-    }
-    
-    func configureGroupSelectionView(show: Bool) { //configures pop-up view for group selection
-        groupSelectionView.hidden = !show
-        dataEntryTV.hidden = show
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -125,7 +113,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
             let ok = UIAlertAction(title: "I'm Sure", style: .Destructive) { (let ok) in
                 project.refreshMeasurementCycle() //refresh project settings 1st
                 
-                //Reset doneButton, AI view cache & visuals:
+                //Reset doneButton, AI view cache, & visuals:
                 self.cachedView = nil
                 self.cachedBlocker = false
                 self.autoCapVarCount = nil //clear
@@ -170,6 +158,73 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     
     func keyboardDidHide(notification: NSNotification) { //clear blocker for next cycle
         blockKeyboardDidAppear = false //reset
+    }
+    
+    // MARK: - Collection View
+    
+    var collectionViewDataSource: [String]?
+    
+    func getTableViewDataSource() { //obtains TV dataSource array from the selectedProject
+        //(1) Check if project requires that user select an option before generating variables:
+        if let project = selectedProject {
+            if let groups = project.getOptionsForGroupSelectionView() { //show groupSelectionView
+                configureGroupSelectionView(groups)
+            } else { //obtain variablesArray directly from Project class
+                self.variablesArray = project.getVariablesForSelectedGroup(nil)
+                dataEntryTV.hidden = false //need this in case TV was previously hidden
+                dataEntryTV.reloadData() //update UI
+                configureActivityIndicatorView(false) //display AI view if needed
+            }
+        }
+    }
+    
+    func configureGroupSelectionView(viewInputs: (String, [String])?) { //configures pop-up view for group selection (inputs = (lblTitle, selectionOptions)); if groups = nil, hide the view & reveal TV
+        if let (labelTitle, options) = viewInputs {
+            groupSelectionViewLabel.text = labelTitle //set instruction label
+            collectionViewDataSource = options //set collectionView dataSource
+            collectionView.reloadData() //update UI
+            groupSelectionView.hidden = false
+            dataEntryTV.hidden = true
+        } else { //no groups - hide groupSelectionView
+            groupSelectionView.hidden = true
+            dataEntryTV.hidden = false
+        }
+    }
+    
+    func groupSelectionViewOptionWasSelected(notification: NSNotification) {
+        if let index = notification.object as? Int, project = selectedProject { //get indx of selection
+            variablesArray = project.getVariablesForSelectedGroup(index) //set dataSource w/ variables
+            dispatch_async(dispatch_get_main_queue(), { //*update visuals on main thread*
+                self.dataEntryTV.reloadData() //update TV
+            })
+            configureActivityIndicatorView(false) //display AI view if needed
+            configureGroupSelectionView(nil) //hide selectionView
+        }
+    }
+    
+    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if let source = collectionViewDataSource {
+            return source.count
+        }
+        return 0 //pass # of groups to display
+    }
+    
+    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("option_cell", forIndexPath: indexPath) as! GroupSelectionView_CollectionViewCell
+        if let source = collectionViewDataSource {
+            cell.cellIndex = indexPath.row //set indicator for cell #
+            cell.optionButton.setTitle(source[indexPath.row], forState: .Normal)
+        }
+        return cell
+    }
+    
+    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+        return CGSize(width: 180, height: 120) //rectangular view
+    }
+    
+    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAtIndex section: Int) -> UIEdgeInsets {
+        let insetValue: CGFloat = 15 //inset the cells from the L & R edges of the container
+        return UIEdgeInsets(top: 0, left: insetValue, bottom: 0, right: insetValue)
     }
     
     // MARK: - Completion Status Logic
@@ -398,23 +453,6 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
             project.constructDataObjectForDatabase()
         }
         performSegueWithIdentifier("unwindToActiveProjects", sender: nil) //return -> home screen
-    }
-    
-    @IBAction func controlGroupButtonClick(sender: AnyObject) { //selects 'Control' for data entry
-        getTableViewDataSourceForGroup(.Control)
-    }
-    
-    @IBAction func comparisonGroupButtonClick(sender: AnyObject) { //selects 'Comparison' for data entry
-        getTableViewDataSourceForGroup(.Comparison)
-    }
-    
-    func getTableViewDataSourceForGroup(group: GroupTypes) { //gets TV dataSource for selectedGroup
-        if let project = selectedProject {
-            variablesArray = project.getVariablesForGroup(group) //set dataSource
-            dataEntryTV.reloadData() //update UI
-            configureActivityIndicatorView(false) //display AI view if needed
-            configureGroupSelectionView(false) //hide selectionView
-        }
     }
 
 }

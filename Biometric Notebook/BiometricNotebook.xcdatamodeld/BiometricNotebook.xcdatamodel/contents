@@ -12,10 +12,11 @@
         <attribute name="projectTitle" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Group" representedClassName=".Group" syncable="YES">
-        <attribute name="action" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="afterActionVariables" optional="YES" attributeType="Transformable" syncable="YES"/>
-        <attribute name="beforeActionVariables" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="action" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="groupName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="groupType" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="measurementCycleLength" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="variables" optional="YES" attributeType="Transformable" syncable="YES"/>
         <relationship name="project" maxCount="1" deletionRule="Nullify" destinationEntity="Project" inverseName="groups" inverseEntity="Project" syncable="YES"/>
     </entity>
     <entity name="Project" representedClassName=".Project" syncable="YES">
@@ -28,7 +29,7 @@
         <attribute name="temporaryStorageObject" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="title" attributeType="String" syncable="YES"/>
         <relationship name="counters" toMany="YES" deletionRule="Cascade" destinationEntity="Counter" inverseName="project" inverseEntity="Counter" syncable="YES"/>
-        <relationship name="groups" toMany="YES" minCount="1" maxCount="2" deletionRule="Cascade" destinationEntity="Group" inverseName="project" inverseEntity="Group" syncable="YES"/>
+        <relationship name="groups" toMany="YES" minCount="1" deletionRule="Cascade" destinationEntity="Group" inverseName="project" inverseEntity="Group" syncable="YES"/>
     </entity>
     <entity name="UniqueIDs" representedClassName=".UniqueIDs" syncable="YES">
         <attribute name="activeCounterIDs" optional="YES" attributeType="Transformable" syncable="YES"/>
@@ -37,7 +38,7 @@
     <elements>
         <element name="Counter" positionX="-180" positionY="36" width="128" height="105"/>
         <element name="DatabaseObject" positionX="-180" positionY="54" width="128" height="90"/>
-        <element name="Group" positionX="-63" positionY="-19" width="128" height="120"/>
+        <element name="Group" positionX="-63" positionY="-19" width="128" height="135"/>
         <element name="Project" positionX="-290" positionY="-33" width="128" height="195"/>
         <element name="UniqueIDs" positionX="-180" positionY="36" width="128" height="75"/>
     </elements>

@@ -68,7 +68,27 @@ class CustomModule: Module {
         }
         
         //(2) Add items -> 'computations' array if they pass through filters:
-        for computation in customModuleComputations {
+        var filteredSubtypes = Set<TimeDifference_VariableTypes>() //SUB-types to be filtered
+        if let blocker = moduleBlocker { //create a sub-type filter for TD vars (block DistFromAction)
+            let filters = blocker.getFilteredTypesForModule(Modules.CustomModule)
+            for filter in filters {
+                if let enumValue = TimeDifference_VariableTypes(rawValue: filter) {
+                    filteredSubtypes.insert(enumValue)
+                }
+            }
+        }
+        let tdSubtypes = [TimeDifference_VariableTypes.DistanceFromAction] //list of TD subtypes
+        var tdOpts: [String] = [] //used by ConfigOptions object
+        for subtype in tdSubtypes {
+            if !(filteredSubtypes.contains(subtype)) { //exclude filtered var subtypes
+                tdOpts.append(subtype.rawValue)
+            }
+        }
+        if (tdOpts.isEmpty) { //if no TD options remain, filter out TD computation
+            filteredTypes.insert(CustomModuleVariableTypes.Computation_TimeDifference)
+        }
+        
+        for computation in customModuleComputations { //set final array for display
             if !(filteredTypes.contains(computation)) { //exclude filtered varTypes
                 computationTitles.append(computation.rawValue)
             }
@@ -90,7 +110,7 @@ class CustomModule: Module {
     var multipleSelectionEnabled: Bool? //for a variable w/ options, checks if user is allowed to select MULTIPLE OPTIONS (if nil => FALSE)
     var rangeScaleParameters: (Int, Int, Int)? //(minimum, maximum, increment)
     var counterUniqueID: Int? //unique counter ID, used to match to 'Counter' CoreData object
-    var variableIsTimeDifference: Bool = false //indicates that variable is TD
+    var timeDifferenceSetup: (TimeDifference_VariableTypes, (Int, Int)?)? //(type, (pointA, pointB)?); point A & B correspond to locations in the measurement cycle
     
     // MARK: - Initializers
     
@@ -126,14 +146,19 @@ class CustomModule: Module {
                 if let min = dict[BMN_CustomModule_RangeScaleMinimumKey] as? Int, max = dict[BMN_CustomModule_RangeScaleMaximumKey] as? Int, increment = dict[BMN_CustomModule_RangeScaleIncrementKey] as? Int {
                     self.rangeScaleParameters = (min, max, increment)
                 }
-            case .Behavior_Timing: //set the freeform cell configObject:
+            case .Behavior_Timing: //set the freeform cell configObject
                 self.FreeformCell_configurationObject = [] //initialize
                 FreeformCell_configurationObject!.append((nil, ProtectedFreeformTypes.Timing, nil, 11, nil, "HH:MM:SS.ms")) //lone view for timing entry; no label/default/bounding (b/c of unique timing format), character limit = 11 (HH:MM:SS.ms)
                 self.cellPrompt = "Enter the timing in the format HH:MM:SS.ms (e.g. 01:10:05.344):" //add prompt for cell
             case .Computation_TimeDifference:
-                if let indicator = dict[BMN_CustomModule_IsTimeDifferenceKey] as? Bool {
-                    self.variableIsTimeDifference = indicator
-                    print("[TimeDifference] Variable is a TD computation.")
+                if let typeRaw = dict[BMN_CustomModule_TimeDifferenceTypeKey] as? String, tdType = TimeDifference_VariableTypes(rawValue: typeRaw) {
+                    if let loc1 = dict[BMN_CustomModule_TimeDifferenceLocation1Key] as? Int, loc2 = dict[BMN_CustomModule_TimeDifferenceLocation2Key] as? Int { //DEFAULT type
+                        self.timeDifferenceSetup = (tdType, (loc1, loc2))
+                        print("[TimeDifference] Variable is a TD of type [\(typeRaw)] between loc [\(loc1)] & loc [\(loc2)] in cycle.")
+                    } else { //NOT default type
+                        self.timeDifferenceSetup = (tdType, nil)
+                        print("[TimeDifference] Variable is a TD of type \(typeRaw).")
+                    }
                 }
             }
         } else {
@@ -141,54 +166,69 @@ class CustomModule: Module {
         }
     }
     
+    init(timeDifferenceName: String, locations: (Int, Int)) { //external TD init
+        super.init(name: timeDifferenceName)
+        self.moduleTitle = Modules.CustomModule.rawValue //set title
+        self.selectedFunctionality = CustomModuleVariableTypes.Computation_TimeDifference.rawValue
+        self.variableReportType = .TimeDifference //mark as time-diff report type
+        self.timeDifferenceSetup = (.Default, locations)
+    }
+    
     override func copyWithZone(zone: NSZone) -> AnyObject { //creates copy of variable
         let copy = CustomModule(name: self.variableName)
         copy.existingVariables = self.existingVariables
         copy.moduleBlocker = self.moduleBlocker
+        copy.configurationType = self.configurationType
         return copy
     }
     
     // MARK: - Variable Configuration
     
     internal override func setConfigurationOptionsForSelection() { //handles ALL configuration for ConfigOptionsVC - (1) Sets the 'options' value as needed; (2) Constructs the configuration TV cells if required; (3) Sets 'isAutoCaptured' var if var is auto-captured.
+        super.setConfigurationOptionsForSelection() //set superclass config info
+        if (configurationOptionsLayoutObject == nil) {
+            configurationOptionsLayoutObject = [] //initialize
+        }
         if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
             var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = [] //pass -> VC (CustomCellType, cell's dataSource)
             switch type {
-            case CustomModuleVariableTypes.Behavior_CustomOptions:
+            case .Behavior_CustomOptions:
                 
                 //3 config cells are needed (prompt + multiple selection + custom options):
                 array.append((ConfigurationOptionCellTypes.SimpleText, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_PromptID, BMN_LEVELS_CellIsOptionalKey: true, BMN_LEVELS_MainLabelKey: "Set a prompt (optional). Replaces the variable's name during data reporting:"])) //cell to accept prompt
                 array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID, BMN_LEVELS_MainLabelKey: "Allow multiple options to be selected (default NO):", BMN_SelectFromOptions_OptionsKey: ["YES", "NO"], BMN_SelectFromOptions_DefaultOptionsKey: ["NO"], BMN_SelectFromOptions_IsBooleanKey: true])) //cell to check whether multiple selection is allowed or not
                 array.append((ConfigurationOptionCellTypes.CustomOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_OptionsID, BMN_LEVELS_MainLabelKey: "Enter 2 or more custom options for selection:"])) //cell to enter custom options
-                configurationOptionsLayoutObject = array
+                configurationOptionsLayoutObject!.appendContentsOf(array)
                 
-            case CustomModuleVariableTypes.Behavior_BinaryOptions:
+            case .Behavior_BinaryOptions:
                 
-                //**Should we allow user to set a prompt for binary? And if so, do they set it immediately, or only if they click on the ProjectVarsTV cell?
                 options = ["Yes", "No"] //set binary options
-                configurationOptionsLayoutObject = nil //no further config needed
+                array.append((ConfigurationOptionCellTypes.SimpleText, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_PromptID, BMN_LEVELS_CellIsOptionalKey: true, BMN_LEVELS_MainLabelKey: "Set a prompt (optional). Replaces the variable's name during data reporting:"])) //cell to accept prompt
+                configurationOptionsLayoutObject!.appendContentsOf(array)
                 
-            case CustomModuleVariableTypes.Behavior_Counter:
+            case .Behavior_Counter:
                 
-                configurationOptionsLayoutObject = nil //no further config needed
+                configurationOptionsLayoutObject!.appendContentsOf(array)
                 
-            case CustomModuleVariableTypes.Behavior_RangeScale:
+            case .Behavior_RangeScale:
                 
                 //3 config cells are needed (asking for minimum, maximum, & increment):
-                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_MinimumID, BMN_LEVELS_MainLabelKey: "Minimum for scale (default 0):", BMN_Configuration_DefaultNumberKey: 0])) //minimum value
-                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_MaximumID, BMN_LEVELS_MainLabelKey: "Maximum for scale (default 10):", BMN_Configuration_DefaultNumberKey: 10])) //maximum value
-                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_IncrementID, BMN_LEVELS_MainLabelKey: "Increment for scale (default 1):", BMN_Configuration_DefaultNumberKey: 1])) //increment value
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_MinimumID, BMN_LEVELS_MainLabelKey: "Minimum for scale (default 0):", BMN_SimpleNumberConfigCell_DefaultKey: 0])) //minimum value
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_MaximumID, BMN_LEVELS_MainLabelKey: "Maximum for scale (default 10):", BMN_SimpleNumberConfigCell_DefaultKey: 10])) //maximum value
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_IncrementID, BMN_LEVELS_MainLabelKey: "Increment for scale (default 1):", BMN_SimpleNumberConfigCell_DefaultKey: 1])) //increment value
                 
+                configurationOptionsLayoutObject!.appendContentsOf(array)
+                
+            case .Behavior_Timing:
+                
+                configurationOptionsLayoutObject!.appendContentsOf(array)
+                
+            case .Computation_TimeDifference: //exclude DistanceFromAction if it is in blocker
+                
+                let opts = [TimeDifference_VariableTypes.DistanceFromAction.rawValue]
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_TimeDifferenceTypeID, BMN_LEVELS_MainLabelKey: "Select the time difference variable type:", BMN_SelectFromOptions_OptionsKey: opts, BMN_SelectFromOptions_DefaultOptionsKey: [opts.first!]])) //cell to select TD type
                 configurationOptionsLayoutObject = array
-                
-            case CustomModuleVariableTypes.Behavior_Timing:
-                
-                configurationOptionsLayoutObject = nil //no further config needed
-                
-            case CustomModuleVariableTypes.Computation_TimeDifference:
-                
-                configurationOptionsLayoutObject = nil //no further config needed
-                self.variableReportType = ModuleVariableReportTypes.AutoCapture //TD is auto-captured
+                self.variableReportType = ModuleVariableReportTypes.TimeDifference //set report type
                 
             }
         } else { //no selection, set configOptionsObj -> nil
@@ -198,6 +238,10 @@ class CustomModule: Module {
     
     internal override func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [String]?) {
         //(1) Takes as INPUT the data that was entered into each config TV cell. (2) Given the variableType, matches configuration data -> properties in the Module object by accessing specific configuration cell identifiers (defined in 'HelperFx' > 'Dictionary Keys').
+        let superclassReturnVal = super.matchConfigurationItemsToProperties(configurationData)
+        if (superclassReturnVal.0 == false) { //if checks are failed @ superclass lvl, return super obj
+            return superclassReturnVal
+        }
         if let type = variableType {
             switch type { //only needed for sections that require configuration
             case .Behavior_CustomOptions:
@@ -218,6 +262,11 @@ class CustomModule: Module {
                     return (false, "Either the options or multiple selection indicator haven't been set.", nil)
                 }
                 
+            case .Behavior_BinaryOptions:
+                
+                self.cellPrompt = configurationData[BMN_CustomModule_CustomOptions_PromptID] as? String
+                return (true, nil, nil)
+                
             case .Behavior_RangeScale: //inc data is INT
                 
                 if let min = (configurationData[BMN_CustomModule_RangeScale_MinimumID] as? Int), max = (configurationData[BMN_CustomModule_RangeScale_MaximumID] as? Int), increment = (configurationData[BMN_CustomModule_RangeScale_IncrementID] as? Int) {
@@ -235,14 +284,31 @@ class CustomModule: Module {
                 }
                 
             case .Computation_TimeDifference:
-                print("time difference...")
-                return (true, nil, nil)
+                if let typeArray = configurationData[BMN_CustomModule_TimeDifferenceTypeID] as? [String], typeRaw = typeArray.first, tdType = TimeDifference_VariableTypes(rawValue: typeRaw) {
+                    print("Time difference variable...")
+                    self.timeDifferenceSetup = (tdType, nil)
+                    return (true, nil, nil)
+                }
             default:
-                print("[CustomMod: matchConfigToProps] Error! Default in switch!")
-                return (false, "Default in switch!", nil)
+                return (true, nil, nil)
             }
         }
         return (false, "No selected functionality was found!", nil)
+    }
+    
+    override func specialTypeForDynamicConfigFramework() -> String? {
+        if let type = self.getTypeForVariable() {
+            switch type {
+            case .Computation_TimeDifference:
+                if (self.timeDifferenceSetup?.0 == TimeDifference_VariableTypes.DistanceFromAction) {
+                    print("[var {\(self.variableName)}] Setting special type [\(TimeDifference_VariableTypes.DistanceFromAction.rawValue)] for DCF...")
+                    return TimeDifference_VariableTypes.DistanceFromAction.rawValue
+                }
+            default:
+                break
+            }
+        }
+        return nil
     }
     
     // MARK: - Core Data Logic
@@ -255,16 +321,12 @@ class CustomModule: Module {
         if let type = variableType {
             persistentDictionary[BMN_VariableTypeKey] = type.rawValue //save variable type
             switch type {
-            case .Behavior_CustomOptions:
+            case .Behavior_CustomOptions, .Behavior_BinaryOptions:
                 if let opts = self.options { //make sure there are options
                     persistentDictionary[BMN_CustomModule_OptionsKey] = opts
                 }
                 if let multipleSelect = multipleSelectionEnabled { //check if multiple selection allowed
                     persistentDictionary[BMN_CustomModule_CustomOptionsMultipleSelectionAllowedKey] = multipleSelect
-                }
-            case .Behavior_BinaryOptions:
-                if let opts = self.options { //make sure there are options
-                    persistentDictionary[BMN_CustomModule_OptionsKey] = opts
                 }
             case .Behavior_Counter:
                 if let id = counterUniqueID {
@@ -281,8 +343,16 @@ class CustomModule: Module {
                 }
             case .Behavior_Timing: //prompt is stored by superclass so nothing to store
                 break
-            case .Computation_TimeDifference: //indicate var is TimeDifference
-                persistentDictionary[BMN_CustomModule_IsTimeDifferenceKey] = variableIsTimeDifference
+            case .Computation_TimeDifference: //store TD type & locations
+                if let setup = timeDifferenceSetup {
+                    persistentDictionary[BMN_CustomModule_TimeDifferenceTypeKey] = setup.0.rawValue
+                    if let (loc1, loc2) = setup.1 { //DEFAULT type - store locations
+                        persistentDictionary[BMN_CustomModule_TimeDifferenceLocation1Key] = loc1
+                        persistentDictionary[BMN_CustomModule_TimeDifferenceLocation2Key] = loc2
+                    }
+                    persistentDictionary[BMN_VariableReportLocationsKey] = nil //remove reportLocation**
+                    //How do we handle TD when editing a project? Should be remove them entirely? How does the user delete TD variables from the project? 
+                }
             }
         }
         return persistentDictionary
@@ -363,7 +433,7 @@ enum CustomModuleVariableTypes: String { //*match each behavior/computation -> C
     case Behavior_Timing = "Timing" //allows users to enter a time measurement
     
     //*COMPUTATIONS*:
-    case Computation_TimeDifference = "Time Difference" //automatically generates a variable which will obtain a time difference between the report time for IVs & OMs (no configuration needed). There can only be 1 per project & it is ALWAYS set as an OM (calculated just before final dataObject is constructed & sent -> DB).
+    case Computation_TimeDifference = "Time Difference" //automatically generates a variable which will obtain a time difference between the report timestamp for the 2 user-selected portions of the measurement cycle. **There can only be 1 per project & it is ALWAYS set as an OM (calculated just before final dataObject is constructed & sent -> DB).
     
     func getAlertMessageForVariable() -> String { //provides an informative pop-up about the behavior
         var message = ""
@@ -379,9 +449,16 @@ enum CustomModuleVariableTypes: String { //*match each behavior/computation -> C
         case .Behavior_Timing:
             message = "Allows you to enter a timing in the format HH:MM:SS."
         case .Computation_TimeDifference:
-            message = "Calculates the time difference between reporting the input variables & reporting the output variables (equivalent to the duration of the action)."
+            message = "Calculates the time difference between two portions of the measurement cycle."
         }
         return message
     }
     
 }
+
+enum TimeDifference_VariableTypes: String {
+    case DistanceFromAction = "Distance From Action" //measures TD between action & current time
+    case Default = "Default" //defer configuration of default TD variable
+}
+
+//                array.append((ConfigurationOptionCellTypes.TimeDifference, [BMN_Configuration_CellDescriptorKey: "", BMN_LEVELS_MainLabelKey: "Select the two portions of the measurement cycle between which to measure the time difference:"])) //time difference logic**

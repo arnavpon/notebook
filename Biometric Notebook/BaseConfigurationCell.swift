@@ -50,7 +50,7 @@ class BaseConfigurationCell: LevelsFrameworkCell {
     
     private func configureFlagForCell() { //adds or removes the visual flag from the cell
         if (self.flagged) { //highlights the incorrect cells in red
-            configureCompletionIndicator(false) //*first, set completion indicator -> false!
+            configureCompletionIndicator(false) //*first, set completion indicator -> false!*
             insetBackgroundView.backgroundColor = UIColor(red: 255/255, green: 0, blue: 0, alpha: 0.3)
         } else { //restore visual -> unflagged state
             insetBackgroundView.backgroundColor = insetBackgroundColor //reset background -> default

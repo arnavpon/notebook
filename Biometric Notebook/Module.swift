@@ -13,14 +13,13 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     
     static let modules: [Modules] = [Modules.CustomModule, Modules.EnvironmentModule, Modules.FoodIntakeModule, Modules.ExerciseModule, Modules.BiometricModule, Modules.CarbonEmissionsModule] //list of available modules to display to user
     
-    var isOutcomeMeasure: Bool = false //set by user in PVVC to indicate variable is an OM
+    var configurationType: ConfigurationTypes? //indicates if var is IV, OM, action qualifier
     var variableReportType = ModuleVariableReportTypes.Default //report type, default is 'default'
+    var reportCount: Int? //# of times object reports to be complete (default = 1x); set @ config
+    var reportLocations = Set<Int>() //indicates @ what points this var reports (stored in CoreData)
     private var variableState: ModuleVariableStates //state of THIS instance (Configuration or Reporting)
     internal let variableName: String //the name given to the variable attached to this module
     internal var moduleTitle: String = "" //overwrite w/ <> Module enum raw value in each class
-    
-    var reportCount: Int? //total # of times object must report to be complete (default [nil] = 1x)**
-    var currentLocationInFlow: Int? //currently reporting item**
     
     var moduleBlocker: Module_DynamicConfigurationFramework? { //class that handles variableType filtering
         didSet { //after setting the blocker, assign the behaviors & computations
@@ -90,6 +89,7 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     init(name: String) { //initializer for variable during SET-UP
         self.variableName = name
         self.variableState = ModuleVariableStates.VariableConfiguration
+        self.reportCount = 1 //defaults to 1 unless changed by user or system
     }
     
     init(name: String, dict: [String: AnyObject]) { //initializer for variable during RECONSTRUCTION from CoreData dict
@@ -97,7 +97,7 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
         self.variableState = ModuleVariableStates.DataReporting
         if let prompt = dict[BMN_DataEntry_MainLabelPromptKey] as? String { //check if cell has a prompt
             self.cellPrompt = prompt //set prompt (used in place of varType in mainLabel of TV cell)
-            //this is used ONLY when the user sets the prompt himself (otherwise there is no need to store it in CD)
+            //this is used ONLY when the user sets the prompt himself!
         }
         if let reportTypeRaw = dict[BMN_VariableReportTypeKey] as? Int, reportType = ModuleVariableReportTypes(rawValue: reportTypeRaw) { //reset the report type
             print("[Module superclass init()] Report type raw = \(reportTypeRaw).")
@@ -107,8 +107,11 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
             self.isGhost = ghost
             self.parentComputation = parent
         }
-        if let isOutcome = dict[BMN_VariableIsOutcomeMeasureKey] as? Bool { //check for OM
-            self.isOutcomeMeasure = isOutcome
+        if let configTypeRaw = dict[BMN_ConfigurationTypeKey] as? String, configType = ConfigurationTypes(rawValue: configTypeRaw) {
+            self.configurationType = configType
+        }
+        if let locations = dict[BMN_VariableReportLocationsKey] as? Set<Int> { //reset report locations
+            self.reportLocations = locations
         }
     }
     
@@ -131,19 +134,36 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     
     internal func setConfigurationOptionsForSelection() { //override in subclasses
         //Assigns configurationOptions based on the user's selection of a behavior/computation
-        print("setConfigOptions - Superclass Module")
-        configurationOptionsLayoutObject = nil
+        if (configurationType != .ActionQualifier) { //qualifiers can report ONLY 1x (when action occurs)
+            configurationOptionsLayoutObject = [] //initialize
+            configurationOptionsLayoutObject!.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_Configuration_ReportCountID, BMN_LEVELS_MainLabelKey: "How many times will this variable report in 1 measurement cycle?", BMN_SimpleNumberConfigCell_DefaultKey: 1])) //cell to obtain report count
+        }
     }
     
     internal func matchConfigurationItemsToProperties(configurationData: [String: AnyObject]) -> (Bool, String?, [String]?) {
         //Matches reportedData from configurationCells -> properties in the Module object & returns TRUE if operation was successful, (FALSE + an error message) if the operation failed; the 3rd part of the return object is an optional FLAG (that tells the VC to visually mark the cell w/ the corresponding DESCRIPTOR in the data source, b/c that is where the problem has occurred).
-        return (false, "Superclass matchConfiguration fx call!", nil)
+        if let count = configurationData[BMN_Configuration_ReportCountID] as? Int { //match # of reports
+            if (count < 1) { //return error & flag cell - measurement count must be >= 1
+                return (false, "Report count must be at least 1!", [BMN_Configuration_ReportCountID])
+            } else if (count > 1) {
+                self.reportCount = count //only set value if count > 1
+            }
+        }
+        return (true, nil, nil)
+    }
+    
+    internal func specialTypeForDynamicConfigFramework() -> String? { //override in subclasses
+        //based on selectedFunctionality, provides an alternative type to add to the moduleBlocker in lieu of the selectedFunctionality
+        return nil
     }
     
     // MARK: - Core Data Logic
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
         var persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle, BMN_VariableReportTypeKey: self.variableReportType.rawValue]
+        if let count = reportCount { //store reportCount if it has been set
+            persistentDictionary[BMN_Configuration_ReportCountKey] = count
+        }
         if let prompt = cellPrompt { //if prompt has been set, store it
             persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = prompt
         }
@@ -151,9 +171,10 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
             persistentDictionary[BMN_VariableIsGhostKey] = true
             persistentDictionary[BMN_ComputationFramework_ComputationNameKey] = parentComputation
         }
-        if (self.isOutcomeMeasure) { //OM indicator - needed for data analysis
-            persistentDictionary[BMN_VariableIsOutcomeMeasureKey] = true
+        if let configType = self.configurationType { //save config type for EDIT PROJECT flow
+            persistentDictionary[BMN_ConfigurationTypeKey] = configType.rawValue
         }
+        persistentDictionary[BMN_VariableReportLocationsKey] = self.reportLocations
         return persistentDictionary
     }
     
@@ -164,7 +185,6 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     // Configuration variables - used to customize DataEntry TV cells (e.g. for freeform data entry):
     var FreeformCell_labelBeforeField: Bool? //specifies whether TF lbl is before or after field
     var FreeformCell_configurationObject: [(String?, ProtectedFreeformTypes?, String?, Int?, (Double?, Double?)?, String?)]? //tuple specifies all config for FreeformCell - indicates # of TFs (via the array's count) + (1) label? for each TF; (2) type? of data in TF (corresponds w/ ProtectedFreeformTypes enum); (3) defaultValue?; (4) characterLimit?; (5) (if text is numerical) an upper/lower bound in format (Int? <-lower, Int? <-upper)?; (6) textField placeholder?
-    
     
     func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable (OVERRIDE in subclasses)
         return nil
@@ -209,7 +229,7 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
         var reportObject = Dictionary<String, AnyObject>()
         reportObject[BMN_Module_ReportedDataKey] = mainDataObject //main data object to report (unique to each type of Custom DataEntry cell)
         return reportObject
-        //Note - timeStamps are generated @ time of aggregation in DataEntryVC; a SINGLE time stamp is generated for IVs & another for OMs (b/c all IVs have same time stamp as other IVs, & all OMs have same time stamp as other OMs). This may vary for auto-captured data!
+        //Note - timeStamps are generated @ time of aggregation in DataEntryVC; a SINGLE time stamp is generated for each location in the measurement cycle (b/c all variables w/in a single portion of the cycle have same time stamp as other variables. This may vary for auto-captured data!
     }
     
     func populateDataObjectForAutoCapturedVariable() { //OVERRIDE in subclasses - custom reporting behavior for AUTO-CAPTURED data; called by Project object containing this variable
@@ -232,17 +252,12 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     var existingVariables: [ComputationFramework_ExistingVariables]? //list of created vars
     
     internal func createGhostForVariable(variable: Module) { //used by computations; creates a ghost variable & sends notification -> ProjectVarsVC so ghost is added to the Project
-        print("[Module] creating ghost for variable...")
+        print("[Module] creating ghost for variable [\(variable.variableName)]...")
         let settings = variable.createDictionaryForCoreDataStore()
         let name = variable.variableName
-        if let blocker = self.moduleBlocker, location = blocker.currentLocationInFlow {
-            let locationRaw = location.rawValue
-            let info: [String: AnyObject] = [BMN_ComputationFramework_ComputationNameKey: self.variableName, BMN_ComputationFramework_GhostNameKey: name, BMN_ComputationFramework_GhostConfigDictKey: settings, BMN_ComputationFramework_GhostLocationKey: locationRaw]
-            let notification = NSNotification(name: BMN_Notification_ComputationFramework_DidCreateGhostVariable, object: nil, userInfo: info)
-            NSNotificationCenter.defaultCenter().postNotification(notification)
-        }
+        let info: [String: AnyObject] = [BMN_ComputationFramework_ComputationNameKey: self.variableName, BMN_ComputationFramework_GhostNameKey: name, BMN_ComputationFramework_GhostConfigDictKey: settings]
+        let notification = NSNotification(name: BMN_Notification_ComputationFramework_DidCreateGhostVariable, object: nil, userInfo: info)
+        NSNotificationCenter.defaultCenter().postNotification(notification)
     }
-    
-//    array.append((ConfigurationOptionCellTypes.Computation, [BMN_Configuration_CellDescriptorKey: "BMI", BMN_LEVELS_MainLabelKey: "Click and drag over 2 variable labels:", BMN_Configuration_AllowedVariableTypesForComputationKey: [CustomModuleVariableTypes.Behavior_BinaryOptions.rawValue]])) //computation default config logic
-    
+        
 }

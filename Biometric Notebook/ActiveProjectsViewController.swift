@@ -190,114 +190,98 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             if (index >= 0) { //allows user to modify an existing Project's variables
                 let selection = projects[index] //get the selected project
                 let projectType = ExperimentTypes(rawValue: selection.projectType)
-                let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
-                let controller = storyboard.instantiateInitialViewController() as! UINavigationController
-                let projectVarsVC = storyboard.instantiateViewControllerWithIdentifier("setupVariablesVC") as! ProjectVariablesViewController
-                
-                var inputVariables: [String: [Module]] = [BMN_InputOutput_InputVariablesKey: [], BMN_ControlComparison_ControlKey: [], BMN_ControlComparison_ComparisonKey: []]
-                var outcomeVariables: [Module] = []
+                var projectAction: Action? = nil //action must always be set
+                var inputVariables: [Module]?
+                var outcomeMeasures: [Module] = []
+                var actionQualifiers: [Module]?
                 var ghostVariables: [String: [GhostVariable]]?
-                var action: Action? = nil
-                let moduleBlocker = Module_DynamicConfigurationFramework() //needs to be sent -> PVVC in Control group state for CC projects
-                var uniqueNames = Set<String>() //avoid duplication of OM (in CC project)
+                let moduleBlocker = Module_DynamicConfigurationFramework() //MUST be set
                 
-                var fireCounter: Int = 0 //used to switch moduleBlocker state (CC project)
-                var navState: CCProjectNavigationState? = nil //for ghosts/moduleBlocker
-                for groupRaw in selection.groups { //handle for IO & CC projects - for each group, make variables & use to construct the action & inputs & outputs dicts for SetVariables.
+                var projectGroups: [(String, GroupTypes)] = [] //initialize
+                for groupRaw in selection.groups { //reconstruct the Project groups
                     if let group = groupRaw as? Group, groupType = GroupTypes(rawValue: group.groupType) {
-                        if (projectType == .ControlComparison) { //set navigation state
-                            if (groupType == .Control) {
-                                navState = .Control
-                                if (fireCounter != 0) { //swap state if Control is in 2nd loop run
-                                    moduleBlocker.ccProjectWillSwitchState()
-                                }
-                            } else if (groupType == .Comparison) {
-                                navState = .Comparison
-                                moduleBlocker.ccProjectWillSwitchState() //always swap state for Comp
-                            }
-                            fireCounter += 1 //increment to indicate pass through loop
-                        }
-                        
-                        for (variable, dict) in group.beforeActionVariables { //BEFORE ACTION vars
-                            if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
-                                let inputVar = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
-                                if !(inputVar.isGhost) && (inputVar.selectedFunctionality != nil) {
-                                    if (projectType == .InputOutput) { //add -> IO data source
-                                        inputVariables[BMN_InputOutput_InputVariablesKey]!.append(inputVar)
-                                    } else if (projectType == .ControlComparison) {
-                                        if (groupType == .Control) {
-                                            inputVariables[BMN_ControlComparison_ControlKey]!.append(inputVar)
-                                        } else if (groupType == .Comparison) {
-                                            inputVariables[BMN_ControlComparison_ComparisonKey]!.append(inputVar)
-                                        }
-                                    }
-                                    moduleBlocker.variableWasCreated(.BeforeAction, typeName: inputVar.selectedFunctionality!) //update blocker
-                                } else { //GHOST - add -> ghost array
-                                    if let parent = inputVar.parentComputation {
-                                        let ghost = GhostVariable(groupType: navState, location: .BeforeAction, computation: parent, name: variable, settings: dict)
-                                        if let ghosts = ghostVariables, _ = ghosts[parent] { //check if array is initialized in dict against 'parent' key
-                                            //*do not delete this conditional statement*
-                                        } else if let _ = ghostVariables { //DICT exists - init array
-                                            ghostVariables?.updateValue([], forKey: parent)
-                                        } else { //dict does NOT exist - initialize dict & array
-                                            ghostVariables = [parent: []]
-                                        }
-                                        ghostVariables![parent]!.append(ghost) //add ghost -> array
-                                    }
-                                }
-                            }
-                        }
-                        
-                        for (variable, dict) in group.afterActionVariables { //AFTER ACTION vars
-                            if !(uniqueNames.contains(variable)) { //only perform for UNIQUE vars
-                                uniqueNames.insert(variable) //add var name -> set
-                                if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
-                                    let outcomeVar = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
-                                    if !(outcomeVar.isGhost) && (outcomeVar.selectedFunctionality != nil) { //NOT a ghost
-                                        outcomeVariables.append(outcomeVar)
-                                        moduleBlocker.variableWasCreated(.AfterAction, typeName: outcomeVar.selectedFunctionality!)
-                                    } else { //GHOST - add to ghost array
-                                        if let parent = outcomeVar.parentComputation {
-                                            let ghost = GhostVariable(groupType: navState, location: .AfterAction, computation: parent, name: variable, settings: dict)
-                                            if let ghosts = ghostVariables, _ = ghosts[parent] { //check if array is initialized in dict against 'parent' key
-                                                //*do not delete this conditional statement*
-                                            } else if let _ = ghostVariables { //DICT exists - init array
-                                                ghostVariables?.updateValue([], forKey: parent)
-                                            } else { //dict does NOT exist - initialize dict & array
-                                                ghostVariables = [parent: []]
-                                            }
-                                            ghostVariables![parent]!.append(ghost) //add ghost -> array
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        
-                        if let enumObj = Actions(rawValue: group.action) { //STANDARD action
-                            action = Action(action: enumObj, actionName: nil)
-                        } else { //does NOT match enum - CUSTOM action
-                            action = Action(action: .Custom, actionName: group.action)
-                        }
-                        
-                        if (navState == .Comparison) { //final navState is Comp - switch blocker to hold Control group variables before opening PVVC
-                            moduleBlocker.ccProjectWillSwitchState() //switch state 1 more time
-                        }
+                        projectGroups.append((group.groupName, groupType))
                     }
                 }
                 
-                projectVarsVC.isEditProjectFlow = true //set indicator
-                projectVarsVC.projectToEdit = selection //pass CoreData object for deletion
-                projectVarsVC.projectType = projectType
-                projectVarsVC.projectTitle = selection.title
-                projectVarsVC.projectQuestion = selection.question
-                projectVarsVC.projectHypothesis = selection.hypothesis
-                projectVarsVC.inputVariablesDict = inputVariables
-                projectVarsVC.outcomeVariableRows = outcomeVariables
-                projectVarsVC.selectedAction = action
-                projectVarsVC.ghostVariables = ghostVariables
-                projectVarsVC.moduleBlocker = moduleBlocker
+                if let aGroup = selection.groups.anyObject() as? Group {
+                    for (varName, dict) in aGroup.variables { //setup the Project's variables
+                        if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
+                            let variable = createModuleObjectFromModuleName(moduleType: module, variableName: varName, configurationDict: dict)
+                            if !(variable.isGhost) && (variable.selectedFunctionality != nil) {
+                                if (variable.configurationType == .ActionQualifier) {
+                                    if (actionQualifiers == nil) { //array does NOT exist yet
+                                        actionQualifiers = [] //initialize
+                                    } //do NOT update blocker
+                                    actionQualifiers!.append(variable)
+                                } else if (variable.configurationType == .OutcomeMeasure) {
+                                    outcomeMeasures.append(variable)
+                                    if let alternateValueForBlocker = variable.specialTypeForDynamicConfigFramework() { //use alternative
+                                        moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionality: alternateValueForBlocker) //update
+                                    } else { //NO special type - use selectedFunctionality
+                                        moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionality: variable.selectedFunctionality!)
+                                    }
+                                } else { //if configType = nil, var is an IV
+                                    if (inputVariables == nil) { //does NOT exist yet
+                                        inputVariables = [] //initialize
+                                    }
+                                    inputVariables!.append(variable)
+                                    if let alternateValueForBlocker = variable.specialTypeForDynamicConfigFramework() { //use alternative
+                                        moduleBlocker.variableWasCreated(.Input, selectedFunctionality: alternateValueForBlocker) //update
+                                    } else { //NO special type - use selectedFunctionality
+                                        moduleBlocker.variableWasCreated(.Input, selectedFunctionality: variable.selectedFunctionality!) //update blocker
+                                    }
+                                }
+                            } else { //GHOST - add -> ghostVariables
+                                if let parent = variable.parentComputation {
+                                    print("Found ghost [\(varName)] for parent [\(parent)].")
+                                    let ghost = GhostVariable(computation: parent, name: varName, settings: dict)
+                                    if let ghosts = ghostVariables, _ = ghosts[parent] { //check if array is initialized in dict against 'parent' key
+                                        //*do not delete this conditional statement*
+                                    } else if let _ = ghostVariables { //DICT exists - init array
+                                        ghostVariables?.updateValue([], forKey: parent)
+                                    } else { //dict does NOT exist - initialize dict & array
+                                        ghostVariables = [parent: []]
+                                    }
+                                    ghostVariables![parent]!.append(ghost) //add ghost -> array
+                                }
+                            }
+                        }
+                    }
+                    projectAction = Action(settings: aGroup.action) //reconstruct the projectAction
+                }
                 
-                controller.showViewController(projectVarsVC, sender: nil) //nav directly -> PVVC
+                let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
+                let controller = storyboard.instantiateInitialViewController() as! UINavigationController
+                if (projectType == .ControlComparison) { //CC project
+                    let ccProjectVC = storyboard.instantiateViewControllerWithIdentifier("configureCCProject") as! ConfigureCCProjectViewController
+                    ccProjectVC.isEditProjectFlow = true //set indicator
+                    ccProjectVC.selectedAction = projectAction
+                    ccProjectVC.outcomeMeasures = outcomeMeasures
+                    ccProjectVC.projectToEdit = selection //pass CoreData object for deletion
+                    ccProjectVC.projectTitle = selection.title
+                    ccProjectVC.projectQuestion = selection.question
+                    ccProjectVC.projectHypothesis = selection.hypothesis
+                    ccProjectVC.projectType = projectType
+                    ccProjectVC.projectGroups = projectGroups
+                    controller.showViewController(ccProjectVC, sender: nil) //nav directly -> CCVC
+                } else if (projectType == .InputOutput) { //IO project
+                    let setupVarsVC = storyboard.instantiateViewControllerWithIdentifier("setupVarsVC") as! SetupVariablesViewController
+                    setupVarsVC.isEditProjectFlow = true //set indicator
+                    setupVarsVC.projectToEdit = selection //pass CoreData object for deletion
+                    setupVarsVC.projectType = projectType
+                    setupVarsVC.projectTitle = selection.title
+                    setupVarsVC.projectQuestion = selection.question
+                    setupVarsVC.projectHypothesis = selection.hypothesis
+                    setupVarsVC.projectGroups = projectGroups
+                    setupVarsVC.inputVariables = inputVariables
+                    setupVarsVC.outcomeMeasures = outcomeMeasures
+                    setupVarsVC.actionQualifiers = actionQualifiers
+                    setupVarsVC.projectAction = projectAction
+                    setupVarsVC.ghostVariables = ghostVariables
+                    setupVarsVC.moduleBlocker = moduleBlocker
+                    controller.showViewController(setupVarsVC, sender: nil) //nav directly -> SVVC
+                }
                 presentViewController(controller, animated: true, completion: nil) //show VC
             }
         }
@@ -305,9 +289,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     private func createModuleObjectFromModuleName(moduleType module: Modules, variableName: String, configurationDict: [String: AnyObject]) -> Module { //init Module obj w/ its name & config dict
         var object: Module = Module(name: variableName)
-        
-        //Pass the var's name & dictionary -> specific module subclass' CoreData initializer:
-        switch module {
+        switch module { //pass varName & dictionary -> specific module subclass' CoreData initializer
         case .CustomModule:
             object = CustomModule(name: variableName, dict: configurationDict)
         case .EnvironmentModule:

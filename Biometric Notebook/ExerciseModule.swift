@@ -110,7 +110,7 @@ class ExerciseModule: Module {
                 
                 self.FreeformCell_configurationObject = [] //initialize
                 //Based on current location in flow (starting @ 1 & incrementing for each set that is reported), find the correct item to initialize with:
-                if let location = currentLocationInFlow, storedExercises = exercises {
+                if let storedExercises = exercises {
                     var runningTotal: Int = 0
                     var index: Int = 0 //index in exercises of currently reporting item
                     for exercise in storedExercises {
@@ -120,10 +120,10 @@ class ExerciseModule: Module {
                             runningTotal += 1
                         }
                         
-                        print("Location = \(location). Total = \(runningTotal).")
-                        if (location <= runningTotal) { //loop until total exceeds location
-                            break
-                        }
+//                        print("Location = \(location). Total = \(runningTotal).")
+//                        if (location <= runningTotal) { //loop until total exceeds location
+//                            break
+//                        }
                         index += 1 //increment index
                     }
                     
@@ -152,6 +152,7 @@ class ExerciseModule: Module {
         let copy = ExerciseModule(name: self.variableName)
         copy.existingVariables = self.existingVariables
         copy.moduleBlocker = self.moduleBlocker
+        copy.configurationType = self.configurationType
         return copy
     }
     

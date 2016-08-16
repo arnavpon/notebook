@@ -112,6 +112,7 @@ class FoodIntakeModule: Module {
         let copy = FoodIntakeModule(name: self.variableName)
         copy.existingVariables = self.existingVariables
         copy.moduleBlocker = self.moduleBlocker
+        copy.configurationType = self.configurationType
         return copy
     }
     
