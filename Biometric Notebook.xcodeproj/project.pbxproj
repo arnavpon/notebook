@@ -13,7 +13,6 @@
 		B11B921F1C52D8E70079A535 /* HelperFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B921E1C52D8E70079A535 /* HelperFunctions.swift */; };
 		B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11B92201C52D9BE0079A535 /* CustomTextView.swift */; };
 		B120B8611D5F77F700A4098E /* TimeDifferenceConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B120B8601D5F77F700A4098E /* TimeDifferenceConfigurationCell.swift */; };
-		B120B8631D5F7E1600A4098E /* AddVariablesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B120B8621D5F7E1600A4098E /* AddVariablesViewController.swift */; };
 		B122EAFE1CC307E000CE3D33 /* RangeScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */; };
 		B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */; };
 		B12554151CC5C5A9006C2651 /* WeatherForecastService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */; };
@@ -51,6 +50,7 @@
 		B17019561CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019551CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift */; };
 		B17019591CAA2C73004CAEB8 /* BaseConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */; };
 		B181E84A1D4FF098007ED083 /* ConfigureCCProjectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B181E8491D4FF098007ED083 /* ConfigureCCProjectViewController.swift */; };
+		B181F9CF1D63FA9100B7067D /* AddVariablesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B181F9CE1D63FA9100B7067D /* AddVariablesViewController.swift */; };
 		B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */; };
 		B192626A1D010EE40093590E /* NutritionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19262691D010EE40093590E /* NutritionService.swift */; };
 		B19262701D0111B40093590E /* FoodIntakeForMealItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B192626F1D0111B40093590E /* FoodIntakeForMealItemCell.swift */; };
@@ -182,7 +182,6 @@
 		B11B921E1C52D8E70079A535 /* HelperFunctions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelperFunctions.swift; sourceTree = "<group>"; };
 		B11B92201C52D9BE0079A535 /* CustomTextView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
 		B120B8601D5F77F700A4098E /* TimeDifferenceConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TimeDifferenceConfigurationCell.swift; path = ../../TimeDifferenceConfigurationCell.swift; sourceTree = "<group>"; };
-		B120B8621D5F7E1600A4098E /* AddVariablesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AddVariablesViewController.swift; path = ../../AddVariablesViewController.swift; sourceTree = "<group>"; };
 		B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RangeScaleView.swift; sourceTree = "<group>"; };
 		B123FA0E1CB2E719007E9AFA /* ExperimentTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExperimentTypes.swift; sourceTree = "<group>"; };
 		B12554141CC5C5A9006C2651 /* WeatherForecastService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherForecastService.swift; sourceTree = "<group>"; };
@@ -231,6 +230,7 @@
 		B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseConfigurationCell.swift; sourceTree = "<group>"; };
 		B17C210D1C31B5F400B59FB0 /* HealthKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitConnection.swift; sourceTree = "<group>"; };
 		B181E8491D4FF098007ED083 /* ConfigureCCProjectViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureCCProjectViewController.swift; sourceTree = "<group>"; };
+		B181F9CE1D63FA9100B7067D /* AddVariablesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddVariablesViewController.swift; sourceTree = "<group>"; };
 		B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureModuleViewController.swift; sourceTree = "<group>"; };
 		B19262691D010EE40093590E /* NutritionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NutritionService.swift; sourceTree = "<group>"; };
 		B192626F1D0111B40093590E /* FoodIntakeForMealItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodIntakeForMealItemCell.swift; sourceTree = "<group>"; };
@@ -592,7 +592,7 @@
 				B181E8491D4FF098007ED083 /* ConfigureCCProjectViewController.swift */,
 				B1C8B58B1D5585E300C5054F /* SetupVariablesViewController.swift */,
 				B1E836551D4E9FEB00E5C039 /* AddActionViewController.swift */,
-				B120B8621D5F7E1600A4098E /* AddVariablesViewController.swift */,
+				B181F9CE1D63FA9100B7067D /* AddVariablesViewController.swift */,
 				B1B98BDB1C39925900DDACEE /* AttachModuleViewController.swift */,
 				B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */,
 				B17019571CAA0717004CAEB8 /* Config Options TV Cells */,
@@ -954,8 +954,8 @@
 				B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */,
 				B19F16561D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift in Sources */,
 				B1C42F7A1CCFA40800F27DDF /* DataReportingErrorProtocol.swift in Sources */,
-				B120B8631D5F7E1600A4098E /* AddVariablesViewController.swift in Sources */,
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,
+				B181F9CF1D63FA9100B7067D /* AddVariablesViewController.swift in Sources */,
 				B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */,
 				B15933261CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift in Sources */,
 				B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */,
