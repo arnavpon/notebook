@@ -183,6 +183,13 @@ class Project: NSManagedObject {
         if let group = self.reportingGroup { //get variables for currently reporting group
             variables = group.reconstructedVariables
             measurementCycleLength = group.measurementCycleLength as Int
+            if let stamp = group.asyncActionTimeStamp { //check if async action has timeStamp
+                var action = Action(settings: group.action) //reconstruct action
+                action.actionTimeStamp = stamp //set timeStamp
+                group.action = action.constructCoreDataObjectForAction() //overwrite action w/ stamp
+                group.asyncActionTimeStamp = nil //*clear indicator*
+                saveManagedObjectContext() //commit changes
+            }
         }
         
         //(1) Obtain the data stored in ALL variables (manual + auto) that are being reported:
@@ -202,11 +209,10 @@ class Project: NSManagedObject {
                         if let currentGroup = self.reportingGroup {
                             let action = Action(settings: currentGroup.action)
                             if let actionTimeStamp = action.actionTimeStamp {
-                                print("[Project] Calculating distance from action...")
                                 let currentTime = NSDate()
                                 let difference = currentTime.timeIntervalSinceDate(actionTimeStamp)
-                                print("Time Difference = [\(difference)] seconds!")
-                                dataObjectToDatabase[variable.variableName] = [BMN_Module_ReportedDataKey: difference] //set item in database object
+                                print("[Project] DFA Var - Time Difference = [\(difference)] seconds!")
+                                dataObjectToDatabase[variable.variableName] = [BMN_Module_ReportedDataKey: difference] //store item in database object
                             }
                         }
                     }

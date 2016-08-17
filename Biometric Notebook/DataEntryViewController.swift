@@ -264,8 +264,12 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                     if (totalCount > 0) { //AUTO-cap vars exist, show large AI view, hide TV
                         cachedView = largeAIView //cache LARGE view
                         setVisualsForAIView(largeAIView, completed: completed) //set visuals
-                    } else { //ERROR (no auto cap vars OR manual vars)
-                        print("ERROR - no manual variables & no auto-captured variables!")
+                    } else { //NO auto cap vars OR manual vars => 1 TD var @ location
+                        cachedView = largeAIView //cache LARGE view
+                        setVisualsForAIView(largeAIView, completed: true) //set visuals
+                        largeAIView.hidden = false //reveal AI view
+                        dataEntryTV.hidden = true //hide TV
+                        doneButton.enabled = true //manually enable doneButton
                     }
                 }
             }

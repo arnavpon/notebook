@@ -155,11 +155,11 @@ class LevelsFrameworkCell: UITableViewCell {
                 if let index = sortedArray.indexOf(location) { //get position in array of location
                     let count = mod.reportLocations.count
                     if let alternativeTitle = mod.cellPrompt { //check for alternative title (a prompt)
-                        mainLabel.text = "[\(mod.variableName)] \(alternativeTitle) [Report #\(index + 1)/\(count)]"
+                        mainLabel.text = "<Report #\(index + 1)/\(count)> [\(mod.variableName)] \(alternativeTitle)"
                     } else { //NO prompt - set mainLabel to indicate var's name & location in cycle
-                        mainLabel.text = "\(mod.variableName) [Report #\(index + 1)/\(count)]"
+                        mainLabel.text = "<Report #\(index + 1)/\(count)> \(mod.variableName) "
                     }
-                    return //terminate function
+                    return //terminate function to avoid default option
                 }
             }
             mainLabel.text = "\(mod.variableName): \(selection)" //default title if all else fails

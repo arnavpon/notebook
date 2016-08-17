@@ -15,6 +15,7 @@ class Group: NSManagedObject {
     var reportCount: Int = 0 //counts the # of variables that must be reported (accessed by VC)
     var timeDifferenceIsPresent: Bool = false //indicator that reporting group contains TD
     var overrideAsyncActionBypass: Bool? //indicates whether to override an async action's bypass
+    var asyncActionTimeStamp: NSDate? //*holds timeStamp to avoid it being committed until user reports data for 1st location in cycle*
     
     func getManualVariablesForDataEntry() -> [Module] {
         return reconstructProjectFromPersistentRepresentation() //initialize TV dataSource
@@ -30,7 +31,7 @@ class Group: NSManagedObject {
         var manualEntryVariablesArray: [Module] = [] //initialize array for manual vars (for VC)
         
         var locationInMeasurementCycle: Int = 0
-        let action = Action(settings: self.action) //reconstruct action (used below)
+        let reconstructedAction = Action(settings: self.action) //reconstruct action (used below)
         if let temp = self.project.temporaryStorageObject, timeStamps = temp[BMN_DBO_TimeStampKey] as? [AnyObject] { //temp storage obj exists - count location in measurement cycle by # of timeStamps that exist in tempObj
             locationInMeasurementCycle = (timeStamps.count + 1) //*add 1 to get CURRENT location*
             print("[reconstructProjFromCD] Temp obj is NOT nil! Loc = [\(locationInMeasurementCycle)]...")
@@ -39,12 +40,12 @@ class Group: NSManagedObject {
             locationInMeasurementCycle = 1 //*start new cycle @ position #1*
             
             //Check if the action is asynchronous & bypass its location in flow if override is not set:
-            if (action.actionLocation == ActionLocations.BeforeInputs) && !(action.occursInEachCycle) && (action.qualifiersCount > 0) { //*make sure action has qualifiers (or else it does NOT take up a position in the measurement cycle)*
+            if (reconstructedAction.actionLocation == ActionLocations.BeforeInputs) && !(reconstructedAction.occursInEachCycle) && (reconstructedAction.qualifiersCount > 0) { //*make sure action has AQs (or else it does NOT take up a position in measurement cycle)*
                 print("Action is asynchronous & has qualifiers (i.e. takes up space in cycle)!")
                 if (self.overrideAsyncActionBypass != true) { //bypass the Action if override is nil
                     print("Bypassing data reporting for the asychronous action...")
                     locationInMeasurementCycle = 2 //bypass Action's location in the cycle
-                    if let qualifiersData = action.qualifiersStoredData, actionTimeStamp = action.actionTimeStamp { //data exists
+                    if let qualifiersData = reconstructedAction.qualifiersStoredData, actionTimeStamp = reconstructedAction.actionTimeStamp { //data exists
                         print("Action qualifiers have data! Storing to tempObject...")
                         self.project.temporaryStorageObject = [:] //initialize
                         project.temporaryStorageObject!.updateValue([actionTimeStamp], forKey: BMN_DBO_TimeStampKey) //set actionTimeStamp as 1st item in timeStampsArray
@@ -53,8 +54,8 @@ class Group: NSManagedObject {
                             print("For variable [\(variable)], added data [\(data)] to tempObject!")
                             self.project.temporaryStorageObject!.updateValue(data, forKey: variable)
                         }
+                        saveManagedObjectContext() //save changes to tempObj
                     }
-                    saveManagedObjectContext()
                 } else { //override is NOT nil - avoid bypass
                     self.overrideAsyncActionBypass = nil //*clear for next run*
                 }
@@ -130,10 +131,14 @@ class Group: NSManagedObject {
         print("Asynchronous action has occurred...Creating time stamp!")
         //(1) get time @ which action occurred & save it to CoreData via the group's action obj:
         let timeStamp = NSDate()
-        var action = Action(settings: self.action)
-        action.actionTimeStamp = timeStamp //set timeStamp
-        self.action = action.constructCoreDataObjectForAction() //save action config -> CoreData
-        saveManagedObjectContext() //save context
+        var reconstructedAction = Action(settings: self.action)
+        if (reconstructedAction.qualifiersCount == 0) { //action has 0 AQs - commit timeStamp NOW
+            reconstructedAction.actionTimeStamp = timeStamp //set timeStamp
+            self.action = reconstructedAction.constructCoreDataObjectForAction() //save config -> CoreData
+            saveManagedObjectContext() //commit the timeStamp change
+        } else { //action has AQ - store timeStamp -> temp indicator until AQ are committed
+            self.asyncActionTimeStamp = timeStamp //set indicator
+        }
         
         //(2) Indicate to the group to override the async action bypass when setting the vars:
         self.overrideAsyncActionBypass = true
