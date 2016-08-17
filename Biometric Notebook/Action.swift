@@ -23,19 +23,21 @@ struct Action { //used to create the project action from & store the project act
     
     let action: ActionTypes
     let actionLocation: ActionLocations //before IV or between IV/OM
+    let qualifiersCount: Int //counts the # of qualifiers for the Action
     var occursInEachCycle: Bool = true //FALSE = NOT occurring during every run cycle
-    var customActionName: String? //should only be set if custom action is set
     
-    var qualifiers: [String]? //**list of qualifiers matched to Action
-    var actionTimeStamp: NSDate? //used to DistanceFromAction computation**
+    var locationInMeasurementCycle: Int? //location in cycle when action reports (nil if action has no AQ)
+    var customActionName: String? //should only be set if custom action is set
+    var actionTimeStamp: NSDate? //used by TD DistanceFromAction computation
+    var qualifiersStoredData: [String: [String: AnyObject]]? //stores the AQ data for an async Action - format is [Variable_Name: [Data_Dictionary]] (matches DB object in Project class)
     
     // MARK: - Initializers
     
-    init(action: ActionTypes, customName: String?, location: ActionLocations, occursInEachCycle: Bool, qualifiers: [String]?) { //initializer for user selection
+    init(action: ActionTypes, customName: String?, location: ActionLocations, occursInEachCycle: Bool, qualifiersCount: Int) { //initializer for user selection
         self.action = action
-        self.occursInEachCycle = occursInEachCycle
         self.actionLocation = location
-        self.qualifiers = qualifiers
+        self.occursInEachCycle = occursInEachCycle
+        self.qualifiersCount = qualifiersCount //set # of AQ for action
         if (self.action == ActionTypes.Custom) { //set name for custom action
             customActionName = customName
         }
@@ -51,24 +53,33 @@ struct Action { //used to create the project action from & store the project act
         if let eachCycle = settings[BMN_Action_OccursInEachCycleKey] as? Bool {
             self.occursInEachCycle = eachCycle
         }
-        if let locationRaw = settings[BMN_Action_LocationKey] as? String, location = ActionLocations(rawValue: locationRaw) {
+        if let locationRaw = settings[BMN_Action_EnumLocationKey] as? String, location = ActionLocations(rawValue: locationRaw) {
             self.actionLocation = location
         } else {
             fatalError("[Action init] No location is set!")
         }
-        self.qualifiers = settings[BMN_Action_QualifiersKey] as? [String]
+        self.locationInMeasurementCycle = settings[BMN_Action_LocationInCycleKey] as? Int
+        if let count = settings[BMN_Action_QualifiersCountKey] as? Int {
+            self.qualifiersCount = count
+        } else {
+            fatalError("[Action init] No qualifier count is set!")
+        }
+        self.actionTimeStamp = settings[BMN_Action_ActionTimeStampKey] as? NSDate
+        self.qualifiersStoredData = settings[BMN_Action_QualifiersStoredDataKey] as? [String: [String: AnyObject]]
     }
     
     // MARK: - Core Data Logic
     
-    func constructCoreDataObjectForAction() -> [String: AnyObject] { //dict holding all pertinent information for the project's action
+    func constructCoreDataObjectForAction() -> [String: AnyObject] { //dict holding all pertinent information for the Group's action (stored in Group object)
         var coreDataObject = Dictionary<String, AnyObject>()
         coreDataObject[BMN_Action_ActionTypeKey] = action.rawValue
         coreDataObject[BMN_Action_CustomNameKey] = customActionName
-        coreDataObject[BMN_Action_QualifiersKey] = qualifiers
-        coreDataObject[BMN_Action_LocationKey] = actionLocation.rawValue
+        coreDataObject[BMN_Action_QualifiersCountKey] = qualifiersCount
+        coreDataObject[BMN_Action_QualifiersStoredDataKey] = qualifiersStoredData //data for AQ vars
+        coreDataObject[BMN_Action_EnumLocationKey] = actionLocation.rawValue
+        coreDataObject[BMN_Action_LocationInCycleKey] = locationInMeasurementCycle
         coreDataObject[BMN_Action_OccursInEachCycleKey] = occursInEachCycle
-        coreDataObject[""] = actionTimeStamp //save timeStamp in CoreData for access during DE
+        coreDataObject[BMN_Action_ActionTimeStampKey] = actionTimeStamp //occurrence timeStamp
         return coreDataObject
     }
 

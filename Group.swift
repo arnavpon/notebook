@@ -14,6 +14,7 @@ class Group: NSManagedObject {
     var autoCapturedVariables: [Module] = [] //contains ONLY auto-captured variables for current measurement cycle; accessed by Project Class
     var reportCount: Int = 0 //counts the # of variables that must be reported (accessed by VC)
     var timeDifferenceIsPresent: Bool = false //indicator that reporting group contains TD
+    var overrideAsyncActionBypass: Bool? //indicates whether to override an async action's bypass
     
     func getManualVariablesForDataEntry() -> [Module] {
         return reconstructProjectFromPersistentRepresentation() //initialize TV dataSource
@@ -29,13 +30,34 @@ class Group: NSManagedObject {
         var manualEntryVariablesArray: [Module] = [] //initialize array for manual vars (for VC)
         
         var locationInMeasurementCycle: Int = 0
-        if (self.project.temporaryStorageObject == nil) { //no temp storage => new meas. cycle
-            print("[reconstructProjFromCD] Temp object is nil! Starting new measurement cycle...")
+        let action = Action(settings: self.action) //reconstruct action (used below)
+        if let temp = self.project.temporaryStorageObject, timeStamps = temp[BMN_DBO_TimeStampKey] as? [AnyObject] { //temp storage obj exists - count location in measurement cycle by # of timeStamps that exist in tempObj
+            locationInMeasurementCycle = (timeStamps.count + 1) //*add 1 to get CURRENT location*
+            print("[reconstructProjFromCD] Temp obj is NOT nil! Loc = [\(locationInMeasurementCycle)]...")
+        } else { //no temp storage => new measurement cycle
+            print("[reconstructProjFromCD] Temp object is NIL! Starting NEW measurement cycle...")
             locationInMeasurementCycle = 1 //*start new cycle @ position #1*
-        } else { //temp storage obj exists => get location in measurement cycle
-            if let temp = self.project.temporaryStorageObject, timeStamps = temp[BMN_DBO_TimeStampKey] as? [AnyObject] { //count location in cycle by # of timeStamps that exist in tempObj
-                locationInMeasurementCycle = (timeStamps.count + 1) //*add 1 to get CURRENT location*
-                print("[reconstructProjFromCD] Temp obj is NOT nil! Loc = [\(locationInMeasurementCycle + 1)]...")
+            
+            //Check if the action is asynchronous & bypass its location in flow if override is not set:
+            if (action.actionLocation == ActionLocations.BeforeInputs) && !(action.occursInEachCycle) && (action.qualifiersCount > 0) { //*make sure action has qualifiers (or else it does NOT take up a position in the measurement cycle)*
+                print("Action is asynchronous & has qualifiers (i.e. takes up space in cycle)!")
+                if (self.overrideAsyncActionBypass != true) { //bypass the Action if override is nil
+                    print("Bypassing data reporting for the asychronous action...")
+                    locationInMeasurementCycle = 2 //bypass Action's location in the cycle
+                    if let qualifiersData = action.qualifiersStoredData, actionTimeStamp = action.actionTimeStamp { //data exists
+                        print("Action qualifiers have data! Storing to tempObject...")
+                        self.project.temporaryStorageObject = [:] //initialize
+                        project.temporaryStorageObject!.updateValue([actionTimeStamp], forKey: BMN_DBO_TimeStampKey) //set actionTimeStamp as 1st item in timeStampsArray
+                        project.temporaryStorageObject!.updateValue([self.groupName: self.groupType], forKey: BMN_TSO_ReportingGroupKey) //set reportingGroup in tempObj
+                        for (variable, data) in qualifiersData { //add data -> tempObject
+                            print("For variable [\(variable)], added data [\(data)] to tempObject!")
+                            self.project.temporaryStorageObject!.updateValue(data, forKey: variable)
+                        }
+                    }
+                    saveManagedObjectContext()
+                } else { //override is NOT nil - avoid bypass
+                    self.overrideAsyncActionBypass = nil //*clear for next run*
+                }
             }
         }
         
@@ -110,13 +132,11 @@ class Group: NSManagedObject {
         let timeStamp = NSDate()
         var action = Action(settings: self.action)
         action.actionTimeStamp = timeStamp //set timeStamp
-        self.action = action.constructCoreDataObjectForAction() //save to CoreData
+        self.action = action.constructCoreDataObjectForAction() //save action config -> CoreData
         saveManagedObjectContext() //save context
         
-        //(2) if action has any qualifiers, insert them into measurement cycle at this point - these qualifiers should not appear in the cycle otherwise!
-        if let qualifiers = action.qualifiers { //insert into measurement cycle before IV/OM
-            
-        }
+        //(2) Indicate to the group to override the async action bypass when setting the vars:
+        self.overrideAsyncActionBypass = true
     }
     
 }

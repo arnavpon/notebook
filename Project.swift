@@ -79,7 +79,6 @@ class Project: NSManagedObject {
     
     func getOptionsForGroupSelectionView() -> (String, [String])? { //accessed by DataEntryVC - returns (topLabelTitle, [selectionOptions])
         reportingGroup = nil //clear reporting group whenever this fx fires
-        print("getting options for group view...")
         if let type = self.experimentType {
             switch type {
             case .InputOutput: //check for asynchronous action
@@ -93,10 +92,14 @@ class Project: NSManagedObject {
                     } else {
                         actionName = action.action.rawValue
                     }
-                    if (action.actionLocation == ActionLocations.BeforeInputs) && !(action.occursInEachCycle) { //asynchronous action - offer user choice to select action
-                        let options = ["\(actionName) occurred!", "Report Data"]
-                        groupSelectionOptions = [("1st", nil), ("2", nil)]
-                        return ("Was your action completed or are you reporting data?**", options)
+                    if (action.actionLocation == ActionLocations.BeforeInputs) && !(action.occursInEachCycle) { //check if Action is asynchronous
+                        if let _ = action.actionTimeStamp { //timeStamp is SET => the asynchronous Action has occurred at least 1 time previously!
+                            let options = ["'\(actionName)' (Action) has occurred!", "Report Data"]
+                            groupSelectionOptions = [("1st", nil), ("2", nil)]
+                            return ("Did you perform the action or are you just reporting data?", options)
+                        } else { //no timeStamp => the async Action has NEVER occurred before
+                            loneGroup.asynchronousActionHasOccurred() //call async Action fx
+                        }
                     }
                 }
             case .ControlComparison:
@@ -125,7 +128,7 @@ class Project: NSManagedObject {
                 }
             }
         }
-        return nil //default is no options
+        return nil //default is nil (no options are presented)
     }
     
     func getVariablesForSelectedGroup(selection: Int?) -> [Module]? { //check which option the user selected & generate the variables for the selection
@@ -176,7 +179,7 @@ class Project: NSManagedObject {
         var dataObjectToDatabase = Dictionary<String, [String: AnyObject]>()
         var variables: [Module] = []
         var measurementCycleLength: Int = 0 //total length of measurement cycle
-        var timeDifferencesToCalculate: [(String, Int, Int)]? //(tdName, loc1, loc2)
+        var actionQualifiers: [String]? //list of AQ names (for async Action logic)
         if let group = self.reportingGroup { //get variables for currently reporting group
             variables = group.reconstructedVariables
             measurementCycleLength = group.measurementCycleLength as Int
@@ -195,17 +198,17 @@ class Project: NSManagedObject {
                 }
             } else if (variable.variableReportType == ModuleVariableReportTypes.TimeDifference) {
                 if let customMod = variable as? CustomModule, setup = customMod.timeDifferenceSetup {
-                    if (setup.0 == .Default) { //default TD
-                        if let locations = setup.1 {
-                            if (timeDifferencesToCalculate == nil) {
-                                timeDifferencesToCalculate = [] //initialize
+                    if (setup.0 == .DistanceFromAction) { //DistanceFromAction TD - compute value
+                        if let currentGroup = self.reportingGroup {
+                            let action = Action(settings: currentGroup.action)
+                            if let actionTimeStamp = action.actionTimeStamp {
+                                print("[Project] Calculating distance from action...")
+                                let currentTime = NSDate()
+                                let difference = currentTime.timeIntervalSinceDate(actionTimeStamp)
+                                print("Time Difference = [\(difference)] seconds!")
+                                dataObjectToDatabase[variable.variableName] = [BMN_Module_ReportedDataKey: difference] //set item in database object
                             }
-                            timeDifferencesToCalculate!.append((variable.variableName, locations.0, locations.1)) //add varName & locations -> array
                         }
-                    } else { //DistanceFromAction TD
-                        //how to compute? need to store action timeStamp. Only works w/ async action. when is the action considered to be performed? where is the timeStamp stored?
-                        //compute here & add value to dictionary...won't work b/c it will be assigned a lcoation key, timeStamps should NOT be matched to a location
-                        //action timeStamp should be set ONLY when user manually indicates that action was done for an async project. Otherwise, user can just create a default TD variable if the action has a place in the measurement cycle
                     }
                 }
             } else { //default behavior
@@ -229,6 +232,14 @@ class Project: NSManagedObject {
                 } else {
                     print("[constructDataObject] Error - no data for '\(variable.variableName)' variable!")
                 }
+            }
+            
+            //For async Action - check if any of the vars are AQ:
+            if (variable.configurationType == .ActionQualifier) {
+                if (actionQualifiers == nil) { //array does NOT yet exist
+                    actionQualifiers = [] //initialize
+                }
+                actionQualifiers!.append(variable.variableName) //add name -> array
             }
         }
         for (variableName, dict) in dataObjectToDatabase { //**
@@ -254,7 +265,16 @@ class Project: NSManagedObject {
             }
         }
         
-        //(3) If this is NOT the last location in measurement cycle, store data -> tempObject; if it is the last location, send the data -> DB:
+        //(3) For an async action - store actionQualifier data -> the action:
+        if let qualifiers = actionQualifiers { //this location has AQ
+            storeQualifierDataForAsyncAction(qualifiers, databaseObject: dataObjectToDatabase)
+        }
+        
+        //(4) If this is NOT the last location in measurement cycle, store data -> tempObject; if it is the last location, send the data -> DB:
+        parseDatabaseObject(measurementCycleLength, dataObjectToDatabase: dataObjectToDatabase)
+    }
+    
+    private func parseDatabaseObject(measurementCycleLength: Int, dataObjectToDatabase: [String: [String: AnyObject]]) {
         print("Analyzing temp object... Measurement cycle length = [\(measurementCycleLength)].")
         if let temp = self.temporaryStorageObject, timeStampsArray = temp[BMN_DBO_TimeStampKey] as? [NSDate] { //tempObject EXISTS - determine location by counting # of timeStamps in the dict (count reflects # of times data has been reported, but does NOT include data from the CURRENT location in cycle, hence we must add 1)
             print("Temp obj exists - current loc in meas cycle = [\(timeStampsArray.count+1)]!")
@@ -279,10 +299,10 @@ class Project: NSManagedObject {
                 saveManagedObjectContext() //save tempDict in CoreData
             } else { //no more reports remain - send data -> DB
                 print("All items in the measurement cycle have reported! Sending data -> DB...")
-                addDatabaseObjectToPOSTQueue(self.temporaryStorageObject!, timeDifferences: timeDifferencesToCalculate) //create DB operation for data
+                addDatabaseObjectToPOSTQueue(self.temporaryStorageObject!) //create DB operation for data
             }
         } else { //tempObject does NOT exist (current location in cycle == 1)
-            print("Temp obj does not exist!")
+            print("Temp obj does NOT exist!")
             self.temporaryStorageObject = Dictionary<String, AnyObject>() //initialize
             temporaryStorageObject![BMN_DBO_TimeStampKey] = [NSDate()] //set a single time stamp for each point in measurement cycle - *timeStamp must initially be set as NSDATE obj so it can be used to calculate time differences*
             if let group = reportingGroup { //always store reporting group
@@ -298,26 +318,29 @@ class Project: NSManagedObject {
                 self.temporaryStorageObject!.updateValue(updatedDict, forKey: variable)
             }
             if (measurementCycleLength > 1) { //save dict -> tempObject until all data is reported
-                print("Measurement cycle length > 1...saving temp object")
+                print("Measurement cycle length > 1! Saving temp object...")
                 saveManagedObjectContext() //save tempObject
             } else if (measurementCycleLength == 1) { //only 1 location in cycle - send data -> DB
                 print("Only 1 report per cycle for this group. Sending data -> DB...")
-                addDatabaseObjectToPOSTQueue(self.temporaryStorageObject!, timeDifferences: nil)
+                addDatabaseObjectToPOSTQueue(self.temporaryStorageObject!)
             }
         }
     }
     
-    private func addDatabaseObjectToPOSTQueue(dbObject: [String: AnyObject], timeDifferences: [(String, Int, Int)]?) { //add dict -> POST queue (when DB is online, we will check for internet connection & post immediately if it exists, store to queue if it doesn't); calculate TD if any exist
+    private func addDatabaseObjectToPOSTQueue(dbObject: [String: AnyObject]) { //add dict -> POST queue (when DB is online, we will check for internet connection & post immediately if it exists, store to queue if it doesn't)
         var updatedObject = dbObject
-        if let timeStamps = dbObject[BMN_DBO_TimeStampKey] as? [NSDate] {
-            if let td = timeDifferences {
-                print("Computing time differences (\(td.count) total)...")
-                for (tdName, loc1, loc2) in td {
-                    let time1 = timeStamps[(loc1 - 1)]
-                    let time2 = timeStamps[(loc2 - 1)]
-                    let difference = time2.timeIntervalSinceDate(time1)
-                    print("TD for variable [\(tdName)] = \(difference) seconds.")
-                    updatedObject.updateValue(difference, forKey: tdName) //add var -> DB object
+        if let timeStamps = dbObject[BMN_DBO_TimeStampKey] as? [NSDate] { //calculate TD if any exist
+            if let timeDifferenceVars = self.reportingGroup?.timeDifferenceVars {
+                print("Computing time differences (\(timeDifferenceVars.count) total)...")
+                for (variable, settings) in timeDifferenceVars {
+                    let timeDifference = CustomModule(name: variable, dict: settings)
+                    if let setup = timeDifference.timeDifferenceSetup, (loc1, loc2) = setup.1 {
+                        let time1 = timeStamps[(loc1 - 1)]
+                        let time2 = timeStamps[(loc2 - 1)]
+                        let difference = time2.timeIntervalSinceDate(time1)
+                        print("TD for variable [\(variable)] = [\(difference)] seconds.")
+                        updatedObject.updateValue(difference, forKey: variable) //add var -> DB object
+                    }
                 }
             }
             
@@ -347,6 +370,32 @@ class Project: NSManagedObject {
             self.refreshMeasurementCycle() //set tempObj -> nil & refresh counters after reporting
         } else {
             print("ERROR - failed to create database object for reported data!")
+        }
+    }
+    
+    private func storeQualifierDataForAsyncAction(qualifiers: [String], databaseObject: [String: [String: AnyObject]]) { //for an async action - stores reported data for AQ -> the Action object
+        print("\n[storeQualifierDataForAsyncAction()] Checking if action is async...")
+        if let group = self.reportingGroup {
+            var action = Action(settings: group.action) //obtain Action for reportingGroup
+            if (action.actionLocation == ActionLocations.BeforeInputs) && !(action.occursInEachCycle) && (action.qualifiersCount > 0) { //check if action is async & has location in cycle
+                print("Action is asynchronous & has a location in the cycle! Storing data...")
+                var actionStoredData: [String: [String: AnyObject]] = [:]
+                for qualifier in qualifiers {
+                    if let data = databaseObject[qualifier] { //check if data was set for variable
+                        var updatedDict = data //set existing data
+                        var mappedDict = Dictionary<Int, AnyObject>() //temp obj w/ mapping -> location
+                        if let newData = data[BMN_Module_ReportedDataKey] { //get reported value
+                            mappedDict.updateValue(newData, forKey: 1) //match data -> loc 1 in cycle
+                        }
+                        updatedDict.updateValue(mappedDict, forKey: BMN_Module_ReportedDataKey) //each object's reported data must be matched to its location in the measurement cycle (used to cross reference the timeStamp for that measurement location)
+                        actionStoredData.updateValue(updatedDict, forKey: qualifier) //save in action
+                        print("Stored data for qualifier [\(qualifier)] in action!")
+                    }
+                }
+                action.qualifiersStoredData = actionStoredData //store item to action
+                self.reportingGroup!.action = action.constructCoreDataObjectForAction()
+                saveManagedObjectContext()
+            }
         }
     }
     

@@ -530,7 +530,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                         }
                         
                         print("Creating group [\(groupName)] of type [\(groupType)]...")
-                        let _ = Group(groupName: groupName, groupType: groupType, project: project, action: action, variables: variablesDict, cycleLength: measurementCycleLength, insertIntoManagedObjectContext: context) //create group
+                        let _ = Group(groupName: groupName, groupType: groupType, project: project, action: action, variables: variablesDict, cycleLength: measurementCycleLength, timeDifferenceVars: nil, insertIntoManagedObjectContext: context) //create group
                     }
                 }
             }

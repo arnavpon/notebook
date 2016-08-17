@@ -66,6 +66,7 @@ class AddActionViewController: UIViewController, UITableViewDelegate, UITableVie
     }
     var actionQualifiers: [Module]? = [] { //qualifiersTV dataSource
         didSet {
+            setProjectAction() //update action for qualifier addition/removal
             if let parent = self.parentViewController as? SetupVariablesViewController {
                 parent.actionQualifiers = self.actionQualifiers //update parent variable
             }
@@ -146,7 +147,7 @@ class AddActionViewController: UIViewController, UITableViewDelegate, UITableVie
                         qualifiers.append(qualifier.variableName)
                     }
                 }
-                self.projectAction = Action(action: type.0, customName: type.1, location: location, occursInEachCycle: inEveryCycle, qualifiers: qualifiers)
+                self.projectAction = Action(action: type.0, customName: type.1, location: location, occursInEachCycle: inEveryCycle, qualifiersCount: qualifiers.count)
             } else { //not all parameters have been set
                 self.projectAction = nil //*remove action*
             }

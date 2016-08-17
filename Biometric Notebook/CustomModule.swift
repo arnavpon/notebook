@@ -350,8 +350,10 @@ class CustomModule: Module {
                         persistentDictionary[BMN_CustomModule_TimeDifferenceLocation1Key] = loc1
                         persistentDictionary[BMN_CustomModule_TimeDifferenceLocation2Key] = loc2
                     }
-                    persistentDictionary[BMN_VariableReportLocationsKey] = nil //remove reportLocation**
-                    //How do we handle TD when editing a project? Should be remove them entirely? How does the user delete TD variables from the project? 
+                    if (setup.0 == TimeDifference_VariableTypes.Default) { //default TD has no location
+                        persistentDictionary[BMN_VariableReportLocationsKey] = nil //remove location
+                    }
+                    //How do we handle TD when editing a project? Should we remove them entirely? How does the user delete TD variables from the project? 
                 }
             }
         }

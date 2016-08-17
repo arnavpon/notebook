@@ -17,8 +17,9 @@ extension Group {
     @NSManaged var action: [String: AnyObject] //dict containing Action configuration info
     @NSManaged var variables: Dictionary<String, [String: AnyObject]> //variables contained in group
     @NSManaged var measurementCycleLength: NSNumber //defines total # of reports for this Group
+    @NSManaged var timeDifferenceVars: Dictionary<String, [String: AnyObject]>? //list of default TD vars
     
-    convenience init(groupName: String, groupType: GroupTypes, project: Project, action: Action, variables: [String: [String: AnyObject]], cycleLength: Int, insertIntoManagedObjectContext context: NSManagedObjectContext) {
+    convenience init(groupName: String, groupType: GroupTypes, project: Project, action: Action, variables: [String: [String: AnyObject]], cycleLength: Int, timeDifferenceVars: Dictionary<String, [String: AnyObject]>?, insertIntoManagedObjectContext context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entityForName("Group", inManagedObjectContext: context)
         self.init(entity: entity!, insertIntoManagedObjectContext: context)
         
@@ -27,6 +28,7 @@ extension Group {
         self.action = action.constructCoreDataObjectForAction() //store the CoreData dict
         self.variables = variables //'variables' dictionary format = ["VAR_NAME": ["VARIABLE_PROPERTY": CONFIGURATION_OBJECT]]
         self.measurementCycleLength = cycleLength
+        self.timeDifferenceVars = timeDifferenceVars //store TD vars if any exist
         
         self.project = project //set parent Project (note - this AUTOMATICALLY sets the Project's groups object due to the inverse relationship!)
         

@@ -96,6 +96,7 @@ class LevelsFrameworkCell: UITableViewCell {
             }
         }
     }
+    var currentlyReportingLocation: Int? //set by DEVC - used for DE cell mainLabel
     
     // MARK: - Initializers
     
@@ -149,11 +150,19 @@ class LevelsFrameworkCell: UITableViewCell {
     
     internal func accessModuleProperties() { //configures DataEntry cell's visuals
         if let mod = module, selection = mod.selectedFunctionality { //update mainLabel
-            if let alternativeTitle = mod.cellPrompt { //check for alternative title (i.e. a prompt)
-                mainLabel.text = "[\(mod.variableName)] \(alternativeTitle)"
-            } else { //NO prompt, set default title
-                mainLabel.text = "\(mod.variableName): \(selection)"
+            if let location = currentlyReportingLocation {
+                let sortedArray = mod.reportLocations.sort() //sort array in ascending order
+                if let index = sortedArray.indexOf(location) { //get position in array of location
+                    let count = mod.reportLocations.count
+                    if let alternativeTitle = mod.cellPrompt { //check for alternative title (a prompt)
+                        mainLabel.text = "[\(mod.variableName)] \(alternativeTitle) [Report #\(index + 1)/\(count)]"
+                    } else { //NO prompt - set mainLabel to indicate var's name & location in cycle
+                        mainLabel.text = "\(mod.variableName) [Report #\(index + 1)/\(count)]"
+                    }
+                    return //terminate function
+                }
             }
+            mainLabel.text = "\(mod.variableName): \(selection)" //default title if all else fails
         }
     }
     

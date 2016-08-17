@@ -144,7 +144,7 @@ class ConfigureCCProjectViewController: UIViewController, UIPickerViewDelegate, 
                     if let input = alert.textFields?.first?.text {
                         let text = input.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
                         if (text != "") { //create a custom action from the input
-                            self.selectedAction = Action(action: .Custom, customName: input, location: .BeforeInputs, occursInEachCycle: true, qualifiers: nil)
+                            self.selectedAction = Action(action: .Custom, customName: input, location: .BeforeInputs, occursInEachCycle: true, qualifiersCount: 0)
                             self.shouldShowPickerView(showPicker: false, action: self.selectedAction!)
                         } else { //incomplete entry, keep picker visible & cycle picker to start
                             self.actionPicker.selectRow(0, inComponent: 0, animated: true)
@@ -160,7 +160,7 @@ class ConfigureCCProjectViewController: UIViewController, UIPickerViewDelegate, 
                 presentViewController(alert, animated: true, completion: nil)
             default: //if any other action is selected, set selectedAction & hide picker
                 if let action = ActionTypes(rawValue: actionPickerRowArray[row]) {
-                    selectedAction = Action(action: action, customName: nil, location: .BeforeInputs, occursInEachCycle: true, qualifiers: nil)
+                    selectedAction = Action(action: action, customName: nil, location: .BeforeInputs, occursInEachCycle: true, qualifiersCount: 0)
                     shouldShowPickerView(showPicker: false, action: selectedAction!)
                 } else {
                     self.actionPicker.selectRow(0, inComponent: 0, animated: true)

@@ -437,6 +437,11 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(FoodIntakeForMealItemCell), forIndexPath: indexPath) as! FoodIntakeForMealItemCell
                 }
             }
+            if let project = self.selectedProject, temp = project.temporaryStorageObject, timeStampsArray = temp[BMN_DBO_TimeStampKey] as? [NSDate] { //check for location in tempObject
+                cell.currentlyReportingLocation = timeStampsArray.count + 1 //set current location in measurement flow BEFORE assigning dataSource
+            } else { //tempObject = nil (new measurement cycle)
+                cell.currentlyReportingLocation = 1 //default -> 1st location in cycle
+            }
             cell.module = moduleForCell //assign dataSource -> cell
         }
         return cell
