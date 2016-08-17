@@ -95,7 +95,7 @@ class Group: NSManagedObject {
                     print("COMPUTATION variable")
                     break //should NOT be displayed in TV, must wait for other variables to report before populating report object
                 case .TimeDifference: //TD vars should ONLY appear @ end of measurement cycle!
-                    print("TIME DIFFERENCE var @ location \(locationInMeasurementCycle) for cycle length \(self.measurementCycleLength).")
+                    print("TIME DIFFERENCE variable")
                     self.timeDifferenceIsPresent = true //set indicator
                 }
             }

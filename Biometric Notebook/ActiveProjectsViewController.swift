@@ -14,7 +14,8 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var menuButton: UIButton!
     
-    var activeCounters: [Counter] = [] //list of active counters (TV dataSource)
+//    var activeCounters: [Counter] = [] //list of active counters (TV dataSource)
+    var activeCounters: [[Counter]] = [] //list of active counters (grouped according to Project) - index matches 'projects' index (i.e. index 0 = counters for Project @ index 0 of 'projects')
     var projects: [Project] = [] //list of activeProject objects (TV dataSource)
     var selectedProject: Project? //project object to pass on segue
     
@@ -36,7 +37,8 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     override func viewWillAppear(animated: Bool) { //update TV UI whenever view appears - the current user's projects are stored in CoreData & fetched when view appears
         if (loggedIn) { //only fire if user is loggedIn
-            self.activeCounters = fetchObjectsFromCoreDataStore("Counter", filterProperty: nil, filterValue: nil) as! [Counter] //fetch counters
+//            self.activeCounters = fetchObjectsFromCoreDataStore("Counter", filterProperty: nil, filterValue: nil) as! [Counter] //fetch counters
+            //(1) Obtain active projects:
             self.projects = getActiveProjects()
             if (self.projects.isEmpty) { //empty state
                 configureActivityIndicator(true) //start spinning to indicate transition
@@ -46,6 +48,34 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             }
             activeProjectsTableView.reloadData() //reload UI w/ new project list (also clears highlight!)
             userJustLoggedIn = false //reset the variable
+            
+            //(2) Obtain active counters & assign them to their respective Projects:
+            let counters = fetchObjectsFromCoreDataStore("Counter", filterProperty: nil, filterValue: nil) as! [Counter] //fetch counters
+            var idArray: [Int] = []
+            for counter in counters { //index the counters by their IDs (used for matching below)
+                idArray.append(counter.id as Int)
+            }
+            for project in self.projects {
+                var groupedCounters: [Counter] = [] //initialize
+                if let projectCounters = project.counters.allObjects as? [Counter] {
+                    for item in projectCounters {
+                        let uniqueID = item.id as Int
+                        if let indexInArray = idArray.indexOf(uniqueID) {
+                            groupedCounters.append(counters[indexInArray])
+                        }
+                    }
+                }
+                activeCounters.append(groupedCounters) //add -> dataSource @ end of loop
+            }
+            var counter = 0
+            print("Active Counters Count = \(activeCounters). Object = \(activeCounters)")
+            for item in activeCounters {
+                print("\nIndex = \(counter)")
+                for it in item {
+                    print("Counter ID = \(it.id)")
+                }
+                counter += 1
+            }
             
             //***
             let count = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: nil, filterValue: nil).count //**temp
@@ -250,7 +280,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                     }
                     projectAction = Action(settings: aGroup.action) //reconstruct the projectAction
                 }
-                
                 let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
                 let controller = storyboard.instantiateInitialViewController() as! UINavigationController
                 if (projectType == .ControlComparison) { //CC project
@@ -311,53 +340,42 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     // MARK: - TV Data Source
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        if (self.activeCounters.isEmpty) { //if no counters are active, only 1 section
-            return 1
-        }
-        return 2 //1 section for counters, 1 for projects
-        //eventually, we may want to organize projects more clearly & arrange counters w/ projects
+        return self.projects.count //each project has its own section in the TV
     }
-    
+
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if (self.activeCounters.isEmpty) { //no section headers if there is only 1 section
-            return nil
-        }
-        if (section == 0) { //Counters section
-            return "Active Counters"
-        } else { //Projects section
-            return "Project List"
-        }
+        let projectTitle = projects[section].title
+        return "Project #\(section + 1) = '\(projectTitle)'"
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if !(self.activeCounters.isEmpty) && (section == 0) {
-            return activeCounters.count
-        } else {
-            return projects.count
-        }
+        var total = 1 //default = 1 (for Project cell)
+        total += projects[section].counters.count //add 1 cell per each counter in the Project
+        return total
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        if !(activeCounters.isEmpty) && (indexPath.section == 0) { //Counter cells
-            let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellForCounterBehavior)) as! CellForCounterBehavior
-            let counter = activeCounters[indexPath.row]
-            let dataSource: [String: AnyObject] = [BMN_LEVELS_MainLabelKey: counter.variableName, BMN_LEVELS_HideRightViewKey: true]
-            cell.dataSource = dataSource //set cell's mainLabel w/ name & hide completionIndicator
-            cell.counterDataSource = counter //set counter as dataSource
-            return cell
-        } else { //Project cells
+        if (indexPath.row == 0) { //Project cell - access dataSource using the SECTION #
+            let project = projects[indexPath.section]
+            var currentlyReportingLocation = 1 //set -> default location in cycle (1)
+            if let tempObject = project.temporaryStorageObject, timeStampsArray = tempObject[BMN_DBO_TimeStampKey] as? [NSDate] { //check for location in tempObject
+                currentlyReportingLocation = timeStampsArray.count + 1 //overwrite currentLocation if it can be inferred from tempObject
+            }
             let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithGradientFill)) as! CellWithGradientFill
             cell.selectionStyle = .None //prevents highlighting of cell on selection
-            cell.backgroundImageView.backgroundColor = UIColor.whiteColor() //**reset -> default
-            cell.cellIndex = indexPath.row
-            let project = projects[indexPath.row]
+            cell.backgroundImageView.backgroundColor = UIColor.whiteColor() //resets bckgrd -> default
+            cell.cellIndex = indexPath.section
             let title = project.title
-            if let projectType = project.getProjectTypeForDisplay() {
-                cell.textLabel?.text = "\(title.uppercaseString): \(projectType)"
-            } else {
-                cell.textLabel?.text = title
-            }
+            cell.textLabel?.text = "[Currently @ \(currentlyReportingLocation)] \(title)"
             cell.dataSource = project
+            return cell
+        } else { //Counter cells
+            let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellForCounterBehavior)) as! CellForCounterBehavior
+            cell.tabLevel = 3 //set indentation for Counter cells
+            let counter = activeCounters[indexPath.section][indexPath.row - 1] //subtract 1 from row (to account for 1st cell being Project cell)
+            let dataSource: [String: AnyObject] = [BMN_LEVELS_MainLabelKey: "\(counter.variableName.uppercaseString)", BMN_LEVELS_HideRightViewKey: true]
+            cell.dataSource = dataSource //set cell's mainLabel w/ name & hide completionIndicator
+            cell.counterDataSource = counter //set counter as dataSource
             return cell
         }
     }
@@ -367,8 +385,8 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        if !(activeCounters.isEmpty) && (indexPath.section == 0) { //prevent selection of Counter cells
-            return false
+        if (indexPath.row != 0) { //1st cell is always Project cell
+            return false //for all other cells (Counters), disable highlighting/selection
         }
         if let cell = tableView.cellForRowAtIndexPath(indexPath) as? CellWithGradientFill {
             cell.backgroundImageView.backgroundColor = UIColor(red: 239/255, green: 239/255, blue: 244/255, alpha: 1) //highlight selected cell
@@ -383,15 +401,8 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         performSegueWithIdentifier("showProjectOverview", sender: nil) //segue -> ProjectOverviewVC
     }
     
-    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle { //allow deletion of projects from here?
+    func tableView(tableView: UITableView, editingStyleForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCellEditingStyle { //allow deletion of projects from here??
         return UITableViewCellEditingStyle.None
-    }
-    
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if (editingStyle == UITableViewCellEditingStyle.Delete) { //*
-            //Project must be removed from TV dataSource, core data, DB must be removed from web, etc.!
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Fade)
-        }
     }
     
     // MARK: - Button Actions

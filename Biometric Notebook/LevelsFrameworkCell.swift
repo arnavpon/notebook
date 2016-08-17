@@ -13,6 +13,7 @@ class LevelsFrameworkCell: UITableViewCell {
     static let levelHeight: CGFloat = 40 //height of each level is constant (linked to 'heightForRow()' method in VC TV delegate)
     
     //(REQUIRED) Default Views:
+    internal let indentationView = UIView(frame: CGRectZero) //view that indents cell to the right
     internal let insetBackgroundView = UIView(frame: CGRectZero) //background for LEVELS cell
     private let separatorView = UIView(frame: CGRectZero) //adds space between cells
     private let mainLabel = UILabel(frame: CGRectZero) //cell's main label (on Level 1), enable customization of font size/color
@@ -107,6 +108,8 @@ class LevelsFrameworkCell: UITableViewCell {
         contentView.backgroundColor = UIColor.clearColor() 
         contentView.addSubview(insetBackgroundView)
         contentView.addSubview(separatorView)
+        contentView.addSubview(indentationView)
+        indentationView.backgroundColor = UIColor.blackColor() //indentationView is see-through
         
         //Add ALL other views -> insetBackgroundView:
         insetBackgroundView.addSubview(mainLabel)
@@ -177,8 +180,9 @@ class LevelsFrameworkCell: UITableViewCell {
         
         //(1) Layout backgroundView & separatorView:
         let tabOffset = CGFloat(tabLevel) * 15 //adds a tab to the cell
+        indentationView.frame = CGRectMake(0, 0, tabOffset, frame.height) //indents cell by tabOffset
         insetBackgroundView.frame = CGRectMake(tabOffset, 0, (frame.width - tabOffset), (frame.height - separatorHeight)) //offset by tabLevel
-        separatorView.frame = CGRectMake(0, (frame.height - separatorHeight), frame.width, separatorHeight) //covers ENTIRE width!
+        separatorView.frame = CGRectMake(tabOffset, (frame.height - separatorHeight), (frame.width - tabOffset), separatorHeight) //offset by tabLevel
         
         //(2) Layout rightSideView:
         var rightOffset: CGFloat = rightSideViewWidth //default offset from R (to account for sideView)

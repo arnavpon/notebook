@@ -95,16 +95,16 @@ class SetupVariablesViewController: UITabBarController, UITabBarControllerDelega
                     switch viewController {
                     case is AddActionViewController: //set action, qualifiers, & moduleBlocker
                         let addActionVC = (viewController as! AddActionViewController)
-                        addActionVC.projectAction = self.projectAction
+                        addActionVC.isEditProjectFlow = true //set indicator FIRST
                         addActionVC.actionQualifiers = actionQualifiers
+                        addActionVC.projectAction = self.projectAction
                         addActionVC.moduleBlocker = blocker
-                        addActionVC.isEditProjectFlow = true //set indicator
                     case is AddVariablesViewController: //set variables
                         let addVariablesVC = (viewController as! AddVariablesViewController)
+                        addVariablesVC.isEditProjectFlow = true //set indicator FIRST
                         addVariablesVC.inputVariables = self.inputVariables
                         addVariablesVC.outcomeMeasures = self.outcomeMeasures
                         addVariablesVC.moduleBlocker = blocker
-                        addVariablesVC.isEditProjectFlow = true //set indicator
                     default:
                         break
                     }

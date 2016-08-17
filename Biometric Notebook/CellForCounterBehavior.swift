@@ -39,6 +39,8 @@ class CellForCounterBehavior: LevelsFrameworkCell {
         currentCountLabel.layer.borderColor = UIColor.blackColor().CGColor
         currentCountLabel.text = "Count: \(currentCount)"
         insetBackgroundView.addSubview(currentCountLabel)
+        
+        insetBackgroundColor = UIColor(red: 255/255, green: 243/255, blue: 167/255, alpha: 1)
     }
     
     required init?(coder aDecoder: NSCoder) {
