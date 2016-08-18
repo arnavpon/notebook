@@ -170,6 +170,7 @@ class CustomModule: Module {
         super.init(name: timeDifferenceName)
         self.moduleTitle = Modules.CustomModule.rawValue //set title
         self.selectedFunctionality = CustomModuleVariableTypes.Computation_TimeDifference.rawValue
+        self.configurationType = .TimeDifference //mark as time-diff config type
         self.variableReportType = .TimeDifference //mark as time-diff report type
         self.timeDifferenceSetup = (.Default, locations)
     }

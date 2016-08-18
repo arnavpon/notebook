@@ -13,7 +13,13 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     
     static let modules: [Modules] = [Modules.CustomModule, Modules.EnvironmentModule, Modules.FoodIntakeModule, Modules.ExerciseModule, Modules.BiometricModule, Modules.CarbonEmissionsModule] //list of available modules to display to user
     
-    var configurationType: ConfigurationTypes? //indicates if var is IV, OM, action qualifier
+    var configurationType: ModuleConfigurationTypes = .InputVariable { //see 'Modules.swift' for enum decl
+        didSet {
+            if (self.configurationType == .GhostVariable) {
+                self.variableState = .Ghost //blocks setConfigLayoutObject from firing
+            }
+        }
+    }
     var variableReportType = ModuleVariableReportTypes.Default //report type, default is 'default'
     var reportCount: Int? //# of times object reports to be complete (default = 1x); set @ config
     var reportLocations = Set<Int>() //indicates @ what points this var reports (stored in CoreData)
@@ -95,6 +101,9 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     init(name: String, dict: [String: AnyObject]) { //initializer for variable during RECONSTRUCTION from CoreData dict
         self.variableName = name
         self.variableState = ModuleVariableStates.DataReporting
+        if let configTypeRaw = dict[BMN_ConfigurationTypeKey] as? Int, configType = ModuleConfigurationTypes(rawValue: configTypeRaw) { //set configType
+            self.configurationType = configType
+        }
         if let prompt = dict[BMN_DataEntry_MainLabelPromptKey] as? String { //check if cell has a prompt
             self.cellPrompt = prompt //set prompt (used in place of varType in mainLabel of TV cell)
             //this is used ONLY when the user sets the prompt himself!
@@ -103,12 +112,15 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
             print("[Module superclass init()] Report type raw = \(reportTypeRaw).")
             self.variableReportType = reportType
         }
-        if let ghost = dict[BMN_VariableIsGhostKey] as? Bool, parent = dict[BMN_ComputationFramework_ComputationNameKey] as? String {
-            self.isGhost = ghost
-            self.parentComputation = parent
-        }
-        if let configTypeRaw = dict[BMN_ConfigurationTypeKey] as? String, configType = ConfigurationTypes(rawValue: configTypeRaw) {
-            self.configurationType = configType
+//        if let ghost = dict[BMN_VariableIsGhostKey] as? Bool, parent = dict[BMN_ComputationFramework_ComputationNameKey] as? String {
+//            self.isGhost = ghost
+//            self.parentComputation = parent
+//        }
+//        if let configTypeRaw = dict[BMN_ConfigurationTypeKey] as? String, configType = ModuleConfigurationTypes(rawValue: configTypeRaw) {
+//            self.configurationType = configType
+//        }
+        if let parent = dict[BMN_ComputationFramework_ComputationNameKey] as? String { //for GHOST vars
+            self.parentComputation = parent //store parentComputation for ghost
         }
         if let locations = dict[BMN_VariableReportLocationsKey] as? Set<Int> { //reset report locations
             self.reportLocations = locations
@@ -161,19 +173,23 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
         var persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle, BMN_VariableReportTypeKey: self.variableReportType.rawValue]
+        persistentDictionary[BMN_ConfigurationTypeKey] = self.configurationType.rawValue
         if let count = reportCount { //store reportCount if it has been set
             persistentDictionary[BMN_Configuration_ReportCountKey] = count
         }
         if let prompt = cellPrompt { //if prompt has been set, store it
             persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = prompt
         }
-        if (self.isGhost) { //if var is ghost, store the indicator/computation in the dict
-            persistentDictionary[BMN_VariableIsGhostKey] = true
+        if (self.configurationType == .GhostVariable) { //var is ghost - store parent computation in dict
             persistentDictionary[BMN_ComputationFramework_ComputationNameKey] = parentComputation
         }
-        if let configType = self.configurationType { //save config type for EDIT PROJECT flow
-            persistentDictionary[BMN_ConfigurationTypeKey] = configType.rawValue
-        }
+//        if (self.isGhost) { //if var is ghost, store the indicator/computation in the dict
+//            persistentDictionary[BMN_VariableIsGhostKey] = true
+//            persistentDictionary[BMN_ComputationFramework_ComputationNameKey] = parentComputation
+//        }
+//        if let configType = self.configurationType { //save config type for EDIT PROJECT flow
+//            persistentDictionary[BMN_ConfigurationTypeKey] = configType.rawValue
+//        }
         persistentDictionary[BMN_VariableReportLocationsKey] = self.reportLocations
         return persistentDictionary
     }
@@ -242,11 +258,11 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     
     // MARK: - Computation Logic
     
-    var isGhost: Bool = false { //used by Project VC to avoid adding this variable to DB dict
-        didSet {
-            self.variableState = .Ghost //blocks setConfigLayoutObject from firing
-        }
-    }
+//    var isGhost: Bool = false { //used by Project VC to avoid adding this variable to DB dict
+//        didSet {
+//            self.variableState = .Ghost //blocks setConfigLayoutObject from firing
+//        }
+//    }
     var parentComputation: String? //for ghosts, maintains reference to parent computation
     lazy var computationInputs = Dictionary<String, String>() //used to define configuration for computation, KEY is the unique ID for the input, VALUE is the NAME of the input var or ghost
     var existingVariables: [ComputationFramework_ExistingVariables]? //list of created vars

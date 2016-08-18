@@ -32,7 +32,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     var ccProjectComparisons: [String]? //TV dataSource for CC project
     
     var measurementCycleLength: Int = 0 //final length of measurement cycle (for group creation)
-    var measurementTimelineDataSource: [([String: AnyObject], [Module])] = [] //dataSource for collectionView cells
+    var measurementTimelineDataSource: [([String: AnyObject], [MeasurementTimelineVariable])] = [] //dataSource for collectionView cells
     var ghostParents: [String]? //parent computations for ghosts - any time the reportLocation of a parent changes, its ghosts must move with it
     
     // MARK: - View Configuration
@@ -112,7 +112,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                     endLocation += qualifiersMax
                     setReportLocationsForVariables(qualifiers, endLocation: endLocation)
                 } else { //no qualifiers - generate a plain action card
-                    constructCardForLocation([endLocation: []], cardType: MeasurementTimeline_CardTypes.Action) //**
+                    constructCardForLocations([endLocation: []], cardType: MeasurementTimeline_CardTypes.Action)
                 }
                 if let inputs = inputVariables {
                     endLocation += inputsMax
@@ -127,18 +127,18 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                     endLocation += qualifiersMax
                     setReportLocationsForVariables(qualifiers, endLocation: endLocation)
                 } else { //no qualifiers, generate a plain action card
-                    constructCardForLocation([endLocation: []], cardType: MeasurementTimeline_CardTypes.Action) //**
+                    constructCardForLocations([endLocation: []], cardType: MeasurementTimeline_CardTypes.Action)
                 }
             }
             endLocation += outcomesMax
             setReportLocationsForVariables(outcomes, endLocation: endLocation) //set for OM
             self.measurementCycleLength = endLocation //cannot be changed?
             print("[VDL] Final measurement cycle length = \(endLocation).")
+            self.measurementTimeline.reloadData() //generate timeline after inputs are loaded
             
             //(3) Generate measurement timeline using the var's reportLocations by setting dataSource for collection view
             //Color code IV vs. OM vs. AQ. Ghosts should also be color coded differently (grayish/white color) and should not be moveable manually - they follow their parent variable around. Need a way to match an item w/ its ghosts!
             //The measurement timeLine should ONLY be a visual way of presenting the information. The actual dataSource (the variables arrays) should be modified ONLY on the VC side. When communicating back & forth w/ the collectionView, the system should only pass the bare minimum of information - which cell was clicked, what the name of the variable is & @ what location, etc. It should not be passing the full variables.
-            //Create a minimal struct for communicating w/ the view.
         }
     }
     
@@ -161,7 +161,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     private func setReportLocationsForVariables(variables: [Module], endLocation: Int) {
         var varsForLocation = Dictionary<Int, [Module]>() //KEY = location, VALUE = vars @ location
         for variable in variables { //set location in reverse from endLocation -> start
-            if !(variable.isGhost) { //shouldn't be any ghosts in 'vars', but just in case
+            if (variable.configurationType != .GhostVariable) { //shouldn't be any ghosts in 'vars', but just in case
                 let reportCount: Int
                 if let count = variable.reportCount {
                     reportCount = count
@@ -197,16 +197,29 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                 }
             }
         }
-        constructCardForLocation(varsForLocation, cardType: .Default) //use locations/vars to make card
+        constructCardForLocations(varsForLocation, cardType: .Default) //use locations/vars to make card
     }
     
-    private func constructCardForLocation(varsForLocation: [Int: [Module]], cardType: MeasurementTimeline_CardTypes) { //constructs a card for collectionView & adds it to dataSource
-        for (location, variables) in varsForLocation {
-            var infoDictionary = Dictionary<String, AnyObject>()
-            infoDictionary[BMN_MeasurementTimeline_LocationNumberKey] = location
-            infoDictionary[BMN_MeasurementTimeline_CellIndexKey] = 0 //??set by collectionView
-            infoDictionary[BMN_MeasurementTimeline_CardTypeKey] = cardType.rawValue
-            measurementTimelineDataSource.append((infoDictionary, variables)) //add object -> source
+    private func constructCardForLocations(varsForLocation: [Int: [Module]], cardType: MeasurementTimeline_CardTypes) { //constructs a card for collectionView & adds it to dataSource
+        var sortedLocations: [Int] = [] //array of sorted location #s
+        for (location, _) in varsForLocation {
+            sortedLocations.append(location)
+        }
+        sortedLocations.sortInPlace()
+        for orderedLocation in sortedLocations {
+            if let variables = varsForLocation[orderedLocation] {
+                var timelineVariables: [MeasurementTimelineVariable] = []
+                for variable in variables { //construct MT variables from Module objects
+                    let timelineVariable = MeasurementTimelineVariable(name: variable.variableName, type: variable.configurationType)
+                    timelineVariables.append(timelineVariable)
+                }
+                var infoDictionary = Dictionary<String, AnyObject>()
+                infoDictionary[BMN_MeasurementTimeline_CardTypeKey] = cardType.rawValue
+                if !(variables.isEmpty) { //only add locationInCycle if > 1 var is present in card!
+                    infoDictionary[BMN_MeasurementTimeline_LocationInCycleKey] = orderedLocation
+                }
+                measurementTimelineDataSource.append((infoDictionary, timelineVariables)) //add obj -> source
+            }
         }
     }
     
@@ -238,11 +251,12 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
     }
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.measurementCycleLength //# of cards that must be generated = cycle length + an action card (?) + time diff card (?)
+        return self.measurementTimelineDataSource.count
     }
 
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("location_card", forIndexPath: indexPath) as! MeasurementTimeline_CollectionViewCell
+        cell.cellIndex = indexPath.row //set cellIndex BEFORE the dataSource
         cell.dataSource = self.measurementTimelineDataSource[indexPath.row] //set dataSource
         return cell
     }
@@ -306,7 +320,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
             if let text = alert.textFields?.first?.text {
                 let trimmedText = text.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
                 if (trimmedText != "") && (self.isNameUnique(trimmedText)) {
-                    self.createTimeDifferenceVariableWithName(trimmedText, configType: .Input, locations: locations)
+                    self.createTimeDifferenceVariableWithName(trimmedText, configType: .InputVariable, locations: locations)
                 } else {
                     print("ERROR - name is NOT unique")
                 }
@@ -355,10 +369,10 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         return true
     }
     
-    private func createTimeDifferenceVariableWithName(name: String, configType: ConfigurationTypes, locations: (Int, Int)) { //locations = (loc1, loc2) between which TD is measured
+    private func createTimeDifferenceVariableWithName(name: String, configType: ModuleConfigurationTypes, locations: (Int, Int)) { //locations = (loc1, loc2) between which TD is measured
         let tdVar = CustomModule(timeDifferenceName: name, locations: locations)
         switch configType { //add variable -> appropriate dataSource
-        case .Input: //add to IV array
+        case .InputVariable: //add to IV array
             if (inputVariables == nil) { //array does NOT exist
                 inputVariables = [] //initialize
             }

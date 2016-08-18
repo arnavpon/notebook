@@ -126,24 +126,26 @@ class AttachModuleViewController: UIViewController, UITableViewDataSource, UITab
     }
     
     private func attachSelectedModule(selectedModule: Modules) {
-        switch self.selectedModule! { //create the variable object w/ the appropriate class
-        case .CustomModule:
-            self.createdVariable = CustomModule(name: self.variableName!)
-        case .EnvironmentModule:
-            self.createdVariable = EnvironmentModule(name: self.variableName!)
-        case .FoodIntakeModule:
-            self.createdVariable = FoodIntakeModule(name: self.variableName!)
-        case .ExerciseModule:
-            self.createdVariable = ExerciseModule(name: self.variableName!)
-        case .BiometricModule:
-            self.createdVariable = BiometricModule(name: self.variableName!)
-        case .CarbonEmissionsModule:
-            self.createdVariable = CarbonEmissionsModule(name: self.variableName!)
-        default: //Recipe module - cannot be selected
-            print("[attachSelectedModule] Error - default in switch.")
+        if let blocker = moduleBlocker, configType = blocker.currentVarConfigType {
+            switch self.selectedModule! { //create the variable object w/ the appropriate class
+            case .CustomModule:
+                self.createdVariable = CustomModule(name: self.variableName!)
+            case .EnvironmentModule:
+                self.createdVariable = EnvironmentModule(name: self.variableName!)
+            case .FoodIntakeModule:
+                self.createdVariable = FoodIntakeModule(name: self.variableName!)
+            case .ExerciseModule:
+                self.createdVariable = ExerciseModule(name: self.variableName!)
+            case .BiometricModule:
+                self.createdVariable = BiometricModule(name: self.variableName!)
+            case .CarbonEmissionsModule:
+                self.createdVariable = CarbonEmissionsModule(name: self.variableName!)
+            default: //Recipe module - cannot be selected
+                print("[attachSelectedModule] Error - default in switch.")
+            }
+            self.createdVariable?.configurationType = configType //set type indicator
+            self.performSegueWithIdentifier("showConfigureModule", sender: nil)
         }
-        self.createdVariable?.configurationType = moduleBlocker?.currentVarConfigType //set type indicator
-        self.performSegueWithIdentifier("showConfigureModule", sender: nil)
     }
     
     // MARK: - Button Actions

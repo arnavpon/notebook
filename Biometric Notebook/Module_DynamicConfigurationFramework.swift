@@ -9,7 +9,7 @@ import UIKit
 
 class Module_DynamicConfigurationFramework {
     
-    var currentVarConfigType: ConfigurationTypes? //input or outcome measure; set by VC
+    var currentVarConfigType: ModuleConfigurationTypes? //set by VC
     private var existingVariables: [String: [String: Int]] = [BMN_DynamicConfig_InputVariablesKey: Dictionary<String, Int>(), BMN_DynamicConfig_OutcomeMeasuresKey: Dictionary<String, Int>()] //sorts variableTypes according to IV vs. OM
     private var allVariables: Set<(String)> { //master list of ALL variable types in Project
         get {
@@ -29,18 +29,18 @@ class Module_DynamicConfigurationFramework {
     
     // MARK: - View Controller Interface
     
-    private func getKeyForConfigType(type: ConfigurationTypes) -> String { //assigns a key for location
+    private func getKeyForConfigType(type: ModuleConfigurationTypes) -> String { //assigns key -> location
         switch type {
-        case .Input:
+        case .InputVariable:
             return BMN_DynamicConfig_InputVariablesKey
         case .OutcomeMeasure:
             return BMN_DynamicConfig_OutcomeMeasuresKey
-        case .ActionQualifier:
-            return "" //no location in dict (DCF is used to block certain variables from appearing)
+        default:
+            return "" //AQ has no location in dict (DCF is used to block certain variables from appearing)
         }
     }
     
-    func variableWasCreated(type: ConfigurationTypes, selectedFunctionality: String) {
+    func variableWasCreated(type: ModuleConfigurationTypes, selectedFunctionality: String) {
         let key = getKeyForConfigType(type)
         if let typesWithCount = existingVariables[key] {
             var temp = typesWithCount //create temp obj for updating
@@ -56,7 +56,7 @@ class Module_DynamicConfigurationFramework {
         }
     }
     
-    func variableWasDeleted(type: ConfigurationTypes, selectedFunctionality: String) {
+    func variableWasDeleted(type: ModuleConfigurationTypes, selectedFunctionality: String) {
         let key = getKeyForConfigType(type)
         if let typesWithCount = existingVariables[key] {
             var temp = typesWithCount //create temp obj for updating
@@ -78,7 +78,7 @@ class Module_DynamicConfigurationFramework {
     
     // MARK: - Module Interface
     
-    private func doesSetupContainFunctionality(functionality: String, forType: ConfigurationTypes?) -> Bool {
+    private func doesSetupContainFunctionality(functionality: String, forType: ModuleConfigurationTypes?) -> Bool {
         //Called by self, checks if setup contains a variable of the given functionality for the given varType (optional - if nil check for existence @ EITHER varType):
         if let type = forType { //type was given as input (look @ values for that type in dict)
             let key = getKeyForConfigType(type)
@@ -104,9 +104,9 @@ class Module_DynamicConfigurationFramework {
         case .CustomModule:
             
             //(1) Block variables based on location in flow:
-            if (currentVarConfigType == ConfigurationTypes.ActionQualifier) {
+            if (currentVarConfigType == ModuleConfigurationTypes.ActionQualifier) {
                 filteredTypes.insert(CustomModuleVariableTypes.Computation_TimeDifference.rawValue) //cannot have TimeDifference as actionQualifier
-            } else if (currentVarConfigType == ConfigurationTypes.OutcomeMeasure) { //block vars that can't be OM
+            } else if (currentVarConfigType == ModuleConfigurationTypes.OutcomeMeasure) { //block vars that can't be OM
                 //
             }
             
@@ -118,7 +118,7 @@ class Module_DynamicConfigurationFramework {
         case .BiometricModule:
             
             //(1) Block variables based on variable type:
-            if (currentVarConfigType == .Input) {
+            if (currentVarConfigType == .InputVariable) {
                 filteredTypes.insert(BiometricModule_HeartRateOptions.AverageOverAction.rawValue) //**
             } else if (currentVarConfigType == .OutcomeMeasure) {
                 filteredTypes.insert(BiometricModule_HeartRateOptions.AverageOverAction.rawValue) //**
@@ -146,7 +146,7 @@ class Module_DynamicConfigurationFramework {
         case .EnvironmentModule:
             
             //(1) Block variables based on varType:
-            if (currentVarConfigType == .Input) { //block vars that are ONLY allowed to come AFTER the action
+            if (currentVarConfigType == .InputVariable) { //block vars that are ONLY allowed to come AFTER the action
                 //
             } else if (currentVarConfigType == .OutcomeMeasure) { //block vars that are ONLY allowed to come BEFORE the action
                 //

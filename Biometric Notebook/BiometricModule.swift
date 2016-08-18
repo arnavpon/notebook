@@ -151,7 +151,7 @@ class BiometricModule: Module {
         super.init(name: ghostName)
         self.moduleTitle = Modules.BiometricModule.rawValue //set title
         
-        self.isGhost = true //mark as ghost
+        self.configurationType = ModuleConfigurationTypes.GhostVariable //mark as ghost
         self.parentComputation = computation //set parent
         self.variableReportType = .AutoCapture //mark as auto-captured from API
         switch type { //set appropriate variable type

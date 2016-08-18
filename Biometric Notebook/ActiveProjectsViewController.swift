@@ -238,7 +238,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                     for (varName, dict) in aGroup.variables { //setup the Project's variables
                         if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
                             let variable = createModuleObjectFromModuleName(moduleType: module, variableName: varName, configurationDict: dict)
-                            if !(variable.isGhost) && (variable.selectedFunctionality != nil) {
+                            if (variable.configurationType != .GhostVariable) && (variable.selectedFunctionality != nil) {
                                 if (variable.configurationType == .ActionQualifier) {
                                     if (actionQualifiers == nil) { //array does NOT exist yet
                                         actionQualifiers = [] //initialize
@@ -251,15 +251,15 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                                     } else { //NO special type - use selectedFunctionality
                                         moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionality: variable.selectedFunctionality!)
                                     }
-                                } else { //if configType = nil, var is an IV
+                                } else if (variable.configurationType == .InputVariable) {
                                     if (inputVariables == nil) { //does NOT exist yet
                                         inputVariables = [] //initialize
                                     }
                                     inputVariables!.append(variable)
                                     if let alternateValueForBlocker = variable.specialTypeForDynamicConfigFramework() { //use alternative
-                                        moduleBlocker.variableWasCreated(.Input, selectedFunctionality: alternateValueForBlocker) //update
+                                        moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionality: alternateValueForBlocker) //update
                                     } else { //NO special type - use selectedFunctionality
-                                        moduleBlocker.variableWasCreated(.Input, selectedFunctionality: variable.selectedFunctionality!) //update blocker
+                                        moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionality: variable.selectedFunctionality!)
                                     }
                                 }
                             } else { //GHOST - add -> ghostVariables

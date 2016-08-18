@@ -130,8 +130,7 @@ let BMN_DynamicConfig_OutcomeMeasuresKey = "DCF_outcome_measures_key"
 
 let BMN_ModuleTitleKey = "module_title_key" //key to obtain var's Module type
 let BMN_VariableReportLocationsKey = "variable_report_positions_key" //saves report locations during cycle
-let BMN_ConfigurationTypeKey = "configuration_type_key" //indicates if var is IV, OM, or AQ**
-let BMN_VariableIsGhostKey = "variable_is_ghost_key" //indicator if var is a ghost
+let BMN_ConfigurationTypeKey = "configuration_type_key" //indicates if var is IV/OM/AQ/TD/Ghost
 let BMN_VariableReportTypeKey = "variable_report_type_key" //stores var's report type (auto cap, comp)
 let BMN_VariableTypeKey = "variable_type_key" //key to obtain var's behavior/computation
 let BMN_DataEntry_MainLabelPromptKey = "DE_main_label_prompt_key" //alternate mainLbl title for DataEntry

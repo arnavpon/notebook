@@ -11,22 +11,19 @@ enum MeasurementTimeline_CardTypes: Int {
     case TimeDifference = 2 //card containing all TD vars (@ end of timeline)
 }
 
-struct MeasurementTimeline_VariableShell { //shell for the collection view cell
+struct MeasurementTimelineVariable { //shell for variables found in a collection view cell
     
-    let name: String
-    let variableType: String //indicate if var is an IV, OM, AQ, ghost, etc. (may need to modify VariableTypes?)
-    let location: Int //measurement location
-    var cardIndex: Int? //**
+    let name: String //unique ID for var
+    let variableType: ModuleConfigurationTypes //type => visual display format
     
-    init(name: String, type: String, location: Int) {
+    init(name: String, type: ModuleConfigurationTypes) {
         self.name = name
         self.variableType = type
-        self.location = location
     }
     
 }
 
-let BMN_MeasurementTimeline_LocationNumberKey = "MT_location_number_key"
+let BMN_MeasurementTimeline_LocationInCycleKey = "MT_location_in_cycle_key"
 let BMN_MeasurementTimeline_CellIndexKey = "MT_cell_index_key"
 let BMN_MeasurementTimeline_CardTypeKey = "MT_card_type_key"
 
@@ -37,15 +34,25 @@ class MeasurementTimeline_CollectionViewCell: UICollectionViewCell, UITableViewD
     @IBOutlet weak var timeDifferenceButton: UIButton!
     @IBOutlet weak var variablesTableView: UITableView!
     
-    var dataSource: ([String: AnyObject], [Module])? { //(infoDictionary, variables)
+    var dataSource: ([String: AnyObject], [MeasurementTimelineVariable])? { //(infoDictionary, variables)
         didSet {
             self.adjustVisualsForData() //update visuals when set
         }
     }
-    private var cardType: MeasurementTimeline_CardTypes = .Default //type for card
-    var cellIndex: Int? //index # of cell in collectionView
-    var locationInCycle: Int? //location of item in measurement cycle
-    var variables: [Module]? //tableView dataSource
+    var cardType: MeasurementTimeline_CardTypes = .Default { //type for card
+        didSet {
+            self.setVisualFormattingForCardType() //adjust visuals
+        }
+    }
+    var cellIndex: Int? //index # of cell in collectionView (used in notif when TV cell is clicked)
+    var locationInCycle: Int? //location of items on card in measurement cycle
+    var timelineVariables: [MeasurementTimelineVariable]? { //tableView dataSource
+        didSet {
+            dispatch_async(dispatch_get_main_queue()) { 
+                 self.variablesTableView.reloadData() //update UI
+            }
+        }
+    }
     
     // MARK: - Initializers
     
@@ -71,22 +78,24 @@ class MeasurementTimeline_CollectionViewCell: UICollectionViewCell, UITableViewD
     }
     
     private func adjustVisualsForData() { //when data is set, adjust visuals
-        if let (info, variables) = dataSource, index = info[BMN_MeasurementTimeline_CellIndexKey] as? Int {
-            self.cellIndex = index
-            self.variables = variables //set TV dataSource
-            variablesTableView.reloadData() //update UI
-            if let location = info[BMN_MeasurementTimeline_LocationNumberKey] as? Int {
+        if let (info, variables) = dataSource {
+            self.timelineVariables = variables //set TV dataSource
+            if let location = info[BMN_MeasurementTimeline_LocationInCycleKey] as? Int {
                 self.locationInCycle = location
                 self.locationLabel.text = "\(location)"
                 self.locationLabel.hidden = false //reveal locationLbl
             } else {
                 self.locationLabel.hidden = true //hide locationLbl
             }
-            if let typeRaw = info[BMN_MeasurementTimeline_CellIndexKey] as? Int, type = MeasurementTimeline_CardTypes(rawValue: typeRaw) {
+            if let typeRaw = info[BMN_MeasurementTimeline_CardTypeKey] as? Int, type = MeasurementTimeline_CardTypes(rawValue: typeRaw) {
+                print("Card type raw = \(typeRaw))")
                 self.cardType = type
             }
         }
-        switch cardType { //adjust visuals for cardType
+    }
+    
+    private func setVisualFormattingForCardType() {
+        switch self.cardType { //adjust visuals for cardType
         case .Default:
             self.backgroundColor = UIColor(red: 0, green: 0.8, blue: 0.5, alpha: 0.8) //**
             self.topLabel.hidden = true //hide topLbl in default
@@ -106,14 +115,26 @@ class MeasurementTimeline_CollectionViewCell: UICollectionViewCell, UITableViewD
     // MARK: - Table View
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let vars = variables {
-            return vars.count
+        if let variables = timelineVariables {
+            return variables.count
         }
         return 0
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        print("TV cellForRow")
         let cell = tableView.dequeueReusableCellWithIdentifier("cell")!
+        if let variables = timelineVariables {
+            print("variables exist!")
+            let variable = variables[indexPath.row]
+            cell.textLabel?.text = variable.name
+            switch variable.variableType { //adjust visuals depending on variableType
+            case .InputVariable:
+                cell.backgroundColor = UIColor.cyanColor()
+            default:
+                cell.backgroundColor = UIColor.greenColor()
+            }
+        }
         return cell
     }
     

@@ -219,7 +219,7 @@ class Project: NSManagedObject {
                 }
             } else { //default behavior
                 if let data = variable.reportDataForVariable() { //check if data was successfully reported
-                    if !(variable.isGhost) { //add non-ghosts to DB object
+                    if (variable.configurationType != .GhostVariable) { //add non-ghosts to DB object
                         dataObjectToDatabase[variable.variableName] = data
                         if let customVar = variable as? CustomModule, id = customVar.counterUniqueID {
                             //*COUNTER variable - refresh count for next measurement*:

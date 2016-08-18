@@ -36,7 +36,7 @@ class AddVariablesViewController: UIViewController, UITableViewDataSource, UITab
     }
     var didSendSegue: Bool = false //indicator (for ghost notification routing)
     var variableName: String? //the name of the variable entered by the user
-    var variableConfigType: ConfigurationTypes? //type (IV vs. OM) of variable created
+    var variableConfigType: ModuleConfigurationTypes? //configType of created variable
     var createdVariable: Module? //the completed variable created by the user
     var moduleBlocker = Module_DynamicConfigurationFramework() //class that handles blocking
     
@@ -171,9 +171,9 @@ class AddVariablesViewController: UIViewController, UITableViewDataSource, UITab
                             ghostVariables![varToDelete.variableName] = nil
                         }
                         if let alternateValueForBlocker = varToDelete.specialTypeForDynamicConfigFramework() { //use alternate value
-                            moduleBlocker.variableWasDeleted(.Input, selectedFunctionality: alternateValueForBlocker)
+                            moduleBlocker.variableWasDeleted(.InputVariable, selectedFunctionality: alternateValueForBlocker)
                         } else { //NO special type - use selectedFunctionality
-                            moduleBlocker.variableWasDeleted(.Input, selectedFunctionality: functionality)
+                            moduleBlocker.variableWasDeleted(.InputVariable, selectedFunctionality: functionality)
                         }
                     }
                     inputVariables!.removeAtIndex(indexPath.row)
@@ -252,7 +252,7 @@ class AddVariablesViewController: UIViewController, UITableViewDataSource, UITab
         if !(isCCProject) && !(isEditProjectFlow) { //IO project - user must select IV vs. OM
             let typeSelection = UIAlertController(title: "Select Variable Type", message: "Is your variable an input or an outcome measure?", preferredStyle: .Alert)
             let input = UIAlertAction(title: "Input", style: .Default, handler: { (let ok) in
-                self.variableConfigType = .Input
+                self.variableConfigType = .InputVariable
                 self.presentViewController(nameAlert, animated: false, completion: nil)
             })
             let outcome = UIAlertAction(title: "Outcome", style: .Default, handler: { (let cancel) in
@@ -263,7 +263,7 @@ class AddVariablesViewController: UIViewController, UITableViewDataSource, UITab
             typeSelection.addAction(outcome)
             presentViewController(typeSelection, animated: false, completion: nil)
         } else if !(isCCProject) && (isEditProjectFlow) { //IO Project - edit project flow
-            self.variableConfigType = .Input //indicate var is IV
+            self.variableConfigType = .InputVariable //indicate var is IV
             presentViewController(nameAlert, animated: true, completion: nil)
         } else { //CC project has only OM - present 2nd view controller immediately
             self.variableConfigType = .OutcomeMeasure //indicate var is OM
@@ -287,12 +287,12 @@ class AddVariablesViewController: UIViewController, UITableViewDataSource, UITab
                 } else { //NO special type - used selectedFunctionality
                     self.moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionality: typeName)
                 }
-            } else if (variable.configurationType == .Input) { //IV -> IV dataSource
+            } else if (variable.configurationType == .InputVariable) { //IV -> IV dataSource
                 inputVariables!.append(variable)
                 if let alternateValueForBlocker = variable.specialTypeForDynamicConfigFramework() {
-                    self.moduleBlocker.variableWasCreated(.Input, selectedFunctionality: alternateValueForBlocker) //use alternate type for blocker if it exists
+                    self.moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionality: alternateValueForBlocker) //use alternate type for blocker if it exists
                 } else { //NO special type - used selectedFunctionality
-                    self.moduleBlocker.variableWasCreated(.Input, selectedFunctionality: typeName)
+                    self.moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionality: typeName)
                 }
             }
             variablesTableView.reloadData()
@@ -311,7 +311,7 @@ class AddVariablesViewController: UIViewController, UITableViewDataSource, UITab
             
             //Create a list of existing vars w/in the selected part of the cycle (used by Module object):
             var existingVars: [ComputationFramework_ExistingVariables] = []
-            if (self.variableConfigType == .Input) { //pull from IV
+            if (self.variableConfigType == .InputVariable) { //pull from IV
                 if let inputs = inputVariables {
                     for variable in inputs {
                         let structObject = ComputationFramework_ExistingVariables(variable: variable)
