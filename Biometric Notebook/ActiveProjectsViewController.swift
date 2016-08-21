@@ -14,7 +14,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     @IBOutlet weak var menuButton: UIButton!
     
-//    var activeCounters: [Counter] = [] //list of active counters (TV dataSource)
     var activeCounters: [[Counter]] = [] //list of active counters (grouped according to Project) - index matches 'projects' index (i.e. index 0 = counters for Project @ index 0 of 'projects')
     var projects: [Project] = [] //list of activeProject objects (TV dataSource)
     var selectedProject: Project? //project object to pass on segue
@@ -37,7 +36,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     override func viewWillAppear(animated: Bool) { //update TV UI whenever view appears - the current user's projects are stored in CoreData & fetched when view appears
         if (loggedIn) { //only fire if user is loggedIn
-            
             //(1) Obtain active projects:
             self.projects = getActiveProjects()
             if (self.projects.isEmpty) { //empty state
@@ -50,30 +48,23 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             userJustLoggedIn = false //reset the variable
             
             //(2) Obtain active counters & assign them to their respective Projects:
-            let counters = fetchObjectsFromCoreDataStore("Counter", filterProperty: nil, filterValue: nil) as! [Counter] //fetch counters
-            var idArray: [Int] = []
+            activeCounters = [] //clear dataSource before obtaining active Counters
+            let counters = fetchObjectsFromCoreDataStore("Counter", filterProperty: nil, filterValue: nil) as! [Counter] //fetch counters from CD
+            var idArray: [Int] = [] //array containing indexed counters
             for counter in counters { //index the counters by their IDs (used for matching below)
                 idArray.append(counter.id as Int)
             }
-            for project in self.projects {
+            for project in self.projects { //assign Counters -> Project
                 var groupedCounters: [Counter] = [] //initialize
-                if let projectCounters = project.counters.allObjects as? [Counter] {
-                    for item in projectCounters {
+                if let projectCounters = project.counters.allObjects as? [Counter] { //project has cntrs
+                    for item in projectCounters { //match each counter for the Project -> a CoreData obj
                         let uniqueID = item.id as Int
-                        if let indexInArray = idArray.indexOf(uniqueID) {
-                            groupedCounters.append(counters[indexInArray])
+                        if let indexInArray = idArray.indexOf(uniqueID) { //find counterID in CD array
+                            groupedCounters.append(counters[indexInArray]) //add CD counter -> group
                         }
                     }
                 }
                 activeCounters.append(groupedCounters) //add -> dataSource @ end of loop
-            }
-            var counter = 0
-            print("Active Counters Count = \(activeCounters.count)")
-            for cntr in activeCounters {
-                for it in cntr {
-                    print("[\(counter)] Counter ID = \(it.id)")
-                }
-                counter += 1
             }
             
             //***
