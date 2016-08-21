@@ -112,13 +112,6 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
             print("[Module superclass init()] Report type raw = \(reportTypeRaw).")
             self.variableReportType = reportType
         }
-//        if let ghost = dict[BMN_VariableIsGhostKey] as? Bool, parent = dict[BMN_ComputationFramework_ComputationNameKey] as? String {
-//            self.isGhost = ghost
-//            self.parentComputation = parent
-//        }
-//        if let configTypeRaw = dict[BMN_ConfigurationTypeKey] as? String, configType = ModuleConfigurationTypes(rawValue: configTypeRaw) {
-//            self.configurationType = configType
-//        }
         if let parent = dict[BMN_ComputationFramework_ComputationNameKey] as? String { //for GHOST vars
             self.parentComputation = parent //store parentComputation for ghost
         }
@@ -249,11 +242,6 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     
     // MARK: - Computation Logic
     
-//    var isGhost: Bool = false { //used by Project VC to avoid adding this variable to DB dict
-//        didSet {
-//            self.variableState = .Ghost //blocks setConfigLayoutObject from firing
-//        }
-//    }
     var parentComputation: String? //for ghosts, maintains reference to parent computation
     lazy var computationInputs = Dictionary<String, String>() //used to define configuration for computation; KEY = the unique ID for the input, VALUE = the NAME of the input var or ghost
     var existingVariables: [ComputationFramework_ExistingVariables]? //list of created vars
