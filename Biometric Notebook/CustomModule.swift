@@ -166,11 +166,11 @@ class CustomModule: Module {
         }
     }
     
-    init(timeDifferenceName: String, locations: (Int, Int)) { //external TD init
+    init(timeDifferenceName: String, locations: (Int, Int), configType: ModuleConfigurationTypes) { //external TD init
         super.init(name: timeDifferenceName)
         self.moduleTitle = Modules.CustomModule.rawValue //set title
         self.selectedFunctionality = CustomModuleVariableTypes.Computation_TimeDifference.rawValue
-        self.configurationType = .TimeDifference //mark as time-diff config type
+        self.configurationType = configType //set config type (IV or OM)
         self.variableReportType = .TimeDifference //mark as time-diff report type
         self.timeDifferenceSetup = (.Default, locations)
     }
@@ -229,7 +229,6 @@ class CustomModule: Module {
                 let opts = [TimeDifference_VariableTypes.DistanceFromAction.rawValue]
                 array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_TimeDifferenceTypeID, BMN_LEVELS_MainLabelKey: "Select the time difference variable type:", BMN_SelectFromOptions_OptionsKey: opts, BMN_SelectFromOptions_DefaultOptionsKey: [opts.first!]])) //cell to select TD type
                 configurationOptionsLayoutObject = array
-                self.variableReportType = ModuleVariableReportTypes.TimeDifference //set report type
                 
             }
         } else { //no selection, set configOptionsObj -> nil
@@ -288,6 +287,7 @@ class CustomModule: Module {
                 if let typeArray = configurationData[BMN_CustomModule_TimeDifferenceTypeID] as? [String], typeRaw = typeArray.first, tdType = TimeDifference_VariableTypes(rawValue: typeRaw) {
                     print("Time difference variable...")
                     self.timeDifferenceSetup = (tdType, nil)
+                    self.variableReportType = ModuleVariableReportTypes.TimeDifference //set report type
                     return (true, nil, nil)
                 }
             default:
@@ -315,7 +315,6 @@ class CustomModule: Module {
     // MARK: - Core Data Logic
     
     internal override func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict allows FULL reconstruction of the object into a Module subclass). Each variable will occupy 1 spot in the overall dictionary, so we need to merge these individual dictionaries for each variable into 1 master dictionary. Each variable's dictionary will be indicated by the variable name, so MAKE SURE THERE ARE NO REPEAT NAMES!
-        
         var persistentDictionary: [String: AnyObject] = super.createDictionaryForCoreDataStore()
         
         //Set the coreData dictionary ONLY with information pertaining to the 'selectedFunctionality':
@@ -354,7 +353,6 @@ class CustomModule: Module {
                     if (setup.0 == TimeDifference_VariableTypes.Default) { //default TD has no location
                         persistentDictionary[BMN_VariableReportLocationsKey] = nil //remove location
                     }
-                    //How do we handle TD when editing a project? Should we remove them entirely? How does the user delete TD variables from the project? 
                 }
             }
         }

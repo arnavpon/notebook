@@ -343,7 +343,7 @@ class Project: NSManagedObject {
                     if let setup = timeDifference.timeDifferenceSetup, (loc1, loc2) = setup.1 {
                         let time1 = timeStamps[(loc1 - 1)]
                         let time2 = timeStamps[(loc2 - 1)]
-                        let difference = time2.timeIntervalSinceDate(time1)
+                        let difference = abs(time2.timeIntervalSinceDate(time1)) //abs value
                         print("TD for variable [\(variable)] = [\(difference)] seconds.")
                         updatedObject.updateValue(difference, forKey: variable) //add var -> DB object
                     }

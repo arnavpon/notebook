@@ -27,6 +27,9 @@ class CellWithGradientFill: UITableViewCell {
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
+        self.layer.borderColor = UIColor.blackColor().CGColor
+        self.layer.borderWidth = 0.5
+        
         contentView.addSubview(backgroundImageView)
         contentView.addSubview(reportDataButton) //add btn directly to contentView for touch to register!
 //        contentView.sendSubviewToBack(backgroundImageView) //move behind the default txtLabel
@@ -37,7 +40,7 @@ class CellWithGradientFill: UITableViewCell {
         reportDataButton.setTitle(">", forState: UIControlState.Normal)
         reportDataButton.addTarget(self, action: #selector(self.reportDataButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
         
-        //Gesture recognizer:**
+        //Gesture recognizer for edit project flow:
         let swipe = UISwipeGestureRecognizer(target: self, action: #selector(self.cellDidDetectSwipe(_:)))
         swipe.direction = .Left
         self.addGestureRecognizer(swipe)

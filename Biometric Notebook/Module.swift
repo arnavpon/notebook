@@ -172,8 +172,7 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     // MARK: - Core Data Logic
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        var persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle, BMN_VariableReportTypeKey: self.variableReportType.rawValue]
-        persistentDictionary[BMN_ConfigurationTypeKey] = self.configurationType.rawValue
+        var persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle, BMN_VariableReportTypeKey: self.variableReportType.rawValue, BMN_ConfigurationTypeKey: self.configurationType.rawValue, BMN_VariableReportLocationsKey: self.reportLocations]
         if let count = reportCount { //store reportCount if it has been set
             persistentDictionary[BMN_Configuration_ReportCountKey] = count
         }
@@ -183,14 +182,6 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
         if (self.configurationType == .GhostVariable) { //var is ghost - store parent computation in dict
             persistentDictionary[BMN_ComputationFramework_ComputationNameKey] = parentComputation
         }
-//        if (self.isGhost) { //if var is ghost, store the indicator/computation in the dict
-//            persistentDictionary[BMN_VariableIsGhostKey] = true
-//            persistentDictionary[BMN_ComputationFramework_ComputationNameKey] = parentComputation
-//        }
-//        if let configType = self.configurationType { //save config type for EDIT PROJECT flow
-//            persistentDictionary[BMN_ConfigurationTypeKey] = configType.rawValue
-//        }
-        persistentDictionary[BMN_VariableReportLocationsKey] = self.reportLocations
         return persistentDictionary
     }
     
@@ -264,7 +255,7 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
 //        }
 //    }
     var parentComputation: String? //for ghosts, maintains reference to parent computation
-    lazy var computationInputs = Dictionary<String, String>() //used to define configuration for computation, KEY is the unique ID for the input, VALUE is the NAME of the input var or ghost
+    lazy var computationInputs = Dictionary<String, String>() //used to define configuration for computation; KEY = the unique ID for the input, VALUE = the NAME of the input var or ghost
     var existingVariables: [ComputationFramework_ExistingVariables]? //list of created vars
     
     internal func createGhostForVariable(variable: Module) { //used by computations; creates a ghost variable & sends notification -> ProjectVarsVC so ghost is added to the Project

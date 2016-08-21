@@ -77,52 +77,28 @@ class Group: NSManagedObject {
         //Check the Module obj for the reportType before adding var -> array:
         print("\n[reconstructProjFromCD] Sorting variables according to reportType...")
         for (variable, dict) in variablesForCurrentLocationInCycle { //'dict' = configurationDict for var
-            if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
-                print("[GROUP] Reconstructing Variable: [\(variable)].")
-                let reconstructedVariable: Module = createModuleObjectFromModuleName(moduleType: module, variableName: variable, configurationDict: dict)
-                reconstructedVariables.append(reconstructedVariable) //add -> array for data capture
-                switch reconstructedVariable.variableReportType { //check the var's reportType
-                case .Default: //USER-ENTERED vars - add to array for display to user
-                    print("MANUAL capture var")
-                    reportCount += 1 //manual vars count towards total
-                    manualEntryVariablesArray.append(reconstructedVariable) //add MANUAL vars -> obj
-                case .AutoCapture: //AUTO captured vars - instruct to report data @ this time!
-                    print("AUTO capture var")
-                    reportCount += 1 //true auto cap (non-TD) vars count towards total
-                    reconstructedVariable.populateDataObjectForAutoCapturedVariable()
-                    autoCapturedVariables.append(reconstructedVariable) //add -> array
-                case .Computation:
-                    print("COMPUTATION variable")
-                    break //should NOT be displayed in TV, must wait for other variables to report before populating report object
-                case .TimeDifference: //TD vars should ONLY appear @ end of measurement cycle!
-                    print("TIME DIFFERENCE variable")
-                    self.timeDifferenceIsPresent = true //set indicator
-                }
+            print("[GROUP] Reconstructing Variable: [\(variable)].")
+            let reconstructedVariable: Module = reconstructModuleObjectFromCoreDataDict(variable, configurationDict: dict) //reconstruct variable from shell
+            reconstructedVariables.append(reconstructedVariable) //add -> array for data capture
+            switch reconstructedVariable.variableReportType { //check the var's reportType
+            case .Default: //USER-ENTERED vars - add to array for display to user
+                print("MANUAL capture var")
+                reportCount += 1 //manual vars count towards total
+                manualEntryVariablesArray.append(reconstructedVariable) //add MANUAL vars -> obj
+            case .AutoCapture: //AUTO captured vars - instruct to report data @ this time!
+                print("AUTO capture var")
+                reportCount += 1 //true auto cap (non-TD) vars count towards total
+                reconstructedVariable.populateDataObjectForAutoCapturedVariable()
+                autoCapturedVariables.append(reconstructedVariable) //add -> array
+            case .Computation:
+                print("COMPUTATION variable")
+                break //should NOT be displayed in TV, must wait for other variables to report before populating report object
+            case .TimeDifference: //TD vars should ONLY appear @ end of measurement cycle!
+                print("TIME DIFFERENCE variable")
+                self.timeDifferenceIsPresent = true //set indicator
             }
         }
         return manualEntryVariablesArray
-    }
-    
-    private func createModuleObjectFromModuleName(moduleType module: Modules, variableName: String, configurationDict: [String: AnyObject]) -> Module { //init Module obj w/ its name & config dict
-        //Determine the var's Module type, then pass the var's name & dictionary -> that module's CoreData initializer, which will re-create the variable (complete w/ all configuration):
-        var object: Module = Module(name: variableName)
-        switch module {
-        case .CustomModule:
-            object = CustomModule(name: variableName, dict: configurationDict)
-        case .EnvironmentModule:
-            object = EnvironmentModule(name: variableName, dict: configurationDict)
-        case .FoodIntakeModule:
-            object = FoodIntakeModule(name: variableName, dict: configurationDict)
-        case .ExerciseModule:
-            object = ExerciseModule(name: variableName, dict: configurationDict)
-        case .BiometricModule:
-            object = BiometricModule(name: variableName, dict: configurationDict)
-        case .CarbonEmissionsModule:
-            object = CarbonEmissionsModule(name: variableName, dict: configurationDict)
-        case .RecipeModule:
-            object = RecipeModule(name: variableName, dict: configurationDict)
-        }
-        return object
     }
     
     // MARK: - Action Logic

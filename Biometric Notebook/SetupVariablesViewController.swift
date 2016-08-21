@@ -61,6 +61,7 @@ class SetupVariablesViewController: UITabBarController, UITabBarControllerDelega
         }
     }
     var ghostVariables: [String: [GhostVariable]]? //KEY = parent computation, value = [Ghost]
+    var timeDifferenceVariables: [Module]? //only for Edit Project flow
     
     // MARK: - View Configuration
 
@@ -171,6 +172,7 @@ class SetupVariablesViewController: UITabBarController, UITabBarControllerDelega
             destination.inputVariables = self.inputVariables
             destination.outcomeMeasures = self.outcomeMeasures
             destination.ghostVariables = self.ghostVariables
+            destination.timeDifferenceVariables = self.timeDifferenceVariables
             destination.projectToEdit = self.projectToEdit
         }
     }

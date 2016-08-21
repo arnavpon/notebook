@@ -21,12 +21,11 @@ enum ModuleVariableStates { //represents the state of the variable object during
     case Ghost //variable that was constructed as a GHOST
 }
 
-enum ModuleConfigurationTypes: Int { //used by DynamicConfig framework & MeasurementTimeline view
+enum ModuleConfigurationTypes: Int { //used by DynamicConfig framework
     case InputVariable = 0 //defaultType - all vars are IV unless otherwise specified
     case OutcomeMeasure = 1
     case ActionQualifier = 2
-    case TimeDifference = 3
-    case GhostVariable = 4
+    case GhostVariable = 3
 }
 
 enum ModuleVariableReportTypes: Int { //indicates how a variable reports its data

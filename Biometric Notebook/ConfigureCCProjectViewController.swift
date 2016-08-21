@@ -36,7 +36,8 @@ class ConfigureCCProjectViewController: UIViewController, UIPickerViewDelegate, 
     
     var isEditProjectFlow: Bool = false //indicator for edit project flow
     var projectToEdit: Project? //CoreData object that will be updated
-    var outcomeMeasures: [Module]? //only for editProject flow
+    var outcomeMeasures: [Module]? //only for Edit Project flow
+    var timeDifferenceVariables: [Module]? //only for Edit Project flow
     
     private var actionPickerRowArray: [String] = ["", ActionTypes.Eat.rawValue, ActionTypes.Sleep.rawValue, ActionTypes.Exercise.rawValue, ActionTypes.Custom.rawValue]
     
@@ -309,7 +310,6 @@ class ConfigureCCProjectViewController: UIViewController, UIPickerViewDelegate, 
             }
         } else if (segue.identifier == "showSummary") { //EDIT PROJECT flow
             let destination = segue.destinationViewController as! ProjectSummaryViewController
-            destination.outcomeMeasures = self.outcomeMeasures
             destination.projectAction = self.selectedAction
             destination.projectTitle = self.projectTitle
             destination.projectQuestion = self.projectQuestion
@@ -317,6 +317,8 @@ class ConfigureCCProjectViewController: UIViewController, UIPickerViewDelegate, 
             destination.projectType = self.projectType
             destination.projectGroups = self.projectGroups
             destination.projectToEdit = self.projectToEdit
+            destination.outcomeMeasures = self.outcomeMeasures
+            destination.timeDifferenceVariables = self.timeDifferenceVariables
         }
     }
 

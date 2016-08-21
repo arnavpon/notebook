@@ -37,7 +37,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     override func viewWillAppear(animated: Bool) { //update TV UI whenever view appears - the current user's projects are stored in CoreData & fetched when view appears
         if (loggedIn) { //only fire if user is loggedIn
-//            self.activeCounters = fetchObjectsFromCoreDataStore("Counter", filterProperty: nil, filterValue: nil) as! [Counter] //fetch counters
+            
             //(1) Obtain active projects:
             self.projects = getActiveProjects()
             if (self.projects.isEmpty) { //empty state
@@ -68,11 +68,10 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 activeCounters.append(groupedCounters) //add -> dataSource @ end of loop
             }
             var counter = 0
-            print("Active Counters Count = \(activeCounters). Object = \(activeCounters)")
-            for item in activeCounters {
-                print("\nIndex = \(counter)")
-                for it in item {
-                    print("Counter ID = \(it.id)")
+            print("Active Counters Count = \(activeCounters.count)")
+            for cntr in activeCounters {
+                for it in cntr {
+                    print("[\(counter)] Counter ID = \(it.id)")
                 }
                 counter += 1
             }
@@ -222,9 +221,10 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 let projectType = ExperimentTypes(rawValue: selection.projectType)
                 var projectAction: Action? = nil //action must always be set
                 var inputVariables: [Module]?
-                var outcomeMeasures: [Module] = []
+                var outcomeMeasures: [Module] = [] //OM must always be set
                 var actionQualifiers: [Module]?
                 var ghostVariables: [String: [GhostVariable]]?
+                var timeDifferences: [Module]?
                 let moduleBlocker = Module_DynamicConfigurationFramework() //MUST be set
                 
                 var projectGroups: [(String, GroupTypes)] = [] //initialize
@@ -236,33 +236,32 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 
                 if let aGroup = selection.groups.anyObject() as? Group {
                     for (varName, dict) in aGroup.variables { //setup the Project's variables
-                        if let moduleRaw = dict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
-                            let variable = createModuleObjectFromModuleName(moduleType: module, variableName: varName, configurationDict: dict)
-                            if (variable.configurationType != .GhostVariable) && (variable.selectedFunctionality != nil) {
-                                if (variable.configurationType == .ActionQualifier) {
-                                    if (actionQualifiers == nil) { //array does NOT exist yet
-                                        actionQualifiers = [] //initialize
-                                    } //do NOT update blocker
-                                    actionQualifiers!.append(variable)
-                                } else if (variable.configurationType == .OutcomeMeasure) {
-                                    outcomeMeasures.append(variable)
-                                    if let alternateValueForBlocker = variable.specialTypeForDynamicConfigFramework() { //use alternative
-                                        moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionality: alternateValueForBlocker) //update
-                                    } else { //NO special type - use selectedFunctionality
-                                        moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionality: variable.selectedFunctionality!)
-                                    }
-                                } else if (variable.configurationType == .InputVariable) {
-                                    if (inputVariables == nil) { //does NOT exist yet
-                                        inputVariables = [] //initialize
-                                    }
-                                    inputVariables!.append(variable)
-                                    if let alternateValueForBlocker = variable.specialTypeForDynamicConfigFramework() { //use alternative
-                                        moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionality: alternateValueForBlocker) //update
-                                    } else { //NO special type - use selectedFunctionality
-                                        moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionality: variable.selectedFunctionality!)
-                                    }
+                        let variable = reconstructModuleObjectFromCoreDataDict(varName, configurationDict: dict) //reconstruct variable using shell
+                        if let functionality = variable.selectedFunctionality {
+                            switch variable.configurationType {
+                            case .InputVariable:
+                                if (inputVariables == nil) { //does NOT exist yet
+                                    inputVariables = [] //initialize
                                 }
-                            } else { //GHOST - add -> ghostVariables
+                                inputVariables!.append(variable)
+                                if let alternateValueForBlocker = variable.specialTypeForDynamicConfigFramework() { //use alternative
+                                    moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionality: alternateValueForBlocker) //update
+                                } else { //NO special type - use selectedFunctionality
+                                    moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionality: functionality)
+                                }
+                            case .OutcomeMeasure:
+                                outcomeMeasures.append(variable)
+                                if let alternateValueForBlocker = variable.specialTypeForDynamicConfigFramework() { //use alternative
+                                    moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionality: alternateValueForBlocker) //update
+                                } else { //NO special type - use selectedFunctionality
+                                    moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionality: functionality)
+                                }
+                            case .ActionQualifier:
+                                if (actionQualifiers == nil) { //array does NOT exist yet
+                                    actionQualifiers = [] //initialize
+                                } //do NOT update blocker
+                                actionQualifiers!.append(variable)
+                            case .GhostVariable: //add -> GhostVariables
                                 if let parent = variable.parentComputation {
                                     print("Found ghost [\(varName)] for parent [\(parent)].")
                                     let ghost = GhostVariable(computation: parent, name: varName, settings: dict)
@@ -278,6 +277,16 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                             }
                         }
                     }
+                    
+                    if let timeDifferenceVars = aGroup.timeDifferenceVars { //check for existing TDs
+                        for (varName, dict) in timeDifferenceVars {
+                            let timeDifference = reconstructModuleObjectFromCoreDataDict(varName, configurationDict: dict) //reconstruct TD
+                            if (timeDifferences == nil) { //array does NOT exist yet
+                                timeDifferences = [] //initialize
+                            }
+                            timeDifferences!.append(timeDifference) //add TD -> array
+                        }
+                    }
                     projectAction = Action(settings: aGroup.action) //reconstruct the projectAction
                 }
                 let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
@@ -286,13 +295,14 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                     let ccProjectVC = storyboard.instantiateViewControllerWithIdentifier("configureCCProject") as! ConfigureCCProjectViewController
                     ccProjectVC.isEditProjectFlow = true //set indicator
                     ccProjectVC.selectedAction = projectAction
-                    ccProjectVC.outcomeMeasures = outcomeMeasures
-                    ccProjectVC.projectToEdit = selection //pass CoreData object for deletion
                     ccProjectVC.projectTitle = selection.title
                     ccProjectVC.projectQuestion = selection.question
                     ccProjectVC.projectHypothesis = selection.hypothesis
                     ccProjectVC.projectType = projectType
                     ccProjectVC.projectGroups = projectGroups
+                    ccProjectVC.projectToEdit = selection //pass CoreData object for deletion
+                    ccProjectVC.outcomeMeasures = outcomeMeasures
+                    ccProjectVC.timeDifferenceVariables = timeDifferences
                     controller.showViewController(ccProjectVC, sender: nil) //nav directly -> CCVC
                 } else if (projectType == .InputOutput) { //IO project
                     let setupVarsVC = storyboard.instantiateViewControllerWithIdentifier("setupVarsVC") as! SetupVariablesViewController
@@ -308,33 +318,13 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                     setupVarsVC.actionQualifiers = actionQualifiers
                     setupVarsVC.projectAction = projectAction
                     setupVarsVC.ghostVariables = ghostVariables
+                    setupVarsVC.timeDifferenceVariables = timeDifferences
                     setupVarsVC.moduleBlocker = moduleBlocker
                     controller.showViewController(setupVarsVC, sender: nil) //nav directly -> SVVC
                 }
                 presentViewController(controller, animated: true, completion: nil) //show VC
             }
         }
-    }
-    
-    private func createModuleObjectFromModuleName(moduleType module: Modules, variableName: String, configurationDict: [String: AnyObject]) -> Module { //init Module obj w/ its name & config dict
-        var object: Module = Module(name: variableName)
-        switch module { //pass varName & dictionary -> specific module subclass' CoreData initializer
-        case .CustomModule:
-            object = CustomModule(name: variableName, dict: configurationDict)
-        case .EnvironmentModule:
-            object = EnvironmentModule(name: variableName, dict: configurationDict)
-        case .FoodIntakeModule:
-            object = FoodIntakeModule(name: variableName, dict: configurationDict)
-        case .ExerciseModule:
-            object = ExerciseModule(name: variableName, dict: configurationDict)
-        case .BiometricModule:
-            object = BiometricModule(name: variableName, dict: configurationDict)
-        case .CarbonEmissionsModule:
-            object = CarbonEmissionsModule(name: variableName, dict: configurationDict)
-        case .RecipeModule:
-            break //cannot edit a Recipe Module var
-        }
-        return object
     }
     
     // MARK: - TV Data Source

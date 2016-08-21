@@ -65,6 +65,30 @@ func clearCoreDataStoreForEntity(entity entity: String) {
     }
 }
 
+func reconstructModuleObjectFromCoreDataDict(variableName: String, configurationDict: [String: AnyObject]) -> Module { //creates a Module obj using the variable's name & config dict
+    //Determine the var's Module type, then pass the var's name & dictionary -> that module's CoreData initializer, which will re-create the variable (complete w/ all configuration):
+    var object: Module = Module(name: variableName)
+    if let moduleRaw = configurationDict[BMN_ModuleTitleKey] as? String, module = Modules(rawValue: moduleRaw) {
+        switch module {
+        case .CustomModule:
+            object = CustomModule(name: variableName, dict: configurationDict)
+        case .EnvironmentModule:
+            object = EnvironmentModule(name: variableName, dict: configurationDict)
+        case .FoodIntakeModule:
+            object = FoodIntakeModule(name: variableName, dict: configurationDict)
+        case .ExerciseModule:
+            object = ExerciseModule(name: variableName, dict: configurationDict)
+        case .BiometricModule:
+            object = BiometricModule(name: variableName, dict: configurationDict)
+        case .CarbonEmissionsModule:
+            object = CarbonEmissionsModule(name: variableName, dict: configurationDict)
+        case .RecipeModule:
+            object = RecipeModule(name: variableName, dict: configurationDict)
+        }
+    }
+    return object
+}
+
 // MARK: - Centered Rectangle
 
 func centerFrameInRect(subviewSize: CGSize, superviewFrame: CGRect) -> CGRect { //centers a SUBVIEW's frame in its superview's frame (ONLY works if view is subview, otherwise coordinates will be off!)

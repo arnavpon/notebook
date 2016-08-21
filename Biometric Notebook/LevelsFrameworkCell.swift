@@ -46,14 +46,19 @@ class LevelsFrameworkCell: UITableViewCell {
             }
         }
     }
+    internal var indentationViewBackgroundColor: UIColor = UIColor.whiteColor() { //DEFAULT background color, DO NOT CHANGE property in subclasses (references default so that state can be RESTORED)!
+        didSet {
+            indentationView.backgroundColor = indentationViewBackgroundColor //adjust color for view
+        }
+    }
     internal var insetBackgroundColor: UIColor = UIColor.whiteColor() { //DEFAULT background color, DO NOT CHANGE property in subclasses (provides reference to default so that state can be RESTORED)!
         didSet {
-            insetBackgroundView.backgroundColor = insetBackgroundColor //adjust color
+            insetBackgroundView.backgroundColor = insetBackgroundColor //adjust color for view
         }
     }
     internal var separatorBackgroundColor: UIColor = UIColor.blackColor() { //default separator color
         didSet {
-            separatorView.backgroundColor = insetBackgroundColor //adjust color
+            separatorView.backgroundColor = separatorBackgroundColor //adjust color for view
         }
     }
     internal var separatorHeight: CGFloat = 2 //amount of space between cells
@@ -109,7 +114,7 @@ class LevelsFrameworkCell: UITableViewCell {
         contentView.addSubview(insetBackgroundView)
         contentView.addSubview(separatorView)
         contentView.addSubview(indentationView)
-        indentationView.backgroundColor = UIColor.blackColor() //indentationView is see-through
+        indentationView.backgroundColor = indentationViewBackgroundColor //default = white
         
         //Add ALL other views -> insetBackgroundView:
         insetBackgroundView.addSubview(mainLabel)
