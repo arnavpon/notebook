@@ -19,13 +19,13 @@ extension Group {
     @NSManaged var measurementCycleLength: NSNumber //defines total # of reports for this Group
     @NSManaged var timeDifferenceVars: Dictionary<String, [String: AnyObject]>? //list of default TD vars
     
-    convenience init(groupName: String, groupType: GroupTypes, project: Project, action: Action, variables: [String: [String: AnyObject]], cycleLength: Int, timeDifferenceVars: Dictionary<String, [String: AnyObject]>?, insertIntoManagedObjectContext context: NSManagedObjectContext) {
+    convenience init(groupName: String, groupType: GroupTypes, project: Project, action: [String: AnyObject], variables: [String: [String: AnyObject]], cycleLength: Int, timeDifferenceVars: Dictionary<String, [String: AnyObject]>?, insertIntoManagedObjectContext context: NSManagedObjectContext) {
         let entity = NSEntityDescription.entityForName("Group", inManagedObjectContext: context)
         self.init(entity: entity!, insertIntoManagedObjectContext: context)
         
         self.groupName = groupName //unique ID
         self.groupType = groupType.rawValue
-        self.action = action.constructCoreDataObjectForAction() //store the CoreData dict
+        self.action = action //store the Action's CoreData dict representation
         self.variables = variables //'variables' dictionary format = ["VAR_NAME": ["VARIABLE_PROPERTY": CONFIGURATION_OBJECT]]
         self.measurementCycleLength = cycleLength
         self.timeDifferenceVars = timeDifferenceVars //store TD vars if any exist

@@ -770,7 +770,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                         if let timeDifferenceVars = timeDifferenceVariables { //check for TD vars
                             timeDifferenceDict = createCoreDataDictionary(timeDifferenceVars, project: project) //construct CD representation
                         }
-                        let _ = Group(groupName: groupName, groupType: groupType, project: project, action: action, variables: variablesDict, cycleLength: measurementCycleLength, timeDifferenceVars: timeDifferenceDict, insertIntoManagedObjectContext: context) //create group
+                        let _ = Group(groupName: groupName, groupType: groupType, project: project, action: action.constructCoreDataObjectForAction(), variables: variablesDict, cycleLength: measurementCycleLength, timeDifferenceVars: timeDifferenceDict, insertIntoManagedObjectContext: context) //create Group
                         print("Created group [\(groupName)] of type [\(groupType)].")
                     }
                 }
@@ -780,9 +780,9 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
             //(3) Create cloud backup for the new project & add it to queue:
             if let dbConnection = DatabaseConnection() {
                 if (isEditProjectFlow) { //EDIT PROJECT flow - update project's DB information
-//                    dbConnection.commitProjectEditToDatabase(project) //create update cmd
+                    dbConnection.commitProjectEditToDatabase(project) //create update cmd
                 } else { //DEFAULT flow - create Cloud backup
-//                    dbConnection.createCloudModelForProject(project) //create backup & save to CD
+                    dbConnection.createCloudModelForProject(project) //create backup & save to CD
                 }
             }
         }

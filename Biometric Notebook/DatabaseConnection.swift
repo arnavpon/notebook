@@ -126,27 +126,33 @@ class DatabaseConnection: DataReportingErrorProtocol {
     
     private func constructCloudObject(project: Project) -> Dictionary<String, AnyObject> { //uses the input project to construct the dict sent -> the Cloud for backup
         var body: [String: AnyObject] = ["experiment_type": project.projectType, "title": project.title, "question": project.question, "start_date": project.startDate.timeIntervalSinceReferenceDate]
-        if let hypothesis = project.hypothesis {
+        if let hypothesis = project.hypothesis { //add hypothesis -> dict ONLY if it exists
             body.updateValue(hypothesis, forKey: "hypothesis")
         }
-        if let endDate = project.endDate {
+        if let endDate = project.endDate { //add endDate -> dict ONLY if it is defined
             let timeDifference = endDate.timeIntervalSinceDate(project.startDate)
             print("[constructCloudObj] Time Difference btwn start & end = \(timeDifference).")
             body.updateValue(timeDifference, forKey: "endpoint")
         }
-        var groups = Dictionary<String, [String: AnyObject]>() //["groups": ["group1": dict, "group2": dict, ...]]
+        
+        var groups = Dictionary<String, [String: AnyObject]>() //FORMAT = ["groups": ["groupName1": dict, "groupName2": dict, ...]]
         for projectGroups in project.groups {
-            if let group = projectGroups as? Group {
-                let type = group.groupType
-                let action = group.action
-                let variables = group.variables
-//                groups.updateValue(["action": action, "beforeVars": beforeVars, "afterVars": afterVars], forKey: type) //OLD way - update Django script to match NEW way
-                groups.updateValue(["action": action, "variables": variables], forKey: type)
+            if let group = projectGroups as? Group { //construct a DB dict for EACH Group in Project
+                let groupName = group.groupName //UNIQUE key for group's dict
+                let groupType = group.groupType
+                let action = group.action //dictionary representation for action
+                let groupVariables = group.variables
+                let measurementCycleLength = group.measurementCycleLength as Int
+                var temp: Dictionary<String, AnyObject> = ["groupType": groupType, "action": action, "variables": groupVariables, "measurementCycleLength": measurementCycleLength]
+                if let timeDifferenceVariables = group.timeDifferenceVars { //check for TD vars
+                    temp.updateValue(timeDifferenceVariables, forKey: "timeDifferenceVariables")
+                }
+                groups.updateValue(temp, forKey: groupName) //match Group dict -> groupName
             }
         }
-        body.updateValue(groups, forKey: "groups")
+        body.updateValue(groups, forKey: "groups") //add Groups dict -> next lvl dictionary
         var counters: [String] = []
-        for projectCounters in project.counters {
+        for projectCounters in project.counters { //add backup for Counters in Project
             if let counter = projectCounters as? Counter {
                 let variableName = counter.variableName
                 counters.append(variableName)
@@ -201,7 +207,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
         }
     }
     
-    func retrieveProjectModelsFromCloud(complete: (Bool) -> Void) { //gets all projects for current user
+    func retrieveProjectModelsFromCloud(complete: (Bool) -> Void) { //gets all Projects for current user
         let url = NSURL(string: "http://192.168.1.\(ip_last):8000/get-projects-for-user")!
         let postData: [String: String] = ["email": self.email]
         do {
@@ -221,7 +227,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
                     } else { //no errors - obtain array of projectModels
                         if let projectModels = data["project_models"] as? [[String: AnyObject]] { //all of the models are stored against the 'project_models' key
                             print("\(projectModels.count) models were returned!\n")
-                            for model in projectModels {
+                            for model in projectModels { //reconstruct Project objects from shells
                                 print("\nReconstructing model...")
                                 self.reconstructProjectFromModel(model)
                             }
@@ -235,7 +241,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
         }
     }
     
-    private func reconstructProjectFromModel(projectShell: [String: AnyObject]) {
+    private func reconstructProjectFromModel(projectShell: [String: AnyObject]) { //rebuilds CoreDate Project object using shell returned from DB
         if let typeRaw = projectShell["type"] as? String, type = ExperimentTypes(rawValue: typeRaw), title = projectShell["title"] as? String, question = projectShell["question"] as? String, startDate = projectShell["start_date"] as? Double, groups = projectShell["groups"] as? [String: AnyObject], counters = projectShell["counters"] as? [String] {
             var projectHypothesis: String? = nil
             if let hypothesis = projectShell["hypothesis"] as? String { //optional value
@@ -248,28 +254,25 @@ class DatabaseConnection: DataReportingErrorProtocol {
             let project = Project(type: type, title: title, question: question, hypothesis: projectHypothesis, startDate: startDate, endpoint: projectEndpoint, insertIntoManagedObjectContext: managedObjectContext) //(1) create Project
             
             var counterSettings = Dictionary<String, [String: AnyObject]>() //obj w/ counter CD dicts
-            for (groupRaw, settings) in groups { //(2) create any Group objects
-                print("Reconstructing GROUP = [\(groupRaw)].")
-                if let groupType = GroupTypes(rawValue: groupRaw), settingsDict = settings as? [String: AnyObject], action = settingsDict["action"] as? String, beforeVars = settingsDict["beforeVars"] as? [String: [String: AnyObject]], afterVars = settingsDict["afterVars"] as? [String: [String: AnyObject]] {
-//                    let _ = Group(type: group, project: project, action: action, beforeVariables: beforeVars, afterVariables: afterVars, insertIntoManagedObjectContext: managedObjectContext) //OLD
-//                    let _ = Group(groupName: "", groupType: groupType, project: project, action: action, variables: beforeVars, cycleLength: 10, insertIntoManagedObjectContext: managedObjectContext) //**update dynamically
-                    
-                    //Obtain CoreData dicts for counter vars:
-                    for (variableName, dict) in beforeVars {
-                        if (counters.contains(variableName)) {
-                            print("Found counter \(variableName).")
-                            counterSettings.updateValue(dict, forKey: variableName)
-                        }
+            for (groupName, settings) in groups { //(2) recreate Group objects in each Project
+                print("Reconstructing GROUP = [\(groupName)].")
+                if let settingsDict = settings as? [String: AnyObject], groupTypeRaw = settingsDict["groupType"] as? String, groupType = GroupTypes(rawValue: groupTypeRaw), action = settingsDict["action"] as? [String: AnyObject], groupVariables = settingsDict["variables"] as? [String: [String: AnyObject]], cycleLength = settingsDict["measurementCycleLength"] as? Int {
+                    var timeDifferenceVariables: [String: [String: AnyObject]]? = nil
+                    if let timeDifferences = settingsDict["timeDifferenceVariables"] as? [String: [String: AnyObject]] { //check if Group has any TD vars
+                        timeDifferenceVariables = timeDifferences
                     }
-                    for (variableName, dict) in afterVars {
+                    let _ = Group(groupName: groupName, groupType: groupType, project: project, action: action, variables: groupVariables, cycleLength: cycleLength, timeDifferenceVars: timeDifferenceVariables, insertIntoManagedObjectContext: managedObjectContext)
+                    
+                    //Obtain CoreData dicts for Counter variables:
+                    for (variableName, dict) in groupVariables {
                         if (counters.contains(variableName)) {
-                            print("Found counter \(variableName).")
+                            print("Found COUNTER with name = [\(variableName)].")
                             counterSettings.updateValue(dict, forKey: variableName)
                         }
                     }
                 }
             }
-            for (counter, settings) in counterSettings { //(3) create any Counter objects
+            for (counter, settings) in counterSettings { //(3) recreate any Counter objects
                 print("Reconstructing COUNTER = \(counter).")
                 let variable = CustomModule(name: counter, dict: settings)
                 let _ = Counter(linkedVar: variable, project: project, insertIntoManagedObjectContext: managedObjectContext)
@@ -281,6 +284,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
     // MARK: - Edit Project Flow
     
     func commitProjectEditToDatabase(project: Project) { //EDIT PROJECT flow
+        //(1) Delete all DB objects for the edited Project:
         if let itemsForProject = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: "projectTitle", filterValue: [project.title]) as? [DatabaseObject] {
             print("[CommitProjectEdit] Deleting \(itemsForProject.count) items in DB queue for project [\(project.title)].")
             for item in itemsForProject { //delete ALL DB objects for indicated Project in queue
@@ -288,17 +292,19 @@ class DatabaseConnection: DataReportingErrorProtocol {
             }
         }
         
+        //(2) Create a Cloud Model for the edited Project:
         print("Creating new Cloud model for updated project...")
         let cloudDictionary = constructCloudObject(project)
         let _ = DatabaseObject(title: project.title, data: cloudDictionary, dataType: .EditedProjectModel, insertIntoManagedObjectContext: managedObjectContext)
         saveManagedObjectContext()
         
         var groups: [String] = []
-        for groupRaw in project.groups { //construct array w/ Project's groups
+        for groupRaw in project.groups { //construct array containing names of Project's Groups
             if let group = groupRaw as? Group {
-                groups.append(group.groupType)
+                groups.append(group.groupName)
             }
         }
+        //(3) Add the array of edited Groups -> UserDefaults (indicates to system that Group was recently edited, which triggers DB-related behaviors):
         if var editedProjects = NSUserDefaults.standardUserDefaults().valueForKey(EDITED_PROJECTS_KEY) as? [String: [String]] { //add entry for Project -> dict
             editedProjects.updateValue(groups, forKey: project.title) //overwrite existing value
             NSUserDefaults.standardUserDefaults().setValue(editedProjects, forKey: EDITED_PROJECTS_KEY)
@@ -355,26 +361,26 @@ class DatabaseConnection: DataReportingErrorProtocol {
     func createDataObjectForReportedData(projectTitle: String, reportedData: [String: AnyObject], group: Group) { //for data reporting
         print("Creating dataObject for reported data...")
         var dataObject = Dictionary<String, AnyObject>()
-        dataObject.updateValue(email, forKey: "BMN_EMAIL") //pass email
+        dataObject.updateValue(email, forKey: "BMN_EMAIL") //pass email (matches data -> correct DB)
         dataObject.updateValue(projectTitle, forKey: "BMN_PROJECT_TITLE") //pass project title
         dataObject.updateValue(reportedData, forKey: "BMN_DATABASE_OBJECT") //pass data object
-        dataObject.updateValue(group.groupType, forKey: "BMN_GROUP_TYPE") //pass groupType**
-        dataObject.updateValue(group.groupName, forKey: "BMN_GROUP_NAME") //pass groupName** - need to update the editedProjects script to account for groupName!!!
+//        dataObject.updateValue(group.groupType, forKey: "BMN_GROUP_TYPE") //pass groupType**
+        dataObject.updateValue(group.groupName, forKey: "BMN_GROUP_NAME") //pass name (IDs reporting grp)
         
         var isEditProjectFlow: Bool = false //indicator
-        if var editedProjects = NSUserDefaults.standardUserDefaults().valueForKey(EDITED_PROJECTS_KEY) as? [String: [String]] { //check if editedProjects contains 'projectTitle' & 'groupType'
-            if var editedProjectGroups = editedProjects[projectTitle], let index = editedProjectGroups.indexOf(group.groupType) { //UserDefaults obj contains project & group
-                print("[createDataObj] GROUP [\(group.groupType)] in PROJECT [\(projectTitle)] is in EDITED_PROJECTS! Setting indicator...")
+        if var editedProjects = NSUserDefaults.standardUserDefaults().valueForKey(EDITED_PROJECTS_KEY) as? [String: [String]] { //check if editedProjects contains 'projectTitle' & 'groupName'
+            if var editedProjectGroups = editedProjects[projectTitle], let index = editedProjectGroups.indexOf(group.groupName) { //UserDefaults obj contains project & group
+                print("[createDataObj] GROUP [\(group.groupName)] in PROJECT [\(projectTitle)] is in EDITED_PROJECTS! Setting indicator...")
                 dataObject.updateValue(true, forKey: "BMN_EDITED_PROJECT_FIRST_TRANSMISSION") //set indctr
-                editedProjectGroups.removeAtIndex(index) //remove group
+                editedProjectGroups.removeAtIndex(index) //remove Group from array
                 if !(editedProjectGroups.isEmpty) { //NOT empty - add array back -> dict
                     editedProjects.updateValue(editedProjectGroups, forKey: projectTitle)
                     NSUserDefaults.standardUserDefaults().setValue(editedProjects, forKey: EDITED_PROJECTS_KEY) //update UserDefaults
                     print("Removed object @ index \(index)!")
                 } else { //EMPTY - clear projectTitle from dict
-                    editedProjects.removeValueForKey(projectTitle)
+                    editedProjects.removeValueForKey(projectTitle) //remove key from dictionary
                     NSUserDefaults.standardUserDefaults().setValue(editedProjects, forKey: EDITED_PROJECTS_KEY) //update UserDefaults
-                    print("Array is empty - removed dict from UD Store.")
+                    print("Array is EMPTY - removed dict from UserDefaults Store.")
                 }
                 isEditProjectFlow = true //set local indicator
             }
