@@ -106,7 +106,6 @@ let BMN_CellWithCustomSlider_ProjectIsCCTypeKey = "CellWithCustomSlider_project_
 // MARK: - ConfigurationOptions Data Source Keys
 
 let BMN_Configuration_CellDescriptorKey = "configuration_cell_descriptor_key" //key for the cell's descriptor (the dictionary key used to identify each unique cell for configuration reporting)
-let BMN_Configuration_ReportCountKey = "configuration_report_count_key" //# of times var will report
 let BMN_Configuration_ReportCountID = "configuration_report_count_id" //stores report count in CoreData
 
 // MARK: - [MODULE] UI Setup Keys

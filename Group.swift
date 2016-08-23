@@ -66,7 +66,7 @@ class Group: NSManagedObject {
         print("\n[reconstructProjFromCD] Obtaining variables for location [\(locationInMeasurementCycle)] in measurement cycle...")
         var variablesForCurrentLocationInCycle = Dictionary<String, [String: AnyObject]>()
         for (variable, dict) in self.variables { //match variables -> locationInFlow
-            if let locations = dict[BMN_VariableReportLocationsKey] as? Set<Int> {
+            if let locations = dict[BMN_VariableReportLocationsKey] as? [Int] {
                 if (locations.contains(locationInMeasurementCycle)) { //var reports @ this location!
                     print("Added variable [\(variable)] to list of objects to report.")
                     variablesForCurrentLocationInCycle.updateValue(dict, forKey: variable) //add -> dict

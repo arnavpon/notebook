@@ -762,16 +762,18 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
             }
             
             if let groups = projectGroups {
+                var runCount = 1 //counts the # of Groups that were created
                 for group in groups { //create 1 group for each obj in projectGroups
                     let (groupName, groupType) = (group.0, group.1)
                     if let action = projectAction {
-                        let variablesDict = createCoreDataDictionary(projectVariables, project: project)
+                        let variablesDict = createCoreDataDictionary(projectVariables, project: project, runCount: runCount)
                         var timeDifferenceDict = Dictionary<String, [String: AnyObject]>()
                         if let timeDifferenceVars = timeDifferenceVariables { //check for TD vars
-                            timeDifferenceDict = createCoreDataDictionary(timeDifferenceVars, project: project) //construct CD representation
+                            timeDifferenceDict = createCoreDataDictionary(timeDifferenceVars, project: project, runCount: runCount) //construct CD representation
                         }
                         let _ = Group(groupName: groupName, groupType: groupType, project: project, action: action.constructCoreDataObjectForAction(), variables: variablesDict, cycleLength: measurementCycleLength, timeDifferenceVars: timeDifferenceDict, insertIntoManagedObjectContext: context) //create Group
                         print("Created group [\(groupName)] of type [\(groupType)].")
+                        runCount += 1 //increment runCounter
                     }
                 }
             }
@@ -793,18 +795,24 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
         presentViewController(controller, animated: true, completion: nil)
     }
     
-    private func createCoreDataDictionary(variableArray: [Module], project: Project) -> Dictionary<String, [String: AnyObject]> { //construct master dict for CoreData given array of user-created variables
+    private func createCoreDataDictionary(variableArray: [Module], project: Project, runCount: Int) -> Dictionary<String, [String: AnyObject]> { //construct master dict for CoreData given array of user-created variables
         var dictionary = Dictionary<String, [String: AnyObject]>()
         for variable in variableArray { //construct dict for each variable, KEY is variable's unique name
-            if let maxLocation = variable.reportLocations.maxElement() {
+            if let maxLocation = variable.reportLocations.maxElement() { //get the max reportLocation
                 if (maxLocation > measurementCycleLength) {
                     print("[createCoreDataDict] New max location = \(maxLocation)")
-                    measurementCycleLength = maxLocation //overwrite w/ new max
+                    measurementCycleLength = maxLocation //overwrite cycleLength w/ new max
                 }
             }
             if let custom = variable as? CustomModule { //check for Counter variables
                 if (custom.getTypeForVariable() == CustomModuleVariableTypes.Behavior_Counter) {
-                    let _ = Counter(linkedVar: custom, project: project, insertIntoManagedObjectContext: context) //create Counter obj for persistence
+                    if (project.projectType == ExperimentTypes.ControlComparison.rawValue) { //create ONLY 1 Counter for the entire Project (rather than 1 per Group)
+                        if (runCount == 1) { //ONLY create a Counter on the 1st run for CC project
+                            let _ = Counter(linkedVar: custom, project: project, insertIntoManagedObjectContext: context) //create persistent Counter obj
+                        }
+                    } else if (project.projectType == ExperimentTypes.InputOutput.rawValue) { //default
+                        let _ = Counter(linkedVar: custom, project: project, insertIntoManagedObjectContext: context) //create Counter obj for persistence
+                    }
                 }
             }
             dictionary[variable.variableName] = variable.createDictionaryForCoreDataStore()

@@ -208,7 +208,7 @@ class Project: NSManagedObject {
                     if (setup.0 == .DistanceFromAction) { //DistanceFromAction TD - compute value
                         if let currentGroup = self.reportingGroup {
                             let action = Action(settings: currentGroup.action)
-                            if let actionTimeStamp = action.actionTimeStamp {
+                            if let actionTimeStamp = action.actionTimeStamp { //get timeStamp for Action
                                 let currentTime = NSDate()
                                 let difference = currentTime.timeIntervalSinceDate(actionTimeStamp)
                                 print("[Project] DFA Var - Time Difference = [\(difference)] seconds!")
@@ -290,12 +290,12 @@ class Project: NSManagedObject {
             
             for (variable, reportedData) in dataObjectToDatabase { //add all items in DB object -> tempObj
                 var updatedDict = reportedData //set existing data
-                var mappedDict = Dictionary<Int, AnyObject>()
+                var mappedDict = Dictionary<String, AnyObject>() //key MUST be a STRING (for JSON)
                 if let newData = reportedData[BMN_Module_ReportedDataKey] {
-                    if let existingDict = temp[variable], existingData = existingDict[BMN_Module_ReportedDataKey] as? [Int: AnyObject] { //check for existing data
+                    if let existingDict = temp[variable], existingData = existingDict[BMN_Module_ReportedDataKey] as? [String: AnyObject] { //check for existing data
                         mappedDict = existingData //add existing data -> dict if it is present
                     }
-                    mappedDict.updateValue(newData, forKey: (timeStampsArray.count + 1)) //match newData to the current location in measurement cycle
+                    mappedDict.updateValue(newData, forKey: ("\(timeStampsArray.count + 1)")) //match newData to the current location in measurement cycle
                 }
                 updatedDict.updateValue(mappedDict, forKey: BMN_Module_ReportedDataKey) //each object's reported data must be matched to its location in the measurement cycle (used to cross reference the timeStamp for that measurement location)
                 self.temporaryStorageObject!.updateValue(updatedDict, forKey: variable)
@@ -316,9 +316,9 @@ class Project: NSManagedObject {
             }
             for (variable, reportedData) in dataObjectToDatabase { //store DB obj -> tempObj (KEY = var)
                 var updatedDict = reportedData
-                var mappedDict = Dictionary<Int, AnyObject>()
+                var mappedDict = Dictionary<String, AnyObject>() //key MUST be STRING (for JSON)
                 if let data = reportedData[BMN_Module_ReportedDataKey] {
-                    mappedDict[1] = data //match data to 1st position in measurement cycle
+                    mappedDict["1"] = data //match data to 1st position in measurement cycle
                 }
                 updatedDict.updateValue(mappedDict, forKey: BMN_Module_ReportedDataKey) //each object's reported data must be matched to its location in the measurement cycle (used to cross reference the timeStamp for that measurement location)
                 self.temporaryStorageObject!.updateValue(updatedDict, forKey: variable)
@@ -345,7 +345,7 @@ class Project: NSManagedObject {
                         let time2 = timeStamps[(loc2 - 1)]
                         let difference = abs(time2.timeIntervalSinceDate(time1)) //abs value
                         print("TD for variable [\(variable)] = [\(difference)] seconds.")
-                        updatedObject.updateValue(difference, forKey: variable) //add var -> DB object
+                        updatedObject.updateValue([BMN_Module_ReportedDataKey: difference], forKey: variable) //add var -> DB object
                     }
                 }
             }

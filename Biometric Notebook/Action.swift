@@ -64,7 +64,9 @@ struct Action { //used to create the project action from & store the project act
         } else {
             fatalError("[Action init] No qualifier count is set!")
         }
-        self.actionTimeStamp = settings[BMN_Action_ActionTimeStampKey] as? NSDate
+        if let timeAsInterval = settings[BMN_Action_ActionTimeStampKey] as? NSTimeInterval { //timeStamp is stored as TimeInterval - reconstruct NSDate object
+            self.actionTimeStamp = NSDate(timeIntervalSinceReferenceDate: timeAsInterval)
+        }
         self.qualifiersStoredData = settings[BMN_Action_QualifiersStoredDataKey] as? [String: [String: AnyObject]]
     }
     
@@ -79,7 +81,7 @@ struct Action { //used to create the project action from & store the project act
         coreDataObject[BMN_Action_EnumLocationKey] = actionLocation.rawValue
         coreDataObject[BMN_Action_LocationInCycleKey] = locationInMeasurementCycle
         coreDataObject[BMN_Action_OccursInEachCycleKey] = occursInEachCycle
-        coreDataObject[BMN_Action_ActionTimeStampKey] = actionTimeStamp //occurrence timeStamp
+        coreDataObject[BMN_Action_ActionTimeStampKey] = actionTimeStamp?.timeIntervalSinceReferenceDate //occurrence timeStamp (*store as TimeInterval b/c NSDate cannot be serialized for JSON!*)
         return coreDataObject
     }
 

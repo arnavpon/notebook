@@ -115,8 +115,11 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
         if let parent = dict[BMN_ComputationFramework_ComputationNameKey] as? String { //for GHOST vars
             self.parentComputation = parent //store parentComputation for ghost
         }
-        if let locations = dict[BMN_VariableReportLocationsKey] as? Set<Int> { //reset report locations
-            self.reportLocations = locations
+        if let locations = dict[BMN_VariableReportLocationsKey] as? [Int] { //reset report locations
+            self.reportLocations = Set<Int>() //clear before adding back values
+            for location in locations { //add each item in array -> set
+                self.reportLocations.insert(location)
+            }
         }
     }
     
@@ -165,10 +168,7 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
     // MARK: - Core Data Logic
     
     internal func createDictionaryForCoreDataStore() -> Dictionary<String, AnyObject> { //generates dictionary to be saved by CoreData (this dict will allow full reconstruction of the object)
-        var persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle, BMN_VariableReportTypeKey: self.variableReportType.rawValue, BMN_ConfigurationTypeKey: self.configurationType.rawValue, BMN_VariableReportLocationsKey: self.reportLocations]
-        if let count = reportCount { //store reportCount if it has been set
-            persistentDictionary[BMN_Configuration_ReportCountKey] = count
-        }
+        var persistentDictionary: [String: AnyObject] = [BMN_ModuleTitleKey: self.moduleTitle, BMN_VariableReportTypeKey: self.variableReportType.rawValue, BMN_ConfigurationTypeKey: self.configurationType.rawValue, BMN_VariableReportLocationsKey: self.reportLocations.sort()] //*save reportLocations as [Int] instead of Set b/c JSON can't serialize sets!*
         if let prompt = cellPrompt { //if prompt has been set, store it
             persistentDictionary[BMN_DataEntry_MainLabelPromptKey] = prompt
         }

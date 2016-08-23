@@ -364,7 +364,7 @@ class DatabaseConnection: DataReportingErrorProtocol {
         dataObject.updateValue(email, forKey: "BMN_EMAIL") //pass email (matches data -> correct DB)
         dataObject.updateValue(projectTitle, forKey: "BMN_PROJECT_TITLE") //pass project title
         dataObject.updateValue(reportedData, forKey: "BMN_DATABASE_OBJECT") //pass data object
-//        dataObject.updateValue(group.groupType, forKey: "BMN_GROUP_TYPE") //pass groupType**
+        dataObject.updateValue(group.groupType, forKey: "BMN_GROUP_TYPE") //pass group type
         dataObject.updateValue(group.groupName, forKey: "BMN_GROUP_NAME") //pass name (IDs reporting grp)
         
         var isEditProjectFlow: Bool = false //indicator
