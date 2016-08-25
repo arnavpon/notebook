@@ -53,7 +53,6 @@
 		B181F9CF1D63FA9100B7067D /* AddVariablesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B181F9CE1D63FA9100B7067D /* AddVariablesViewController.swift */; };
 		B189589F1C3A0C3700378E47 /* ConfigureModuleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */; };
 		B192626A1D010EE40093590E /* NutritionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19262691D010EE40093590E /* NutritionService.swift */; };
-		B19262701D0111B40093590E /* FoodIntakeForMealItemCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B192626F1D0111B40093590E /* FoodIntakeForMealItemCell.swift */; };
 		B1965A611C5C13B2003258DA /* CustomSliderBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */; };
 		B19857D11CF64947000FBF05 /* GhostVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19857D01CF64947000FBF05 /* GhostVariable.swift */; };
 		B19DF36D1CC57388008F44C4 /* CoreLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */; };
@@ -96,6 +95,11 @@
 		B1D0B2BA1C3F25F200C9438F /* Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B91C3F25F200C9438F /* Module.swift */; };
 		B1D0B2C21C3F29B400C9438F /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2C01C3F29B400C9438F /* Project.swift */; };
 		B1D3B13F1D6E7C6600A3554D /* ExM_WorkoutDataEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3B13E1D6E7C6600A3554D /* ExM_WorkoutDataEntryCell.swift */; };
+		B1D3B1411D6E8F3200A3554D /* FIM_FoodIntakeDataEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3B1401D6E8F3200A3554D /* FIM_FoodIntakeDataEntryCell.swift */; };
+		B1D3B1441D6E905200A3554D /* Datastream+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3B1421D6E905200A3554D /* Datastream+CoreDataProperties.swift */; };
+		B1D3B1451D6E905200A3554D /* Datastream.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3B1431D6E905200A3554D /* Datastream.swift */; };
+		B1D3B1481D6E90FE00A3554D /* ExM_ExerciseDataStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3B1471D6E90FE00A3554D /* ExM_ExerciseDataStream.swift */; };
+		B1D3B14A1D6E910D00A3554D /* FIM_FoodIntakeDataStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3B1491D6E910D00A3554D /* FIM_FoodIntakeDataStream.swift */; };
 		B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D4EA821C4D962100054A5F /* Project+CoreDataProperties.swift */; };
 		B1D51C581CB29CB500DED6B2 /* ActiveProjectsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C571CB29CB500DED6B2 /* ActiveProjectsViewController.swift */; };
 		B1D51C5A1CB29CC200DED6B2 /* ArchivedProjectsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C591CB29CC200DED6B2 /* ArchivedProjectsViewController.swift */; };
@@ -233,7 +237,6 @@
 		B181F9CE1D63FA9100B7067D /* AddVariablesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddVariablesViewController.swift; sourceTree = "<group>"; };
 		B189589E1C3A0C3700378E47 /* ConfigureModuleViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigureModuleViewController.swift; sourceTree = "<group>"; };
 		B19262691D010EE40093590E /* NutritionService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NutritionService.swift; sourceTree = "<group>"; };
-		B192626F1D0111B40093590E /* FoodIntakeForMealItemCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodIntakeForMealItemCell.swift; sourceTree = "<group>"; };
 		B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSliderBackgroundView.swift; sourceTree = "<group>"; };
 		B19857D01CF64947000FBF05 /* GhostVariable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GhostVariable.swift; sourceTree = "<group>"; };
 		B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreLocationManager.swift; sourceTree = "<group>"; };
@@ -275,6 +278,11 @@
 		B1D0B2B91C3F25F200C9438F /* Module.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Module.swift; sourceTree = "<group>"; };
 		B1D0B2C01C3F29B400C9438F /* Project.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Project.swift; path = ../Project.swift; sourceTree = "<group>"; };
 		B1D3B13E1D6E7C6600A3554D /* ExM_WorkoutDataEntryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExM_WorkoutDataEntryCell.swift; sourceTree = "<group>"; };
+		B1D3B1401D6E8F3200A3554D /* FIM_FoodIntakeDataEntryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FIM_FoodIntakeDataEntryCell.swift; sourceTree = "<group>"; };
+		B1D3B1421D6E905200A3554D /* Datastream+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Datastream+CoreDataProperties.swift"; path = "../Datastream+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		B1D3B1431D6E905200A3554D /* Datastream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Datastream.swift; path = ../Datastream.swift; sourceTree = "<group>"; };
+		B1D3B1471D6E90FE00A3554D /* ExM_ExerciseDataStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExM_ExerciseDataStream.swift; sourceTree = "<group>"; };
+		B1D3B1491D6E910D00A3554D /* FIM_FoodIntakeDataStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FIM_FoodIntakeDataStream.swift; sourceTree = "<group>"; };
 		B1D4EA821C4D962100054A5F /* Project+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Project+CoreDataProperties.swift"; path = "../Project+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		B1D51C571CB29CB500DED6B2 /* ActiveProjectsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveProjectsViewController.swift; sourceTree = "<group>"; };
 		B1D51C591CB29CC200DED6B2 /* ArchivedProjectsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArchivedProjectsViewController.swift; sourceTree = "<group>"; };
@@ -528,7 +536,7 @@
 		B192626C1D0110750093590E /* FoodIntake Mod Cells */ = {
 			isa = PBXGroup;
 			children = (
-				B192626F1D0111B40093590E /* FoodIntakeForMealItemCell.swift */,
+				B1D3B1401D6E8F3200A3554D /* FIM_FoodIntakeDataEntryCell.swift */,
 			);
 			name = "FoodIntake Mod Cells";
 			sourceTree = "<group>";
@@ -606,6 +614,7 @@
 			isa = PBXGroup;
 			children = (
 				B1BC886D1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld */,
+				B1D3B1461D6E90E100A3554D /* Data Stream */,
 				B1D0B2C01C3F29B400C9438F /* Project.swift */,
 				B1D4EA821C4D962100054A5F /* Project+CoreDataProperties.swift */,
 				B13BB7371CBEDDFE0084E640 /* Group.swift */,
@@ -656,6 +665,17 @@
 				B1D3B13E1D6E7C6600A3554D /* ExM_WorkoutDataEntryCell.swift */,
 			);
 			name = "Exercise Module Cells";
+			sourceTree = "<group>";
+		};
+		B1D3B1461D6E90E100A3554D /* Data Stream */ = {
+			isa = PBXGroup;
+			children = (
+				B1D3B1431D6E905200A3554D /* Datastream.swift */,
+				B1D3B1421D6E905200A3554D /* Datastream+CoreDataProperties.swift */,
+				B1D3B1471D6E90FE00A3554D /* ExM_ExerciseDataStream.swift */,
+				B1D3B1491D6E910D00A3554D /* FIM_FoodIntakeDataStream.swift */,
+			);
+			name = "Data Stream";
 			sourceTree = "<group>";
 		};
 		B1D51C641CB2A3AD00DED6B2 /* Supplements */ = {
@@ -931,6 +951,7 @@
 				B1F6F3BF1C518BEE001802A7 /* LoginViewController.swift in Sources */,
 				B1BC886F1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld in Sources */,
 				B1B681D81CA9E99C00D9CA71 /* DictionaryKeys.swift in Sources */,
+				B1D3B1441D6E905200A3554D /* Datastream+CoreDataProperties.swift in Sources */,
 				B1CFF7F41D3C2443000A782E /* PopupView.swift in Sources */,
 				B1D868D61C3F58810026334B /* Modules.swift in Sources */,
 				B192626A1D010EE40093590E /* NutritionService.swift in Sources */,
@@ -943,10 +964,12 @@
 				B1AA96CE1CAB2B5C0009E716 /* SimpleNumberConfigurationCell.swift in Sources */,
 				B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */,
 				B1D51C5C1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift in Sources */,
+				B1D3B1411D6E8F3200A3554D /* FIM_FoodIntakeDataEntryCell.swift in Sources */,
 				B120B8611D5F77F700A4098E /* TimeDifferenceConfigurationCell.swift in Sources */,
-				B19262701D0111B40093590E /* FoodIntakeForMealItemCell.swift in Sources */,
+				B1D3B14A1D6E910D00A3554D /* FIM_FoodIntakeDataStream.swift in Sources */,
 				B1D3B13F1D6E7C6600A3554D /* ExM_WorkoutDataEntryCell.swift in Sources */,
 				B1BE110E1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift in Sources */,
+				B1D3B1451D6E905200A3554D /* Datastream.swift in Sources */,
 				B12554151CC5C5A9006C2651 /* WeatherForecastService.swift in Sources */,
 				B12B9D881D28B86D00B78764 /* DatabaseObject.swift in Sources */,
 				B13CF67A1C2D93BA0019D315 /* AppDelegate.swift in Sources */,
@@ -988,6 +1011,7 @@
 				B1A8C7CD1CAF663300380E99 /* BaseDataEntryCell.swift in Sources */,
 				B1B996651CBF342700E977DF /* Counter+CoreDataProperties.swift in Sources */,
 				B1B996661CBF342700E977DF /* Counter.swift in Sources */,
+				B1D3B1481D6E90FE00A3554D /* ExM_ExerciseDataStream.swift in Sources */,
 				B1DD30671D32DB4B00B2361C /* DatabaseObject+CoreDataProperties.swift in Sources */,
 				B19DF3701CC58CAC008F44C4 /* NetworkConnection.swift in Sources */,
 				B13BB7391CBEDDFE0084E640 /* Group.swift in Sources */,

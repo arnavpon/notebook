@@ -1,4 +1,4 @@
-//  FoodIntakeForMealItemCell.swift
+//  FIM_FoodIntakeDataEntryCell.swift
 //  Biometric Notebook
 //  Created by Arnav Pondicherry  on 6/2/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class FoodIntakeForMealItemCell: BaseDataEntryCell, UITextFieldDelegate { //add new class -> enum!
+class FIM_FoodIntakeDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new class -> enum!
     
     override class var numberOfLevels: Int {
         return 2 //# of levels is dynamically calculated by enum (& depending on current view mode)
@@ -51,18 +51,18 @@ class FoodIntakeForMealItemCell: BaseDataEntryCell, UITextFieldDelegate { //add 
     // MARK: - Text Field
     
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-        return false 
+        return false
     }
     
     // MARK: - Data Reporting
     
     override func updateModuleReportObject() { //updates the Module dataSource's report object
         if let mod = self.module {
-//            if let convertedValue = mod.performConversionOnUserEnteredData(moduleReportObject) {
-//                //
-//            } else { //no conversion necessary
-//                //
-//            }
+            //            if let convertedValue = mod.performConversionOnUserEnteredData(moduleReportObject) {
+            //                //
+            //            } else { //no conversion necessary
+            //                //
+            //            }
         }
     }
     

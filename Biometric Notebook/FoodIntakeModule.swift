@@ -269,7 +269,7 @@ class FoodIntakeModule: Module {
         if let type = self.variableType {
             switch type {
             case .Behavior_FoodIntake:
-                return DataEntryCellTypes.FoodIntakeForMealItem
+                return DataEntryCellTypes.FIM_FoodIntake //use custom FoodIntake cell for data entry
             }
         }
         return nil

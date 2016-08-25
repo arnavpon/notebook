@@ -18,12 +18,15 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     var projects: [Project] = [] //list of activeProject objects (TV dataSource)
     var selectedProject: Project? //project object to pass on segue
     
+    var datastreamObjects: [Datastream]? //list of datastream objects
+    var selectedDatastream: Datastream? //datastream to pass on segue **
+    
     // MARK: - View Configuration
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //user is logged in
-            self.loggedIn = true
+        if (userDefaults.boolForKey(IS_LOGGED_IN_KEY) == true) { //check that user is logged in
+            self.loggedIn = true //set indicator
         }
         
         //Register TV dataSource & delegate:
@@ -41,31 +44,36 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             if (self.projects.isEmpty) { //empty state
                 configureActivityIndicator(true) //start spinning to indicate transition
                 activeProjectsTableView.hidden = true //hide TV until a project is present
-            } else {
+            } else { //default
                 activeProjectsTableView.hidden = false
-            }
-            activeProjectsTableView.reloadData() //reload UI w/ new project list (also clears highlight!)
-            userJustLoggedIn = false //reset the variable
-            
-            //(2) Obtain active counters & assign them to their respective Projects:
-            activeCounters = [] //clear dataSource before obtaining active Counters
-            let counters = fetchObjectsFromCoreDataStore("Counter", filterProperty: nil, filterValue: nil) as! [Counter] //fetch counters from CD
-            var idArray: [Int] = [] //array containing indexed counters
-            for counter in counters { //index the counters by their IDs (used for matching below)
-                idArray.append(counter.id as Int)
-            }
-            for project in self.projects { //assign Counters -> Project
-                var groupedCounters: [Counter] = [] //initialize
-                if let projectCounters = project.counters.allObjects as? [Counter] { //project has cntrs
-                    for item in projectCounters { //match each counter for the Project -> a CoreData obj
-                        let uniqueID = item.id as Int
-                        if let indexInArray = idArray.indexOf(uniqueID) { //find counterID in CD array
-                            groupedCounters.append(counters[indexInArray]) //add CD counter -> group
+                
+                //(2) Obtain active counters & assign them to their respective Projects:
+                activeCounters = [] //clear dataSource before obtaining active Counters
+                let counters = fetchObjectsFromCoreDataStore("Counter", filterProperty: nil, filterValue: nil) as! [Counter] //fetch counters from CD
+                var idArray: [Int] = [] //array containing indexed counters
+                for counter in counters { //index the counters by their IDs (used for matching below)
+                    idArray.append(counter.id as Int)
+                }
+                for project in self.projects { //assign Counters -> Project
+                    var groupedCounters: [Counter] = [] //initialize
+                    if let projectCounters = project.counters.allObjects as? [Counter] { //project has cntrs
+                        for item in projectCounters { //match each counter for the Project -> a CoreData obj
+                            let uniqueID = item.id as Int
+                            if let indexInArray = idArray.indexOf(uniqueID) { //find counterID in CD array
+                                groupedCounters.append(counters[indexInArray]) //add CD counter -> group
+                            }
                         }
                     }
+                    activeCounters.append(groupedCounters) //add -> dataSource @ end of loop
                 }
-                activeCounters.append(groupedCounters) //add -> dataSource @ end of loop
+                
+                //(3) Obtain dataStream objects (if they exist):
+                if let streams = fetchObjectsFromCoreDataStore("Datastream", filterProperty: nil, filterValue: nil) as? [Datastream] { //obtain open streams
+                    self.datastreamObjects = streams //set TV dataSource
+                }
+                activeProjectsTableView.reloadData() //reload UI w/ new project list (+ clears highlight!)
             }
+            userJustLoggedIn = false //reset the variable
             
             //***
             let count = fetchObjectsFromCoreDataStore("DatabaseObject", filterProperty: nil, filterValue: nil).count //**temp
@@ -321,15 +329,29 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     // MARK: - TV Data Source
     
     func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return self.projects.count //each project has its own section in the TV
+        var count = 0
+        if let _ = self.datastreamObjects { //check if datastream is present
+            count += 1 //add 1 section for the datastream
+        }
+        count += self.projects.count //each project has its own section in the TV
+        return count
     }
 
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        let projectTitle = projects[section].title
-        return "Project #\(section + 1) = '\(projectTitle)'"
+        if (self.datastreamObjects != nil) && (section == 0) { //check for datastream objects
+            return "Datastream"
+        } else { //default title - indicates Project # & title
+            let projectTitle = projects[section].title
+            return "Project #\(section + 1) = '\(projectTitle)'"
+        }
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if let streamObjects = self.datastreamObjects { //check if datastream exists
+            if (section == 0) {
+                return streamObjects.count //1 row per stream object
+            }
+        } //ELSE create default display - indicates Project # & title
         var total = 1 //default = 1 (for Project cell)
         total += projects[section].counters.count //add 1 cell per each counter in the Project
         return total

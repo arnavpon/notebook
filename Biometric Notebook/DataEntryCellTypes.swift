@@ -15,7 +15,8 @@ enum DataEntryCellTypes: String { //REGISTER each new enum type w/ TV in DataEnt
     case CustomWithCounter //Custom Module cell w/ counter
     case CustomWithOptions //Custom Module cell w/ options
     case CustomWithRangeScale //Custom Module cell w/ range scale
-    case FoodIntakeForMealItem //FoodIntake Module cell for meal items
+    case FIM_FoodIntake //FoodIntake Module cell for inputting meal data
+    case ExM_Workout //Exercise Module cell for inputting workout data
     
     func getHeightForDataEntryCell(userInfo: [String: AnyObject]) -> CGFloat { //calculates the height for a DataEntry cell given the input parameters (stored against function-specific keys)
         let levelHeight: CGFloat = LevelsFrameworkCell.levelHeight
@@ -42,8 +43,10 @@ enum DataEntryCellTypes: String { //REGISTER each new enum type w/ TV in DataEnt
             numberOfLevels = CustomWithCounterCell.numberOfLevels
         case .CustomWithRangeScale:
             numberOfLevels = CustomWithRangeScaleCell.numberOfLevels
-        case .FoodIntakeForMealItem:
-            numberOfLevels = FoodIntakeForMealItemCell.numberOfLevels //**
+        case .FIM_FoodIntake:
+            numberOfLevels = FIM_FoodIntakeDataEntryCell.numberOfLevels
+        case .ExM_Workout:
+            numberOfLevels = 0 //**
         }
         return levelHeight * CGFloat(numberOfLevels) + BMN_DefaultBottomSpacer //default height
     }

@@ -18,10 +18,8 @@ class UniqueIDs: NSManagedObject {
         let existingInstances = fetchObjectsFromCoreDataStore("UniqueIDs", filterProperty: nil, filterValue: nil) as! [UniqueIDs] //fetch instances
         if (existingInstances.isEmpty) { //NO instance exists yet (1st run)
             instance = UniqueIDs(insertIntoManagedObjectContext: context)
-            let id = instance.objectID.description
         } else if (existingInstances.count == 1) { //single sharedInstance exists
             instance = existingInstances.first!
-            let id = instance.objectID.description
         } else { //fatal error, more than 1 instance
             print("[UniqueIDs sharedInstance] Fatal Error! More than 1 instance was found in store!")
             abort()

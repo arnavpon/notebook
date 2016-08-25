@@ -93,7 +93,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         dataEntryTV.registerClass(CustomWithOptionsCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithOptionsCell))
         dataEntryTV.registerClass(CustomWithCounterCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithCounterCell))
         dataEntryTV.registerClass(CustomWithRangeScaleCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithRangeScaleCell))
-        dataEntryTV.registerClass(FoodIntakeForMealItemCell.self, forCellReuseIdentifier: NSStringFromClass(FoodIntakeForMealItemCell))
+        dataEntryTV.registerClass(FIM_FoodIntakeDataEntryCell.self, forCellReuseIdentifier: NSStringFromClass(FIM_FoodIntakeDataEntryCell))
     }
     
     override func viewDidAppear(animated: Bool) {
@@ -437,8 +437,10 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithCounterCell), forIndexPath: indexPath) as! CustomWithCounterCell
                 case .CustomWithRangeScale:
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithRangeScaleCell), forIndexPath: indexPath) as! CustomWithRangeScaleCell
-                case .FoodIntakeForMealItem:
-                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(FoodIntakeForMealItemCell), forIndexPath: indexPath) as! FoodIntakeForMealItemCell
+                case .FIM_FoodIntake:
+                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(FIM_FoodIntakeDataEntryCell), forIndexPath: indexPath) as! FIM_FoodIntakeDataEntryCell
+                case .ExM_Workout:
+                    break //**
                 }
             }
             if let project = self.selectedProject, temp = project.temporaryStorageObject, timeStampsArray = temp[BMN_DBO_TimeStampKey] as? [NSDate] { //check for location in tempObject
