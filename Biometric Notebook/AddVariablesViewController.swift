@@ -171,9 +171,9 @@ class AddVariablesViewController: UIViewController, UITableViewDataSource, UITab
                             ghostVariables![varToDelete.variableName] = nil
                         }
                         if let alternateValueForBlocker = varToDelete.specialTypeForDynamicConfigFramework() { //use alternate value
-                            moduleBlocker.variableWasDeleted(.InputVariable, selectedFunctionality: alternateValueForBlocker)
+                            moduleBlocker.variableWasDeleted(.InputVariable, selectedFunctionalities: alternateValueForBlocker)
                         } else { //NO special type - use selectedFunctionality
-                            moduleBlocker.variableWasDeleted(.InputVariable, selectedFunctionality: functionality)
+                            moduleBlocker.variableWasDeleted(.InputVariable, selectedFunctionalities: [functionality])
                         }
                     }
                     inputVariables!.removeAtIndex(indexPath.row)
@@ -188,9 +188,9 @@ class AddVariablesViewController: UIViewController, UITableViewDataSource, UITab
                             ghostVariables![varToDelete.variableName] = nil
                         }
                         if let alternateValueForBlocker = varToDelete.specialTypeForDynamicConfigFramework() { //use alternate value
-                            moduleBlocker.variableWasDeleted(.OutcomeMeasure, selectedFunctionality: alternateValueForBlocker)
+                            moduleBlocker.variableWasDeleted(.OutcomeMeasure, selectedFunctionalities: alternateValueForBlocker)
                         } else { //NO special type - use selectedFunctionality
-                            moduleBlocker.variableWasDeleted(.OutcomeMeasure, selectedFunctionality: functionality)
+                            moduleBlocker.variableWasDeleted(.OutcomeMeasure, selectedFunctionalities: [functionality])
                         }
                     }
                     outcomeMeasures!.removeAtIndex(indexPath.row)
@@ -283,16 +283,16 @@ class AddVariablesViewController: UIViewController, UITableViewDataSource, UITab
             if (variable.configurationType == .OutcomeMeasure) { //OM -> OM dataSource
                 outcomeMeasures!.append(variable)
                 if let alternateValueForBlocker = variable.specialTypeForDynamicConfigFramework() {
-                    self.moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionality: alternateValueForBlocker) //use alternate type for blocker if it exists
+                    self.moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionalities: alternateValueForBlocker) //use alternate type for blocker if it exists
                 } else { //NO special type - used selectedFunctionality
-                    self.moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionality: typeName)
+                    self.moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionalities: [typeName])
                 }
             } else if (variable.configurationType == .InputVariable) { //IV -> IV dataSource
                 inputVariables!.append(variable)
                 if let alternateValueForBlocker = variable.specialTypeForDynamicConfigFramework() {
-                    self.moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionality: alternateValueForBlocker) //use alternate type for blocker if it exists
+                    self.moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionalities: alternateValueForBlocker) //use alternate type for blocker if it exists
                 } else { //NO special type - used selectedFunctionality
-                    self.moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionality: typeName)
+                    self.moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionalities: [typeName])
                 }
             }
             variablesTableView.reloadData()

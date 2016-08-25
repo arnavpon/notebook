@@ -67,7 +67,6 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
         optionsTableView.registerClass(CustomOptionsConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(CustomOptionsConfigurationCell)) //custom options
         optionsTableView.registerClass(TimeDifferenceConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(TimeDifferenceConfigurationCell)) //computations cell
         optionsTableView.registerClass(ExampleConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(ExampleConfigurationCell)) //example
-        optionsTableView.registerClass(ExM_WorkoutConfigurationCell.self, forCellReuseIdentifier: NSStringFromClass(ExM_WorkoutConfigurationCell)) //exercise module - workout
     }
     
     override func viewWillDisappear(animated: Bool) { //remove observer befor exiting this VC
@@ -178,8 +177,6 @@ class ConfigurationOptionsViewController: UIViewController, UITableViewDelegate,
             (cell as! TimeDifferenceConfigurationCell).availableVariables = self.existingVariables //pass all existing variables -> cell** pass measurement cycle sections
         case .Example:
             cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExampleConfigurationCell)) as! ExampleConfigurationCell
-        case .ExM_Workout:
-            cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExM_WorkoutConfigurationCell)) as! ExM_WorkoutConfigurationCell
         }
         cell.dataSource = dataSource[indexPath.row].1 //set cell's dataSource
         return cell

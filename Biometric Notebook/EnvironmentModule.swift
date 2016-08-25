@@ -152,7 +152,7 @@ class EnvironmentModule: Module {
                 
                 //1 config cell is needed (SelectFromOptions):
                 let options = [EnvironmentModule_WeatherOptions.Temperature.rawValue, EnvironmentModule_WeatherOptions.ApparentTemperature.rawValue, EnvironmentModule_WeatherOptions.Humidity.rawValue, EnvironmentModule_WeatherOptions.WindSpeed.rawValue, EnvironmentModule_WeatherOptions.Ozone.rawValue, EnvironmentModule_WeatherOptions.BarometricPressure.rawValue, EnvironmentModule_WeatherOptions.CloudCover.rawValue, EnvironmentModule_WeatherOptions.SunriseTime.rawValue, EnvironmentModule_WeatherOptions.SunsetTime.rawValue, EnvironmentModule_WeatherOptions.WeatherCondition.rawValue] //enum opts
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_EnvironmentModule_Weather_OptionsID, BMN_LEVELS_MainLabelKey: "Select 1 or more kinds of weather data you want to capture with this variable:", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_MultipleSelectionEnabledKey: true])) //cell that contains granular weather selection options
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_EnvironmentModule_Weather_SelectedOptionsKey, BMN_LEVELS_MainLabelKey: "Select 1 or more kinds of weather data you want to capture with this variable:", BMN_SelectFromOptions_OptionsKey: options, BMN_SelectFromOptions_MultipleSelectionEnabledKey: true])) //cell that contains granular weather selection options
                 
                 configurationOptionsLayoutObject!.appendContentsOf(array)
                 
@@ -172,7 +172,7 @@ class EnvironmentModule: Module {
             switch type { //only needed for sections that require configuration
             case .Behavior_Weather: //incoming data - selection of subsets of weather data
                 
-                if let options = configurationData[BMN_EnvironmentModule_Weather_OptionsID] as? [String] { //get selected options
+                if let options = configurationData[BMN_EnvironmentModule_Weather_SelectedOptionsKey] as? [String] { //get selected options
                     self.selectedWeatherOptions = [] //clear array before proceeding
                     for option in options {
                         if let weatherOption = EnvironmentModule_WeatherOptions(rawValue: option) {

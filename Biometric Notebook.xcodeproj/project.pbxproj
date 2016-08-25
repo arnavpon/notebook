@@ -58,7 +58,6 @@
 		B19857D11CF64947000FBF05 /* GhostVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19857D01CF64947000FBF05 /* GhostVariable.swift */; };
 		B19DF36D1CC57388008F44C4 /* CoreLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */; };
 		B19DF3701CC58CAC008F44C4 /* NetworkConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555801C3068FD00C20742 /* NetworkConnection.swift */; };
-		B19F16561D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19F16551D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift */; };
 		B19F16581D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19F16571D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift */; };
 		B1A7C62E1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */; };
 		B1A8C7C71CAF640300380E99 /* CustomWithRangeScaleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */; };
@@ -96,6 +95,7 @@
 		B1D0B2B81C3F25BC00C9438F /* ExerciseModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */; };
 		B1D0B2BA1C3F25F200C9438F /* Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B91C3F25F200C9438F /* Module.swift */; };
 		B1D0B2C21C3F29B400C9438F /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2C01C3F29B400C9438F /* Project.swift */; };
+		B1D3B13F1D6E7C6600A3554D /* ExM_WorkoutDataEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3B13E1D6E7C6600A3554D /* ExM_WorkoutDataEntryCell.swift */; };
 		B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D4EA821C4D962100054A5F /* Project+CoreDataProperties.swift */; };
 		B1D51C581CB29CB500DED6B2 /* ActiveProjectsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C571CB29CB500DED6B2 /* ActiveProjectsViewController.swift */; };
 		B1D51C5A1CB29CC200DED6B2 /* ArchivedProjectsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C591CB29CC200DED6B2 /* ArchivedProjectsViewController.swift */; };
@@ -237,7 +237,6 @@
 		B1965A601C5C13B2003258DA /* CustomSliderBackgroundView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomSliderBackgroundView.swift; sourceTree = "<group>"; };
 		B19857D01CF64947000FBF05 /* GhostVariable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GhostVariable.swift; sourceTree = "<group>"; };
 		B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreLocationManager.swift; sourceTree = "<group>"; };
-		B19F16551D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExM_WorkoutConfigurationCell.swift; sourceTree = "<group>"; };
 		B19F16571D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectFromDropdownConfigurationCell.swift; sourceTree = "<group>"; };
 		B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectFromOptionsConfigurationCell.swift; sourceTree = "<group>"; };
 		B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithRangeScaleCell.swift; sourceTree = "<group>"; };
@@ -275,6 +274,7 @@
 		B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExerciseModule.swift; sourceTree = "<group>"; };
 		B1D0B2B91C3F25F200C9438F /* Module.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Module.swift; sourceTree = "<group>"; };
 		B1D0B2C01C3F29B400C9438F /* Project.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Project.swift; path = ../Project.swift; sourceTree = "<group>"; };
+		B1D3B13E1D6E7C6600A3554D /* ExM_WorkoutDataEntryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExM_WorkoutDataEntryCell.swift; sourceTree = "<group>"; };
 		B1D4EA821C4D962100054A5F /* Project+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Project+CoreDataProperties.swift"; path = "../Project+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		B1D51C571CB29CB500DED6B2 /* ActiveProjectsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveProjectsViewController.swift; sourceTree = "<group>"; };
 		B1D51C591CB29CC200DED6B2 /* ArchivedProjectsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArchivedProjectsViewController.swift; sourceTree = "<group>"; };
@@ -520,7 +520,6 @@
 				B19F16571D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift */,
 				B1E1E13F1CB6A8B1001B46BD /* CustomOptionsConfigurationCell.swift */,
 				B120B8601D5F77F700A4098E /* TimeDifferenceConfigurationCell.swift */,
-				B19F16551D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift */,
 				B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */,
 			);
 			name = "Config Options TV Cells";
@@ -561,6 +560,7 @@
 				B12803B41CE413420022777C /* DataEntryCellWithPicker.swift */,
 				B1A8C7CE1CAF685100380E99 /* Custom Module Cells */,
 				B192626C1D0110750093590E /* FoodIntake Mod Cells */,
+				B1D3B13D1D6E7C0000A3554D /* Exercise Module Cells */,
 			);
 			name = "Data Entry TV Cells";
 			sourceTree = "<group>";
@@ -648,6 +648,14 @@
 				B1288DBA1D456D180015D319 /* RecipeModule.swift */,
 			);
 			name = Modules;
+			sourceTree = "<group>";
+		};
+		B1D3B13D1D6E7C0000A3554D /* Exercise Module Cells */ = {
+			isa = PBXGroup;
+			children = (
+				B1D3B13E1D6E7C6600A3554D /* ExM_WorkoutDataEntryCell.swift */,
+			);
+			name = "Exercise Module Cells";
 			sourceTree = "<group>";
 		};
 		B1D51C641CB2A3AD00DED6B2 /* Supplements */ = {
@@ -937,6 +945,7 @@
 				B1D51C5C1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift in Sources */,
 				B120B8611D5F77F700A4098E /* TimeDifferenceConfigurationCell.swift in Sources */,
 				B19262701D0111B40093590E /* FoodIntakeForMealItemCell.swift in Sources */,
+				B1D3B13F1D6E7C6600A3554D /* ExM_WorkoutDataEntryCell.swift in Sources */,
 				B1BE110E1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift in Sources */,
 				B12554151CC5C5A9006C2651 /* WeatherForecastService.swift in Sources */,
 				B12B9D881D28B86D00B78764 /* DatabaseObject.swift in Sources */,
@@ -952,7 +961,6 @@
 				B1ABBEA01D31786B00C89A03 /* LoginHandler.swift in Sources */,
 				B1D51C5A1CB29CC200DED6B2 /* ArchivedProjectsViewController.swift in Sources */,
 				B11B92211C52D9BE0079A535 /* CustomTextView.swift in Sources */,
-				B19F16561D3B114800B22CD4 /* ExM_WorkoutConfigurationCell.swift in Sources */,
 				B1C42F7A1CCFA40800F27DDF /* DataReportingErrorProtocol.swift in Sources */,
 				B1B98BDC1C39925900DDACEE /* AttachModuleViewController.swift in Sources */,
 				B181F9CF1D63FA9100B7067D /* AddVariablesViewController.swift in Sources */,

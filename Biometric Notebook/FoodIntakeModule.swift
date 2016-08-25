@@ -28,7 +28,7 @@ class FoodIntakeModule: Module {
         return tempObject
     }
     
-    private let foodIntakeModuleBehaviors: [FoodIntakeModuleVariableTypes] = [FoodIntakeModuleVariableTypes.MealItem]
+    private let foodIntakeModuleBehaviors: [FoodIntakeModuleVariableTypes] = [FoodIntakeModuleVariableTypes.Behavior_FoodIntake]
     override func setBehaviors() -> [String]? {
         var behaviorTitles: [String] = []
         
@@ -86,6 +86,7 @@ class FoodIntakeModule: Module {
     }
     
     lazy var nutritionCategories: [FoodIntakeModule_NutritionCategories] = [] //set by the user - lists the categories of information that the user wants to store data for (e.g. Calories, Fat, etc.)
+    var selectedDataStreamLocations: [FoodIntakeModule_DataStreamLocations]? //set by the user - indicates the portion(s) of the dataStream from which to pull data for this variable
     
     // MARK: - Initializers
     
@@ -106,6 +107,15 @@ class FoodIntakeModule: Module {
             }
             print("[FoodIntake Init] # of saved categories = \(nutritionCategories.count).")
         }
+        if let locations = dict[BMN_FoodIntakeModule_DataStreamLocationsKey] as? [String] {
+            self.selectedDataStreamLocations = [] //initialize
+            for locationRaw in locations {
+                if let location = FoodIntakeModule_DataStreamLocations(rawValue: locationRaw) {
+                    self.selectedDataStreamLocations!.append(location)
+                }
+            }
+            print("[FoodIntake Init] Locations to access = \(selectedDataStreamLocations!).")
+        }
     }
     
     override func copyWithZone(zone: NSZone) -> AnyObject { //creates copy of variable
@@ -122,33 +132,94 @@ class FoodIntakeModule: Module {
         if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
             var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = [] //pass -> VC (CustomCellType, cell's dataSource)
             switch type {
-            case .MealItem:
+            case .Behavior_FoodIntake:
                 
-                let categories: [String] = [FoodIntakeModule_NutritionCategories.Calories.rawValue, FoodIntakeModule_NutritionCategories.Water.rawValue, FoodIntakeModule_NutritionCategories.Protein.rawValue, FoodIntakeModule_NutritionCategories.TotalSugar.rawValue, FoodIntakeModule_NutritionCategories.DietaryFiber.rawValue, FoodIntakeModule_NutritionCategories.TotalFat.rawValue, FoodIntakeModule_NutritionCategories.SaturatedFat.rawValue, FoodIntakeModule_NutritionCategories.MonounsaturatedFat.rawValue, FoodIntakeModule_NutritionCategories.PolyunsaturatedFat.rawValue, FoodIntakeModule_NutritionCategories.Cholesterol.rawValue, FoodIntakeModule_NutritionCategories.TransFat.rawValue, FoodIntakeModule_NutritionCategories.Calcium.rawValue, FoodIntakeModule_NutritionCategories.Iron.rawValue, FoodIntakeModule_NutritionCategories.Magnesium.rawValue, FoodIntakeModule_NutritionCategories.Potassium.rawValue, FoodIntakeModule_NutritionCategories.Phosphorus.rawValue, FoodIntakeModule_NutritionCategories.Sodium.rawValue, FoodIntakeModule_NutritionCategories.Zinc.rawValue, FoodIntakeModule_NutritionCategories.VitaminB1.rawValue, FoodIntakeModule_NutritionCategories.VitaminB2.rawValue, FoodIntakeModule_NutritionCategories.VitaminB3.rawValue, FoodIntakeModule_NutritionCategories.VitaminB6.rawValue, FoodIntakeModule_NutritionCategories.Folate.rawValue, FoodIntakeModule_NutritionCategories.VitaminB12.rawValue, FoodIntakeModule_NutritionCategories.VitaminC.rawValue, FoodIntakeModule_NutritionCategories.VitaminD.rawValue, FoodIntakeModule_NutritionCategories.VitaminA.rawValue, FoodIntakeModule_NutritionCategories.VitaminK.rawValue, FoodIntakeModule_NutritionCategories.VitaminE.rawValue, FoodIntakeModule_NutritionCategories.Caffeine.rawValue] //available nutrition categories
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_FoodIntakeModule_NutritionCategoriesID, BMN_LEVELS_MainLabelKey: "Select the nutrition categories for which you want to obtain data:", BMN_SelectFromOptions_OptionsKey: categories, BMN_SelectFromOptions_DefaultOptionsKey: [FoodIntakeModule_NutritionCategories.Calories.rawValue], BMN_SelectFromOptions_MultipleSelectionEnabledKey: true])) //nutrition categories, default is CALORIES
+                //Set filters (exclude dataStream locations using ModuleBlocker class):
+                let availableOptions = [FoodIntakeModule_DataStreamLocations.Full, FoodIntakeModule_DataStreamLocations.Breakfast, FoodIntakeModule_DataStreamLocations.Lunch, FoodIntakeModule_DataStreamLocations.Dinner, FoodIntakeModule_DataStreamLocations.Snack, FoodIntakeModule_DataStreamLocations.PreWorkout, FoodIntakeModule_DataStreamLocations.PostWorkout] //list of ALL options
+                var filteredOptions: [String] = [] //used by ConfigOptions object
+                
+                var filteredTypes = Set<FoodIntakeModule_DataStreamLocations>()
+                if let blocker = moduleBlocker {
+                    let filters = blocker.getFilteredTypesForModule(Modules.FoodIntakeModule)
+                    for filter in filters {
+                        if let enumValue = FoodIntakeModule_DataStreamLocations(rawValue: filter) {
+                            filteredTypes.insert(enumValue)
+                        }
+                    }
+                }
+                for option in availableOptions {
+                    if !(filteredTypes.contains(option)) { //exclude filtered varTypes
+                        filteredOptions.append(option.rawValue)
+                    }
+                }
+                
+                //(1) User must select which portions of the dataStream to pull data from:
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_FoodIntakeModule_DataStreamLocationsKey, BMN_LEVELS_MainLabelKey: "Choose the meals for which you would like to include nutrition data:", BMN_SelectFromOptions_OptionsKey: filteredOptions, BMN_SelectFromOptions_MultipleSelectionEnabledKey: true]))
+                
+                //(2) User must select the nutrition categories of interest:
+                let categories: [String] = [FoodIntakeModule_NutritionCategories.Calories.rawValue, FoodIntakeModule_NutritionCategories.Water.rawValue, FoodIntakeModule_NutritionCategories.Protein.rawValue, FoodIntakeModule_NutritionCategories.TotalSugar.rawValue, FoodIntakeModule_NutritionCategories.DietaryFiber.rawValue, FoodIntakeModule_NutritionCategories.TotalFat.rawValue, FoodIntakeModule_NutritionCategories.SaturatedFat.rawValue, FoodIntakeModule_NutritionCategories.MonounsaturatedFat.rawValue, FoodIntakeModule_NutritionCategories.PolyunsaturatedFat.rawValue, FoodIntakeModule_NutritionCategories.Cholesterol.rawValue, FoodIntakeModule_NutritionCategories.TransFat.rawValue, FoodIntakeModule_NutritionCategories.Calcium.rawValue, FoodIntakeModule_NutritionCategories.Iron.rawValue, FoodIntakeModule_NutritionCategories.Magnesium.rawValue, FoodIntakeModule_NutritionCategories.Potassium.rawValue, FoodIntakeModule_NutritionCategories.Phosphorus.rawValue, FoodIntakeModule_NutritionCategories.Sodium.rawValue, FoodIntakeModule_NutritionCategories.Zinc.rawValue, FoodIntakeModule_NutritionCategories.VitaminB1.rawValue, FoodIntakeModule_NutritionCategories.VitaminB2.rawValue, FoodIntakeModule_NutritionCategories.VitaminB3.rawValue, FoodIntakeModule_NutritionCategories.VitaminB6.rawValue, FoodIntakeModule_NutritionCategories.Folate.rawValue, FoodIntakeModule_NutritionCategories.VitaminB12.rawValue, FoodIntakeModule_NutritionCategories.VitaminC.rawValue, FoodIntakeModule_NutritionCategories.VitaminD.rawValue, FoodIntakeModule_NutritionCategories.VitaminA.rawValue, FoodIntakeModule_NutritionCategories.VitaminK.rawValue, FoodIntakeModule_NutritionCategories.VitaminE.rawValue, FoodIntakeModule_NutritionCategories.Caffeine.rawValue]
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_FoodIntakeModule_NutritionCategoriesKey, BMN_LEVELS_MainLabelKey: "Select the nutrition categories for which you want to obtain data:", BMN_SelectFromOptions_OptionsKey: categories, BMN_SelectFromOptions_DefaultOptionsKey: [FoodIntakeModule_NutritionCategories.Calories.rawValue], BMN_SelectFromOptions_MultipleSelectionEnabledKey: true])) //nutrition categories, default is CALORIES
                 
                 configurationOptionsLayoutObject = array
-                
+        
             }
         }
     }
     
     override func matchConfigurationItemsToProperties(configurationData: [String : AnyObject]) -> (Bool, String?, [String]?) {
+        let superclassReturnVal = super.matchConfigurationItemsToProperties(configurationData)
+        if (superclassReturnVal.0 == false) { //if checks are failed @ superclass lvl, return super obj
+            return superclassReturnVal
+        }
         if let type = variableType {
             switch type {
-            case .MealItem: //obtain selected nutrition categories & add them -> module property
-                if let rawSelections = configurationData[BMN_FoodIntakeModule_NutritionCategoriesID] as? [String] {
+            case .Behavior_FoodIntake: //obtain selected nutrition categories & add -> module property
+                if let rawCategorySelections = configurationData[BMN_FoodIntakeModule_NutritionCategoriesKey] as? [String] {
                     self.nutritionCategories = [] //clear array
-                    for selection in rawSelections {
+                    for selection in rawCategorySelections {
                         if let category = FoodIntakeModule_NutritionCategories(rawValue: selection) {
                             nutritionCategories.append(category)
                         }
                     }
-                    return (true, nil, nil)
+                } else {
+                    return (false, "No categories were selected!", nil)
                 }
+                if let rawStreamLocations = configurationData[BMN_FoodIntakeModule_DataStreamLocationsKey] as? [String] { //get user-selected dataStream locations
+                    self.selectedDataStreamLocations = [] //initialize
+                    for location in rawStreamLocations {
+                        if let dataStreamLocation = FoodIntakeModule_DataStreamLocations(rawValue: location) {
+                            if (dataStreamLocation == .Full) { //selection of 'Full' overrides everything
+                                selectedDataStreamLocations = [FoodIntakeModule_DataStreamLocations.Full]
+                                return (true, nil, nil) //*terminate fx @ this point*
+                            } else {
+                                selectedDataStreamLocations!.append(dataStreamLocation)
+                            }
+                        }
+                    }
+                } else {
+                    return (false, "No data stream locations!", nil)
+                }
+                return (true, nil, nil)
             }
         }
         return (false, "No option was selected!", nil)
+    }
+    
+    override func specialTypeForDynamicConfigFramework() -> [String]? {
+        if let type = self.getTypeForVariable() {
+            switch type {
+            case .Behavior_FoodIntake: //return ALL of the selected locations in the dataStream -> blocker
+                if let dataStreamLocations = selectedDataStreamLocations {
+                    var specialTypes: [String] = []
+                    for location in dataStreamLocations {
+                        specialTypes.append(location.rawValue)
+                    }
+                    print("[var {\(self.variableName)}] Setting special type(s) [\(specialTypes)]...")
+                    return specialTypes
+                }
+            }
+        }
+        return nil
     }
     
     // MARK: - Core Data Logic
@@ -159,7 +230,15 @@ class FoodIntakeModule: Module {
         //Set the coreData dictionary ONLY w/ USER-ENTERED configuration information for selected varType:
         if let type = variableType {
             switch type {
-            case .MealItem: //store the selected categories
+            case .Behavior_FoodIntake: //store the selected categories & dataStream locations
+                if let streamLocations = selectedDataStreamLocations {
+                    var rawStreamLocations: [String] = []
+                    for location in streamLocations {
+                        rawStreamLocations.append(location.rawValue)
+                    }
+                    persistentDictionary[BMN_FoodIntakeModule_DataStreamLocationsKey] = rawStreamLocations
+                }
+                
                 var categoriesAsString: [String] = []
                 for category in nutritionCategories { //store categories as rawValues
                     categoriesAsString.append(category.rawValue)
@@ -179,7 +258,7 @@ class FoodIntakeModule: Module {
     override var cellHeightUserInfo: [String : AnyObject]? { //provides info to set height for TV cell
         if let type = variableType {
             switch type {
-            case .MealItem: //depending on # of categories, return a height for TV cell
+            case .Behavior_FoodIntake: //depending on # of categories, return a height for TV cell
                 break
             }
         }
@@ -189,7 +268,7 @@ class FoodIntakeModule: Module {
     override func getDataEntryCellTypeForVariable() -> DataEntryCellTypes? { //indicates to DataEntryVC what kind of DataEntry cell should be used for this variable
         if let type = self.variableType {
             switch type {
-            case .MealItem:
+            case .Behavior_FoodIntake:
                 return DataEntryCellTypes.FoodIntakeForMealItem
             }
         }
@@ -218,13 +297,13 @@ class FoodIntakeModule: Module {
 }
 
 enum FoodIntakeModuleVariableTypes: String { //*match each behavior/computation -> Configuration + DataEntry custom TV cells; for each new behavior/comp added, you must also add (1) Configuration logic, (2) Core Data storage logic (so the variable config can be preserved), (3) Unpacking logic (in the DataEntry initializer), & (4) DataEntry logic (enabling the user to report info).* 
-    case MealItem = "Meal Item" //single cell that allows the user to aggregate all desired nutritional information (based on setup) for a given meal.
+    case Behavior_FoodIntake = "Food Intake" //single cell that allows the user to aggregate all desired nutritional information (based on setup) for a given meal.
     
     func getAlertMessageForVariable() -> String {
         var message = ""
         switch self {
-        case .MealItem:
-            message = "Allows you to enter all of the items you consumed during a single meal."
+        case .Behavior_FoodIntake:
+            message = "Allows you to track nutrition data for the foods that were consumed during 1 or more meals."
         }
         return message
     }
@@ -346,4 +425,14 @@ enum FoodIntakeModule_NutritionCategories: String {
             return 262
         }
     }
+}
+
+enum FoodIntakeModule_DataStreamLocations: String { //locations of data stream from which to pull data
+    case Full = "Full Day"
+    case Breakfast = "Breakfast"
+    case Lunch = "Lunch"
+    case Dinner = "Dinner"
+    case Snack = "Snack"
+    case PreWorkout = "Pre-Workout"
+    case PostWorkout = "Post-Workout"
 }

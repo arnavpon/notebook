@@ -40,39 +40,79 @@ class Module_DynamicConfigurationFramework {
         }
     }
     
-    func variableWasCreated(type: ModuleConfigurationTypes, selectedFunctionality: String) {
+//    func variableWasCreated(type: ModuleConfigurationTypes, selectedFunctionality: String) {
+//        let key = getKeyForConfigType(type)
+//        if let typesWithCount = existingVariables[key] {
+//            var temp = typesWithCount //create temp obj for updating
+//            if let count = typesWithCount[selectedFunctionality] { //variable already exists
+//                let newCount = count + 1 //increment count
+//                temp[selectedFunctionality] = newCount //update count for the existing typeName
+//                print("[\(selectedFunctionality)] Var EXISTS! New Count: \(newCount).")
+//            } else { //new variable name
+//                temp[selectedFunctionality] = 1 //make new entry for typeName
+//                print("Creating NEW entry for variable type: [\(selectedFunctionality)] @ LOCATION = [\(key)]...")
+//            }
+//            existingVariables[key] = temp //update real dictionary w/ temp
+//        }
+//    }
+//    
+//    func variableWasDeleted(type: ModuleConfigurationTypes, selectedFunctionality: String) {
+//        let key = getKeyForConfigType(type)
+//        if let typesWithCount = existingVariables[key] {
+//            var temp = typesWithCount //create temp obj for updating
+//            if let count = typesWithCount[selectedFunctionality] { //variable already exists
+//                let newCount = count - 1 //increment count
+//                if !(newCount == 0) { //some other variables are still present
+//                    temp[selectedFunctionality] = newCount //update count for the typeName
+//                    print("[\(selectedFunctionality)] Var Deleted! New Count: \(newCount).")
+//                } else { //count is 0, remove entry from dict
+//                    temp[selectedFunctionality] = nil //remove entry for that typeName
+//                    print("[\(selectedFunctionality)] now has a count of 0! Removing type from dict...")
+//                }
+//                existingVariables[key] = temp //update real dictionary w/ temp
+//            } else { //error - deleted variable is not present in dictionary
+//                print("Error! Variable to be deleted does not exist in dictionary!!!")
+//            }
+//        }
+//    }
+    
+    func variableWasCreated(type: ModuleConfigurationTypes, selectedFunctionalities: [String]) {
         let key = getKeyForConfigType(type)
         if let typesWithCount = existingVariables[key] {
             var temp = typesWithCount //create temp obj for updating
-            if let count = typesWithCount[selectedFunctionality] { //variable already exists
-                let newCount = count + 1 //increment count
-                temp[selectedFunctionality] = newCount //update count for the existing typeName
-                print("[\(selectedFunctionality)] Var EXISTS! New Count: \(newCount).")
-            } else { //new variable name
-                temp[selectedFunctionality] = 1 //make new entry for typeName
-                print("Creating NEW entry for variable type: [\(selectedFunctionality)] @ LOCATION = [\(key)]...")
+            for selectedFunctionality in selectedFunctionalities {
+                if let count = typesWithCount[selectedFunctionality] { //variable already exists
+                    let newCount = count + 1 //increment count
+                    temp[selectedFunctionality] = newCount //update count for the existing typeName
+                    print("[\(selectedFunctionality)] Var EXISTS! New Count: \(newCount).")
+                } else { //new variable name
+                    temp[selectedFunctionality] = 1 //make new entry for typeName
+                    print("Creating NEW entry for variable type: [\(selectedFunctionality)] @ LOCATION = [\(key)]...")
+                }
             }
             existingVariables[key] = temp //update real dictionary w/ temp
         }
     }
     
-    func variableWasDeleted(type: ModuleConfigurationTypes, selectedFunctionality: String) {
+    func variableWasDeleted(type: ModuleConfigurationTypes, selectedFunctionalities: [String]) {
         let key = getKeyForConfigType(type)
         if let typesWithCount = existingVariables[key] {
             var temp = typesWithCount //create temp obj for updating
-            if let count = typesWithCount[selectedFunctionality] { //variable already exists
-                let newCount = count - 1 //increment count
-                if !(newCount == 0) { //some other variables are still present
-                    temp[selectedFunctionality] = newCount //update count for the typeName
-                    print("[\(selectedFunctionality)] Var Deleted! New Count: \(newCount).")
-                } else { //count is 0, remove entry from dict
-                    temp[selectedFunctionality] = nil //remove entry for that typeName
-                    print("[\(selectedFunctionality)] now has a count of 0! Removing type from dict...")
+            for selectedFunctionality in selectedFunctionalities {
+                if let count = typesWithCount[selectedFunctionality] { //variable already exists
+                    let newCount = count - 1 //increment count
+                    if !(newCount == 0) { //at least 1 var of same type is still present
+                        temp[selectedFunctionality] = newCount //update count for the typeName
+                        print("[\(selectedFunctionality)] Var Deleted! New Count: \(newCount).")
+                    } else { //count is 0 - remove entry from dict
+                        temp[selectedFunctionality] = nil //remove entry for that typeName
+                        print("[\(selectedFunctionality)] now has a count of 0! Removing type from dict...")
+                    }
+                } else { //error - deleted variable is not present in dictionary
+                    print("[varWasDel] Error - variable to be deleted does NOT exist in dictionary!!!")
                 }
-                existingVariables[key] = temp //update real dictionary w/ temp
-            } else { //error - deleted variable is not present in dictionary
-                print("Error! Variable to be deleted does not exist in dictionary!!!")
             }
+            existingVariables[key] = temp //update real dictionary w/ temp
         }
     }
     
@@ -157,9 +197,27 @@ class Module_DynamicConfigurationFramework {
             
         case .FoodIntakeModule:
             
-            //(1) Block variables based on varType:
-            if (currentVarConfigType == .ActionQualifier) {
-                //
+            //(1) Block data stream locations according to variable's current location:
+            if (doesSetupContainFunctionality(FoodIntakeModule_DataStreamLocations.Breakfast.rawValue, forType: currentVarConfigType)) { //unique @ current location
+                filteredTypes.insert(FoodIntakeModule_DataStreamLocations.Breakfast.rawValue)
+            }
+            if (doesSetupContainFunctionality(FoodIntakeModule_DataStreamLocations.Lunch.rawValue, forType: currentVarConfigType)) { //unique @ current location
+                filteredTypes.insert(FoodIntakeModule_DataStreamLocations.Lunch.rawValue)
+            }
+            if (doesSetupContainFunctionality(FoodIntakeModule_DataStreamLocations.Dinner.rawValue, forType: currentVarConfigType)) { //unique @ current location
+                filteredTypes.insert(FoodIntakeModule_DataStreamLocations.Dinner.rawValue)
+            }
+            if (doesSetupContainFunctionality(FoodIntakeModule_DataStreamLocations.Snack.rawValue, forType: currentVarConfigType)) { //unique @ current location
+                filteredTypes.insert(FoodIntakeModule_DataStreamLocations.Snack.rawValue)
+            }
+            if (doesSetupContainFunctionality(FoodIntakeModule_DataStreamLocations.PreWorkout.rawValue, forType: currentVarConfigType)) { //unique @ current location
+                filteredTypes.insert(FoodIntakeModule_DataStreamLocations.PreWorkout.rawValue)
+            }
+            if (doesSetupContainFunctionality(FoodIntakeModule_DataStreamLocations.PostWorkout.rawValue, forType: currentVarConfigType)) { //unique @ current location
+                filteredTypes.insert(FoodIntakeModule_DataStreamLocations.PostWorkout.rawValue)
+            }
+            if (doesSetupContainFunctionality(FoodIntakeModule_DataStreamLocations.Full.rawValue, forType: currentVarConfigType)) { //unique @ current location
+                filteredTypes.insert(FoodIntakeModule_DataStreamLocations.Full.rawValue)
             }
             
             //(2) Block variables based on presence in project (i.e. check for uniqueness):
@@ -170,6 +228,9 @@ class Module_DynamicConfigurationFramework {
             //(1) Block variables based on location in flow:
             if (currentVarConfigType == .ActionQualifier) {
                 filteredTypes.insert(ExerciseModuleVariableTypes.Behavior_Workout.rawValue) //workout cannot be added to an action (messes up measurement flow)
+            }
+            if (doesSetupContainFunctionality(ExerciseModuleVariableTypes.Behavior_Workout.rawValue, forType: currentVarConfigType)) { //unique @ current location (IV or OM)
+                filteredTypes.insert(ExerciseModuleVariableTypes.Behavior_Workout.rawValue) //only 1 workout per set of IV or OM
             }
             
             //(2) Block variables based on presence in project (i.e. check for uniqueness):

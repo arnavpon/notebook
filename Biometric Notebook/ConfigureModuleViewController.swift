@@ -34,6 +34,17 @@ class ConfigureModuleViewController: UIViewController, UITableViewDataSource, UI
         }
         configureModuleTableView.dataSource = self
         configureModuleTableView.delegate = self
+        
+        if let layoutObject = cachedLayoutObject, rowsForSection = layoutObject[BMN_RowsForSectionKey], sectionsSource = cachedSectionsDataSource { //check # of options that are available
+            if (sectionsSource.count == 1) { //make sure there is only 1 section
+                if let sectionTitle = sectionsSource.first, rows = rowsForSection[sectionTitle] as? [String] {
+                    if (rows.count == 1) { //ONLY 1 option - select it automatically & segue
+                        print("Only 1 option for this variable! Selecting option...")
+                        self.tableView(configureModuleTableView, didSelectRowAtIndexPath: NSIndexPath.init(forRow: 0, inSection: 0)) //select 1st row in 1st section
+                    }
+                }
+            }
+        }
     }
 
     // MARK: - Table View

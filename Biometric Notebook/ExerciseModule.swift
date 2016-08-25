@@ -85,10 +85,6 @@ class ExerciseModule: Module {
         }
     }
     
-    //DataEntryCell Configuration Variables:
-    private var dayOfWeek: String?
-    private var exercises: [[String: AnyObject]]? //matches config cell return object
-    
     // MARK: - Initializers
     
     override init(name: String) { //set-up init
@@ -105,43 +101,40 @@ class ExerciseModule: Module {
             self.selectedFunctionality = typeName //reset the variable's selectedFunctionality
             switch type { //configure according to 'variableType'
             case .Behavior_Workout:
-                self.dayOfWeek = dict[BMN_ExerciseModule_WorkoutDayOfWeekKey] as? String
-                self.exercises = dict[BMN_ExerciseModule_WorkoutExercisesKey] as? [[String: AnyObject]]
                 
                 self.FreeformCell_configurationObject = [] //initialize
                 //Based on current location in flow (starting @ 1 & incrementing for each set that is reported), find the correct item to initialize with:
-                if let storedExercises = exercises {
                     var runningTotal: Int = 0
                     var index: Int = 0 //index in exercises of currently reporting item
-                    for exercise in storedExercises {
-                        if let sets = exercise["sets"] as? Int { //sets exist
-                            runningTotal += sets
-                        } else { //no sets (cardio exercise)
-                            runningTotal += 1
-                        }
-                        
+//                    for exercise in storedExercises {
+//                        if let sets = exercise["sets"] as? Int { //sets exist
+//                            runningTotal += sets
+//                        } else { //no sets (cardio exercise)
+//                            runningTotal += 1
+//                        }
+//                        
 //                        print("Location = \(location). Total = \(runningTotal).")
 //                        if (location <= runningTotal) { //loop until total exceeds location
 //                            break
 //                        }
-                        index += 1 //increment index
-                    }
-                    
-                    let exercise = storedExercises[index] //obtain item for reporting
-                    if let exerciseTypeRaw = exercise["type"] as? Int, exerciseType = ExerciseTypes(rawValue: exerciseTypeRaw) {
-                        switch exerciseType {
-                        case .WeightTraining: //need fields for weight lifted & # of reps
-                            FreeformCell_configurationObject!.append(("lbs.", ProtectedFreeformTypes.Decimal, nil, 6, (0, 999), nil)) //weight cell
-                            FreeformCell_configurationObject!.append(("Reps", ProtectedFreeformTypes.Int, nil, 2, (0, 99), nil)) //# of reps cell
-                        case .Cardio: //need fields for time, distance, & calories
-                            FreeformCell_configurationObject!.append(("Time", ProtectedFreeformTypes.Timing, nil, 11, nil, "HH:MM:SS.ms")) //time cell
-                            FreeformCell_configurationObject!.append(("miles", ProtectedFreeformTypes.Decimal, nil, 5, (0, 99), nil)) //distance cell
-                            FreeformCell_configurationObject!.append(("kCal", ProtectedFreeformTypes.Decimal, nil, 6, (0, 1999), nil)) //calories cell
-                        }
-                    }
+//                        index += 1 //increment index
+//                    }
+                
+//                    let exercise = storedExercises[index] //obtain item for reporting
+//                    if let exerciseTypeRaw = exercise["type"] as? Int, exerciseType = ExerciseTypes(rawValue: exerciseTypeRaw) {
+//                        switch exerciseType {
+//                        case .WeightTraining: //need fields for weight lifted & # of reps
+//                            FreeformCell_configurationObject!.append(("lbs.", ProtectedFreeformTypes.Decimal, nil, 6, (0, 999), nil)) //weight cell
+//                            FreeformCell_configurationObject!.append(("Reps", ProtectedFreeformTypes.Int, nil, 2, (0, 99), nil)) //# of reps cell
+//                        case .Cardio: //need fields for time, distance, & calories
+//                            FreeformCell_configurationObject!.append(("Time", ProtectedFreeformTypes.Timing, nil, 11, nil, "HH:MM:SS.ms")) //time cell
+//                            FreeformCell_configurationObject!.append(("miles", ProtectedFreeformTypes.Decimal, nil, 5, (0, 99), nil)) //distance cell
+//                            FreeformCell_configurationObject!.append(("kCal", ProtectedFreeformTypes.Decimal, nil, 6, (0, 1999), nil)) //calories cell
+//                        }
+//                    }
                     self.cellPrompt = "Fill in the fields after completing each set:" //mainLbl for cell
                     self.FreeformCell_labelBeforeField = false //lbl comes AFTER field
-                }
+                
             case .Behavior_BeforeAndAfter:
                 break
             }
@@ -160,15 +153,11 @@ class ExerciseModule: Module {
     
     internal override func setConfigurationOptionsForSelection() {
         if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
-            var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = [] //pass -> VC (CustomCellType, cell's dataSource)
+//            var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = [] //pass -> VC (CustomCellType, cell's dataSource)
             switch type {
             case .Behavior_Workout:
                 
-                //2 config cells are needed (day of week + workout configuration):
-                let dayOptions = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-                array.append((ConfigurationOptionCellTypes.SelectFromDropdown, [BMN_Configuration_CellDescriptorKey: BMN_ExerciseModule_WorkoutDayOfWeekID, BMN_LEVELS_CellIsOptionalKey: true, BMN_LEVELS_MainLabelKey: "Assign this workout to a specific day of the week (optional):", BMN_SelectFromDropdown_OptionsKey: dayOptions])) //cell to set day of week
-                array.append((ConfigurationOptionCellTypes.ExM_Workout, [BMN_Configuration_CellDescriptorKey: BMN_ExerciseModule_WorkoutExercisesID, BMN_LEVELS_MainLabelKey: "Add individual exercises to your workout in chronologic order:"])) //cell to add exercises
-                configurationOptionsLayoutObject = array
+                configurationOptionsLayoutObject = nil //no further config needed
                 
             case .Behavior_BeforeAndAfter:
                 
@@ -183,18 +172,6 @@ class ExerciseModule: Module {
     override func matchConfigurationItemsToProperties(configurationData: [String : AnyObject]) -> (Bool, String?, [String]?) {
         if let type = variableType {
             switch type { //only needed for sections that require configuration
-            case .Behavior_Workout:
-                
-                self.dayOfWeek = configurationData[BMN_ExerciseModule_WorkoutDayOfWeekID] as? String
-                if let exerciseList = configurationData[BMN_ExerciseModule_WorkoutExercisesID] as? [[String: AnyObject]] {
-                    print("\(exerciseList.count) exercises were added to the workout.")
-                    for item in exerciseList {
-                        print("NAME = \(item["name"]). SETS = \(item["sets"]).")
-                    }
-                    self.exercises = exerciseList
-                    return (true, nil, nil)
-                }
-                
             default:
                 print("[CustomMod: matchConfigToProps] Error! Default in switch!")
                 return (false, "Default in switch!", nil)
@@ -213,8 +190,7 @@ class ExerciseModule: Module {
             persistentDictionary[BMN_VariableTypeKey] = type.rawValue //save variable type
             switch type {
             case .Behavior_Workout: //store the day of week + exercises/settings for each exercise
-                persistentDictionary[BMN_ExerciseModule_WorkoutDayOfWeekKey] = dayOfWeek
-                persistentDictionary[BMN_ExerciseModule_WorkoutExercisesKey] = exercises
+                break
             case .Behavior_BeforeAndAfter:
                 break
             }
@@ -256,7 +232,7 @@ enum ExerciseModuleVariableTypes: String { //*match each behavior/computation ->
         var message = ""
         switch self {
         case .Behavior_Workout:
-            message = "A workout variable contains a group of exercises making up a single, complete workout."
+            message = "A workout variable contains data from a group of exercises making up a single, complete workout."
         case .Behavior_BeforeAndAfter:
             message = ""
         }

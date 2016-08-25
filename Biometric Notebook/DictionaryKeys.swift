@@ -175,24 +175,18 @@ let BMN_Action_ActionTimeStampKey = "Action_action_time_stamp_key"
 // MARK: - CustomModule [CM] *(KEY = dictionary key, used for storing/unpacking config options from CoreData; ID = unique identifier, used to identify information coming from specific ConfigCells)*
 
 //[Configuration KEYS]:
-let BMN_CustomModule_OptionsKey = "CM_options_key"
-let BMN_CustomModule_CustomOptionsMultipleSelectionAllowedKey = "CM_custom_options_multiple_selection_allowed_key"
-let BMN_CustomModule_RangeScaleMinimumKey = "CM_range_scale_min_key"
-let BMN_CustomModule_RangeScaleMaximumKey = "CM_range_scale_max_key"
-let BMN_CustomModule_RangeScaleIncrementKey = "CM_range_scale_increment_key"
+let BMN_CustomModule_CustomOptions_OptionsKey = "CM_options_key" //CustomModule > CustomOptions [behavior] > 'options' array
+let BMN_CustomModule_CustomOptions_MultipleSelectionAllowedKey = "CM_custom_options_multiple_selection_allowed_key" //Custom Module > CustomOptions [behavior] > 'multiple selection allowed' configuration cell
+let BMN_CustomModule_RangeScaleMinimumKey = "CM_range_scale_min_key" //CustomModule > RangeScale [behavior] > 'minimum value' configuration cell
+let BMN_CustomModule_RangeScaleMaximumKey = "CM_range_scale_max_key" //CustomModule > RangeScale [behavior] > 'maximum value' configuration cell
+let BMN_CustomModule_RangeScaleIncrementKey = "CM_range_scale_increment_key" //CustomModule > RangeScale [behavior] > 'increment value' configuration cell
 let BMN_CustomModule_CounterUniqueIDKey = "CM_counter_unique_id_key"
-let BMN_CustomModule_TimeDifferenceTypeKey = "CM_time_difference_type_key"
+let BMN_CustomModule_TimeDifferenceTypeKey = "CM_time_difference_type_key" //CM > TimeDifference [computation] > 'type' config object
 let BMN_CustomModule_TimeDifferenceLocation1Key = "CM_time_difference_location1_key"
 let BMN_CustomModule_TimeDifferenceLocation2Key = "CM_time_difference_location2_key"
 
 //[Configuration IDs]:
 let BMN_CustomModule_CustomOptions_PromptID = "CM_custom_options_prompt_id" //identifier: CustomModule > CustomOptions [behavior] > 'prompt' configuration cell
-let BMN_CustomModule_CustomOptions_OptionsID = "CM_custom_options_options_id" //identifier: CustomModule > CustomOptions [behavior] > 'options' array
-let BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID = "CM_custom_options_multiple_selection_allowed_id" //identifier: Custom Module > CustomOptions [behavior] > 'multiple selection allowed' configuration cell
-let BMN_CustomModule_RangeScale_MinimumID = "CM_range_scale_min_id" //identifier: CustomModule > RangeScale [behavior] > 'minimum value' configuration cell
-let BMN_CustomModule_RangeScale_MaximumID = "CM_range_scale_max_id" //identifier: CustomModule > RangeScale [behavior] > 'maximum value' configuration cell
-let BMN_CustomModule_RangeScale_IncrementID = "CM_range_scale_increment_id" //identifier: CustomModule > RangeScale [behavior] > 'increment value' configuration cell
-let BMN_CustomModule_TimeDifferenceTypeID = "CM_time_difference_type_id" //CM > TD type config object
 
 //[DataEntry Keys]:
 let BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey = "DE_custom_w/_options_number_of_options_key"
@@ -201,9 +195,6 @@ let BMN_DataEntry_CustomWithOptions_NumberOfOptionsKey = "DE_custom_w/_options_n
 
 //[Configuration Keys]:
 let BMN_EnvironmentModule_Weather_SelectedOptionsKey = "EnM_weather_selected_options_key"
-
-//[Configuration IDs]:
-let BMN_EnvironmentModule_Weather_OptionsID = "EnM_weather_options_id"
 
 // MARK: - BiometricModule [BM]
 
@@ -214,7 +205,6 @@ let BMN_BiometricModule_HeartRateSamplingOptionKey = "BM_heart_rate_sampling_opt
 //[Configuration IDs]:
 let BMN_BiometricModule_DataSourceOptionsID = "BM_data_source_options_id"
 let BMN_BiometricModule_DataSourceOptions2ID = "BM_data_source_options_2_id"
-let BMN_BiometricModule_HeartRateSamplingOptionsID = "BM_heart_rate_sampling_options_id"
 
 //[CoreData Keys]:
 let BMN_BiometricModule_ComputationInputsKey = "BMN_BM_computation_inputs_key"
@@ -223,25 +213,14 @@ let BMN_BiometricModule_ComputationInputsKey = "BMN_BM_computation_inputs_key"
 
 //[Configuration KEYS]:
 let BMN_FoodIntakeModule_NutritionCategoriesKey = "FiM_nutrition_categories_key"
-
-//[Configuration IDs]:
-let BMN_FoodIntakeModule_NutritionCategoriesID = "FiM_nutrition_categories_id"
+let BMN_FoodIntakeModule_DataStreamLocationsKey = "FiM_data_stream_locations_key"
 
 // MARK: - ExerciseModule [ExM]
 
-//[Configuration KEYS]:
-let BMN_ExerciseModule_WorkoutDayOfWeekKey = "ExM_workout_day_of_week_key"
-let BMN_ExerciseModule_WorkoutExercisesKey = "ExM_workout_exercises_key"
-
-//[Configuration IDs]:
-let BMN_ExerciseModule_WorkoutDayOfWeekID = "ExM_workout_day_of_week_id"
-let BMN_ExerciseModule_WorkoutExercisesID = "ExM_workout_exercises_id"
-
-// MARK: - ExerciseModule [ExM]
+// MARK: - RecipeModule [ExM]
 
 //[Configuration KEYS]:
 let BMN_RecipeModule_RatingCategoriesKey = "ReM_rating_categories_key"
 
 //[Configuration IDs]:
-let BMN_RecipeModule_RatingCategoriesID = "ReM_rating_categories_id"
 let BMN_RecipeModule_RecipeNameID = "ReM_recipe_name_id"

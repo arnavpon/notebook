@@ -16,7 +16,6 @@ enum ConfigurationOptionCellTypes { //REGISTER each new cell class w/ TV in Conf
     case SelectFromDropdown //corresponds -> SelectFromDropdownConfigurationCell type
     case CustomOptions //corresponds -> CustomOptionsConfigurationCell type
     case TimeDifference //corresponds -> TimeDifferenceConfigurationCell type
-    case ExM_Workout //corresponds -> ExM_WorkoutConfigurationCell type
     
     case Example //corresponds -> ExampleConfigurationCell type**
     
@@ -38,8 +37,6 @@ enum ConfigurationOptionCellTypes { //REGISTER each new cell class w/ TV in Conf
             numberOfLevels = TimeDifferenceConfigurationCell.numberOfLevels
         case .Example:
             numberOfLevels = ExampleConfigurationCell.numberOfLevels
-        case .ExM_Workout:
-            numberOfLevels = ExM_WorkoutConfigurationCell.numberOfLevels
         }
         return levelHeight * CGFloat(numberOfLevels) + BMN_DefaultBottomSpacer 
     }

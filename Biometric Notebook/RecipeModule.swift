@@ -85,7 +85,7 @@ class RecipeModule: Module {
                 
                 //(2) User needs to select the rating categories used for OM:
                 let ratingOptions = [RecipeModule_RatingCategories.Taste.rawValue, RecipeModule_RatingCategories.Texture.rawValue, RecipeModule_RatingCategories.Ambience.rawValue]
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_RecipeModule_RatingCategoriesID, BMN_LEVELS_MainLabelKey: "Select 1 or more categories you will be using to rate the recipe:", BMN_SelectFromOptions_OptionsKey: ratingOptions, BMN_SelectFromOptions_MultipleSelectionEnabledKey: true, BMN_SelectFromOptions_DefaultOptionsKey: [ratingOptions[0]]])) //rating options
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_RecipeModule_RatingCategoriesKey, BMN_LEVELS_MainLabelKey: "Select 1 or more categories you will be using to rate the recipe:", BMN_SelectFromOptions_OptionsKey: ratingOptions, BMN_SelectFromOptions_MultipleSelectionEnabledKey: true, BMN_SelectFromOptions_DefaultOptionsKey: [ratingOptions[0]]])) //rating options
                 
                 configurationOptionsLayoutObject = array
                 
@@ -103,7 +103,7 @@ class RecipeModule: Module {
         if let type = variableType {
             switch type {
             case .Recipe:
-                if let name = configurationData[BMN_RecipeModule_RecipeNameID] as? String, rawOptions = configurationData[BMN_RecipeModule_RatingCategoriesID] as? [String] {
+                if let name = configurationData[BMN_RecipeModule_RecipeNameID] as? String, rawOptions = configurationData[BMN_RecipeModule_RatingCategoriesKey] as? [String] {
                     self.recipeName = name
                     self.ratingCategories = [] //initialize**
                     for optionRaw in rawOptions {

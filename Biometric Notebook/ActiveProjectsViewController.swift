@@ -236,16 +236,16 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                                 }
                                 inputVariables!.append(variable)
                                 if let alternateValueForBlocker = variable.specialTypeForDynamicConfigFramework() { //use alternative
-                                    moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionality: alternateValueForBlocker) //update
+                                    moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionalities: alternateValueForBlocker) //update
                                 } else { //NO special type - use selectedFunctionality
-                                    moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionality: functionality)
+                                    moduleBlocker.variableWasCreated(.InputVariable, selectedFunctionalities: [functionality])
                                 }
                             case .OutcomeMeasure:
                                 outcomeMeasures.append(variable)
                                 if let alternateValueForBlocker = variable.specialTypeForDynamicConfigFramework() { //use alternative
-                                    moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionality: alternateValueForBlocker) //update
+                                    moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionalities: alternateValueForBlocker) //update
                                 } else { //NO special type - use selectedFunctionality
-                                    moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionality: functionality)
+                                    moduleBlocker.variableWasCreated(.OutcomeMeasure, selectedFunctionalities: [functionality])
                                 }
                             case .ActionQualifier:
                                 if (actionQualifiers == nil) { //array does NOT exist yet

@@ -208,7 +208,7 @@ class BiometricModule: Module {
                 }
                 
                 //(2) User must define the HR sampling parameters:
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_HeartRateSamplingOptionsID, BMN_LEVELS_MainLabelKey: "Choose the time period over which to sample your heart rate:", BMN_SelectFromOptions_OptionsKey: sampleOptions]))
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_BiometricModule_HeartRateSamplingOptionKey, BMN_LEVELS_MainLabelKey: "Choose the time period over which to sample your heart rate:", BMN_SelectFromOptions_OptionsKey: sampleOptions]))
                 
                 configurationOptionsLayoutObject!.appendContentsOf(array)
                 
@@ -324,7 +324,7 @@ class BiometricModule: Module {
                 
                 switch type { //only needed for sections that require configuration
                 case .Behavior_HeartRate:
-                    if let samplingOpts = configurationData[BMN_BiometricModule_HeartRateSamplingOptionsID] as? [String], rawOption = samplingOpts.first, selectedOption = BiometricModule_HeartRateOptions(rawValue: rawOption) { //check for HR sampling
+                    if let samplingOpts = configurationData[BMN_BiometricModule_HeartRateSamplingOptionKey] as? [String], rawOption = samplingOpts.first, selectedOption = BiometricModule_HeartRateOptions(rawValue: rawOption) { //check for HR sampling
                         self.heartRateSamplingOption = selectedOption
                         switch selectedOption {
                         case .ChooseSampleAtCollection: //MANUAL var - user selects sample @ collection!

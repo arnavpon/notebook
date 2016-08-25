@@ -1,9 +1,9 @@
-//  ExM_WorkoutConfigurationCell.swift
+//  ExM_WorkoutDataEntryCell.swift
 //  Biometric Notebook
-//  Created by Arnav Pondicherry  on 7/16/16.
+//  Created by Arnav Pondicherry  on 8/24/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Exercise Module - cell that allows for configuration of a single workout (allows addition of individual exercises to the workout).
+// Exercise Module - cell that allows for set-by-set reporting of workout data.
 
 import UIKit
 
@@ -12,7 +12,7 @@ enum ExerciseTypes: Int {
     case Cardio = 1
 }
 
-class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, UITableViewDataSource { //add new class -> enum!
+class ExM_WorkoutDataEntryCell: BaseDataEntryCell, UITableViewDelegate, UITableViewDataSource { //add new class -> enum!
     
     override class var numberOfLevels: Int { //default # of levels is 1
         return 1 //for each available option in dataSource, add 1 level (unless cell is Bool type)
@@ -76,8 +76,8 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
     }
     
     private func adjustHeightForCell(numberOfLevels: Int) { //adjusts # of levels for cell
-        let notification = NSNotification(name: BMN_Notification_AdjustHeightForConfigCell, object: nil, userInfo: [BMN_AdjustHeightForConfigCell_UniqueIDKey: self.cellDescriptor, BMN_AdjustHeightForConfigCell_NumberOfLevelsKey: numberOfLevels])
-        NSNotificationCenter.defaultCenter().postNotification(notification)
+//        let notification = NSNotification(name: BMN_Notification_AdjustHeightForConfigCell, object: nil, userInfo: [BMN_AdjustHeightForConfigCell_UniqueIDKey: self.cellDescriptor, BMN_AdjustHeightForConfigCell_NumberOfLevelsKey: numberOfLevels])
+//        NSNotificationCenter.defaultCenter().postNotification(notification)
     }
     
     // MARK: - Table View
@@ -200,12 +200,12 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
                 break
             }
         }
-//        if let name = exercises[index]["name"] as? String, sets = exercises[index]["sets"] as? Int {
-//            if !(name.isEmpty) && (sets > 0) { //BOTH values are set
-//                configureCompletionIndicator(true)
-//                return
-//            }
-//        }
+        //        if let name = exercises[index]["name"] as? String, sets = exercises[index]["sets"] as? Int {
+        //            if !(name.isEmpty) && (sets > 0) { //BOTH values are set
+        //                configureCompletionIndicator(true)
+        //                return
+        //            }
+        //        }
         for exercise in exercises { //make sure all items for all exercises are complete
             if let typeRaw = exercise["type"] as? Int, type = ExerciseTypes(rawValue: typeRaw) {
                 switch type {
@@ -233,10 +233,10 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
         configureCompletionIndicator(true) //ONLY if fx completes loop, set -> COMPLETE
     }
     
-    override var configurationReportObject: AnyObject? { //reports all exercises
-        //*REPORT TYPE: [[String: AnyObject]]*
-        return exercises
-    }
+//    override var configurationReportObject: AnyObject? { //reports all exercises
+//        //*REPORT TYPE: [[String: AnyObject]]*
+//        return exercises
+//    }
     
 }
 
@@ -244,7 +244,7 @@ class ExM_WorkoutConfigurationCell: BaseConfigurationCell, UITableViewDelegate, 
 class ExerciseTableViewCell: UITableViewCell, UITextFieldDelegate { //cell to display Exercise
     
     var fireCounter: Int = 0 //blocks dataSource firing > 1x
-    var linkedCell: ExM_WorkoutConfigurationCell?
+    var linkedCell: ExM_WorkoutDataEntryCell?
     var dataSource: [String: AnyObject]? { //contains cell settings
         didSet {
             if let source = dataSource, count = source["count"] as? Int, name = source["name"] as? String, typeRaw = source["type"] as? Int, type = ExerciseTypes(rawValue: typeRaw) {

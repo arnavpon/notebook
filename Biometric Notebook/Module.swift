@@ -160,8 +160,8 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
         return (true, nil, nil)
     }
     
-    internal func specialTypeForDynamicConfigFramework() -> String? { //override in subclasses
-        //based on selectedFunctionality, provides an alternative type to add to the moduleBlocker in lieu of the selectedFunctionality
+    internal func specialTypeForDynamicConfigFramework() -> [String]? { //override in subclasses
+        //based on selectedFunctionality, provides alternative type(s) to add to the moduleBlocker in lieu of the selectedFunctionality
         return nil
     }
     

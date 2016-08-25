@@ -128,14 +128,14 @@ class CustomModule: Module {
             self.selectedFunctionality = typeName //reset the variable's selectedFunctionality
             switch type { //configure according to 'variableType'
             case .Behavior_CustomOptions:
-                if let opts = dict[BMN_CustomModule_OptionsKey] as? [String] {
+                if let opts = dict[BMN_CustomModule_CustomOptions_OptionsKey] as? [String] {
                     self.options = opts
                 }
-                if let multipleSelection = dict[BMN_CustomModule_CustomOptionsMultipleSelectionAllowedKey] as? Bool {
+                if let multipleSelection = dict[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedKey] as? Bool {
                     self.multipleSelectionEnabled = multipleSelection
                 }
             case .Behavior_BinaryOptions:
-                if let opts = dict[BMN_CustomModule_OptionsKey] as? [String] {
+                if let opts = dict[BMN_CustomModule_CustomOptions_OptionsKey] as? [String] {
                     self.options = opts
                 }
             case .Behavior_Counter: //obtain the uniqueID (for matching -> external Counter object)
@@ -197,8 +197,8 @@ class CustomModule: Module {
                 
                 //3 config cells are needed (prompt + multiple selection + custom options):
                 array.append((ConfigurationOptionCellTypes.SimpleText, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_PromptID, BMN_LEVELS_CellIsOptionalKey: true, BMN_LEVELS_MainLabelKey: "Set a prompt (optional). Replaces the variable's name during data reporting:"])) //cell to accept prompt
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID, BMN_LEVELS_MainLabelKey: "Allow multiple options to be selected (default NO):", BMN_SelectFromOptions_OptionsKey: ["YES", "NO"], BMN_SelectFromOptions_DefaultOptionsKey: ["NO"], BMN_SelectFromOptions_IsBooleanKey: true])) //cell to check whether multiple selection is allowed or not
-                array.append((ConfigurationOptionCellTypes.CustomOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_OptionsID, BMN_LEVELS_MainLabelKey: "Enter 2 or more custom options for selection:"])) //cell to enter custom options
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_MultipleSelectionAllowedKey, BMN_LEVELS_MainLabelKey: "Allow multiple options to be selected (default NO):", BMN_SelectFromOptions_OptionsKey: ["YES", "NO"], BMN_SelectFromOptions_DefaultOptionsKey: ["NO"], BMN_SelectFromOptions_IsBooleanKey: true])) //cell to check whether multiple selection is allowed or not
+                array.append((ConfigurationOptionCellTypes.CustomOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_CustomOptions_OptionsKey, BMN_LEVELS_MainLabelKey: "Enter 2 or more custom options for selection:"])) //cell to enter custom options
                 configurationOptionsLayoutObject!.appendContentsOf(array)
                 
             case .Behavior_BinaryOptions:
@@ -214,9 +214,9 @@ class CustomModule: Module {
             case .Behavior_RangeScale:
                 
                 //3 config cells are needed (asking for minimum, maximum, & increment):
-                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_MinimumID, BMN_LEVELS_MainLabelKey: "Minimum for scale (default 0):", BMN_SimpleNumberConfigCell_DefaultKey: 0])) //minimum value
-                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_MaximumID, BMN_LEVELS_MainLabelKey: "Maximum for scale (default 10):", BMN_SimpleNumberConfigCell_DefaultKey: 10])) //maximum value
-                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScale_IncrementID, BMN_LEVELS_MainLabelKey: "Increment for scale (default 1):", BMN_SimpleNumberConfigCell_DefaultKey: 1])) //increment value
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScaleMinimumKey, BMN_LEVELS_MainLabelKey: "Minimum for scale (default 0):", BMN_SimpleNumberConfigCell_DefaultKey: 0])) //minimum value
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScaleMaximumKey, BMN_LEVELS_MainLabelKey: "Maximum for scale (default 10):", BMN_SimpleNumberConfigCell_DefaultKey: 10])) //maximum value
+                array.append((ConfigurationOptionCellTypes.SimpleNumber, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_RangeScaleIncrementKey, BMN_LEVELS_MainLabelKey: "Increment for scale (default 1):", BMN_SimpleNumberConfigCell_DefaultKey: 1])) //increment value
                 
                 configurationOptionsLayoutObject!.appendContentsOf(array)
                 
@@ -227,7 +227,7 @@ class CustomModule: Module {
             case .Computation_TimeDifference: //exclude DistanceFromAction if it is in blocker
                 
                 let opts = [TimeDifference_VariableTypes.DistanceFromAction.rawValue]
-                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_TimeDifferenceTypeID, BMN_LEVELS_MainLabelKey: "Select the time difference variable type:", BMN_SelectFromOptions_OptionsKey: opts, BMN_SelectFromOptions_DefaultOptionsKey: [opts.first!]])) //cell to select TD type
+                array.append((ConfigurationOptionCellTypes.SelectFromOptions, [BMN_Configuration_CellDescriptorKey: BMN_CustomModule_TimeDifferenceTypeKey, BMN_LEVELS_MainLabelKey: "Select the time difference variable type:", BMN_SelectFromOptions_OptionsKey: opts, BMN_SelectFromOptions_DefaultOptionsKey: [opts.first!]])) //cell to select TD type
                 configurationOptionsLayoutObject = array
                 
             }
@@ -247,8 +247,8 @@ class CustomModule: Module {
             case .Behavior_CustomOptions:
                 
                 self.cellPrompt = configurationData[BMN_CustomModule_CustomOptions_PromptID] as? String
-                self.options = configurationData[BMN_CustomModule_CustomOptions_OptionsID] as? [String]
-                if let boolSelection = (configurationData[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedID] as? [String])?.first { //report type is [String]
+                self.options = configurationData[BMN_CustomModule_CustomOptions_OptionsKey] as? [String]
+                if let boolSelection = (configurationData[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedKey] as? [String])?.first { //report type is [String]
                     if (boolSelection.lowercaseString == "yes") { //match "YES" -> true
                         self.multipleSelectionEnabled = true
                     } else if (boolSelection.lowercaseString == "no") { //match "NO" -> false
@@ -269,11 +269,11 @@ class CustomModule: Module {
                 
             case .Behavior_RangeScale: //inc data is INT
                 
-                if let min = (configurationData[BMN_CustomModule_RangeScale_MinimumID] as? Int), max = (configurationData[BMN_CustomModule_RangeScale_MaximumID] as? Int), increment = (configurationData[BMN_CustomModule_RangeScale_IncrementID] as? Int) {
+                if let min = (configurationData[BMN_CustomModule_RangeScaleMinimumKey] as? Int), max = (configurationData[BMN_CustomModule_RangeScaleMaximumKey] as? Int), increment = (configurationData[BMN_CustomModule_RangeScaleIncrementKey] as? Int) {
                     if (min >= max) { //Check #1
-                        return (false, "The minimum value must be LESS than the maximum value.", [BMN_CustomModule_RangeScale_MinimumID, BMN_CustomModule_RangeScale_MaximumID]) //flag min & max cells
+                        return (false, "The minimum value must be LESS than the maximum value.", [BMN_CustomModule_RangeScaleMinimumKey, BMN_CustomModule_RangeScaleMaximumKey]) //flag min & max cells
                     } else if ((max - min)%increment != 0) { //Check #2 - increment must be perfectly divisible by the difference between min & max
-                        return (false, "The increment must be divisible by the difference between the minimum and maximum.", [BMN_CustomModule_RangeScale_IncrementID]) //flag incrm
+                        return (false, "The increment must be divisible by the difference between the minimum and maximum.", [BMN_CustomModule_RangeScaleIncrementKey]) //flag incrm
                     } else { //setup is OK
                         rangeScaleParameters = (min, max, increment)
                         print("Match Config: Min = \(min), Max = \(max), Inc = \(increment).")
@@ -284,7 +284,7 @@ class CustomModule: Module {
                 }
                 
             case .Computation_TimeDifference:
-                if let typeArray = configurationData[BMN_CustomModule_TimeDifferenceTypeID] as? [String], typeRaw = typeArray.first, tdType = TimeDifference_VariableTypes(rawValue: typeRaw) {
+                if let typeArray = configurationData[BMN_CustomModule_TimeDifferenceTypeKey] as? [String], typeRaw = typeArray.first, tdType = TimeDifference_VariableTypes(rawValue: typeRaw) {
                     print("Time difference variable...")
                     self.timeDifferenceSetup = (tdType, nil)
                     self.variableReportType = ModuleVariableReportTypes.TimeDifference //set report type
@@ -297,13 +297,13 @@ class CustomModule: Module {
         return (false, "No selected functionality was found!", nil)
     }
     
-    override func specialTypeForDynamicConfigFramework() -> String? {
+    override func specialTypeForDynamicConfigFramework() -> [String]? {
         if let type = self.getTypeForVariable() {
             switch type {
             case .Computation_TimeDifference:
                 if (self.timeDifferenceSetup?.0 == TimeDifference_VariableTypes.DistanceFromAction) {
                     print("[var {\(self.variableName)}] Setting special type [\(TimeDifference_VariableTypes.DistanceFromAction.rawValue)] for DCF...")
-                    return TimeDifference_VariableTypes.DistanceFromAction.rawValue
+                    return [TimeDifference_VariableTypes.DistanceFromAction.rawValue]
                 }
             default:
                 break
@@ -323,10 +323,10 @@ class CustomModule: Module {
             switch type {
             case .Behavior_CustomOptions, .Behavior_BinaryOptions:
                 if let opts = self.options { //make sure there are options
-                    persistentDictionary[BMN_CustomModule_OptionsKey] = opts
+                    persistentDictionary[BMN_CustomModule_CustomOptions_OptionsKey] = opts
                 }
                 if let multipleSelect = multipleSelectionEnabled { //check if multiple selection allowed
-                    persistentDictionary[BMN_CustomModule_CustomOptionsMultipleSelectionAllowedKey] = multipleSelect
+                    persistentDictionary[BMN_CustomModule_CustomOptions_MultipleSelectionAllowedKey] = multipleSelect
                 }
             case .Behavior_Counter:
                 if let id = counterUniqueID {
