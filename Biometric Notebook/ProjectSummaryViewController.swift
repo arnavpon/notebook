@@ -816,7 +816,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                 }
             }
             if let streamID = variable.linkedDatastream { //check if var utilizes a Datastream
-                switch streamID { //activate the Singleton instance of the appropriate stream
+                switch streamID { //activate the sharedInstance of the appropriate stream
                 case .ExM_Workout:
                     let _  = ExM_ExerciseDataStream.sharedInstance
                 case .FIM_FoodIntake:

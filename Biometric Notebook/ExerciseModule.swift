@@ -129,7 +129,6 @@ class ExerciseModule: Module {
     
     internal override func setConfigurationOptionsForSelection() {
         if let type = variableType { //make sure behavior/computation was selected & ONLY set the configOptionsObject if further configuration is required
-//            var array: [(ConfigurationOptionCellTypes, Dictionary<String, AnyObject>)] = [] //pass -> VC (CustomCellType, cell's dataSource)
             switch type {
             case .Behavior_Workout:
                 

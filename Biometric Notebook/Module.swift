@@ -106,7 +106,7 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
         }
         if let prompt = dict[BMN_DataEntry_MainLabelPromptKey] as? String { //check if cell has a prompt
             self.cellPrompt = prompt //set prompt (used in place of varType in mainLabel of TV cell)
-            //this is used ONLY when the user sets the prompt himself!
+            //this is used ONLY when the USER sets the prompt (NOT when the system sets the prompt)!
         }
         if let reportTypeRaw = dict[BMN_VariableReportTypeKey] as? Int, reportType = ModuleVariableReportTypes(rawValue: reportTypeRaw) { //reset the report type
             print("[Module superclass init()] Report type raw = \(reportTypeRaw).")

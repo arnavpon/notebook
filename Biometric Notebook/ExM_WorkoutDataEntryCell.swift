@@ -47,8 +47,6 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
-        //Configure optionSelectionView:
         insetBackgroundView.addSubview(configurationView) //configView lies on TOP of freeform views
     }
     
@@ -62,10 +60,10 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
                 self.currentExerciseType = exerciseType
                 self.currentExercise = exercise
                 var mainLabelText = "" //text to set for mainlbl
-                switch exerciseType { //generate label appropriate for exerciseType
-                case .WeightTraining:
+                switch exerciseType { //generate mainLabel for cell that is appropriate for exerciseType
+                case .WeightTraining: //display current set # & total # of sets
                     mainLabelText = "['\(exercise)' - Set #\(current)/\(total)] Enter weight lifted/# of reps after completing the set:"
-                case .Cardio:
+                case .Cardio: //display exercise name ONLY
                     mainLabelText = "['\(exercise)'] Enter the time, distance traveled, and # of calories burned after completing the exercise:"
                 }
                 self.setMainLabelTitle(mainLabelText) //update main Lbl
@@ -94,28 +92,29 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
         configurationView.frame = CGRectMake(0, 0, self.frame.width, self.frame.height)
     }
     
-    private func displayConfigurationViewForLocation(location: Int) { //updates configView based on the input location; returnObject = # of levels required for the configured view
-        var numberOfLevels: Int = 0 //indicates height for returned view
+    private func displayConfigurationViewForLocation(location: Int) { //updates configView based on the input LOCATION
+        self.currentLocationInFlow = location //*FIRST - set current location*
+        var numberOfLevels: Int = 0 //indicates height for returned view (for notification)
         switch location {
-        case 1: //allow user to select between opening a new stream or using cached data - ONLY displayed for Project sender class & if stream's TSO is nil
-            if let cache = self.datastream.cachedData {
+        case 1: //allow user to select between OPENING NEW STREAM or using CACHED DATA - ONLY displayed if sender class = 'Project' & stream's TSO is nil
+            if let cache = self.datastream.cachedData { //check for items in cache
                 if !(cache.isEmpty) { //cached objects exist - present collectionView
                     var source = ["Start New Workout!"] //options to display in collectionView
                     var cacheOptions: [NSDate] = []
-                    for (workoutDate, _) in cache { //get date of each workout in cache
-                        let formattedDate = DateTime(date: workoutDate).getFullTimeStamp()
-                        let option = "Workout on \(formattedDate)"
-                        source.append(option) //add -> options
+                    for (workoutDate, _) in cache { //get DATE of each workout in cache
+                        let formattedDate = DateTime(date: workoutDate).getFullTimeStamp() //format date
+                        let option = "Workout on <\(formattedDate)>"
+                        source.append(option) //add FORMATTED date -> options (for display)
                         cacheOptions.append(workoutDate) //add NSDate -> cacheOptions
                     }
                     self.displayedOptions = cacheOptions //set temporary reference
                     self.configurationView.configurePopupViewWithDataSource(DataEntry_PopupConfigurationViewTypes.CollectionView, dataSource: source, instructions: "Start a new workout OR use a previous workout's data")
-                    numberOfLevels = 3 //**
-                } else { //no cached objects - automatically open a new stream
+                    numberOfLevels = 3
+                } else { //NO cached objects - automatically OPEN NEW DATASTREAM
                     self.valueWasReturnedByUser(0) //return index of 1st option in source
                 }
             }
-        case 2: //exerciseType selection
+        case 2: //exercise TYPE selection
             var source = ["Weight Lifting Exercise", "Cardio Exercise"]
             var instructions = "Choose a new exercise type"
             if let _ = self.datastream.temporaryStorageObject { //user also has option to CLOSE stream @ this point IFF some data has already been entered
@@ -123,7 +122,7 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
                 instructions.appendContentsOf(" OR end the workout at this time")
             }
             self.configurationView.configurePopupViewWithDataSource(DataEntry_PopupConfigurationViewTypes.CollectionView, dataSource: source, instructions: instructions)
-            numberOfLevels = 3 //**
+            numberOfLevels = 3
         case 3: //exercise NAME selection
             if let exerciseType = currentExerciseType {
                 let source: [String]
@@ -134,29 +133,27 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
                     source = self.cardioExercises
                 }
                 self.configurationView.configurePopupViewWithDataSource(DataEntry_PopupConfigurationViewTypes.SearchBar, dataSource: source, instructions: "Search for an exercise")
-                numberOfLevels = 4 //**
+                numberOfLevels = 4
             }
-        case 4: //Wt. Lift - enter the # of sets; Cardio - select the HR source(?)
+        case 4: //Wt. Training - enter # of sets; Cardio - select the HR source(?)
             if let exerciseType = currentExerciseType {
                 switch exerciseType {
                 case .WeightTraining:
                     self.configurationView.configurePopupViewWithDataSource(DataEntry_PopupConfigurationViewTypes.SimpleNumberEntry, dataSource: nil, instructions: "Enter the number of sets for the exercise")
-                    numberOfLevels = 2 //**
+                    numberOfLevels = 2
                 case .Cardio:
                     let hrOptions = [BiometricModule_DataSourceOptions.AppleWatch.rawValue, BiometricModule_DataSourceOptions.FitBit.rawValue]
-                    self.configurationView.configurePopupViewWithDataSource(DataEntry_PopupConfigurationViewTypes.CollectionView, dataSource: hrOptions, instructions: "Select a HR source???")
-                    numberOfLevels = 4 //**
+                    self.configurationView.configurePopupViewWithDataSource(DataEntry_PopupConfigurationViewTypes.CollectionView, dataSource: hrOptions, instructions: "**Select a HR source**")
+                    numberOfLevels = 4
                 }
             }
-        default:
+        default: //error - should never be called
             print("[displayConfigView] Error - default in switch!")
-            break //should never be called
         }
-        self.currentLocationInFlow = location //LAST - set new location
         self.adjustHeightForCell(numberOfLevels) //instruct DEVC to adjust height for cell
     }
     
-    private func generateFreeformCellsForExerciseType() { //generates appropriate view for DataEntry
+    private func generateFreeformCellsForExerciseType() { //configures Freeform view for DataEntry
         if let currentType = self.currentExerciseType {
             self.currentLocationInFlow = nil //update indicator; nil => FREEFORM display
             var configurationObject: [(String?, ProtectedFreeformTypes?, String?, Int?, (Double?, Double?)?, String?)] = []
@@ -212,7 +209,7 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
                             let indexInArray = index - 1 //shift indices down by 1
                             let selectedWorkout = options[indexInArray] //get date
                             self.module?.mainDataObject = cache[selectedWorkout] //set data -> module
-                            self.configureCompletedCellVisuals() //complete cell
+                            self.setCellVisualsForCompletedConfiguration() //indicate cell is complete
                         }
                     } else { //open new stream (happens naturally as user proceeds through flow)
                         self.displayConfigurationViewForLocation((currentLocation + 1)) //move -> next
@@ -224,9 +221,9 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
                     if let exerciseType = ExerciseTypes(rawValue: index) {
                         self.currentExerciseType = exerciseType
                         self.displayConfigurationViewForLocation((currentLocation + 1)) //move -> next
-                    } else { //user chose to end workout - close stream & store full data
+                    } else { //user chose to end workout - close stream & store full data -> module
                         self.module?.mainDataObject = self.datastream.closeCurrentDatastream()
-                        self.configureCompletedCellVisuals() //complete cell
+                        self.setCellVisualsForCompletedConfiguration() //indicate cell is complete
                     }
                 }
             case 3: //return value is selected exercise's name (STRING)
@@ -256,7 +253,7 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
         }
     }
     
-    private func configureCompletedCellVisuals() { //called when user either selects from the cache or manually closes the datastream
+    private func setCellVisualsForCompletedConfiguration() { //called when user either selects from the cache or manually closes the datastream
         self.configurationView.hidden = true //hide configView
         self.setMainLabelTitle("Cell is COMPLETE!") //set visuals in mainLbl
         self.adjustHeightForCell(1) //shrink cell

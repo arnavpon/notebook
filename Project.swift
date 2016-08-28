@@ -61,11 +61,10 @@ class Project: NSManagedObject, DataEntryProtocol {
     internal func getPercentageCompleted() -> Double? { //calculates what % of project is complete
         let currentDate = NSDate() //get current time
         let currentTimeElapsed = abs(self.startDate.timeIntervalSinceDate(currentDate)) //proj run length
-//        print("Current Time Elapsed: \(currentTimeElapsed).")
+        print("\n[Project] Current Time Elapsed for Project [\(self.title)] = \(currentTimeElapsed).")
         if let totalTimeDifference = self.endDate?.timeIntervalSinceDate(self.startDate) { //total length
             let percentCompleted = Double(currentTimeElapsed / abs(totalTimeDifference))
-//            print("Total Time Difference: \(totalTimeDifference).")
-//            print("% Complete = \(percentCompleted * 100)%.")
+            print("Project is [\(percentCompleted * 100)]% Complete.\n")
             return percentCompleted
         }
         return nil //indefinite project (NO % value)
@@ -208,12 +207,12 @@ class Project: NSManagedObject, DataEntryProtocol {
         var inputNames: [String] = [] //names of all computation inputs
         var inputsReportData = Dictionary<String, [String: AnyObject]>() //data in all computation inputs
         for variable in variables { //each Module obj reports entered data -> VC to construct dict
-            if (variable.variableReportType == ModuleVariableReportTypes.Computation) {
-                deferredComputations.append(variable) //defer computations til ALL vars are reported
-                for (_, inputName) in variable.computationInputs { //grab names of inputs
+            if (variable.variableReportType == ModuleVariableReportTypes.Computation) { //Computations
+                deferredComputations.append(variable) //defer computations until ALL vars are reported
+                for (_, inputName) in variable.computationInputs { //store names of computation inputs
                     inputNames.append(inputName)
                 }
-            } else if (variable.variableReportType == ModuleVariableReportTypes.TimeDifference) {
+            } else if (variable.variableReportType == ModuleVariableReportTypes.TimeDifference) { //TD
                 if let customMod = variable as? CustomModule, setup = customMod.timeDifferenceSetup {
                     if (setup.0 == .DistanceFromAction) { //DistanceFromAction TD - compute value
                         if let currentGroup = self.reportingGroup {
@@ -229,11 +228,10 @@ class Project: NSManagedObject, DataEntryProtocol {
                 }
             } else { //default behavior
                 if let data = variable.reportDataForVariable() { //check if data was successfully reported
-                    if (variable.configurationType != .GhostVariable) { //add non-ghosts to DB object
-                        dataObjectToDatabase[variable.variableName] = data
-                        if let customVar = variable as? CustomModule, id = customVar.counterUniqueID {
-                            //*COUNTER variable - refresh count for next measurement*:
-                            for object in self.counters { //pick counter out from group
+                    if (variable.configurationType != .GhostVariable) { //add NON-GHOSTS -> DB object
+                        dataObjectToDatabase[variable.variableName] = data //store data in DBO
+                        if let customVar = variable as? CustomModule, id = customVar.counterUniqueID { //*COUNTER variable - refresh count for next measurement*
+                            for object in self.counters { //pick Counter out from list of Counters
                                 if let counter = object as? Counter {
                                     if (counter.id == id) { //IDs match
                                         counter.refreshCounter() //refresh this counter
@@ -416,7 +414,7 @@ class Project: NSManagedObject, DataEntryProtocol {
             updatedDict.updateValue(mappedDict, forKey: BMN_Module_ReportedDataKey) //each object's reported data must be matched to its location in the measurement cycle (used to cross reference the timeStamp for that measurement location)
             self.temporaryStorageObject!.updateValue(updatedDict, forKey: variable)
         }
-        if (measurementCycleLength == currentLocationInCycle) && !(datastreamIsOpen) { //no more reports remain (also implies that all datastreams are CLOSED) - send data -> DB
+        if (measurementCycleLength == currentLocationInCycle) && !(datastreamIsOpen) { //no more reports remain (also implies that ALL datastreams are CLOSED) - send data -> DB
             print("All items in the measurement cycle have reported! Sending data -> DB...")
             addDatabaseObjectToPOSTQueue(self.temporaryStorageObject!) //create DB operation for data
         } else { //NOT end of the measurement cycle - store data in TSO

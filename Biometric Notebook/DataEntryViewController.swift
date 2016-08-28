@@ -111,7 +111,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     
     func manualMeasurementCycleRefresh() { //resets project's tempDataObject so IV entry will be displayed (in case user missed 2nd part of the entry) & dumps the associated data for the 1st measurement
         if let object = selectedObject, _ = object.temporaryStorageObject { //refresh only works if the storage object exists (NOT @ location 1 in cycle)
-            let alert = UIAlertController(title: "Warning", message: "If you choose to refresh the cycle, it will permanently delete the data collected for the input variables during this cycle.", preferredStyle: .Alert) ////send the user a warning that data will be deleted!
+            let alert = UIAlertController(title: "Warning", message: "If you choose to refresh the cycle, it will permanently delete the data collected for the input variables during this cycle.", preferredStyle: .Alert) //send the user a warning that data will be deleted!
             let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
             let ok = UIAlertAction(title: "I'm Sure", style: .Destructive) { (let ok) in
                 self.selectedObject!.refreshMeasurementCycle() //refresh project settings 1st
