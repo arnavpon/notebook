@@ -45,6 +45,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     var viewIsVisible: Bool = false //indicator that VC's view is on screen (for alert presentation)
     var isPresentingAlert: Bool = false //indicator that VC is currently presenting alertController
+    var customCellHeights: [Int: Int]? //KEY = cell's indexPath.row; VALUE = # of levels for cell
     
     // MARK: - View Configuration
     
@@ -55,6 +56,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.cellCompletionStatusDidChange(_:)), name: BMN_Notification_CompletionIndicatorDidChange, object: nil) //manual var reporting
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.autoCaptureVarCompletionStatusDidChange(_:)), name: BMN_Notification_AutoCapVarCompletionStatusDidChange, object: nil) //auto cap var reporting
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.serviceDidReportError(_:)), name: BMN_Notification_DataReportingErrorProtocol_ServiceDidReportError, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.adjustCellHeightForNotification(_:)), name: BMN_Notification_AdjustHeightForConfigCell, object: nil) //allows custom height control
         
         //Keyboard notifications:
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(self.keyboardDidAppearWithFrame(_:)), name: UIKeyboardDidChangeFrameNotification, object: nil)
@@ -437,6 +439,18 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         }
     }
     
+    func adjustCellHeightForNotification(notification: NSNotification) {
+        print("Received notification to adjust cell height!")
+        if let info = notification.userInfo, index = info[BMN_AdjustHeightForConfigCell_UniqueIDKey] as? Int, numberOfLevels = info[BMN_AdjustHeightForConfigCell_NumberOfLevelsKey] as? Int { //get the index of the cell to change + the # of lvls
+            print("New # of levels = [\(numberOfLevels)] for cell @ index = [\(index)]")
+            if (self.customCellHeights == nil) { //object does NOT exist
+                self.customCellHeights = [:]
+            }
+            self.customCellHeights!.updateValue(numberOfLevels, forKey: index) //add lvls -> obj
+            self.dataEntryTV.reloadData() //update TV w/ custom heights for cells
+        }
+    }
+    
     // MARK: - Table View
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -447,7 +461,10 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
-        if let variables = variablesArray { //use DataEntryCellTypes to calculate height for cell
+        if let customHeights = self.customCellHeights, levels = customHeights[indexPath.row] { //(1) check for CUSTOM defined height
+            return LevelsFrameworkCell.levelHeight * CGFloat(levels) + BMN_DefaultBottomSpacer
+        }
+        if let variables = variablesArray { //(2) use DataEntryCellTypes to calculate height for cell
             let module = variables[indexPath.row]
             if let cellType = module.getDataEntryCellTypeForVariable() {
                 if let heightInfo = module.cellHeightUserInfo { //check if there is additional height info

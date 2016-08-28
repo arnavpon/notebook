@@ -14,8 +14,8 @@ enum ExerciseTypes: Int {
 
 class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurationViewProtocol { //add new class -> enum!
     
-    override class var numberOfLevels: Int { //default # of levels is ??
-        return 3 //**
+    override class var numberOfLevels: Int {
+        return 1 //height of the cell is dynamically adjusted
     }
     
     var sender: DataEntryProtocol_ConformingClasses? //indicates which object generated this cell
@@ -41,7 +41,7 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
     private lazy var weightTrainingExercises: [String] = ["Bicep Curl", "Tricep Extension", "Tricep Pulldown", "Shoulder Press", "Squat", "Standard Pushup", "Diamond Pushup", "Wide Grip Pullup", "Chinup", "Narrow Grip Pullup"] //datasource(1) for searchBar
     private lazy var cardioExercises: [String] = ["Run", "Treadmill", "Elliptical", "Stair Climbing", "Walk", "Row", "Swim"] //datasource(2) for searchBar
     
-    private var heartRateSource: String? //stores HR source for workout w/ multiple Cardio exercises **
+    private var heartRateSource: BiometricModule_DataSourceOptions? //stores HR source for workout w/ multiple Cardio exercises **
     
     // MARK: - Initializers
     
@@ -94,7 +94,7 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
         configurationView.frame = CGRectMake(0, 0, self.frame.width, self.frame.height)
     }
     
-    private func displayConfigurationViewForLocation(location: Int) -> Int { //updates configView based on the input location; returnObject = # of levels required for the configured view
+    private func displayConfigurationViewForLocation(location: Int) { //updates configView based on the input location; returnObject = # of levels required for the configured view
         var numberOfLevels: Int = 0 //indicates height for returned view
         switch location {
         case 1: //allow user to select between opening a new stream or using cached data - ONLY displayed for Project sender class & if stream's TSO is nil
@@ -148,13 +148,12 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
                     numberOfLevels = 4 //**
                 }
             }
-            numberOfLevels = 3 //**
         default:
             print("[displayConfigView] Error - default in switch!")
             break //should never be called
         }
         self.currentLocationInFlow = location //LAST - set new location
-        return numberOfLevels
+        self.adjustHeightForCell(numberOfLevels) //instruct DEVC to adjust height for cell
     }
     
     private func generateFreeformCellsForExerciseType() { //generates appropriate view for DataEntry
@@ -172,13 +171,24 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
             }
             self.labelBeforeField = false //set indicator FIRST - lbl comes AFTER field
             self.freeformViewsConfigObject = configurationObject //set config object (triggers layout fx)
+            
+            //Calculate height for the cell based on # of configOptions:
+            let numberOfOptions = Double(configurationObject.count) //every 2 views (past the original 2) increases # of levels by 1
+            let numberOfLevels: Int
+            if (numberOfOptions > 2) {
+                numberOfLevels = FreeformDataEntryCell.numberOfLevels + Int(floor(numberOfOptions/2))
+            } else { //less than 2 options (return only base # of levels)
+                numberOfLevels = FreeformDataEntryCell.numberOfLevels
+            }
+            self.adjustHeightForCell(numberOfLevels) //adjust cell height
         }
     }
     
-    private func adjustHeightForCell(numberOfLevels: Int) { //adjusts # of levels for cell
-        //Support dynamic height adjustment for DEVC - this view can have variable # of Freeform objects + the selection options take up different amount of space. Change the dictionary object in the enum object switch & then indicate to VC to redraw cells w/ new height?
-        let notification = NSNotification(name: BMN_Notification_AdjustHeightForConfigCell, object: nil, userInfo: [BMN_AdjustHeightForConfigCell_UniqueIDKey: "", BMN_AdjustHeightForConfigCell_NumberOfLevelsKey: numberOfLevels]) //**
-        NSNotificationCenter.defaultCenter().postNotification(notification)
+    private func adjustHeightForCell(numberOfLevels: Int) { //dynamically adjusts # of levels for cell
+        if let index = self.cellIndex { //indicate which cell to adjust for based on index
+            let notification = NSNotification(name: BMN_Notification_AdjustHeightForConfigCell, object: nil, userInfo: [BMN_AdjustHeightForConfigCell_UniqueIDKey: index, BMN_AdjustHeightForConfigCell_NumberOfLevelsKey: numberOfLevels])
+            NSNotificationCenter.defaultCenter().postNotification(notification)
+        }
     }
     
     // MARK: - Protocol Logic

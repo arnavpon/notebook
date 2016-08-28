@@ -188,9 +188,6 @@ class ExerciseModule: Module {
     }
     
     override var cellHeightUserInfo: [String : AnyObject]? { //provides custom height info -> DEVC
-        if let configObject = FreeformCell_configurationObject {
-            return [BMN_DataEntry_FreeformCell_NumberOfViewsKey: configObject.count]
-        }
         return nil
     }
     
