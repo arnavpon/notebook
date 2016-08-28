@@ -5,6 +5,8 @@
 
 // Food Intake Module > defines behaviors for the food intake data stream.
 
+//For FI vars - if stream is NOT open, it allows the user to either open a new stream or to use cached data from the last completed stream. New streams CANNOT be opened until the existing stream is closed. FIV CANNOT use data from outside the current stream if data has been collected already for the locations that were selected during configuration - e.g. if breakfast has already been consumed & data reported, ONLY the existing breakfast data for the current stream can be used for the variable.
+
 import UIKit
 import CoreData
 
