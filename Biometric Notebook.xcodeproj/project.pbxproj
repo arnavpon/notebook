@@ -19,6 +19,7 @@
 		B12803B51CE413420022777C /* DataEntryCellWithPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12803B41CE413420022777C /* DataEntryCellWithPicker.swift */; };
 		B1288DBB1D456D190015D319 /* RecipeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1288DBA1D456D180015D319 /* RecipeModule.swift */; };
 		B12B9D881D28B86D00B78764 /* DatabaseObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12B9D861D28B86D00B78764 /* DatabaseObject.swift */; };
+		B1344FC71D6F2E8B000413DE /* DataEntryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1344FC61D6F2E8B000413DE /* DataEntryProtocol.swift */; };
 		B136F9851D6253F10015A724 /* MeasurementTimeline_CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B136F9841D6253F10015A724 /* MeasurementTimeline_CollectionViewCell.swift */; };
 		B136F9871D62A0260015A724 /* GroupSelectionView_CollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B136F9861D62A0260015A724 /* GroupSelectionView_CollectionViewCell.swift */; };
 		B1395DAA1CB7675600DEBC91 /* ProjectTitleCustomCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */; };
@@ -47,6 +48,7 @@
 		B15933261CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift in Sources */ = {isa = PBXBuildFile; fileRef = B15933251CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift */; };
 		B16282641CC1839800096CE5 /* CellForCounterBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = B16282631CC1839800096CE5 /* CellForCounterBehavior.swift */; };
 		B16EC9801C317D650085265C /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B16EC97F1C317D650085265C /* HealthKit.framework */; };
+		B16ED8101D7215BA00AA249D /* DataEntry_PopupConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B16ED80F1D7215BA00AA249D /* DataEntry_PopupConfigurationView.swift */; };
 		B17019561CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019551CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift */; };
 		B17019591CAA2C73004CAEB8 /* BaseConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */; };
 		B181E84A1D4FF098007ED083 /* ConfigureCCProjectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B181E8491D4FF098007ED083 /* ConfigureCCProjectViewController.swift */; };
@@ -88,7 +90,6 @@
 		B1C8B58C1D5585E300C5054F /* SetupVariablesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C8B58B1D5585E300C5054F /* SetupVariablesViewController.swift */; };
 		B1CCF1BF1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */; };
 		B1CF34641C4EFF8E001C0F27 /* BiometricModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */; };
-		B1CFF7F41D3C2443000A782E /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1CFF7F31D3C2443000A782E /* PopupView.swift */; };
 		B1D0B2B41C3F24FF00C9438F /* CustomModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */; };
 		B1D0B2B61C3F255A00C9438F /* FoodIntakeModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B51C3F255A00C9438F /* FoodIntakeModule.swift */; };
 		B1D0B2B81C3F25BC00C9438F /* ExerciseModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */; };
@@ -192,6 +193,7 @@
 		B12803B41CE413420022777C /* DataEntryCellWithPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataEntryCellWithPicker.swift; path = ../../DataEntryCellWithPicker.swift; sourceTree = "<group>"; };
 		B1288DBA1D456D180015D319 /* RecipeModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecipeModule.swift; sourceTree = "<group>"; };
 		B12B9D861D28B86D00B78764 /* DatabaseObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DatabaseObject.swift; path = ../DatabaseObject.swift; sourceTree = "<group>"; };
+		B1344FC61D6F2E8B000413DE /* DataEntryProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataEntryProtocol.swift; sourceTree = "<group>"; };
 		B136F9841D6253F10015A724 /* MeasurementTimeline_CollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeasurementTimeline_CollectionViewCell.swift; sourceTree = "<group>"; };
 		B136F9861D62A0260015A724 /* GroupSelectionView_CollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GroupSelectionView_CollectionViewCell.swift; sourceTree = "<group>"; };
 		B1395DA91CB7675600DEBC91 /* ProjectTitleCustomCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ProjectTitleCustomCell.swift; path = ../../ProjectTitleCustomCell.swift; sourceTree = "<group>"; };
@@ -230,6 +232,7 @@
 		B16282631CC1839800096CE5 /* CellForCounterBehavior.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellForCounterBehavior.swift; sourceTree = "<group>"; };
 		B16EC97F1C317D650085265C /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		B16EC9811C317D650085265C /* Biometric Notebook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Biometric Notebook.entitlements"; sourceTree = "<group>"; };
+		B16ED80F1D7215BA00AA249D /* DataEntry_PopupConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataEntry_PopupConfigurationView.swift; path = ../../DataEntry_PopupConfigurationView.swift; sourceTree = "<group>"; };
 		B17019551CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigurationOptionsViewController.swift; sourceTree = "<group>"; };
 		B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseConfigurationCell.swift; sourceTree = "<group>"; };
 		B17C210D1C31B5F400B59FB0 /* HealthKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitConnection.swift; sourceTree = "<group>"; };
@@ -271,7 +274,6 @@
 		B1C8B58B1D5585E300C5054F /* SetupVariablesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetupVariablesViewController.swift; sourceTree = "<group>"; };
 		B1CCF1BE1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ExampleConfigurationCell.swift; path = ../../ExampleConfigurationCell.swift; sourceTree = "<group>"; };
 		B1CF34631C4EFF8E001C0F27 /* BiometricModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricModule.swift; sourceTree = "<group>"; };
-		B1CFF7F31D3C2443000A782E /* PopupView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PopupView.swift; path = ../../PopupView.swift; sourceTree = "<group>"; };
 		B1D0B2B31C3F24FF00C9438F /* CustomModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomModule.swift; sourceTree = "<group>"; };
 		B1D0B2B51C3F255A00C9438F /* FoodIntakeModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoodIntakeModule.swift; sourceTree = "<group>"; };
 		B1D0B2B71C3F25BC00C9438F /* ExerciseModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExerciseModule.swift; sourceTree = "<group>"; };
@@ -342,8 +344,10 @@
 		B122EAFC1CC307AD00CE3D33 /* Supplements */ = {
 			isa = PBXGroup;
 			children = (
-				B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */,
+				B1344FC61D6F2E8B000413DE /* DataEntryProtocol.swift */,
 				B136F9861D62A0260015A724 /* GroupSelectionView_CollectionViewCell.swift */,
+				B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */,
+				B16ED80F1D7215BA00AA249D /* DataEntry_PopupConfigurationView.swift */,
 			);
 			name = Supplements;
 			sourceTree = "<group>";
@@ -707,7 +711,6 @@
 				B1B20A6A1C5E8575003B791B /* LabelWithPadding.swift */,
 				B1D51C5D1CB2A19C00DED6B2 /* LevelsFrameworkCell.swift */,
 				B1D560AB1CB458D700F6A7AC /* CellWithPlusButton.swift */,
-				B1CFF7F31D3C2443000A782E /* PopupView.swift */,
 			);
 			name = "General Supplements";
 			sourceTree = "<group>";
@@ -952,7 +955,6 @@
 				B1BC886F1C3205930085A4F4 /* BiometricNotebook.xcdatamodeld in Sources */,
 				B1B681D81CA9E99C00D9CA71 /* DictionaryKeys.swift in Sources */,
 				B1D3B1441D6E905200A3554D /* Datastream+CoreDataProperties.swift in Sources */,
-				B1CFF7F41D3C2443000A782E /* PopupView.swift in Sources */,
 				B1D868D61C3F58810026334B /* Modules.swift in Sources */,
 				B192626A1D010EE40093590E /* NutritionService.swift in Sources */,
 				B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */,
@@ -1014,6 +1016,7 @@
 				B1D3B1481D6E90FE00A3554D /* ExM_ExerciseDataStream.swift in Sources */,
 				B1DD30671D32DB4B00B2361C /* DatabaseObject+CoreDataProperties.swift in Sources */,
 				B19DF3701CC58CAC008F44C4 /* NetworkConnection.swift in Sources */,
+				B1344FC71D6F2E8B000413DE /* DataEntryProtocol.swift in Sources */,
 				B13BB7391CBEDDFE0084E640 /* Group.swift in Sources */,
 				B1395DAE1CB76A5800DEBC91 /* BaseCreateProjectCell.swift in Sources */,
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
@@ -1025,6 +1028,7 @@
 				B1B20A6B1C5E8576003B791B /* LabelWithPadding.swift in Sources */,
 				B1AA96C81CAB1C870009E716 /* ConfigurationOptionCellTypes.swift in Sources */,
 				B19DF36D1CC57388008F44C4 /* CoreLocationManager.swift in Sources */,
+				B16ED8101D7215BA00AA249D /* DataEntry_PopupConfigurationView.swift in Sources */,
 				B16282641CC1839800096CE5 /* CellForCounterBehavior.swift in Sources */,
 				B17019591CAA2C73004CAEB8 /* BaseConfigurationCell.swift in Sources */,
 				B1D560A81CB4573600F6A7AC /* CellWithCustomSlider.swift in Sources */,

@@ -46,7 +46,15 @@ enum DataEntryCellTypes: String { //REGISTER each new enum type w/ TV in DataEnt
         case .FIM_FoodIntake:
             numberOfLevels = FIM_FoodIntakeDataEntryCell.numberOfLevels
         case .ExM_Workout:
-            numberOfLevels = 0 //**
+            numberOfLevels = ExM_WorkoutDataEntryCell.numberOfLevels //**
+            if let numberOfOptions = userInfo[BMN_DataEntry_FreeformCell_NumberOfViewsKey] as? Double { //every 2 views (past the original 2) increases # of levels by 1
+                if (numberOfOptions > 2) {
+                    numberOfLevels = ExM_WorkoutDataEntryCell.numberOfLevels + Int(floor(numberOfOptions/2))
+                } else { //less than 2 options (return only base # of levels)
+                    numberOfLevels = ExM_WorkoutDataEntryCell.numberOfLevels
+                }
+                print("Options = \(numberOfOptions). Number of levels = \(numberOfLevels).")
+            }
         }
         return levelHeight * CGFloat(numberOfLevels) + BMN_DefaultBottomSpacer //default height
     }

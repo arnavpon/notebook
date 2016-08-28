@@ -20,7 +20,7 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
     }
     
     private var fireCounter = 0 //ensures 'createFreeformViews' fires only once
-    private var freeformViewsConfigObject: [(String?, ProtectedFreeformTypes?, String?, Int?, (Double?, Double?)?, String?)]? { //'freeformView' = TF + lbl contained w/in a view; this tuple specifies all config for the view - indicates the # of TFs (via the array's count) + (1) label for each TF; (2) type of data in TF? (if nil, default is String); (3) defaultValue?; (4) characterLimit?; (5) (if text is numerical value) an upper/lower bound in format (Int?, Int?)?; (6) textField placeholder?
+    internal var freeformViewsConfigObject: [(String?, ProtectedFreeformTypes?, String?, Int?, (Double?, Double?)?, String?)]? { //'freeformView' = TF + lbl contained w/in a view; this tuple specifies all config for the view - indicates the # of TFs (via the array's count) + (1) label for each TF; (2) type of data in TF? (if nil, default is String); (3) defaultValue?; (4) characterLimit?; (5) (if text is numerical value) an upper/lower bound in format (Int?, Int?)?; (6) textField placeholder?
         didSet { //make sure this fires only once!
             if (fireCounter == 0) {
                 fireCounter += 1 //block further firing
@@ -31,7 +31,7 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
     }
     private var freeformViews: [(UIView, UITextField, UILabel)] = []
     private var reportBlocker: Bool = false //blocks update of moduleReportObject
-    private var moduleReportObject: [String] = [] { //array reported to module
+    internal var moduleReportObject: [String] = [] { //array of reported values for module
         didSet { //adjust completion status & update module report object
             if !(reportBlocker) { //check for block (set when initial values are added to array)
                 updateModuleReportObject()
@@ -41,7 +41,7 @@ class FreeformDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new 
             }
         }
     }
-    private var labelBeforeField: Bool = true //if TRUE, labels come before TF; if FALSE, they come after
+    internal var labelBeforeField: Bool = true //TRUE => labels come before TF; FALSE => lbls come after
     
     // MARK: - Initializers
     

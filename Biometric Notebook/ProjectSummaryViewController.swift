@@ -233,7 +233,7 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                                 projectVariables[feedInIndex].reportLocations = parentLocations
                                 print("Updated FEED IN [\(feedIn)] locations -> \(projectVariables[feedInIndex].reportLocations).")
                                 
-                                //If feed-In is NOT a ghost (i.e. it is an independent variable that can be moved in the timeline), add -> computations set:
+                                //If feedIn is NOT a ghost (i.e. it is an independent variable that can be moved in the timeline), add -> computations set:
                                 if (projectVariables[feedInIndex].configurationType != .GhostVariable) {
                                     print("\nFeed-In [\(feedIn)] is NOT a ghost. Updating ref. obj...")
                                     computations!.insert(feedIn) //add -> watch list
@@ -813,6 +813,14 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
                     } else if (project.projectType == ExperimentTypes.InputOutput.rawValue) { //default
                         let _ = Counter(linkedVar: custom, project: project, insertIntoManagedObjectContext: context) //create Counter obj for persistence
                     }
+                }
+            }
+            if let streamID = variable.linkedDatastream { //check if var utilizes a Datastream
+                switch streamID { //activate the Singleton instance of the appropriate stream
+                case .ExM_Workout:
+                    let _  = ExM_ExerciseDataStream.sharedInstance
+                case .FIM_FoodIntake:
+                    let _ = FIM_FoodIntakeDataStream.sharedInstance
                 }
             }
             dictionary[variable.variableName] = variable.createDictionaryForCoreDataStore()

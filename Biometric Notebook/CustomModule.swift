@@ -434,7 +434,7 @@ enum CustomModuleVariableTypes: String { //*match each behavior/computation -> C
     case Behavior_Timing = "Timing" //allows users to enter a time measurement
     
     //*COMPUTATIONS*:
-    case Computation_TimeDifference = "Time Difference" //automatically generates a variable which will obtain a time difference between the report timestamp for the 2 user-selected portions of the measurement cycle. **There can only be 1 per project & it is ALWAYS set as an OM (calculated just before final dataObject is constructed & sent -> DB).
+    case Computation_TimeDifference = "Time Difference" //obtains a time difference measurement between the report timestamp for the 2 user-selected portions of the measurement cycle
     
     func getAlertMessageForVariable() -> String { //provides an informative pop-up about the behavior
         var message = ""

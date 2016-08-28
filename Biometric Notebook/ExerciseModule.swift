@@ -102,43 +102,19 @@ class ExerciseModule: Module {
             switch type { //configure according to 'variableType'
             case .Behavior_Workout:
                 
-                self.FreeformCell_configurationObject = [] //initialize
-                //Based on current location in flow (starting @ 1 & incrementing for each set that is reported), find the correct item to initialize with:
-                    var runningTotal: Int = 0
-                    var index: Int = 0 //index in exercises of currently reporting item
-//                    for exercise in storedExercises {
-//                        if let sets = exercise["sets"] as? Int { //sets exist
-//                            runningTotal += sets
-//                        } else { //no sets (cardio exercise)
-//                            runningTotal += 1
-//                        }
-//                        
-//                        print("Location = \(location). Total = \(runningTotal).")
-//                        if (location <= runningTotal) { //loop until total exceeds location
-//                            break
-//                        }
-//                        index += 1 //increment index
-//                    }
-                
-//                    let exercise = storedExercises[index] //obtain item for reporting
-//                    if let exerciseTypeRaw = exercise["type"] as? Int, exerciseType = ExerciseTypes(rawValue: exerciseTypeRaw) {
-//                        switch exerciseType {
-//                        case .WeightTraining: //need fields for weight lifted & # of reps
-//                            FreeformCell_configurationObject!.append(("lbs.", ProtectedFreeformTypes.Decimal, nil, 6, (0, 999), nil)) //weight cell
-//                            FreeformCell_configurationObject!.append(("Reps", ProtectedFreeformTypes.Int, nil, 2, (0, 99), nil)) //# of reps cell
-//                        case .Cardio: //need fields for time, distance, & calories
-//                            FreeformCell_configurationObject!.append(("Time", ProtectedFreeformTypes.Timing, nil, 11, nil, "HH:MM:SS.ms")) //time cell
-//                            FreeformCell_configurationObject!.append(("miles", ProtectedFreeformTypes.Decimal, nil, 5, (0, 99), nil)) //distance cell
-//                            FreeformCell_configurationObject!.append(("kCal", ProtectedFreeformTypes.Decimal, nil, 6, (0, 1999), nil)) //calories cell
-//                        }
-//                    }
-                    self.cellPrompt = "Fill in the fields after completing each set:" //mainLbl for cell
-                    self.FreeformCell_labelBeforeField = false //lbl comes AFTER field
+                self.linkedDatastream = DatastreamIdentifiers.ExM_Workout //*set datastream indicator*
                 
             case .Behavior_BeforeAndAfter:
                 break
             }
         }
+    }
+    
+    init() { //DATASTREAM init - create a dummy variable for display in TV
+        super.init(name: "BMN_ExM_Datastream_DummyVariable")
+        self.moduleTitle = Modules.ExerciseModule.rawValue
+        self.selectedFunctionality = ExerciseModuleVariableTypes.Behavior_Workout.rawValue
+        self.linkedDatastream = DatastreamIdentifiers.ExM_Workout //*set datastream indicator*
     }
     
     override func copyWithZone(zone: NSZone) -> AnyObject { //creates copy of variable
@@ -157,6 +133,7 @@ class ExerciseModule: Module {
             switch type {
             case .Behavior_Workout:
                 
+                self.linkedDatastream = DatastreamIdentifiers.ExM_Workout //set datastream indicator
                 configurationOptionsLayoutObject = nil //no further config needed
                 
             case .Behavior_BeforeAndAfter:
@@ -189,9 +166,7 @@ class ExerciseModule: Module {
         if let type = variableType {
             persistentDictionary[BMN_VariableTypeKey] = type.rawValue //save variable type
             switch type {
-            case .Behavior_Workout: //store the day of week + exercises/settings for each exercise
-                break
-            case .Behavior_BeforeAndAfter:
+            default:
                 break
             }
         }
@@ -204,7 +179,7 @@ class ExerciseModule: Module {
         if let type = self.variableType {
             switch type {
             case .Behavior_Workout:
-                return DataEntryCellTypes.Freeform
+                return DataEntryCellTypes.ExM_Workout //use custom ExV data entry cell
             default:
                 return nil
             }
@@ -217,6 +192,30 @@ class ExerciseModule: Module {
             return [BMN_DataEntry_FreeformCell_NumberOfViewsKey: configObject.count]
         }
         return nil
+    }
+    
+    override func reportDataForVariable() -> [String : AnyObject]? { //OVERRIDE for datastream variable!
+        let reportDict = super.reportDataForVariable() //store superclass return object
+        print("\n[ExM] Reporting data for variable [\(self.variableName)]...")
+        if let type = self.variableType {
+            switch type {
+            case .Behavior_Workout: //mainDataObject = [String: AnyObject]
+                if let data = self.mainDataObject as? [String: AnyObject] { //if cast -> DICT is successful => data was reported via Freeform data entry
+                    print("Reported Data Object (from Freeform cell) = {\(data)}")
+                    let stream = ExM_ExerciseDataStream.sharedInstance
+                    if let (exercise, _, (total, current)) = stream.getCurrentExerciseFromDatastream() { //CURRENT exercise exists - add data -> stream
+                        ExM_ExerciseDataStream.sharedInstance.writeExerciseDataToDatastream(exercise, currentSet: current, totalNumberOfSets: total, data: data) //write -> stream
+                        return nil //NIL => datastream is still OPEN
+                    }
+                } else if let data = self.mainDataObject as? [[String: AnyObject]] { //if cast -> ARRAY of DICTs is successful => user either selected data from CACHE or CLOSED stream
+                    print("FULL data object was found on cast - {\(data)}!")
+                    return [BMN_Module_ReportedDataKey: data] //return complete package ONLY when data has been completely reported for this variable!
+                }
+            default: //default reporting behavior
+                break
+            }
+        }
+        return reportDict //default is standard behavior
     }
     
 }

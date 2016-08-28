@@ -3,7 +3,7 @@
 //  Created by Arnav Pondicherry  on 8/15/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
-// Custom cell type for group selection view's collectionView.
+// Custom cell type for DEVC group selection view's collectionView.
 
 import UIKit
 

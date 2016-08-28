@@ -3,17 +3,19 @@
 //  Created by Arnav Pondicherry  on 12/27/15.
 //  Copyright © 2015 Confluent Ideals. All rights reserved.
 
-// Obtains reference to current date & time
+// Provides formatting functionality for NSDate class.
 
 import Foundation
 
 class DateTime {
+    
     private let month: Int //current month (MM format)
     private let day: Int //current day (DD format)
     private let year: Int //current year (YYYY format)
     private let hours: Int //current time (hours)
     private let minutes: Int //current time (minutes)
     private let seconds: Int //current time (seconds)
+    
     private var dateString: String { //YYYY-MM-DD (matches MySQL DATE obj format)
         get {
             var formattedMonth = "\(month)"
@@ -45,7 +47,9 @@ class DateTime {
         }
     }
     
-    init() { //empty initializer - sets date -> current date & time
+    // MARK: - Initializers
+    
+    init() { //empty initializer - sets date -> CURRENT date & time
         let currentDate = NSDate()
         let calendar = NSCalendar.currentCalendar()
         let timeZone = calendar.timeZone //gets local timezone for user
@@ -72,6 +76,8 @@ class DateTime {
         minutes = components.minute
         seconds = components.second
     }
+    
+    // MARK: - Formatting Logic
     
     func getDateString() -> String {
         return dateString

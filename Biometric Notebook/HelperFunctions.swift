@@ -91,7 +91,7 @@ func reconstructModuleObjectFromCoreDataDict(variableName: String, configuration
 
 // MARK: - Centered Rectangle
 
-func centerFrameInRect(subviewSize: CGSize, superviewFrame: CGRect) -> CGRect { //centers a SUBVIEW's frame in its superview's frame (ONLY works if view is subview, otherwise coordinates will be off!)
+func centerFrameInRect(subviewSize: CGSize, superviewFrame: CGRect) -> CGRect { //centers a SUBVIEW's frame in its superview's frame (ONLY works if view is SUBVIEW, otherwise coordinates will be off!)
     let superviewCenter = CGPoint(x: superviewFrame.width/2, y: superviewFrame.height/2)
     let originX = superviewCenter.x - subviewSize.width/2
     let originY = superviewCenter.y - subviewSize.height/2

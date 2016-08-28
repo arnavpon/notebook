@@ -12,8 +12,7 @@ class Group: NSManagedObject {
 
     var reconstructedVariables: [Module] = [] //contains ALL variables for current measurement cycle; accessed by Project Class during data reporting
     var autoCapturedVariables: [Module] = [] //contains ONLY auto-captured variables for current measurement cycle; accessed by Project Class
-    var reportCount: Int = 0 //counts the # of variables that must be reported (accessed by VC)
-    var timeDifferenceIsPresent: Bool = false //indicator that reporting group contains TD
+    var reportCount: Int = 0 //counts the # of manual/auto-cap vars that must report (accessed by DEVC)
     var overrideAsyncActionBypass: Bool? //indicates whether to override an async action's bypass
     var asyncActionTimeStamp: NSDate? //*holds timeStamp to avoid it being committed until user reports data for 1st location in cycle*
     
@@ -32,9 +31,14 @@ class Group: NSManagedObject {
         
         var locationInMeasurementCycle: Int = 0
         let reconstructedAction = Action(settings: self.action) //reconstruct action (used below)
-        if let temp = self.project.temporaryStorageObject, timeStamps = temp[BMN_DBO_TimeStampKey] as? [AnyObject] { //temp storage obj exists - count location in measurement cycle by # of timeStamps that exist in tempObj
-            locationInMeasurementCycle = (timeStamps.count + 1) //*add 1 to get CURRENT location*
-            print("[reconstructProjFromCD] Temp obj is NOT nil! Loc = [\(locationInMeasurementCycle)]...")
+        if let temp = self.project.temporaryStorageObject { //temp storage obj exists
+            if let locationOfStreamVariable = temp[BMN_TSO_DatastreamVariableLocationKey] as? Int { //(1) check for DATASTREAM location indicator & if it exists, reset location
+                print("Datastream indicator is set! Setting location to [\(locationOfStreamVariable)]...")
+                locationInMeasurementCycle = locationOfStreamVariable //set SAME location
+            } else if let timeStamps = temp[BMN_DBO_TimeStampKey] as? [AnyObject] { //ELSE - count location in measurement cycle by # of timeStamps that exist in tempObj
+                locationInMeasurementCycle = (timeStamps.count + 1) //*add 1 to get CURRENT location*
+                print("[reconstructProjFromCD] TSO is NOT nil! Loc = [\(locationInMeasurementCycle)]...")
+            }
         } else { //no temp storage => new measurement cycle
             print("[reconstructProjFromCD] Temp object is NIL! Starting NEW measurement cycle...")
             locationInMeasurementCycle = 1 //*start new cycle @ position #1*
@@ -77,25 +81,37 @@ class Group: NSManagedObject {
         //Check the Module obj for the reportType before adding var -> array:
         print("\n[reconstructProjFromCD] Sorting variables according to reportType...")
         for (variable, dict) in variablesForCurrentLocationInCycle { //'dict' = configurationDict for var
-            print("[GROUP] Reconstructing Variable: [\(variable)].")
-            let reconstructedVariable: Module = reconstructModuleObjectFromCoreDataDict(variable, configurationDict: dict) //reconstruct variable from shell
-            reconstructedVariables.append(reconstructedVariable) //add -> array for data capture
-            switch reconstructedVariable.variableReportType { //check the var's reportType
-            case .Default: //USER-ENTERED vars - add to array for display to user
-                print("MANUAL capture var")
-                reportCount += 1 //manual vars count towards total
-                manualEntryVariablesArray.append(reconstructedVariable) //add MANUAL vars -> obj
-            case .AutoCapture: //AUTO captured vars - instruct to report data @ this time!
-                print("AUTO capture var")
-                reportCount += 1 //true auto cap (non-TD) vars count towards total
-                reconstructedVariable.populateDataObjectForAutoCapturedVariable()
-                autoCapturedVariables.append(reconstructedVariable) //add -> array
-            case .Computation:
-                print("COMPUTATION variable")
-                break //should NOT be displayed in TV, must wait for other variables to report before populating report object
-            case .TimeDifference: //TD vars should ONLY appear @ end of measurement cycle!
-                print("TIME DIFFERENCE variable")
-                self.timeDifferenceIsPresent = true //set indicator
+            if let temp = self.project.temporaryStorageObject, variableDict = temp[variable] as? [String: AnyObject], reportObject = variableDict[BMN_Module_ReportedDataKey] as? [String: AnyObject], _ = reportObject["\(locationInMeasurementCycle)"] { //variable has already reported @ current location - bypass
+                print("[GROUP] Variable [\(variable)] has ALREADY REPORTED @ this location! Bypassing...")
+            } else { //variable has NOT already reported - reconstruct
+                print("[GROUP] Reconstructing Variable: [\(variable)].")
+                let reconstructedVariable: Module = reconstructModuleObjectFromCoreDataDict(variable, configurationDict: dict) //reconstruct variable from shell
+                reconstructedVariables.append(reconstructedVariable) //add -> array for data capture
+                switch reconstructedVariable.variableReportType { //check the var's reportType
+                case .Default: //USER-ENTERED vars - add to array for display to user
+                    print("MANUAL capture var")
+                    reportCount += 1 //manual vars count towards total
+                    manualEntryVariablesArray.append(reconstructedVariable) //add MANUAL vars -> obj
+                case .AutoCapture: //AUTO captured vars - instruct to report data @ this time!
+                    print("AUTO capture var")
+                    reportCount += 1 //true auto cap (non-TD) vars count towards total
+                    reconstructedVariable.populateDataObjectForAutoCapturedVariable()
+                    autoCapturedVariables.append(reconstructedVariable) //add -> array
+                case .Computation:
+                    print("COMPUTATION variable")
+                break //should NOT be displayed in TV & does NOT count towards 'reportCount', must wait for other variables to report before populating report object
+                case .TimeDifference: //TD vars do NOT appear as part of measurement cycle!
+                    print("TIME DIFFERENCE variable")
+                }
+                
+                //Check if the variable utilizes a Datastream:
+                if let _ = reconstructedVariable.linkedDatastream { //DATASTREAM object
+                    print("Variable is part of DATASTREAM! Setting indicator...")
+                    if (self.project.temporaryStorageObject == nil) { //TSO does NOT exist yet
+                        self.project.temporaryStorageObject = [:] //initialize
+                    }
+                    self.project.temporaryStorageObject!.updateValue(locationInMeasurementCycle, forKey: BMN_TSO_DatastreamVariableLocationKey) //set indicator in TSO w/ CURRENT location
+                }
             }
         }
         return manualEntryVariablesArray

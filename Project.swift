@@ -10,8 +10,9 @@
 import Foundation
 import CoreData
 
-class Project: NSManagedObject {
+class Project: NSManagedObject, DataEntryProtocol {
     
+    var sender: DataEntryProtocol_ConformingClasses = .Project //protocol property
     private var experimentType: ExperimentTypes? { //get projectType as an enum object
         return ExperimentTypes(rawValue: self.projectType)
     }
@@ -72,7 +73,7 @@ class Project: NSManagedObject {
     
     // MARK: - Data Reporting Logic
     
-    //**For type II variables (sensor data), we will need to create a separate DB table b/c the entries will not be collected @ the same frequency as other data (OR SHOULD WE SET IT SO THE RATES MATCH?).
+    //**For type II variables (sensor data), we will need to create a separate DB table b/c the entries will not be collected @ same frequency as other data (OR SHOULD WE SET IT SO THE RATES MATCH?).
     
     var reportingGroup: Group? //keeps track of currently reporting group
     var groupSelectionOptions: [(String, String?)]? //(groupName, groupType)
@@ -163,6 +164,13 @@ class Project: NSManagedObject {
         return nil
     }
     
+    func getReportCountForCurrentLocationInCycle() -> Int? { //indicates to DEVC the # of (manual + auto-cap) variables that must report for the 'Done' btn to be enabled
+        if let group = self.reportingGroup {
+            return group.reportCount //set when variables are obtained for Group for current location
+        }
+        return nil
+    }
+    
     func repopulateDataObjectForSubscribedVariables(erroredService service: ServiceTypes) { //called by DataEntryVC in response to error messages - instructs all variables subscribed to the specified service to re-populate their report data object
         if let group = self.reportingGroup {
             for variable in group.autoCapturedVariables { //check if var is subscribed to service
@@ -175,7 +183,7 @@ class Project: NSManagedObject {
     
     // MARK: - Data Aggregation Logic
     
-    func constructDataObjectForDatabase() { //construct dataObject to report -> DB
+    func constructDataObjectForReportedData() { //construct dataObject to report -> DB
         var dataObjectToDatabase = Dictionary<String, [String: AnyObject]>()
         var variables: [Module] = []
         var measurementCycleLength: Int = 0 //total length of measurement cycle
@@ -183,14 +191,16 @@ class Project: NSManagedObject {
         if let group = self.reportingGroup { //get variables for currently reporting group
             variables = group.reconstructedVariables
             measurementCycleLength = group.measurementCycleLength as Int
-            if let stamp = group.asyncActionTimeStamp { //check if async action has timeStamp
+            if let stamp = group.asyncActionTimeStamp { //check if group is temporarily holding a timeStamp for an async action & set it as the Action property
                 var action = Action(settings: group.action) //reconstruct action
-                action.actionTimeStamp = stamp //set timeStamp
+                action.actionTimeStamp = stamp //set timeStamp -> property
                 group.action = action.constructCoreDataObjectForAction() //overwrite action w/ stamp
-                group.asyncActionTimeStamp = nil //*clear indicator*
+                group.asyncActionTimeStamp = nil //*clear indicator in Group object*
                 saveManagedObjectContext() //commit changes
             }
         }
+        var datastreamIsOpen: Bool = false //indicator for datastream variables
+        var locationForDatastream: Int? = nil //set when datastream exists (used by 'parseDBObject' fx)
         
         //(1) Obtain the data stored in ALL variables (manual + auto) that are being reported:
         var reportCount = 0
@@ -235,8 +245,13 @@ class Project: NSManagedObject {
                         inputsReportData[variable.variableName] = data
                     }
                     reportCount += 1 //compare report count -> full count
-                } else {
-                    print("[constructDataObject] Error - no data for '\(variable.variableName)' variable!")
+                } else { //NO reported data - variable may be part of Datastream
+                    if let _ = variable.linkedDatastream { //DATASTREAM variable - stream is still open
+                        print("\n[constructDataObject] Variable [\(variable.variableName)] uses datastream & is INCOMPLETE! Setting indicator...")
+                        datastreamIsOpen = true //set indicator for open stream
+                    } else { //fatal error
+                        print("\n[constructDataObject] Critical Error - no data for '\(variable.variableName)' variable @ report time!!!\n")
+                    }
                 }
             }
             
@@ -253,9 +268,22 @@ class Project: NSManagedObject {
                 print("DB Object: VAR = [\(variableName)]. KEY: [\(key)]. VALUE: [\(value)].")
             }
             print("\n")
+        } //**
+        
+        //(2) Check if there is an OPEN datastream:
+        if (datastreamIsOpen) { //OPEN DATASTREAM - set indicator for location
+            print("\nOPEN DATASTREAM - setting location for indicator...")
+            if let temp = self.temporaryStorageObject, loc = temp[BMN_TSO_DatastreamVariableLocationKey] as? Int { //check for location indicator
+                print("Location indicator is present in TSO & has been set!")
+                locationForDatastream = loc //set location (used to update TSO)
+            }
+        } else { //*NO open datastream - remove indicator from TSO*
+            print("\nTSO count BEFORE removal = \(temporaryStorageObject?.count).")
+            self.temporaryStorageObject?.removeValueForKey(BMN_TSO_DatastreamVariableLocationKey)
+            print("TSO count AFTER removal = \(temporaryStorageObject?.count).\n")
         }
         
-        //(2) Check if any of the variables are computations & (if so) compute their values now:
+        //(3) Check if any of the variables are computations & (if so) compute their values now:
         if !(deferredComputations.isEmpty) { //COMPUTATION(S) exist
             for name in inputNames { //*add NON-GHOST inputs to dict for CompFr AFTER all vars report*
                 if (inputsReportData[name] == nil) { //ONLY add new entry for NON-ghost (ghosts are ALREADY present in dictionary)!
@@ -271,65 +299,129 @@ class Project: NSManagedObject {
             }
         }
         
-        //(3) For an async action - store actionQualifier data -> the action:
+        //(4) For an async action - store actionQualifier data -> the action:
         if let qualifiers = actionQualifiers { //this location has AQ
             storeQualifierDataForAsyncAction(qualifiers, databaseObject: dataObjectToDatabase)
         }
         
-        //(4) If this is NOT the last location in measurement cycle, store data -> tempObject; if it is the last location, send the data -> DB:
-        parseDatabaseObject(measurementCycleLength, dataObjectToDatabase: dataObjectToDatabase)
+        //(5) If this is NOT the last location in measurement cycle, store data -> tempObject; if it is the last location, send the data -> DB:
+        parseDatabaseObject(measurementCycleLength, dataObjectToDatabase: dataObjectToDatabase, locationForDatastream: locationForDatastream)
     }
     
-    private func parseDatabaseObject(measurementCycleLength: Int, dataObjectToDatabase: [String: [String: AnyObject]]) {
-        print("Analyzing temp object... Measurement cycle length = [\(measurementCycleLength)].")
+    private func parseDatabaseObject(measurementCycleLength: Int, dataObjectToDatabase: [String: [String: AnyObject]], locationForDatastream: Int?) {
+//        if let temp = self.temporaryStorageObject, timeStampsArray = temp[BMN_DBO_TimeStampKey] as? [NSDate] { //tempObject EXISTS - determine location by counting # of timeStamps in the dict (count reflects # of times data has been reported, but does NOT include data from the CURRENT location in cycle, hence we must add 1)
+//            var blockTimestamp: Bool = false //indicator
+//            if let streamLocation = locationForDatastream { //indicator for datastream was set
+//                print("Datastream is OPEN! # STAMPS = \(timeStampsArray.count). Loc = \(streamLocation).")
+//                if (timeStampsArray.count == streamLocation) { //timeStamp was already set for this loc
+//                    print("Timestamp was ALREADY SET for this location! Setting blocker...")
+//                    blockTimestamp = true //block addition of new timeStamp
+//                }
+//            } else { //default - NO open datastream
+//                print("Temp obj exists - current loc in meas cycle = [\(timeStampsArray.count+1)]!")
+//            }
+//            
+//            if !(blockTimestamp) { //indicator == FALSE - add new timeStamp -> array
+//                var updatedTimeStamps = timeStampsArray //update timeStamps array
+//                updatedTimeStamps.append(NSDate()) //add newest timeStamp -> updated array
+//                self.temporaryStorageObject!.updateValue(updatedTimeStamps, forKey: BMN_DBO_TimeStampKey)
+//            }
+//            
+//            for (variable, reportedData) in dataObjectToDatabase { //add all items in DB object -> tempObj
+//                var updatedDict = reportedData //set existing data
+//                var mappedDict = Dictionary<String, AnyObject>() //key MUST be a STRING (for JSON)
+//                if let newData = reportedData[BMN_Module_ReportedDataKey] {
+//                    if let existingDict = temp[variable], existingData = existingDict[BMN_Module_ReportedDataKey] as? [String: AnyObject] { //check for existing data
+//                        mappedDict = existingData //add existing data -> dict if it is present
+//                    }
+//                    mappedDict.updateValue(newData, forKey: ("\(timeStampsArray.count + 1)")) //match newData to the current location in measurement cycle
+//                }
+//                updatedDict.updateValue(mappedDict, forKey: BMN_Module_ReportedDataKey) //each object's reported data must be matched to its location in the measurement cycle (used to cross reference the timeStamp for that measurement location)
+//                self.temporaryStorageObject!.updateValue(updatedDict, forKey: variable)
+//            }
+//            if (measurementCycleLength > (timeStampsArray.count + 1)) { //NOT end - store data in temp
+//                print("Some items remain to be reported! Storing data in tempObj...")
+//                saveManagedObjectContext() //save tempDict in CoreData
+//            } else { //no more reports remain - send data -> DB
+//                print("All items in the measurement cycle have reported! Sending data -> DB...")
+//                addDatabaseObjectToPOSTQueue(self.temporaryStorageObject!) //create DB operation for data
+//            }
+//        } else { //tempObject does NOT exist (current location in cycle == 1)
+//            print("Temp obj does NOT exist!")
+//            self.temporaryStorageObject = Dictionary<String, AnyObject>() //initialize
+//            temporaryStorageObject![BMN_DBO_TimeStampKey] = [NSDate()] //set a single time stamp for each point in measurement cycle - *timeStamp must initially be set as NSDATE obj so it can be used to calculate time differences*
+//            if let group = reportingGroup { //always store reporting group
+//                temporaryStorageObject![BMN_TSO_ReportingGroupKey] = [group.groupName: group.groupType] //store Group's name & type in dict
+//            }
+//            for (variable, reportedData) in dataObjectToDatabase { //store DB obj -> tempObj (KEY = var)
+//                var updatedDict = reportedData
+//                var mappedDict = Dictionary<String, AnyObject>() //key MUST be STRING (for JSON)
+//                if let data = reportedData[BMN_Module_ReportedDataKey] {
+//                    mappedDict["1"] = data //match data to 1st position in measurement cycle
+//                }
+//                updatedDict.updateValue(mappedDict, forKey: BMN_Module_ReportedDataKey) //each object's reported data must be matched to its location in the measurement cycle (used to cross reference the timeStamp for that measurement location)
+//                self.temporaryStorageObject!.updateValue(updatedDict, forKey: variable)
+//            }
+//            if (measurementCycleLength > 1) { //save dict -> tempObject until all data is reported
+//                print("Measurement cycle length > 1! Saving temp object...")
+//                saveManagedObjectContext() //save tempObject
+//            } else if (measurementCycleLength == 1) { //only 1 location in cycle - send data -> DB
+//                print("Only 1 report per cycle for this group. Sending data -> DB...")
+//                addDatabaseObjectToPOSTQueue(self.temporaryStorageObject!)
+//            }
+//        }
+        
+        print("[parsingDBObject] Measurement cycle length = [\(measurementCycleLength)].")
+        var currentLocationInCycle: Int = 1 //default location is 1
+        var datastreamIsOpen: Bool = false //indicator (controls whether DB object is sent -> DB)
+        if let _ = locationForDatastream { //check if datastream loc is set
+            datastreamIsOpen = true //set indicator
+        }
         if let temp = self.temporaryStorageObject, timeStampsArray = temp[BMN_DBO_TimeStampKey] as? [NSDate] { //tempObject EXISTS - determine location by counting # of timeStamps in the dict (count reflects # of times data has been reported, but does NOT include data from the CURRENT location in cycle, hence we must add 1)
-            print("Temp obj exists - current loc in meas cycle = [\(timeStampsArray.count+1)]!")
-            var updatedTimeStamps = timeStampsArray //update timeStamps array
-            updatedTimeStamps.append(NSDate()) //add newest timeStamp -> updated array
-            self.temporaryStorageObject!.updateValue(updatedTimeStamps, forKey: BMN_DBO_TimeStampKey)
-            
-            for (variable, reportedData) in dataObjectToDatabase { //add all items in DB object -> tempObj
-                var updatedDict = reportedData //set existing data
-                var mappedDict = Dictionary<String, AnyObject>() //key MUST be a STRING (for JSON)
-                if let newData = reportedData[BMN_Module_ReportedDataKey] {
-                    if let existingDict = temp[variable], existingData = existingDict[BMN_Module_ReportedDataKey] as? [String: AnyObject] { //check for existing data
-                        mappedDict = existingData //add existing data -> dict if it is present
-                    }
-                    mappedDict.updateValue(newData, forKey: ("\(timeStampsArray.count + 1)")) //match newData to the current location in measurement cycle
+            currentLocationInCycle = timeStampsArray.count + 1 //set current location
+            var blockTimestamp: Bool = false //indicator (controls timeStamp addition -> array)
+            if let streamLocation = locationForDatastream { //indicator for datastream was set
+                print("Datastream is OPEN! # STAMPS = \(timeStampsArray.count). Loc = \(streamLocation).")
+                if (timeStampsArray.count == streamLocation) { //timeStamp was already set for this loc
+                    print("Timestamp was ALREADY SET for this location! Setting blocker...")
+                    blockTimestamp = true //block addition of new timeStamp
                 }
-                updatedDict.updateValue(mappedDict, forKey: BMN_Module_ReportedDataKey) //each object's reported data must be matched to its location in the measurement cycle (used to cross reference the timeStamp for that measurement location)
-                self.temporaryStorageObject!.updateValue(updatedDict, forKey: variable)
+            } else { //default - NO open datastream
+                print("Temp obj exists - current loc in meas cycle = [\(timeStampsArray.count+1)]!")
             }
-            if (measurementCycleLength > (timeStampsArray.count + 1)) { //NOT end - store data in temp
-                print("Some items remain to be reported! Storing data in tempObj...")
-                saveManagedObjectContext() //save tempDict in CoreData
-            } else { //no more reports remain - send data -> DB
-                print("All items in the measurement cycle have reported! Sending data -> DB...")
-                addDatabaseObjectToPOSTQueue(self.temporaryStorageObject!) //create DB operation for data
+            
+            if !(blockTimestamp) { //indicator == FALSE - add new timeStamp -> array
+                var updatedTimeStamps = timeStampsArray //update timeStamps array
+                updatedTimeStamps.append(NSDate()) //add newest timeStamp -> updated array
+                self.temporaryStorageObject!.updateValue(updatedTimeStamps, forKey: BMN_DBO_TimeStampKey)
             }
-        } else { //tempObject does NOT exist (current location in cycle == 1)
-            print("Temp obj does NOT exist!")
+        } else { //tempObject/timeStamps do NOT exist (current location in cycle == 1)
+            print("Temp obj does NOT exist! Initializing...")
             self.temporaryStorageObject = Dictionary<String, AnyObject>() //initialize
             temporaryStorageObject![BMN_DBO_TimeStampKey] = [NSDate()] //set a single time stamp for each point in measurement cycle - *timeStamp must initially be set as NSDATE obj so it can be used to calculate time differences*
-            if let group = reportingGroup { //always store reporting group
+            if let group = reportingGroup { //always store reporting group -> TSO
                 temporaryStorageObject![BMN_TSO_ReportingGroupKey] = [group.groupName: group.groupType] //store Group's name & type in dict
             }
-            for (variable, reportedData) in dataObjectToDatabase { //store DB obj -> tempObj (KEY = var)
-                var updatedDict = reportedData
-                var mappedDict = Dictionary<String, AnyObject>() //key MUST be STRING (for JSON)
-                if let data = reportedData[BMN_Module_ReportedDataKey] {
-                    mappedDict["1"] = data //match data to 1st position in measurement cycle
+        }
+        
+        for (variable, reportedData) in dataObjectToDatabase { //add all items in DB object -> tempObj
+            var updatedDict = reportedData //set existing data
+            var mappedDict = Dictionary<String, AnyObject>() //key MUST be a STRING (for JSON)
+            if let incomingData = reportedData[BMN_Module_ReportedDataKey] {
+                if let existingDict = temporaryStorageObject![variable], existingData = existingDict[BMN_Module_ReportedDataKey] as? [String: AnyObject] { //check for existing data
+                    mappedDict = existingData //FIRST add existing data -> mappedDict if it is present
                 }
-                updatedDict.updateValue(mappedDict, forKey: BMN_Module_ReportedDataKey) //each object's reported data must be matched to its location in the measurement cycle (used to cross reference the timeStamp for that measurement location)
-                self.temporaryStorageObject!.updateValue(updatedDict, forKey: variable)
+                mappedDict.updateValue(incomingData, forKey: ("\(currentLocationInCycle)")) //match incomingData -> the current location in measurement cycle
             }
-            if (measurementCycleLength > 1) { //save dict -> tempObject until all data is reported
-                print("Measurement cycle length > 1! Saving temp object...")
-                saveManagedObjectContext() //save tempObject
-            } else if (measurementCycleLength == 1) { //only 1 location in cycle - send data -> DB
-                print("Only 1 report per cycle for this group. Sending data -> DB...")
-                addDatabaseObjectToPOSTQueue(self.temporaryStorageObject!)
-            }
+            updatedDict.updateValue(mappedDict, forKey: BMN_Module_ReportedDataKey) //each object's reported data must be matched to its location in the measurement cycle (used to cross reference the timeStamp for that measurement location)
+            self.temporaryStorageObject!.updateValue(updatedDict, forKey: variable)
+        }
+        if (measurementCycleLength == currentLocationInCycle) && !(datastreamIsOpen) { //no more reports remain (also implies that all datastreams are CLOSED) - send data -> DB
+            print("All items in the measurement cycle have reported! Sending data -> DB...")
+            addDatabaseObjectToPOSTQueue(self.temporaryStorageObject!) //create DB operation for data
+        } else { //NOT end of the measurement cycle - store data in TSO
+            print("Some items remain to be reported! Storing data in TSO...")
+            saveManagedObjectContext() //save tempDict in CoreData
         }
     }
     
@@ -404,116 +496,5 @@ class Project: NSManagedObject {
             }
         }
     }
-    
-//    func constructDataObjectForDatabase() { //construct dataObject to report -> DB
-//        var dataObjectToDatabase = Dictionary<String, [String: AnyObject]>()
-//        var variables: [Module] = []
-//        if let group = self.reportingGroup { //get variables for currently reporting group
-//            variables = group.reconstructedVariables
-//        }
-//        
-//        //(1) Obtain the data stored in ALL variables (manual + auto) that are being reported:
-//        var reportCount = 0
-//        var deferredComputations: [Module] = [] //array containing computations
-//        var inputNames: [String] = [] //names of all computation inputs
-//        var inputsReportData = Dictionary<String, [String: AnyObject]>() //data in all computation inputs
-//        for variable in variables { //each Module obj reports entered data -> VC to construct dict
-//            if (variable.variableReportType == ModuleVariableReportTypes.Computation) {
-//                deferredComputations.append(variable) //defer computations til ALL vars are reported
-//                for (_, inputName) in variable.computationInputs { //grab names of inputs
-//                    inputNames.append(inputName)
-//                }
-//            } else { //default behavior
-//                if let data = variable.reportDataForVariable() { //check if data was successfully reported
-//                    if !(variable.isGhost) { //add non-ghosts to DB object
-//                        dataObjectToDatabase[variable.variableName] = data
-//                    } else { //GHOST var (add to computation inputs object)
-//                        inputsReportData[variable.variableName] = data
-//                    }
-//                    reportCount += 1 //compare report count -> full count
-//                } else {
-//                    print("[constructDataObject] Error - no data for '\(variable.variableName)' variable!")
-//                }
-//            }
-//        }
-//        for (variableName, dict) in dataObjectToDatabase { //**
-//            for (key, value) in dict {
-//                print("DB Object: VAR = '\(variableName)'. KEY: '\(key)'. VALUE: [\(value)].")
-//            }
-//            print("\n")
-//        }
-//        
-//        //(2) Check if any of the variables are computations & (if so) compute their values now:
-//        if !(deferredComputations.isEmpty) { //COMPUTATION(S) exist
-//            for name in inputNames { //*add NON-GHOST inputs to dict for CF AFTER all vars report*
-//                if (inputsReportData[name] == nil) { //ONLY add new entry for NON-ghost (ghosts are ALREADY present in dictionary)!
-//                    inputsReportData[name] = dataObjectToDatabase[name]
-//                }
-//            }
-//            let computationFramework = Module_ComputationFramework()
-//            computationFramework.setReportObjectForComputations(deferredComputations, inputsReportData: inputsReportData) //load computations w/ return values
-//            for computation in deferredComputations { //have computations report their values -> DB object
-//                if let reportObject = computation.reportDataForVariable() {
-//                    dataObjectToDatabase[computation.variableName] = reportObject
-//                }
-//            }
-//        }
-//        
-//        //(3) If IV are being reported, store data -> tempObj; if OM are reported, send data -> DB:
-//        if let temp = self.temporaryStorageObject { //tempObject EXISTS (send combined data -> DB)
-//            if let timeStamps = temp[BMN_Module_MainTimeStampKey], inputsReportTime = timeStamps[BMN_Module_InputsTimeStampKey] as? NSDate { //get inputTime from dict
-//                let outputsReportTime = NSDate() //get CURRENT time for outputs timeStamp
-//                
-//                //Check if project contains a TimeDifference variable:
-//                if let tdInfo = temp[BMN_ProjectContainsTimeDifferenceKey], name = tdInfo[BMN_CustomModule_TimeDifferenceKey] as? String { //calculate TD if it exists
-//                    let difference = outputsReportTime.timeIntervalSinceReferenceDate - inputsReportTime.timeIntervalSinceReferenceDate
-//                    self.temporaryStorageObject![BMN_ProjectContainsTimeDifferenceKey] = nil //clear indicator in tempObject
-//                    dataObjectToDatabase[name] = [BMN_Module_ReportedDataKey: difference] //save time difference in var's 'reportedDataKey'
-//                }
-//                self.temporaryStorageObject?.removeValueForKey(BMN_Module_MainTimeStampKey)
-//                self.temporaryStorageObject?.removeValueForKey(BMN_CurrentlyReportingGroupKey) //remove indicator from dict before posting to DB
-//                
-//                //Update dataObject's input & output NSDate timeStamps w/ STRING timeStamps:
-//                let outputsTimeStamp = DateTime(date: outputsReportTime).getFullTimeStamp() //string
-//                dataObjectToDatabase[BMN_Module_MainTimeStampKey] = [BMN_Module_OutputsTimeStampKey: outputsTimeStamp]
-//                let inputsTimeStamp = DateTime(date: inputsReportTime).getFullTimeStamp() //string
-//                dataObjectToDatabase[BMN_Module_MainTimeStampKey]?.updateValue(inputsTimeStamp, forKey: BMN_Module_InputsTimeStampKey)
-//            }
-//            
-//            //Obtain data from tempDataObject:
-//            if let updatedTemp = self.temporaryStorageObject { //get UPDATED temp object
-//                for (key, value) in updatedTemp { //add all items in temp object -> DB data object
-//                    dataObjectToDatabase.updateValue(value, forKey: key)
-//                }
-//            }
-//            
-//            //Add dictionary to POST queue (when DB is online, we will check for internet connection & post immediately if it exists, store to queue if it doesn't):
-//            if let connection = DatabaseConnection(), groupType = self.reportingGroup?.groupType {
-//                connection.createDataObjectForReportedData(self.title, reportedData: dataObjectToDatabase, groupType: groupType) //creates data object & stores it in CD
-//                
-//                for (variableName, dict) in dataObjectToDatabase { //**
-//                    for (key, value) in dict {
-//                        print("DB Object: VAR = '\(variableName)'. KEY: '\(key)'. VALUE: [\(value)].")
-//                    }
-//                }
-//                print("\n") //**
-//                
-//                self.refreshMeasurementCycle() //set tempObj -> nil & refresh counters after reporting
-//            } else {
-//                print("ERROR - failed to create database object for reported data!")
-//            }
-//            
-//        } else { //tempObject does NOT exist (save dict -> tempObject until outputs are reported)
-//            dataObjectToDatabase[BMN_Module_MainTimeStampKey] = [BMN_Module_InputsTimeStampKey: NSDate()] //set single time stamp for ALL of the IVs - *this timeStamp must initially be set as an NSDATE obj so that it can be used to calculate time differences*
-//            let numberOfGroups = self.groups.count
-//            if (numberOfGroups > 1) { //multiple groups (save a groupType in the tempObject)
-//                if let group = reportingGroup {
-//                    dataObjectToDatabase[BMN_CurrentlyReportingGroupKey] = [group.groupType: group.groupType] //store Group type in dict
-//                }
-//            }
-//            self.temporaryStorageObject = dataObjectToDatabase //store obj -> temp
-//            saveManagedObjectContext() //save tempObject
-//        }
-//    }
     
 }

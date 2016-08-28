@@ -274,6 +274,10 @@ class LevelsFrameworkCell: UITableViewCell {
         return CGRectMake(originX, originY, width, height)
     }
     
+    internal func setMainLabelTitle(title: String) { //allows external title control
+        self.mainLabel.text = title //update title
+    }
+    
     // MARK: - DYNAMIC Visual Layout
     
     internal func configureCompletionIndicator(complete: Bool) { //adjusts visuals on completionIndicator

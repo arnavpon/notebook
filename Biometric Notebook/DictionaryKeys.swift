@@ -37,8 +37,6 @@ let BMN_Notification_AutoCapVarCompletionStatusDidChange = "BMN_AutoCapVarComple
 let BMN_Notification_AdjustHeightForConfigCell = "BMN_AdjustHeightForConfigCell" //config cell height
 let BMN_AdjustHeightForConfigCell_UniqueIDKey = "BMN_AdjustHeightForConfigCell_unique_id_key"
 let BMN_AdjustHeightForConfigCell_NumberOfLevelsKey = "BMN_AdjustHeightForConfigCell_number_of_levels_key"
-
-let BMN_Notification_PopupViewActionWasTriggered = "BMN_PopupViewActionWasTriggered" //popup view notif
 let BMN_Notification_DataEntry_GroupSelection_OptionWasSelected = "BMN_DE_GroupSelection_OptionWasSelected"
 
 let BMN_Notification_MeasurementTimeline_VariableWasSelected = "BMN_MT_VariableWasSelected"
@@ -142,6 +140,7 @@ let BMN_DataEntry_MainLabelPromptKey = "DE_main_label_prompt_key" //alternate ma
 // MARK: - [MODULE] Data Entry Keys
 
 let BMN_TSO_ReportingGroupKey = "DE_reporting_group_key" //stores ID for reporting group in tempStorageObj
+let BMN_TSO_DatastreamVariableLocationKey = "DE_datastream_variable_location_key"
 let BMN_DBO_TimeStampKey = "DE_time_stamp_key" //key in DB object for timeStamp @ each reportLocation
 let BMN_Module_AutoCapVarCompletionStatusKey = "module_auto_cap_var_completion_status_key" //notif key
 let BMN_Module_ReportedDataKey = "module_main_data_key" //for var's main data (*match -> Python script*)
@@ -216,6 +215,10 @@ let BMN_FoodIntakeModule_NutritionCategoriesKey = "FiM_nutrition_categories_key"
 let BMN_FoodIntakeModule_DataStreamLocationsKey = "FiM_data_stream_locations_key"
 
 // MARK: - ExerciseModule [ExM]
+
+//[Datastream Keys]:
+let BMN_ExM_CurrentExerciseKey = "ExM_current_exercise_key"
+let BMN_ExM_ReportedDataKey = "ExM_reported_data_key"
 
 // MARK: - RecipeModule [ExM]
 

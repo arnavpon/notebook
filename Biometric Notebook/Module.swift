@@ -229,7 +229,7 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
         var reportObject = Dictionary<String, AnyObject>()
         reportObject[BMN_Module_ReportedDataKey] = mainDataObject //main data object to report (unique to each type of Custom DataEntry cell)
         return reportObject
-        //Note - timeStamps are generated @ time of aggregation in DataEntryVC; a SINGLE time stamp is generated for each location in the measurement cycle (b/c all variables w/in a single portion of the cycle have same time stamp as other variables. This may vary for auto-captured data!
+        //Note - timeStamps are generated @ time of aggregation; a SINGLE time stamp is generated for each location in the measurement cycle (b/c all variables w/in a single portion of the cycle have same time stamp as other variables). This may vary for auto-captured data!
     }
     
     func populateDataObjectForAutoCapturedVariable() { //OVERRIDE in subclasses - custom reporting behavior for AUTO-CAPTURED data; called by Project object containing this variable
@@ -254,5 +254,9 @@ class Module: NSObject, NSCopying { //defines the behaviors that are common to a
         let notification = NSNotification(name: BMN_Notification_ComputationFramework_DidCreateGhostVariable, object: nil, userInfo: info)
         NSNotificationCenter.defaultCenter().postNotification(notification)
     }
+    
+    // MARK: - Data Stream Logic
+    
+    var linkedDatastream: DatastreamIdentifiers? //for variables that utilize datastream, indicates which datastream object to use
         
 }

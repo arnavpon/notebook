@@ -27,7 +27,8 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     @IBOutlet weak var largeAIViewCheck: UIImageView!
     @IBOutlet weak var largeActivityIndicator: UIActivityIndicatorView!
     
-    var selectedProject: Project?
+//    var selectedProject: Project?
+    var selectedObject: DataEntryProtocol? //selection conforms to protocol
     var variablesArray: [Module]? //TV data source
     var numberOfConfiguredCells: Int = 0 { //controls whether 'Done' btn is enabled
         didSet {
@@ -107,11 +108,11 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func manualMeasurementCycleRefresh() { //resets project's tempDataObject so IV entry will be displayed (in case user missed 2nd part of the entry) & dumps the associated data for the 1st measurement
-        if let project = selectedProject, _ = project.temporaryStorageObject { //refresh only works if the user has input IV data (i.e. is in 2nd half of measurement cycle)
+        if let object = selectedObject, _ = object.temporaryStorageObject { //refresh only works if the storage object exists (NOT @ location 1 in cycle)
             let alert = UIAlertController(title: "Warning", message: "If you choose to refresh the cycle, it will permanently delete the data collected for the input variables during this cycle.", preferredStyle: .Alert) ////send the user a warning that data will be deleted!
             let cancel = UIAlertAction(title: "Cancel", style: .Cancel, handler: nil)
             let ok = UIAlertAction(title: "I'm Sure", style: .Destructive) { (let ok) in
-                project.refreshMeasurementCycle() //refresh project settings 1st
+                self.selectedObject!.refreshMeasurementCycle() //refresh project settings 1st
                 
                 //Reset doneButton, AI view cache, & visuals:
                 self.cachedView = nil
@@ -166,11 +167,11 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     
     func getTableViewDataSource() { //obtains TV dataSource array from the selectedProject
         //(1) Check if project requires that user select an option before generating variables:
-        if let project = selectedProject {
-            if let groups = project.getOptionsForGroupSelectionView() { //show groupSelectionView
+        if let object = selectedObject {
+            if let groups = object.getOptionsForGroupSelectionView() { //show groupSelectionView
                 configureGroupSelectionView(groups)
             } else { //obtain variablesArray directly from Project class
-                self.variablesArray = project.getVariablesForSelectedGroup(nil)
+                self.variablesArray = object.getVariablesForSelectedGroup(nil)
                 dataEntryTV.hidden = false //need this in case TV was previously hidden
                 dataEntryTV.reloadData() //update UI
                 configureActivityIndicatorView(false) //display AI view if needed
@@ -192,8 +193,8 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func groupSelectionViewOptionWasSelected(notification: NSNotification) {
-        if let index = notification.object as? Int, project = selectedProject { //get indx of selection
-            variablesArray = project.getVariablesForSelectedGroup(index) //set dataSource w/ variables
+        if let index = notification.object as? Int, object = selectedObject { //get index of selection
+            variablesArray = object.getVariablesForSelectedGroup(index) //set dataSource w/ variables
             dispatch_async(dispatch_get_main_queue(), { //*update visuals on main thread*
                 self.dataEntryTV.reloadData() //update TV
             })
@@ -247,10 +248,35 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     
     func configureActivityIndicatorView(completed: Bool) {
         if !(cachedBlocker) { //only run if block is passed
+//            if let AIView = cachedView { //views have been cached (2nd run onward)
+//                setVisualsForAIView(AIView, completed: completed)
+//            } else if let displayedVars = variablesArray, project = selectedProject, reportingGroup = project.reportingGroup {
+//                let totalCount = reportingGroup.reportCount
+//                let manualCount = displayedVars.count
+//                self.autoCapVarCount = totalCount - manualCount //set the auto-cap var count
+//                if (manualCount != 0) { //MANUAL variables exist => SMALL reporting view
+//                    if (displayedVars.count != totalCount) { //NOT all vars are MANUAL (AI view is needed)
+//                        cachedView = smallAIView //cache SMALL view
+//                        setVisualsForAIView(smallAIView, completed: completed) //set visuals
+//                    } else { //ALL vars are manual (cache the blocker)
+//                        cachedBlocker = true //prevents fx from firing again (NO AI view for manual vars)
+//                    }
+//                } else { //NO manual vars, check if there are auto-cap vars
+//                    if (totalCount > 0) { //AUTO-cap vars exist, show large AI view, hide TV
+//                        cachedView = largeAIView //cache LARGE view
+//                        setVisualsForAIView(largeAIView, completed: completed) //set visuals
+//                    } else { //NO auto cap vars OR manual vars => 1 TD var @ location
+//                        cachedView = largeAIView //cache LARGE view
+//                        setVisualsForAIView(largeAIView, completed: true) //set visuals
+//                        largeAIView.hidden = false //reveal AI view
+//                        dataEntryTV.hidden = true //hide TV
+//                        doneButton.enabled = true //manually enable doneButton
+//                    }
+//                }
+//            }
             if let AIView = cachedView { //views have been cached (2nd run onward)
                 setVisualsForAIView(AIView, completed: completed)
-            } else if let displayedVars = variablesArray, project = selectedProject, reportingGroup = project.reportingGroup {
-                let totalCount = reportingGroup.reportCount
+            } else if let displayedVars = variablesArray, object = selectedObject, totalCount = object.getReportCountForCurrentLocationInCycle() {
                 let manualCount = displayedVars.count
                 self.autoCapVarCount = totalCount - manualCount //set the auto-cap var count
                 if (manualCount != 0) { //MANUAL variables exist => SMALL reporting view
@@ -332,8 +358,22 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func configureDoneButton() { //handles 'Done' button enablement
-        if let project = selectedProject, reportingGroup = project.reportingGroup {
-            let total = reportingGroup.reportCount
+//        if let project = selectedProject, reportingGroup = project.reportingGroup {
+//            let total = reportingGroup.reportCount
+//            if (self.numberOfConfiguredCells == total) { //ALL cells have been reported
+//                dispatch_async(dispatch_get_main_queue(), { //*update visuals on main thread*
+//                    self.doneButton.enabled = true //enable
+//                })
+//            } else { //some cells have NOT been reported
+//                dispatch_async(dispatch_get_main_queue(), { //*update visuals on main thread*
+//                    self.doneButton.enabled = false //disable
+//                })
+//                if (numberOfConfiguredCells > total) { //safety check
+//                    print("[configureDoneButton] ERROR - # of configured cells is > than total!")
+//                }
+//            }
+//        }
+        if let object = selectedObject, total = object.getReportCountForCurrentLocationInCycle() {
             if (self.numberOfConfiguredCells == total) { //ALL cells have been reported
                 dispatch_async(dispatch_get_main_queue(), { //*update visuals on main thread*
                     self.doneButton.enabled = true //enable
@@ -360,7 +400,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     
     func displayAlertForServiceError() { //only fires when view is visible!
         print("[displayAlertForServiceError()] Firing...")
-        if let service = erroredServices.first, project = selectedProject {
+        if let service = erroredServices.first, object = selectedObject {
             //(1) Construct error message:
             var message: String = "" //error msg
             switch service { //generate error message based on specified service
@@ -382,7 +422,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
             let retry = UIAlertAction(title: "Retry", style: .Default, handler: { (let retry) in
                 self.isPresentingAlert = false //clear indicator (indicating alert dismissal)
                 self.erroredServices.remove(service) //remove service from error set
-                project.repopulateDataObjectForSubscribedVariables(erroredService: service) //re-report data for variables subscribed to the specified service
+                object.repopulateDataObjectForSubscribedVariables(erroredService: service) //re-report data for variables subscribed to the specified service
                 
                 if !(self.erroredServices.isEmpty) && !(self.isPresentingAlert) { //any remaining errors?
                     self.displayAlertForServiceError() //errors exist! - fire fx again!
@@ -410,12 +450,10 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         if let variables = variablesArray { //use DataEntryCellTypes to calculate height for cell
             let module = variables[indexPath.row]
             if let cellType = module.getDataEntryCellTypeForVariable() {
-                var userInfo = Dictionary<String, AnyObject>()
                 if let heightInfo = module.cellHeightUserInfo { //check if there is additional height info
-                    userInfo = heightInfo
+                    let height = cellType.getHeightForDataEntryCell(heightInfo) //calculate height
+                    return height
                 }
-                let height = cellType.getHeightForDataEntryCell(userInfo) //calculate height
-                return height
             }
         }
         return 80 + BMN_DefaultBottomSpacer //default
@@ -440,10 +478,11 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                 case .FIM_FoodIntake:
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(FIM_FoodIntakeDataEntryCell), forIndexPath: indexPath) as! FIM_FoodIntakeDataEntryCell
                 case .ExM_Workout:
-                    break //**
+                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExM_WorkoutDataEntryCell), forIndexPath: indexPath) as! ExM_WorkoutDataEntryCell
+                    (cell as! ExM_WorkoutDataEntryCell).sender = self.selectedObject?.sender
                 }
             }
-            if let project = self.selectedProject, temp = project.temporaryStorageObject, timeStampsArray = temp[BMN_DBO_TimeStampKey] as? [NSDate] { //check for location in tempObject
+            if let object = self.selectedObject, temp = object.temporaryStorageObject, timeStampsArray = temp[BMN_DBO_TimeStampKey] as? [NSDate] { //check for location in tempObject
                 cell.currentlyReportingLocation = timeStampsArray.count + 1 //set current location in measurement flow BEFORE assigning dataSource
             } else { //tempObject = nil (new measurement cycle)
                 cell.currentlyReportingLocation = 1 //default -> 1st location in cycle
@@ -459,9 +498,9 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         performSegueWithIdentifier("unwindToActiveProjects", sender: nil)
     }
     
-    @IBAction func doneButtonClick(sender: AnyObject) { //construct dataObject to report -> DB
-        if let project = selectedProject { //call method in project to aggregate & send data -> DB
-            project.constructDataObjectForDatabase()
+    @IBAction func doneButtonClick(sender: AnyObject) { //store reported data as appropriate
+        if let object = selectedObject { //call method in protocol to aggregate data
+            object.constructDataObjectForReportedData()
         }
         performSegueWithIdentifier("unwindToActiveProjects", sender: nil) //return -> home screen
     }

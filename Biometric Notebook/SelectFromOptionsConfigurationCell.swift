@@ -204,9 +204,9 @@ class SelectFromOptionsConfigurationCell: BaseConfigurationCell { //add new clas
     
     // MARK: - Data Reporting
     
-    override var configurationReportObject: AnyObject? { //returns highlighted buttons
+    override var configurationReportObject: AnyObject? { //returns array of highlighted buttons
         //*REPORT TYPE: [String]*
         return selectedOptions
     }
-
+    
 }

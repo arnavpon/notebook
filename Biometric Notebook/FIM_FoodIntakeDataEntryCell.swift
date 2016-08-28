@@ -7,11 +7,13 @@
 
 import UIKit
 
-class FIM_FoodIntakeDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //add new class -> enum!
+class FIM_FoodIntakeDataEntryCell: BaseDataEntryCell, UITextFieldDelegate, DataEntry_PopupConfigurationViewProtocol { //add new class -> enum!
     
     override class var numberOfLevels: Int {
         return 2 //# of levels is dynamically calculated by enum (& depending on current view mode)
     }
+    
+    var cellType: DataEntryCellTypes = DataEntryCellTypes.FIM_FoodIntake //protocol property
     
     // MARK: - Initializers
     
@@ -54,15 +56,21 @@ class FIM_FoodIntakeDataEntryCell: BaseDataEntryCell, UITextFieldDelegate { //ad
         return false
     }
     
+    // MARK: - Protocol Logic
+    
+    func backButtonWasClicked() {
+        //handle reverse navigation...
+    }
+    
+    func valueWasReturnedByUser(value: AnyObject) {
+        //takes input value & does something...
+    }
+    
     // MARK: - Data Reporting
     
     override func updateModuleReportObject() { //updates the Module dataSource's report object
-        if let mod = self.module {
-            //            if let convertedValue = mod.performConversionOnUserEnteredData(moduleReportObject) {
-            //                //
-            //            } else { //no conversion necessary
-            //                //
-            //            }
+        if let mod = self.module { //format the return object
+            mod.mainDataObject = nil //** update w/ textField values
         }
     }
     

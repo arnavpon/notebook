@@ -99,23 +99,37 @@ class FoodIntakeModule: Module {
         super.init(name: name, dict: dict)
         self.moduleTitle = Modules.FoodIntakeModule.rawValue
         
-        if let categories = dict[BMN_FoodIntakeModule_NutritionCategoriesKey] as? [String] {
-            for categoryRaw in categories {
-                if let category = FoodIntakeModule_NutritionCategories(rawValue: categoryRaw) {
-                    self.nutritionCategories.append(category)
+        if let typeName = dict[BMN_VariableTypeKey] as? String, type = FoodIntakeModuleVariableTypes(rawValue: typeName) {
+            self.selectedFunctionality = typeName //reset the variable's selectedFunctionality
+            switch type { //configure according to 'variableType'
+            case .Behavior_FoodIntake:
+                self.linkedDatastream = DatastreamIdentifiers.FIM_FoodIntake //*set indicator*
+                if let categories = dict[BMN_FoodIntakeModule_NutritionCategoriesKey] as? [String] {
+                    for categoryRaw in categories {
+                        if let category = FoodIntakeModule_NutritionCategories(rawValue: categoryRaw) {
+                            self.nutritionCategories.append(category)
+                        }
+                    }
+                    print("[FoodIntake Init] # of saved categories = \(nutritionCategories.count).")
+                }
+                if let locations = dict[BMN_FoodIntakeModule_DataStreamLocationsKey] as? [String] {
+                    self.selectedDataStreamLocations = [] //initialize
+                    for locationRaw in locations {
+                        if let location = FoodIntakeModule_DataStreamLocations(rawValue: locationRaw) {
+                            self.selectedDataStreamLocations!.append(location)
+                        }
+                    }
+                    print("[FoodIntake Init] Locations to access = \(selectedDataStreamLocations!).")
                 }
             }
-            print("[FoodIntake Init] # of saved categories = \(nutritionCategories.count).")
         }
-        if let locations = dict[BMN_FoodIntakeModule_DataStreamLocationsKey] as? [String] {
-            self.selectedDataStreamLocations = [] //initialize
-            for locationRaw in locations {
-                if let location = FoodIntakeModule_DataStreamLocations(rawValue: locationRaw) {
-                    self.selectedDataStreamLocations!.append(location)
-                }
-            }
-            print("[FoodIntake Init] Locations to access = \(selectedDataStreamLocations!).")
-        }
+    }
+    
+    init() { //DATASTREAM init
+        super.init(name: "BMN_FIM_Datastream_DummyVariable")
+        self.moduleTitle = Modules.FoodIntakeModule.rawValue
+        self.selectedFunctionality = FoodIntakeModuleVariableTypes.Behavior_FoodIntake.rawValue
+        self.linkedDatastream = DatastreamIdentifiers.FIM_FoodIntake //*set indicator*
     }
     
     override func copyWithZone(zone: NSZone) -> AnyObject { //creates copy of variable
@@ -174,6 +188,7 @@ class FoodIntakeModule: Module {
         if let type = variableType {
             switch type {
             case .Behavior_FoodIntake: //obtain selected nutrition categories & add -> module property
+                self.linkedDatastream = DatastreamIdentifiers.FIM_FoodIntake //set indicator
                 if let rawCategorySelections = configurationData[BMN_FoodIntakeModule_NutritionCategoriesKey] as? [String] {
                     self.nutritionCategories = [] //clear array
                     for selection in rawCategorySelections {
@@ -282,10 +297,19 @@ class FoodIntakeModule: Module {
         return false
     }
     
-    override func reportDataForVariable() -> [String: AnyObject]? {
-        let reportDict = super.reportDataForVariable() //use superclass functionality, but first...
-        writeManualDataToHKStore() //before reporting, write data -> HKStore as needed
-        return reportDict
+    override func reportDataForVariable() -> [String : AnyObject]? { //OVERRIDE for datastream variable!
+        let reportDict = super.reportDataForVariable() //store superclass return object
+        if let type = self.variableType {
+            switch type {
+            case .Behavior_FoodIntake:
+                let sharedInstance = FIM_FoodIntakeDataStream.sharedInstance
+                //all data in the datastream should ALWAYS be reported -> the parent stream
+                //aggregate data - need to (1) store a timeStamp for each reported meal; (2) store the data for the meal against the appropriate 'location' (e.g. breakfast, lunch)
+                //the FINAL aggregation is done when the stream is closed & matched against the ReportedDataKey before being passed -> the Project object.
+                return nil //indicates that the datastream is still OPEN (only return the completed package when the data has been completely reported for this variable!)
+            }
+        }
+        return reportDict //default is standard behavior
     }
     
     // MARK: - HealthKit Interaction Logic

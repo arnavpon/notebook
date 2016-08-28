@@ -38,12 +38,23 @@ class FIM_FoodIntakeDataStream: Datastream {
     
     // MARK: - Stream Logic
     
-    override func writeToDatastream() {
+    func writeToDatastream(data: [String : AnyObject]) {
         //
     }
     
-    override func readFromDatastream() {
+    func readFromDatastream() {
         //
+    }
+    
+    // MARK: - Protocol Logic
+    
+    override func getVariablesForSelectedGroup(selection: Int?) -> [Module]? { //return 1 dummy variable
+        let foodIntakeVariable = FoodIntakeModule() //use Datastream init
+        return [foodIntakeVariable]
+    }
+    
+    override func repopulateDataObjectForSubscribedVariables(erroredService service: ServiceTypes) {
+        //requires Internet service - repopulate when internet is provided???
     }
     
 }
