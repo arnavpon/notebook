@@ -13,7 +13,7 @@ class BaseDataEntryCell: LevelsFrameworkCell { //data source for DataEntry cells
         return 2
     }
     
-    var cellIndex: Int? //indicates indexPath.row for cell in TV (used for notification)
+    var cellIndex: Int? //indicates indexPath.row for cell in TV (used for cellHeight notification)
     
     // MARK: - Initializers
     

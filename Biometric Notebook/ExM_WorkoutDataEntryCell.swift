@@ -48,6 +48,7 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         insetBackgroundView.addSubview(configurationView) //configView lies on TOP of freeform views
+        configurationView.linkedTableViewCell = self //*store reference to self*
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -62,9 +63,9 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
                 var mainLabelText = "" //text to set for mainlbl
                 switch exerciseType { //generate mainLabel for cell that is appropriate for exerciseType
                 case .WeightTraining: //display current set # & total # of sets
-                    mainLabelText = "['\(exercise)' - Set #\(current)/\(total)] Enter weight lifted/# of reps after completing the set:"
+                    mainLabelText = "[\(exercise) - Set #\(current)/\(total)] Enter weight & # of reps after completing each set:"
                 case .Cardio: //display exercise name ONLY
-                    mainLabelText = "['\(exercise)'] Enter the time, distance traveled, and # of calories burned after completing the exercise:"
+                    mainLabelText = "[\(exercise)] Enter the time, distance traveled, and # of calories burned after completing each exercise:"
                 }
                 self.setMainLabelTitle(mainLabelText) //update main Lbl
                 generateFreeformCellsForExerciseType() //draw freeform views
@@ -95,6 +96,7 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
     
     private func displayConfigurationViewForLocation(location: Int) { //updates configView based on the input LOCATION
         self.currentLocationInFlow = location //*FIRST - set current location*
+        self.configurationView.hidden = false //reveal view (in case it is hidden)
         var numberOfLevels: Int = 0 //indicates height for returned view (for notification)
         switch location {
         case 1: //allow user to select between OPENING NEW STREAM or using CACHED DATA - ONLY displayed if sender class = 'Project' & stream's TSO is nil
@@ -156,6 +158,7 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
     
     private func generateFreeformCellsForExerciseType() { //configures Freeform view for DataEntry
         if let currentType = self.currentExerciseType {
+            self.configurationView.hidden = true //hide popup view
             self.currentLocationInFlow = nil //update indicator; nil => FREEFORM display
             var configurationObject: [(String?, ProtectedFreeformTypes?, String?, Int?, (Double?, Double?)?, String?)] = []
             switch currentType {
@@ -200,7 +203,7 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
     }
     
     func valueWasReturnedByUser(value: AnyObject) {
-        print("[ExM_Cell] Returned value = [\(value)].")
+        print("[ExM_Cell] Returned value = [\(value)]. Current Location = \(currentLocationInFlow).")
         if let currentLocation = self.currentLocationInFlow { //handling of value depends on loc
             switch currentLocation { //cast value according to location
             case 1: //returnValue is INDEX of selected option in dataSource
@@ -244,7 +247,6 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
                             self.datastream.setCurrentlyOpenExerciseInStream(exercise, type: type, numberOfSets: 1) //create new exercise in stream
                         }
                     }
-                    self.configurationView.hidden = true //hide popup view
                     self.generateFreeformCellsForExerciseType() //generate freeform views
                 }
             default: //should never be called

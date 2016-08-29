@@ -479,10 +479,8 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        print("cellForRowAtIndexPath firing...")
         var cell = BaseDataEntryCell()
         if let variables = variablesArray {
-            cell.cellIndex = indexPath.row //set reference to indexPath.row
             let moduleForCell = variables[indexPath.row] //module obj is dataSource for TV cell
             if let cellType = moduleForCell.getDataEntryCellTypeForVariable() { //get cell type
                 switch cellType {
@@ -503,6 +501,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(FIM_FoodIntakeDataEntryCell), forIndexPath: indexPath) as! FIM_FoodIntakeDataEntryCell
                 }
             }
+            cell.cellIndex = indexPath.row //set reference to indexPath.row AFTER setting class
             if let object = self.selectedObject, temp = object.temporaryStorageObject, timeStampsArray = temp[BMN_DBO_TimeStampKey] as? [NSDate] { //check for location in tempObject
                 cell.currentlyReportingLocation = timeStampsArray.count + 1 //set current location in measurement flow BEFORE assigning dataSource
             } else { //tempObject = nil (new measurement cycle)

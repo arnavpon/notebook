@@ -29,15 +29,7 @@ class DataEntry_PopupConfigurationView: UIView {
     }
     var type: DataEntry_PopupConfigurationViewTypes? { //controls which views are displayed
         didSet {
-            if let viewType = self.type { //update TF keyboard type
-                switch viewType {
-                case .SimpleNumberEntry:
-                    inputTextField.keyboardType = .NumberPad //restrict keyboard
-                default:
-                    inputTextField.keyboardType = .Default //default keyboard
-                }
-                revealActiveViews()
-            }
+            revealActiveViews() //hide/reveal appropriate views
             self.setNeedsLayout() //redraw view according to self.type
         }
     }
@@ -54,7 +46,6 @@ class DataEntry_PopupConfigurationView: UIView {
     private let inputTextField = UITextField(frame: CGRectZero) //for search bar & simple number entry
     
     //SearchBar Properties:
-    //    private var searchController: UISearchController?
     private var searchBar = UISearchBar(frame: CGRectZero) //search bar - acts as TV header
     private var searchResultsTableView = UITableView(frame: CGRectZero)
     private var tableViewDataSource: [String]? //contains FULL list of searchable values
@@ -92,12 +83,15 @@ class DataEntry_PopupConfigurationView: UIView {
         instructionsLabel.backgroundColor = UIColor(red: 0, green: 55/255, blue: 235/255, alpha: 1)
         instructionsLabel.textColor = UIColor.whiteColor()
         instructionsLabel.textAlignment = .Center
+        instructionsLabel.numberOfLines = 2
+        instructionsLabel.adjustsFontSizeToFitWidth = true
         
         //Configure backButton:
         backButton.addTarget(self, action: #selector(self.backButtonClick(_:)), forControlEvents: UIControlEvents.TouchUpInside)
         backButton.setImage(UIImage(named: "left_arrow"), forState: .Normal)
         
         //Configure mainView:
+        mainView.backgroundColor = UIColor.whiteColor() //set background to cover TV cell behind
         mainView.layer.borderColor = UIColor.blackColor().CGColor //set border
         mainView.layer.borderWidth = 1
         
@@ -111,9 +105,13 @@ class DataEntry_PopupConfigurationView: UIView {
         
         //Configure collectionView:
         mainView.addSubview(collectionView)
+        let layoutObject = UICollectionViewFlowLayout() //configure layout obj for collView
+        layoutObject.scrollDirection = UICollectionViewScrollDirection.Horizontal
+        collectionView.collectionViewLayout = layoutObject //*update collectionView layoutObj*
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.showsVerticalScrollIndicator = false //block vertical scrolling
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.backgroundColor = UIColor.whiteColor()
         collectionView.registerClass(ExM_CustomCollectionViewCell.self, forCellWithReuseIdentifier: NSStringFromClass(ExM_CustomCollectionViewCell)) //register custom class
         collectionView.hidden = true //starts out hidden
         
@@ -170,7 +168,7 @@ class DataEntry_PopupConfigurationView: UIView {
         } else { //no backButton - set frame to 0
             backButton.frame = CGRectZero
         }
-        instructionsLabel.frame = CGRectMake(originX, 0, self.frame.width, labelHeight)
+        instructionsLabel.frame = CGRectMake(originX, 0, (self.frame.width - originX), labelHeight)
         mainView.frame = CGRectMake(0, labelHeight, self.frame.width, (self.frame.height - labelHeight))
         
         //(2) Draw dynamic views:
@@ -190,6 +188,7 @@ class DataEntry_PopupConfigurationView: UIView {
         let textFieldWidth: CGFloat = 0.70 * (mainView.frame.width) //takes up % of total width
         let textFieldHeight: CGFloat = 35
         inputTextField.frame = centerFrameInRect(CGSize(width: textFieldWidth, height: textFieldHeight), superviewFrame: mainView.frame) //center TF in mainView
+        inputTextField.becomeFirstResponder() //**
     }
     
     private func configureSearchBarVisuals() { //updates visuals for searchBar functionality
@@ -200,6 +199,7 @@ class DataEntry_PopupConfigurationView: UIView {
         } else if (linkedTableViewCell?.cellType == DataEntryCellTypes.ExM_Workout) {
             self.searchBar.placeholder = "Search for an exercise"
         }
+        searchBar.becomeFirstResponder() //**
     }
     
     private func configureCollectionViewVisuals() { //updates collectionView frame
@@ -244,7 +244,7 @@ class DataEntry_PopupConfigurationView: UIView {
 extension DataEntry_PopupConfigurationView: UITextFieldDelegate {
     
     func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-        if (self.type == .SimpleNumberEntry) {
+        if (self.type == .SimpleNumberEntry) && (string.characters.count > 0) {
             guard let _ = Int(string) else { //make sure replacement string is a number
                 return false //block entry
             }
@@ -253,7 +253,6 @@ extension DataEntry_PopupConfigurationView: UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(textField: UITextField) -> Bool {
-        print("TextField should return firing...")
         if let viewType = self.type {
             switch viewType {
             case .SimpleNumberEntry:
@@ -296,6 +295,7 @@ extension DataEntry_PopupConfigurationView: UITableViewDelegate, UITableViewData
     }
     
     func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
+        searchBar.text = "" //clear searchBar text
         returnResponseToParentCell(filteredResults[indexPath.row]) //return selected cell's title
         return false
     }
@@ -325,7 +325,7 @@ extension DataEntry_PopupConfigurationView: UITableViewDelegate, UITableViewData
                     returnResponseToParentCell(filteredResults.first!) //send back lone value in array
                 } else if (filteredResults.count > 1) { //more than 1 option
                     if (filteredResults.contains(searchBarTrimmedText.capitalizedString)) { //if EXACT match is present, select that option
-                        searchBar.text = ""
+                        searchBar.text = "" //clear text
                         shouldShowSearchResults = false //set data from filtered -> complete array
                         returnResponseToParentCell(searchBarTrimmedText.capitalizedString)
                     } else { //return searchBar -> 1st responder
@@ -377,7 +377,7 @@ extension DataEntry_PopupConfigurationView: UICollectionViewDataSource, UICollec
     }
     
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
-        return CGSize(width: 180, height: 120) //rectangular view
+        return CGSize(width: 120, height: 60) //rectangular view
     }
     
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAtIndex section: Int) -> UIEdgeInsets {
@@ -385,10 +385,14 @@ extension DataEntry_PopupConfigurationView: UICollectionViewDataSource, UICollec
         return UIEdgeInsets(top: 0, left: insetValue, bottom: 0, right: insetValue)
     }
     
+    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAtIndex section: Int) -> CGFloat {
+        return 30 //spacing between items in view
+    }
+    
     func optionButtonWasSelectedAtIndex(index: Int) { //handles optionBtn selection
         if let source = collectionViewDataSource {
             print("[ExM_cell] Selected Option = [\(source[index])]")
-            returnResponseToParentCell(source[index]) //return selected button
+            returnResponseToParentCell(index) //return selected button
         }
     }
     
@@ -441,126 +445,3 @@ class ExM_CustomCollectionViewCell: UICollectionViewCell { //cell contains 1 but
     }
     
 }
-
-
-//extension DataEntry_PreliminaryConfigurationView: UITableViewDelegate, UITableViewDataSource, UISearchResultsUpdating, UISearchBarDelegate, UISearchControllerDelegate {
-//
-//    // MARK: - Table View
-//
-//    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        if (shouldShowSearchResults) {
-//            return filteredResults.count
-//        }
-//        return 0
-//    }
-//
-//    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-//        let cell = tableView.dequeueReusableCellWithIdentifier("search_result")!
-//        if (shouldShowSearchResults) { //use filteredResults to populate dataArray
-//            cell.textLabel?.text = filteredResults[indexPath.row]
-//        }
-//        return cell
-//    }
-//
-//    func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-//        //handle selection of the option...
-//        return false
-//    }
-//
-//    // MARK: - Search Controller & Search Bar
-//
-//    func configureSearchController() {
-//        searchController = UISearchController(searchResultsController: nil)
-//        searchController!.searchBar.hidden = false
-//        searchController!.searchBar.becomeFirstResponder()
-//        searchController!.delegate = self
-//        searchController!.searchResultsUpdater = self
-//        searchController!.searchBar.delegate = self
-//        searchController!.dimsBackgroundDuringPresentation = false
-//        if (linkedTableViewCell?.cellType == DataEntryCellTypes.FIM_FoodIntake) {
-//            searchController!.searchBar.placeholder = "Search for a food"
-//        } else if (linkedTableViewCell?.cellType == DataEntryCellTypes.ExM_Workout) {
-//            searchController!.searchBar.placeholder = "Search for an exercise"
-//        }
-//        searchController!.searchBar.barStyle = .Black
-//        searchController!.searchBar.sizeToFit() //formats size properly WRT tableView
-//        searchResultsTableView.tableHeaderView = searchController!.searchBar
-//    }
-//
-//    func didPresentSearchController(searchController: UISearchController) { //called when view 1st appears
-//        searchController.searchBar.showsCancelButton = false //gets rid of 'Cancel' button
-//    }
-//
-//    func searchBarTextDidEndEditing(searchBar: UISearchBar) { //called after tapping out of searchBar
-//        if (searchBar.hidden == false) && !(searchBar.isFirstResponder()) { //set as 1st responder
-//            searchBar.becomeFirstResponder()
-//        } else if (searchBar.hidden == true) {
-//        }
-//        if (shouldShowSearchResults) { //reset TV data & button visuals
-//            shouldShowSearchResults = false
-//            searchResultsTableView.reloadData()
-//        }
-//    }
-//
-//    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
-//        let trimmedText = searchText.stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
-//        if (trimmedText.isEmpty) { //called when the field is cleared
-//            if (shouldShowSearchResults) { //set data from filteredResults -> empty array
-//                shouldShowSearchResults = false
-//                searchResultsTableView.reloadData()
-//            }
-//        } else { //called when text is entered - set data from filteredResults -> empty
-//            shouldShowSearchResults = true
-//            searchResultsTableView.reloadData()
-//        }
-//    }
-//
-//    func searchBarSearchButtonClicked(searchBar: UISearchBar) { //called when 'Enter' is pressed
-//        let whitespaceSet = NSCharacterSet.whitespaceCharacterSet() //trim whiteSpace
-//        let searchBarTrimmedText = searchBar.text!.stringByTrimmingCharactersInSet(whitespaceSet)
-//        if (searchBarTrimmedText != "") && (filteredResults.count == 1) { //last item in filteredArray
-//            searchBar.text = ""
-//        } else if (searchBarTrimmedText != "") && (filteredResults.count > 1) { //if there's an EXACT match, select that button
-//            if (filteredResults.contains(searchBarTrimmedText.capitalizedString)) { //check for match
-//                for view in self.subviews {
-//                    //
-//                }
-//                searchBar.text = ""
-//            } else if (searchBarTrimmedText != "") && (filteredResults.count > 1) { //no exact matches
-//            }
-//        }
-//        shouldShowSearchResults = false //set data from filtered -> complete array
-//        searchResultsTableView.reloadData()
-//    }
-//
-//    func updateSearchResultsForSearchController(searchController: UISearchController) {
-//        if let dataSource = tableViewDataSource {
-//            let whitespaceSet = NSCharacterSet.whitespaceCharacterSet() //trim whiteSpace
-//            let searchString = searchController.searchBar.text?.stringByTrimmingCharactersInSet(whitespaceSet)
-//            if (searchString != "") {
-//                filteredResults = dataSource.filter({ (button) -> Bool in
-//                    let buttonTitle: NSString = button
-//                    //Rework this - we want to search from front -> back, not accepting any set of the string at any position in the word.
-//                    let result = (buttonTitle.rangeOfString(searchString!, options: NSStringCompareOptions.CaseInsensitiveSearch)).location != NSNotFound
-//                    return (result) //filters the data according to what we ask from it in the closure body, and stores the matching elements to the filteredArray. Each string in the source array is represented by the 'button' parameter value of the closure. This string is converted to a NSString object so we can use rangeOfString(…). The method checks if the searched term (searchString) exists in the current 'button', and if so it returns its range (NSRange) in the button string. If the string we’re searching for doesn’t exist in the current button value, then it returns 'NSNotFound'. As the closure expects a Bool value to be returned, return the comparison result between the rangeOfString return value & the NSNotFound value.
-//                })
-//                searchResultsTableView.reloadData()
-//            }
-//        }
-//    }
-//
-//    private func removeSearchControllerFromView() {
-//        if (searchController != nil) { //clear the searchController
-//            searchController!.searchBar.hidden = true
-//            searchController!.searchBar.resignFirstResponder()
-//            searchController!.delegate = nil
-//            searchController!.searchResultsUpdater = nil
-//            searchController!.searchBar.delegate = nil
-//            searchController!.active = false
-//            searchController = nil
-//        }
-//        searchController!.searchBar.becomeFirstResponder()
-//        searchController!.searchBar.text = ""
-//    }
-//
-//}

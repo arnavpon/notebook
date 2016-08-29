@@ -68,7 +68,7 @@ class LevelsFrameworkCell: UITableViewCell {
             mainLabel.font = mainLabelFont //adjust font
         }
     }
-    internal var mainLabelTextColor: UIColor? { //custom txtColor for mainLabel
+    internal var mainLabelTextColor = UIColor.blackColor() { //custom txtColor for mainLabel
         didSet {
             mainLabel.textColor = mainLabelTextColor //adjust color
         }
@@ -99,6 +99,7 @@ class LevelsFrameworkCell: UITableViewCell {
             if (fireCounter == 0) { //make sure this is only running ONCE
                 accessModuleProperties() //layout cell according to module type/properties
                 setNeedsLayout() //keep OUTSIDE of the accessModule function!
+                fireCounter = 1 //block further firing for this cell 
             }
         }
     }
@@ -131,9 +132,7 @@ class LevelsFrameworkCell: UITableViewCell {
         } else {
             mainLabel.font = UIFont.systemFontOfSize(14) //max fontSize that fits on 2 lines is (14)
         }
-        if let txtColor = mainLabelTextColor { //default txtColor is BLACK
-            mainLabel.textColor = txtColor
-        }
+        mainLabel.textColor = mainLabelTextColor
     }
     
     required init?(coder aDecoder: NSCoder) {
