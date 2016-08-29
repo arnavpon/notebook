@@ -25,8 +25,6 @@ class FIM_FoodIntakeDataStream: Datastream {
         } else if (existingInstances.count == 1) { //single sharedInstance exists
             if let foodIntakeDatastreamInstance = existingInstances.first as? FIM_FoodIntakeDataStream {
                 instance = foodIntakeDatastreamInstance
-                let id = instance.objectID.description
-                print("Shared Instance ID = [\(id)]")
             } else {
                 print("[FIM_FoodIntakeDataStream sharedInstance] Fatal Error!")
                 abort()

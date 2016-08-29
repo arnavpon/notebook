@@ -263,11 +263,20 @@ class DatabaseConnection: DataReportingErrorProtocol {
                     }
                     let _ = Group(groupName: groupName, groupType: groupType, project: project, action: action, variables: groupVariables, cycleLength: cycleLength, timeDifferenceVars: timeDifferenceVariables, insertIntoManagedObjectContext: managedObjectContext)
                     
-                    //Obtain CoreData dicts for Counter variables:
-                    for (variableName, dict) in groupVariables {
-                        if (counters.contains(variableName)) {
+                    
+                    for (variableName, dict) in groupVariables { //handle variable-specific logic
+                        if (counters.contains(variableName)) { //obtain CoreData dicts for Counter vars
                             print("Found COUNTER with name = [\(variableName)].")
                             counterSettings.updateValue(dict, forKey: variableName)
+                        }
+                        if let moduleType = dict[BMN_VariableTypeKey] as? String { //get Datastream vars
+                            if (moduleType == ExerciseModuleVariableTypes.Behavior_Workout.rawValue) {
+                                print("Found WORKOUT with name = [\(variableName)].")
+                                let _ = ExM_ExerciseDatastream.sharedInstance //activate sharedInstance
+                            } else if (moduleType == FoodIntakeModuleVariableTypes.Behavior_FoodIntake.rawValue) {
+                                print("Found FOOD INTAKE with name = [\(variableName)].")
+                                let _ = FIM_FoodIntakeDatastream.sharedInstance //activate sharedInstance
+                            }
                         }
                     }
                 }

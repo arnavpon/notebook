@@ -198,9 +198,9 @@ class ExerciseModule: Module {
             case .Behavior_Workout: //mainDataObject = [String: AnyObject]
                 if let data = self.mainDataObject as? [String: AnyObject] { //if cast -> DICT is successful => data was reported via Freeform data entry
                     print("Reported Data Object (from Freeform cell) = {\(data)}")
-                    let stream = ExM_ExerciseDataStream.sharedInstance
+                    let stream = ExM_ExerciseDatastream.sharedInstance
                     if let (exercise, _, (total, current)) = stream.getCurrentExerciseFromDatastream() { //CURRENT exercise exists - add data -> stream
-                        ExM_ExerciseDataStream.sharedInstance.writeExerciseDataToDatastream(exercise, currentSet: current, totalNumberOfSets: total, data: data) //write -> stream
+                        ExM_ExerciseDatastream.sharedInstance.writeExerciseDataToDatastream(exercise, currentSet: current, totalNumberOfSets: total, data: data) //write -> stream
                         return nil //NIL => datastream is still OPEN
                     }
                 } else if let data = self.mainDataObject as? [[String: AnyObject]] { //if cast -> ARRAY of DICTs is successful => user either selected data from CACHE or CLOSED stream

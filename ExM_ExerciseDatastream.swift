@@ -1,6 +1,6 @@
-//  ExM_ExerciseDataStream.swift
+//  ExM_ExerciseDatastream.swift
 //  Biometric Notebook
-//  Created by Arnav Pondicherry  on 8/24/16.
+//  Created by Arnav Pondicherry  on 8/28/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
 // Exercise Module > defines behaviors for the exercise data stream that enables the input of workout-related data.
@@ -11,32 +11,21 @@
 import UIKit
 import CoreData
 
-class ExM_ExerciseDataStream: Datastream {
-    
+class ExM_ExerciseDatastream: Datastream {
+
     //ExV - during configuration, ask the user to pick from a set of custom ComparisonOptions for workouts - to track strength gain, correlate with intake, etc.? Or should the system just intuit what is to be analyzed? Intuit may be better b/c we cannot control the other variables added into the project with the workout.
     
     // MARK: - Singleton Definition
     
-    static let sharedInstance: ExM_ExerciseDataStream = {
-        let instance: ExM_ExerciseDataStream
+    static let sharedInstance: ExM_ExerciseDatastream = {
+        let instance: ExM_ExerciseDatastream
         let context = (UIApplication.sharedApplication().delegate as! AppDelegate).managedObjectContext
-        let existingInstances = fetchObjectsFromCoreDataStore("Datastream", filterProperty: "streamID", filterValue: [DatastreamIdentifiers.ExM_Workout.rawValue]) as! [Datastream] //fetch instances
+        let existingInstances = fetchObjectsFromCoreDataStore("Datastream_Workout", filterProperty: "streamID", filterValue: [DatastreamIdentifiers.ExM_Workout.rawValue]) as! [ExM_ExerciseDatastream] //fetch instances
         if (existingInstances.isEmpty) { //NO instance exists yet (1st run) - create it
-            instance = ExM_ExerciseDataStream(streamID: DatastreamIdentifiers.ExM_Workout.rawValue, insertIntoManagedObjectContext: context)
-        } else if (existingInstances.count == 1) { //single sharedInstance exists
-            if (existingInstances.first! is ExM_ExerciseDataStream) {
-                print("WORKOUT stream type")
-            } else {
-                print("NOT workout stream type")
-            }
-            print("Existing Instances = \(existingInstances)")
-            if let exerciseDataStream = existingInstances.first as? ExM_ExerciseDataStream {
-                instance = exerciseDataStream
-            } else {
-                print("[ExM_ExerciseDataStream sharedInstance] Fatal Error! Could not downcast stream!")
-                abort()
-            }
-        } else { //fatal error, more than 1 instance
+            instance = ExM_ExerciseDatastream(insertIntoManagedObjectContext: context)
+        } else if (existingInstances.count == 1) { //SINGLE sharedInstance exists
+            instance = existingInstances.first!
+        } else { //fatal error - more than 1 instance
             print("[ExM_ExerciseDataStream sharedInstance] Fatal Error! > 1 instance found in store!")
             abort()
         }
@@ -161,5 +150,5 @@ class ExM_ExerciseDataStream: Datastream {
             self.currentStreamVariable = nil //clear variable @ end of fx
         }
     }
-    
+
 }

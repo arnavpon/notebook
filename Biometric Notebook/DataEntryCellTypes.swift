@@ -43,6 +43,7 @@ enum DataEntryCellTypes: String { //REGISTER each new enum type w/ TV in DataEnt
             numberOfLevels = CustomWithCounterCell.numberOfLevels
         case .CustomWithRangeScale:
             numberOfLevels = CustomWithRangeScaleCell.numberOfLevels
+            print("CWRS option LEVELS = \(numberOfLevels).")
         case .FIM_FoodIntake:
             numberOfLevels = FIM_FoodIntakeDataEntryCell.numberOfLevels
         case .ExM_Workout: //height is defined via notification

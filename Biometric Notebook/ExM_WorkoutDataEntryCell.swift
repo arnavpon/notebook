@@ -20,7 +20,7 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
     
     var sender: DataEntryProtocol_ConformingClasses? //indicates which object generated this cell
     var cellType: DataEntryCellTypes = DataEntryCellTypes.ExM_Workout //protocol property
-    lazy var datastream = ExM_ExerciseDataStream.sharedInstance //get reference to Workout stream
+    lazy var datastream = ExM_ExerciseDatastream.sharedInstance //get reference to Workout stream
     
     private let configurationView = DataEntry_PopupConfigurationView(frame: CGRectZero) //popup
     private var currentLocationInFlow: Int? { //controls which popups to generate - loc1 = cachePopup (ONLY for Project class); loc2 = exercise selection (Wt. Lift vs. Cardio); loc3+ = exercise config
@@ -54,7 +54,7 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func accessDataSource() {
+    override func accessModuleProperties() {
         if let _ = self.module as? ExerciseModule, senderClass = sender { //set locationBounds for sender
             if let (exercise, exerciseType, (total, current)) = datastream.getCurrentExerciseFromDatastream() { //OPEN exercise - present Freeform data entry cells
                 self.currentExerciseType = exerciseType
@@ -88,8 +88,9 @@ class ExM_WorkoutDataEntryCell: FreeformDataEntryCell, DataEntry_PopupConfigurat
     override func setNeedsLayout() {
         super.setNeedsLayout() //layout Freeform cell views
         
-        //Layout optionSelectionView so that it covers the entire cell when visible:
+        //Layout configurationView so that it covers the entire cell when visible:
         configurationView.frame = CGRectMake(0, 0, self.frame.width, self.frame.height)
+        print("**Cell Frame = \(self.frame)**") //** why is this firing so many times??
     }
     
     private func displayConfigurationViewForLocation(location: Int) { //updates configView based on the input LOCATION

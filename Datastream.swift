@@ -31,8 +31,7 @@ class Datastream: NSManagedObject, DataEntryProtocol {
     }
     
     func getVariablesForSelectedGroup(selection: Int?) -> [Module]? { //return a single dummy datastream variable for which data will be reported
-        //override in subclasses
-        return nil
+        return nil //override in subclasses
     }
     
     func repopulateDataObjectForSubscribedVariables(erroredService service: ServiceTypes) { //called by DataEntryVC in response to error messages - instructs all variables subscribed to the specified service to re-populate their report data object

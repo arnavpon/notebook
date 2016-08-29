@@ -48,7 +48,6 @@
 		B15933261CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift in Sources */ = {isa = PBXBuildFile; fileRef = B15933251CF75D4A002C09C2 /* Module_DynamicConfigurationFramework.swift */; };
 		B16282641CC1839800096CE5 /* CellForCounterBehavior.swift in Sources */ = {isa = PBXBuildFile; fileRef = B16282631CC1839800096CE5 /* CellForCounterBehavior.swift */; };
 		B16EC9801C317D650085265C /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B16EC97F1C317D650085265C /* HealthKit.framework */; };
-		B16ED8101D7215BA00AA249D /* DataEntry_PopupConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B16ED80F1D7215BA00AA249D /* DataEntry_PopupConfigurationView.swift */; };
 		B17019561CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019551CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift */; };
 		B17019591CAA2C73004CAEB8 /* BaseConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */; };
 		B181E84A1D4FF098007ED083 /* ConfigureCCProjectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B181E8491D4FF098007ED083 /* ConfigureCCProjectViewController.swift */; };
@@ -60,6 +59,11 @@
 		B19DF36D1CC57388008F44C4 /* CoreLocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */; };
 		B19DF3701CC58CAC008F44C4 /* NetworkConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D555801C3068FD00C20742 /* NetworkConnection.swift */; };
 		B19F16581D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19F16571D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift */; };
+		B19F940F1D73BB4200419ABE /* ExM_ExerciseDatastream+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19F940A1D73BB4200419ABE /* ExM_ExerciseDatastream+CoreDataProperties.swift */; };
+		B19F94101D73BB4200419ABE /* ExM_ExerciseDatastream.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19F940B1D73BB4200419ABE /* ExM_ExerciseDatastream.swift */; };
+		B19F94111D73BB4200419ABE /* FIM_FoodIntakeDataStream+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19F940C1D73BB4200419ABE /* FIM_FoodIntakeDataStream+CoreDataProperties.swift */; };
+		B19F94121D73BB4200419ABE /* FIM_FoodIntakeDataStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19F940D1D73BB4200419ABE /* FIM_FoodIntakeDataStream.swift */; };
+		B19F94191D73D04F00419ABE /* DataEntry_PopupConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19F94181D73D04F00419ABE /* DataEntry_PopupConfigurationView.swift */; };
 		B1A7C62E1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */; };
 		B1A8C7C71CAF640300380E99 /* CustomWithRangeScaleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */; };
 		B1A8C7C91CAF656500380E99 /* CustomWithOptionsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A8C7C81CAF656500380E99 /* CustomWithOptionsCell.swift */; };
@@ -99,8 +103,6 @@
 		B1D3B1411D6E8F3200A3554D /* FIM_FoodIntakeDataEntryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3B1401D6E8F3200A3554D /* FIM_FoodIntakeDataEntryCell.swift */; };
 		B1D3B1441D6E905200A3554D /* Datastream+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3B1421D6E905200A3554D /* Datastream+CoreDataProperties.swift */; };
 		B1D3B1451D6E905200A3554D /* Datastream.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3B1431D6E905200A3554D /* Datastream.swift */; };
-		B1D3B1481D6E90FE00A3554D /* ExM_ExerciseDataStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3B1471D6E90FE00A3554D /* ExM_ExerciseDataStream.swift */; };
-		B1D3B14A1D6E910D00A3554D /* FIM_FoodIntakeDataStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D3B1491D6E910D00A3554D /* FIM_FoodIntakeDataStream.swift */; };
 		B1D4EA831C4D962100054A5F /* Project+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D4EA821C4D962100054A5F /* Project+CoreDataProperties.swift */; };
 		B1D51C581CB29CB500DED6B2 /* ActiveProjectsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C571CB29CB500DED6B2 /* ActiveProjectsViewController.swift */; };
 		B1D51C5A1CB29CC200DED6B2 /* ArchivedProjectsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1D51C591CB29CC200DED6B2 /* ArchivedProjectsViewController.swift */; };
@@ -232,7 +234,6 @@
 		B16282631CC1839800096CE5 /* CellForCounterBehavior.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellForCounterBehavior.swift; sourceTree = "<group>"; };
 		B16EC97F1C317D650085265C /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		B16EC9811C317D650085265C /* Biometric Notebook.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Biometric Notebook.entitlements"; sourceTree = "<group>"; };
-		B16ED80F1D7215BA00AA249D /* DataEntry_PopupConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DataEntry_PopupConfigurationView.swift; path = ../../DataEntry_PopupConfigurationView.swift; sourceTree = "<group>"; };
 		B17019551CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConfigurationOptionsViewController.swift; sourceTree = "<group>"; };
 		B17019581CAA2C72004CAEB8 /* BaseConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseConfigurationCell.swift; sourceTree = "<group>"; };
 		B17C210D1C31B5F400B59FB0 /* HealthKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HealthKitConnection.swift; sourceTree = "<group>"; };
@@ -244,6 +245,11 @@
 		B19857D01CF64947000FBF05 /* GhostVariable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GhostVariable.swift; sourceTree = "<group>"; };
 		B19DF36C1CC57388008F44C4 /* CoreLocationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreLocationManager.swift; sourceTree = "<group>"; };
 		B19F16571D3B11F100B22CD4 /* SelectFromDropdownConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectFromDropdownConfigurationCell.swift; sourceTree = "<group>"; };
+		B19F940A1D73BB4200419ABE /* ExM_ExerciseDatastream+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "ExM_ExerciseDatastream+CoreDataProperties.swift"; path = "../ExM_ExerciseDatastream+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		B19F940B1D73BB4200419ABE /* ExM_ExerciseDatastream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ExM_ExerciseDatastream.swift; path = ../ExM_ExerciseDatastream.swift; sourceTree = "<group>"; };
+		B19F940C1D73BB4200419ABE /* FIM_FoodIntakeDataStream+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "FIM_FoodIntakeDataStream+CoreDataProperties.swift"; path = "../FIM_FoodIntakeDataStream+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		B19F940D1D73BB4200419ABE /* FIM_FoodIntakeDataStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = FIM_FoodIntakeDataStream.swift; path = ../FIM_FoodIntakeDataStream.swift; sourceTree = "<group>"; };
+		B19F94181D73D04F00419ABE /* DataEntry_PopupConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataEntry_PopupConfigurationView.swift; sourceTree = "<group>"; };
 		B1A7C62D1CC52469003F98FE /* SelectFromOptionsConfigurationCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectFromOptionsConfigurationCell.swift; sourceTree = "<group>"; };
 		B1A8C7C61CAF640300380E99 /* CustomWithRangeScaleCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithRangeScaleCell.swift; sourceTree = "<group>"; };
 		B1A8C7C81CAF656500380E99 /* CustomWithOptionsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomWithOptionsCell.swift; sourceTree = "<group>"; };
@@ -283,8 +289,6 @@
 		B1D3B1401D6E8F3200A3554D /* FIM_FoodIntakeDataEntryCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FIM_FoodIntakeDataEntryCell.swift; sourceTree = "<group>"; };
 		B1D3B1421D6E905200A3554D /* Datastream+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Datastream+CoreDataProperties.swift"; path = "../Datastream+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		B1D3B1431D6E905200A3554D /* Datastream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Datastream.swift; path = ../Datastream.swift; sourceTree = "<group>"; };
-		B1D3B1471D6E90FE00A3554D /* ExM_ExerciseDataStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExM_ExerciseDataStream.swift; sourceTree = "<group>"; };
-		B1D3B1491D6E910D00A3554D /* FIM_FoodIntakeDataStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FIM_FoodIntakeDataStream.swift; sourceTree = "<group>"; };
 		B1D4EA821C4D962100054A5F /* Project+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "Project+CoreDataProperties.swift"; path = "../Project+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		B1D51C571CB29CB500DED6B2 /* ActiveProjectsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveProjectsViewController.swift; sourceTree = "<group>"; };
 		B1D51C591CB29CC200DED6B2 /* ArchivedProjectsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArchivedProjectsViewController.swift; sourceTree = "<group>"; };
@@ -347,7 +351,7 @@
 				B1344FC61D6F2E8B000413DE /* DataEntryProtocol.swift */,
 				B136F9861D62A0260015A724 /* GroupSelectionView_CollectionViewCell.swift */,
 				B122EAFD1CC307E000CE3D33 /* RangeScaleView.swift */,
-				B16ED80F1D7215BA00AA249D /* DataEntry_PopupConfigurationView.swift */,
+				B19F94181D73D04F00419ABE /* DataEntry_PopupConfigurationView.swift */,
 			);
 			name = Supplements;
 			sourceTree = "<group>";
@@ -676,8 +680,10 @@
 			children = (
 				B1D3B1431D6E905200A3554D /* Datastream.swift */,
 				B1D3B1421D6E905200A3554D /* Datastream+CoreDataProperties.swift */,
-				B1D3B1471D6E90FE00A3554D /* ExM_ExerciseDataStream.swift */,
-				B1D3B1491D6E910D00A3554D /* FIM_FoodIntakeDataStream.swift */,
+				B19F940B1D73BB4200419ABE /* ExM_ExerciseDatastream.swift */,
+				B19F940A1D73BB4200419ABE /* ExM_ExerciseDatastream+CoreDataProperties.swift */,
+				B19F940D1D73BB4200419ABE /* FIM_FoodIntakeDataStream.swift */,
+				B19F940C1D73BB4200419ABE /* FIM_FoodIntakeDataStream+CoreDataProperties.swift */,
 			);
 			name = "Data Stream";
 			sourceTree = "<group>";
@@ -957,6 +963,7 @@
 				B1D3B1441D6E905200A3554D /* Datastream+CoreDataProperties.swift in Sources */,
 				B1D868D61C3F58810026334B /* Modules.swift in Sources */,
 				B192626A1D010EE40093590E /* NutritionService.swift in Sources */,
+				B19F94101D73BB4200419ABE /* ExM_ExerciseDatastream.swift in Sources */,
 				B1EDACB51CA4A2560087E3B1 /* CarbonEmissionsModule.swift in Sources */,
 				B1C403371C3976A700AF4BB9 /* ProjectSummaryViewController.swift in Sources */,
 				B13B26741D23F55200006145 /* DatabaseConnection.swift in Sources */,
@@ -967,8 +974,9 @@
 				B123FA0F1CB2E719007E9AFA /* ExperimentTypes.swift in Sources */,
 				B1D51C5C1CB29CD100DED6B2 /* FeaturedProjectsViewController.swift in Sources */,
 				B1D3B1411D6E8F3200A3554D /* FIM_FoodIntakeDataEntryCell.swift in Sources */,
+				B19F94191D73D04F00419ABE /* DataEntry_PopupConfigurationView.swift in Sources */,
+				B19F94121D73BB4200419ABE /* FIM_FoodIntakeDataStream.swift in Sources */,
 				B120B8611D5F77F700A4098E /* TimeDifferenceConfigurationCell.swift in Sources */,
-				B1D3B14A1D6E910D00A3554D /* FIM_FoodIntakeDataStream.swift in Sources */,
 				B1D3B13F1D6E7C6600A3554D /* ExM_WorkoutDataEntryCell.swift in Sources */,
 				B1BE110E1CC120C70029C80C /* UniqueIDs+CoreDataProperties.swift in Sources */,
 				B1D3B1451D6E905200A3554D /* Datastream.swift in Sources */,
@@ -1013,22 +1021,22 @@
 				B1A8C7CD1CAF663300380E99 /* BaseDataEntryCell.swift in Sources */,
 				B1B996651CBF342700E977DF /* Counter+CoreDataProperties.swift in Sources */,
 				B1B996661CBF342700E977DF /* Counter.swift in Sources */,
-				B1D3B1481D6E90FE00A3554D /* ExM_ExerciseDataStream.swift in Sources */,
 				B1DD30671D32DB4B00B2361C /* DatabaseObject+CoreDataProperties.swift in Sources */,
 				B19DF3701CC58CAC008F44C4 /* NetworkConnection.swift in Sources */,
 				B1344FC71D6F2E8B000413DE /* DataEntryProtocol.swift in Sources */,
 				B13BB7391CBEDDFE0084E640 /* Group.swift in Sources */,
 				B1395DAE1CB76A5800DEBC91 /* BaseCreateProjectCell.swift in Sources */,
+				B19F940F1D73BB4200419ABE /* ExM_ExerciseDatastream+CoreDataProperties.swift in Sources */,
 				B1B98BD61C3991B800DDACEE /* CreateProjectViewController.swift in Sources */,
 				B17019561CAA06D1004CAEB8 /* ConfigurationOptionsViewController.swift in Sources */,
 				B1DD2FD01CCEFEBC00E10558 /* HealthKitConnection.swift in Sources */,
 				B1BE110F1CC120C70029C80C /* UniqueIDs.swift in Sources */,
 				B1C623FC1C619C72006DDD13 /* AttachModuleTableViewCell.swift in Sources */,
 				B1CCF1BF1CAEA9C400C2D2AC /* ExampleConfigurationCell.swift in Sources */,
+				B19F94111D73BB4200419ABE /* FIM_FoodIntakeDataStream+CoreDataProperties.swift in Sources */,
 				B1B20A6B1C5E8576003B791B /* LabelWithPadding.swift in Sources */,
 				B1AA96C81CAB1C870009E716 /* ConfigurationOptionCellTypes.swift in Sources */,
 				B19DF36D1CC57388008F44C4 /* CoreLocationManager.swift in Sources */,
-				B16ED8101D7215BA00AA249D /* DataEntry_PopupConfigurationView.swift in Sources */,
 				B16282641CC1839800096CE5 /* CellForCounterBehavior.swift in Sources */,
 				B17019591CAA2C73004CAEB8 /* BaseConfigurationCell.swift in Sources */,
 				B1D560A81CB4573600F6A7AC /* CellWithCustomSlider.swift in Sources */,

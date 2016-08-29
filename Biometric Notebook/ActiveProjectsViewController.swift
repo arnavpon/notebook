@@ -20,6 +20,8 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     var selectedObject: DataEntryProtocol? //object (Project or Datastream) to pass on segue
     var projectForOverview: Project? //Project object to pass on segue -> Project Overview VC
     
+    var ip_was_set: Bool = false //**temp item
+    
     // MARK: - View Configuration
     
     override func viewDidLoad() {
@@ -57,7 +59,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 for project in self.projects { //assign Counters -> Project
                     var groupedCounters: [Counter] = [] //initialize
                     if let projectCounters = project.counters.allObjects as? [Counter] { //project has cntrs
-                        for item in projectCounters { //match each counter for the Project -> a CoreData obj
+                        for item in projectCounters { //match each Counter in Project -> its CoreData obj
                             let uniqueID = item.id as Int
                             if let indexInArray = idArray.indexOf(uniqueID) { //find counterID in CD array
                                 groupedCounters.append(counters[indexInArray]) //add CD counter -> group
@@ -68,8 +70,11 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 }
                 
                 //(3) Obtain dataStream objects (if they exist):
+                self.datastreamObjects = nil //*clear array before checking for stream objects*
                 if let streams = fetchObjectsFromCoreDataStore("Datastream", filterProperty: nil, filterValue: nil) as? [Datastream] { //obtain open streams
-                    self.datastreamObjects = streams //set TV dataSource
+                    if !(streams.isEmpty) { //ONLY set source if there is at least 1 returned stream
+                        self.datastreamObjects = streams //set sharedInstance object -> TV dataSource
+                    }
                 }
                 activeProjectsTableView.reloadData() //reload UI w/ new project list (+ clears highlight!)
             }
@@ -81,15 +86,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             //***
         }
     }
-    
-    func getActiveProjects() -> [Project] { //obtains ACTIVE projects from store
-        if let activeProjects = fetchObjectsFromCoreDataStore("Project", filterProperty: "isActive", filterValue: [true]) as? [Project] { //list of ACTIVE projects
-            return activeProjects
-        }
-        return []
-    }
-    
-    var ip_was_set: Bool = false //**temp item
     
     override func viewDidAppear(animated: Bool) { //if user is not logged in, transition -> loginVC
         //*This code MUST be in viewDidAppear b/c view must load BEFORE transition takes place!*
@@ -142,6 +138,13 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         configureActivityIndicator(false) //stop activity animation after disappearing
     }
     
+    func getActiveProjects() -> [Project] { //obtains ACTIVE projects from store
+        if let activeProjects = fetchObjectsFromCoreDataStore("Project", filterProperty: "isActive", filterValue: [true]) as? [Project] { //list of ACTIVE projects
+            return activeProjects
+        }
+        return []
+    }
+    
     func configureActivityIndicator(animate: Bool) {
         if (animate) { //start animation
             activityIndicator.startAnimating()
@@ -158,7 +161,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         if let dict = notification.userInfo, index = dict[BMN_CellWithGradient_CellIndexKey] as? Int {
             print("Data entry button clicked by cell #\(index).")
             if (index >= 0) {
-//                selectedProject = projects[index] //set selectedProject before segue
                 selectedObject = projects[index] //set selectedObject before segue
                 performSegueWithIdentifier("showDataEntry", sender: nil)
             } else { //sent an error from the VC, refresh TV to remove expired project
@@ -289,6 +291,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                     }
                     projectAction = Action(settings: aGroup.action) //reconstruct the projectAction
                 }
+                
                 let storyboard = UIStoryboard(name: "CreateProjectFlow", bundle: nil)
                 let controller = storyboard.instantiateInitialViewController() as! UINavigationController
                 if (projectType == .ControlComparison) { //CC project
@@ -339,28 +342,37 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
 
     func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if (self.datastreamObjects != nil) && (section == 0) { //check for datastream objects
-            return "Datastream"
-        } else { //default title - indicates Project # & title
-            let projectTitle = projects[section].title
-            return "Project #\(section + 1) = '\(projectTitle)'"
+        var offset = 0 //offset for datastream section
+        if let _ = self.datastreamObjects { //check if datastream exists
+            offset = 1 //set offset to account for Datastream section
+            if (section == 0) {
+                return "Datastream" //set Datastream section title
+            }
         }
+        //DEFAULT title - indicates Project number & title:
+        let projectTitle = projects[(section - offset)].title //*use the offset*
+        return "Project #\(section - offset + 1) = '\(projectTitle)'"
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        var offset = 0 //offsets section # if there are datastream objects
         if let streamObjects = self.datastreamObjects { //check if datastream exists
+            offset = 1 //set offset to account for Datastream section
             if (section == 0) {
                 return streamObjects.count //1 row per stream object
             }
-        } //ELSE create default display - indicates Project # & title
+        }
+        //DEFAULT - for each section, there are 1 + (# of Counters in Project) cells:
         var total = 1 //default = 1 (for Project cell)
-        total += projects[section].counters.count //add 1 cell per each counter in the Project
+        total += projects[(section - offset)].counters.count //*remove offset from section #!*
         return total
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        if let streamObjects = datastreamObjects { //if datastream cell is tapped, segue -> DEVC
-            if (indexPath.section == 0) { //make sure 'Datastream' section was tapped
+        var offset = 0 //offset for Datastream section
+        if let streamObjects = datastreamObjects { //DATASTREAM cell
+            offset = 1 //Datastream exists - set offset
+            if (indexPath.section == 0) { //check for 'Datastream' section (0)
                 let streamObject = streamObjects[indexPath.row] //get stream object
                 let cell = tableView.dequeueReusableCellWithIdentifier("datastream_cell")!
                 cell.selectionStyle = .None //prevents highlighting of cell on selection
@@ -376,8 +388,8 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
                 return cell
             }
         }
-        if (indexPath.row == 0) { //Project cell - access dataSource using the SECTION #
-            let project = projects[indexPath.section]
+        if (indexPath.row == 0) { //PROJECT cell - access dataSource using the SECTION #
+            let project = projects[(indexPath.section - offset)] //offset the indexPath.section
             var currentlyReportingLocation = 1 //set -> default location in cycle (1)
             if let tempObject = project.temporaryStorageObject, timeStampsArray = tempObject[BMN_DBO_TimeStampKey] as? [NSDate] { //check for location in tempObject
                 currentlyReportingLocation = timeStampsArray.count + 1 //overwrite currentLocation if it can be inferred from tempObject
@@ -385,15 +397,15 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellWithGradientFill)) as! CellWithGradientFill
             cell.selectionStyle = .None //prevents highlighting of cell on selection
             cell.backgroundImageView.backgroundColor = UIColor.whiteColor() //resets bckgrd -> default
-            cell.cellIndex = indexPath.section
+            cell.cellIndex = (indexPath.section - offset) //offset the indexPath's section
             let title = project.title
             cell.textLabel?.text = "[Currently @ \(currentlyReportingLocation)] \(title)"
             cell.dataSource = project
             return cell
-        } else { //Counter cells
+        } else { //COUNTER cell
             let cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CellForCounterBehavior)) as! CellForCounterBehavior
             cell.tabLevel = 3 //set indentation for Counter cells
-            let counter = activeCounters[indexPath.section][indexPath.row - 1] //subtract 1 from row (to account for 1st cell being Project cell)
+            let counter = activeCounters[(indexPath.section - offset)][indexPath.row - 1] //use offset + subtract 1 from row (to account for 1st cell being Project cell)
             let dataSource: [String: AnyObject] = [BMN_LEVELS_MainLabelKey: "\(counter.variableName.uppercaseString)", BMN_LEVELS_HideRightViewKey: true]
             cell.dataSource = dataSource //set cell's mainLabel w/ name & hide completionIndicator
             cell.counterDataSource = counter //set counter as dataSource
@@ -406,7 +418,7 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     func tableView(tableView: UITableView, shouldHighlightRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        if (self.datastreamObjects != nil) && (indexPath.section == 0) { //if datastream cell is tapped, segue -> DEVC
+        if (self.datastreamObjects != nil) && (indexPath.section == 0) { //DATASTREAM: segue -> DEVC
             return true //allow selection of dataStream object
         }
         if (indexPath.row != 0) { //DEFAULT logic - 1st cell is always Project cell
@@ -428,7 +440,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             }
         }
         //DEFAULT - tapping a cell brings up the data visualization flow for that Project:
-//        selectedProject = projects[indexPath.row]
         self.projectForOverview = projects[indexPath.row] //set segue object for OverviewVC
         performSegueWithIdentifier("showProjectOverview", sender: nil) //segue -> ProjectOverviewVC
     }
@@ -448,7 +459,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
     
     @IBAction func menuButtonClick(sender: AnyObject) { //display menu
         if let dbConnection = DatabaseConnection() { //push Cloud backups/reported data -> DB
-            print("Pushing data to DB...")
             dbConnection.pushAllDataToDatabase(0) //**
         }
     }
@@ -493,11 +503,12 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
         logout()
     }
     
-    func logout() { //clear CoreData store for Project, Group, Counter entities
+    func logout() { //clear CoreData store for Project, Counter, DBO, & Datastream entities
         loggedIn = false
         clearCoreDataStoreForEntity(entity: "Project")
         clearCoreDataStoreForEntity(entity: "Counter")
         clearCoreDataStoreForEntity(entity: "DatabaseObject")
+        clearCoreDataStoreForEntity(entity: "Datastream")
         NSUserDefaults.standardUserDefaults().removeObjectForKey(EDITED_PROJECTS_KEY) //remove edits
     }
     
@@ -512,7 +523,6 @@ class ActiveProjectsViewController: UIViewController, UITableViewDataSource, UIT
             destination.sender = NSStringFromClass(ActiveProjectsViewController) //pass class name
         } else if (segue.identifier == "showDataEntry") { //pass the selected DataEntryProtocol object
             let destination = segue.destinationViewController as! DataEntryViewController
-//            destination.selectedProject = self.selectedProject
             destination.selectedObject = self.selectedObject
         } else if (segue.identifier == "showLogin") { //set delegate for LoginVC
             let destination = segue.destinationViewController as! LoginViewController

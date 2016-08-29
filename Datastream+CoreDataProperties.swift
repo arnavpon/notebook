@@ -1,6 +1,6 @@
 //  Datastream+CoreDataProperties.swift
 //  Biometric Notebook
-//  Created by Arnav Pondicherry  on 8/24/16.
+//  Created by Arnav Pondicherry  on 8/28/16.
 //  Copyright © 2016 Confluent Ideals. All rights reserved.
 
 // Datastream Superclass - defines common behaviors to all objects that utilize datastreams (e.g. FoodIntake & Workout behaviors).

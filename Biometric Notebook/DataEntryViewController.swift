@@ -29,7 +29,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     
 //    var selectedProject: Project?
     var selectedObject: DataEntryProtocol? //selection conforms to protocol
-    var variablesArray: [Module]? //TV data source
+    var variablesArray: [Module]? //TV data source containing all variables that need to report
     var numberOfConfiguredCells: Int = 0 { //controls whether 'Done' btn is enabled
         didSet {
             print("[DataEntryVC] # of configured cells: \(numberOfConfiguredCells).")
@@ -96,6 +96,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
         dataEntryTV.registerClass(CustomWithOptionsCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithOptionsCell))
         dataEntryTV.registerClass(CustomWithCounterCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithCounterCell))
         dataEntryTV.registerClass(CustomWithRangeScaleCell.self, forCellReuseIdentifier: NSStringFromClass(CustomWithRangeScaleCell))
+        dataEntryTV.registerClass(ExM_WorkoutDataEntryCell.self, forCellReuseIdentifier: NSStringFromClass(ExM_WorkoutDataEntryCell))
         dataEntryTV.registerClass(FIM_FoodIntakeDataEntryCell.self, forCellReuseIdentifier: NSStringFromClass(FIM_FoodIntakeDataEntryCell))
     }
     
@@ -168,8 +169,7 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     var collectionViewDataSource: [String]?
     
     func getTableViewDataSource() { //obtains TV dataSource array from the selectedProject
-        //(1) Check if project requires that user select an option before generating variables:
-        if let object = selectedObject {
+        if let object = selectedObject { //check if Project requires that user select a Group option
             if let groups = object.getOptionsForGroupSelectionView() { //show groupSelectionView
                 configureGroupSelectionView(groups)
             } else { //obtain variablesArray directly from Project class
@@ -462,23 +462,27 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
     
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         if let customHeights = self.customCellHeights, levels = customHeights[indexPath.row] { //(1) check for CUSTOM defined height
+            print("TV height for cell - # of levels for cell @ index [\(indexPath.row)] = \(levels).")
             return LevelsFrameworkCell.levelHeight * CGFloat(levels) + BMN_DefaultBottomSpacer
         }
         if let variables = variablesArray { //(2) use DataEntryCellTypes to calculate height for cell
             let module = variables[indexPath.row]
             if let cellType = module.getDataEntryCellTypeForVariable() {
+                var info = Dictionary<String, AnyObject>() //initialize
                 if let heightInfo = module.cellHeightUserInfo { //check if there is additional height info
-                    let height = cellType.getHeightForDataEntryCell(heightInfo) //calculate height
-                    return height
+                    info = heightInfo //set heightInfo -> object
                 }
+                return cellType.getHeightForDataEntryCell(info) //calculate height
             }
         }
         return 80 + BMN_DefaultBottomSpacer //default
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        print("cellForRowAtIndexPath firing...")
         var cell = BaseDataEntryCell()
         if let variables = variablesArray {
+            cell.cellIndex = indexPath.row //set reference to indexPath.row
             let moduleForCell = variables[indexPath.row] //module obj is dataSource for TV cell
             if let cellType = moduleForCell.getDataEntryCellTypeForVariable() { //get cell type
                 switch cellType {
@@ -492,11 +496,11 @@ class DataEntryViewController: UIViewController, UITableViewDataSource, UITableV
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithCounterCell), forIndexPath: indexPath) as! CustomWithCounterCell
                 case .CustomWithRangeScale:
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(CustomWithRangeScaleCell), forIndexPath: indexPath) as! CustomWithRangeScaleCell
-                case .FIM_FoodIntake:
-                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(FIM_FoodIntakeDataEntryCell), forIndexPath: indexPath) as! FIM_FoodIntakeDataEntryCell
                 case .ExM_Workout:
                     cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(ExM_WorkoutDataEntryCell), forIndexPath: indexPath) as! ExM_WorkoutDataEntryCell
                     (cell as! ExM_WorkoutDataEntryCell).sender = self.selectedObject?.sender
+                case .FIM_FoodIntake:
+                    cell = tableView.dequeueReusableCellWithIdentifier(NSStringFromClass(FIM_FoodIntakeDataEntryCell), forIndexPath: indexPath) as! FIM_FoodIntakeDataEntryCell
                 }
             }
             if let object = self.selectedObject, temp = object.temporaryStorageObject, timeStampsArray = temp[BMN_DBO_TimeStampKey] as? [NSDate] { //check for location in tempObject

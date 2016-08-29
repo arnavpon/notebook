@@ -818,9 +818,9 @@ class ProjectSummaryViewController: UIViewController, UITableViewDelegate, UITab
             if let streamID = variable.linkedDatastream { //check if var utilizes a Datastream
                 switch streamID { //activate the sharedInstance of the appropriate stream
                 case .ExM_Workout:
-                    let _  = ExM_ExerciseDataStream.sharedInstance
+                    let _  = ExM_ExerciseDatastream.sharedInstance
                 case .FIM_FoodIntake:
-                    let _ = FIM_FoodIntakeDataStream.sharedInstance
+                    let _ = FIM_FoodIntakeDatastream.sharedInstance
                 }
             }
             dictionary[variable.variableName] = variable.createDictionaryForCoreDataStore()

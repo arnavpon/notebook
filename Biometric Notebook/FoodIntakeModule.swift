@@ -302,7 +302,7 @@ class FoodIntakeModule: Module {
         if let type = self.variableType {
             switch type {
             case .Behavior_FoodIntake:
-                let sharedInstance = FIM_FoodIntakeDataStream.sharedInstance
+                let sharedInstance = FIM_FoodIntakeDatastream.sharedInstance
                 //all data in the datastream should ALWAYS be reported -> the parent stream
                 //aggregate data - need to (1) store a timeStamp for each reported meal; (2) store the data for the meal against the appropriate 'location' (e.g. breakfast, lunch)
                 //the FINAL aggregation is done when the stream is closed & matched against the ReportedDataKey before being passed -> the Project object.
